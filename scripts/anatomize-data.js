@@ -10,12 +10,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Obturator Internus (L)',
         type: 'muscle',
         priColor: '--pri-green-family',
-        panelBox: {x: 0, y: 18, w: 15, h: 5},
-        arrowTo: {x: 30, y: 28},
+        panelBox: {x: 0, y: 20, w: 14, h: 5},
+        arrowTo: {x: 22, y: 34},
         polygon: [
-          [20, 18], [26, 14], [34, 14], [40, 17], [42, 22],
-          [42, 28], [40, 34], [36, 38], [30, 40], [24, 38],
-          [20, 34], [18, 28], [18, 22]
+          [17, 24], [24, 20], [28, 24], [28, 32],
+          [26, 38], [22, 42], [17, 40], [15, 34]
         ],
         priDetail: {
           layer1: {
@@ -36,12 +35,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Obturator Internus (R)',
         type: 'muscle',
         priColor: '--pri-green-family',
-        panelBox: {x: 85, y: 18, w: 15, h: 5},
-        arrowTo: {x: 70, y: 28},
+        panelBox: {x: 86, y: 20, w: 14, h: 5},
+        arrowTo: {x: 78, y: 34},
         polygon: [
-          [58, 22], [58, 18], [60, 14], [66, 14], [74, 14],
-          [80, 17], [82, 22], [82, 28], [80, 34], [76, 38],
-          [70, 40], [64, 38], [60, 34], [58, 28]
+          [72, 24], [76, 20], [83, 24], [85, 34],
+          [83, 40], [78, 42], [72, 38], [72, 32]
         ],
         priDetail: {
           layer1: {
@@ -62,12 +60,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliococcygeus',
         type: 'muscle',
         priColor: '--pri-green-family',
-        panelBox: {x: 0, y: 44, w: 15, h: 5},
-        arrowTo: {x: 32, y: 50},
+        panelBox: {x: 0, y: 36, w: 14, h: 5},
+        arrowTo: {x: 33, y: 44},
         polygon: [
-          [26, 42], [32, 40], [38, 42], [42, 46], [44, 52],
-          [44, 56], [42, 60], [38, 62], [34, 60], [30, 56],
-          [26, 52], [24, 48]
+          [26, 38], [34, 36], [40, 40], [42, 46],
+          [40, 52], [34, 54], [28, 50], [24, 44]
         ],
         priDetail: {
           layer1: {
@@ -88,12 +85,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubococcygeus',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 0, y: 8, w: 15, h: 5},
+        panelBox: {x: 0, y: 12, w: 14, h: 5},
         arrowTo: {x: 42, y: 22},
         polygon: [
-          [40, 14], [44, 12], [48, 12], [52, 12], [56, 14],
-          [58, 18], [58, 24], [56, 30], [52, 34], [48, 36],
-          [44, 34], [42, 30], [40, 24], [40, 18]
+          [38, 14], [44, 12], [52, 12], [58, 14],
+          [58, 22], [54, 28], [48, 30], [42, 28],
+          [38, 22]
         ],
         priDetail: {
           layer1: {
@@ -114,12 +111,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Puborectalis',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 85, y: 30, w: 15, h: 5},
-        arrowTo: {x: 54, y: 42},
+        panelBox: {x: 86, y: 28, w: 14, h: 5},
+        arrowTo: {x: 52, y: 38},
         polygon: [
-          [42, 34], [46, 32], [50, 32], [54, 32], [58, 34],
-          [60, 38], [60, 44], [58, 48], [54, 50], [50, 50],
-          [46, 48], [42, 44], [42, 38]
+          [40, 32], [48, 30], [56, 32], [60, 38],
+          [58, 44], [52, 46], [44, 44], [40, 38]
         ],
         priDetail: {
           layer1: {
@@ -140,11 +136,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Medial Hamstring',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 85, y: 8, w: 15, h: 5},
-        arrowTo: {x: 80, y: 12},
+        panelBox: {x: 86, y: 12, w: 14, h: 5},
+        arrowTo: {x: 78, y: 18},
         polygon: [
-          [76, 8], [80, 6], [84, 8], [86, 12], [86, 18],
-          [84, 22], [80, 24], [76, 22], [74, 18], [74, 12]
+          [74, 14], [80, 12], [84, 16], [84, 22],
+          [80, 24], [76, 22], [74, 18]
         ],
         priDetail: {
           layer1: {
@@ -165,12 +161,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Coccygeus',
         type: 'muscle',
         priColor: '--pri-violet',
-        panelBox: {x: 0, y: 54, w: 15, h: 5},
-        arrowTo: {x: 24, y: 48},
+        panelBox: {x: 0, y: 44, w: 14, h: 5},
+        arrowTo: {x: 28, y: 60},
         polygon: [
-          [16, 42], [22, 38], [28, 40], [32, 44], [34, 48],
-          [33, 52], [30, 56], [26, 58], [20, 56], [16, 52],
-          [14, 48]
+          [22, 56], [30, 54], [36, 56], [38, 62],
+          [36, 66], [30, 68], [24, 66], [20, 62]
         ],
         priDetail: {
           layer1: {
@@ -191,12 +186,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Piriformis',
         type: 'muscle',
         priColor: '--pri-violet',
-        panelBox: {x: 85, y: 40, w: 15, h: 5},
-        arrowTo: {x: 74, y: 42},
+        panelBox: {x: 0, y: 52, w: 14, h: 5},
+        arrowTo: {x: 30, y: 70},
         polygon: [
-          [68, 36], [74, 34], [80, 36], [84, 40], [84, 44],
-          [82, 48], [78, 50], [72, 50], [68, 48], [66, 44],
-          [66, 40]
+          [24, 66], [32, 64], [38, 66], [40, 72],
+          [38, 76], [32, 78], [26, 76], [22, 72]
         ],
         priDetail: {
           layer1: {
@@ -217,12 +211,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Gluteus Maximus (L)',
         type: 'muscle',
         priColor: '--pri-violet',
-        panelBox: {x: 0, y: 72, w: 15, h: 5},
-        arrowTo: {x: 22, y: 72},
+        panelBox: {x: 0, y: 60, w: 14, h: 5},
+        arrowTo: {x: 22, y: 78},
         polygon: [
-          [8, 62], [14, 58], [22, 58], [30, 62], [34, 68],
-          [36, 76], [34, 82], [30, 86], [22, 88], [14, 86],
-          [8, 80], [6, 72]
+          [10, 68], [18, 64], [28, 66], [34, 72],
+          [34, 80], [28, 86], [18, 88], [10, 84],
+          [8, 76]
         ],
         priDetail: {
           layer1: {
@@ -243,12 +237,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Gluteus Maximus (R)',
         type: 'muscle',
         priColor: '--pri-violet',
-        panelBox: {x: 85, y: 72, w: 15, h: 5},
-        arrowTo: {x: 78, y: 72},
+        panelBox: {x: 86, y: 44, w: 14, h: 5},
+        arrowTo: {x: 78, y: 78},
         polygon: [
-          [66, 68], [70, 62], [78, 58], [86, 58], [92, 62],
-          [94, 72], [92, 80], [86, 86], [78, 88], [70, 86],
-          [66, 82], [64, 76]
+          [66, 72], [72, 66], [82, 64], [90, 68],
+          [92, 76], [90, 84], [82, 88], [72, 86],
+          [66, 80]
         ],
         priDetail: {
           layer1: {
@@ -269,11 +263,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Arcuate Tendon',
         type: 'muscle',
         priColor: '--pri-yellow',
-        panelBox: {x: 0, y: 34, w: 15, h: 5},
-        arrowTo: {x: 30, y: 36},
+        panelBox: {x: 0, y: 28, w: 14, h: 5},
+        arrowTo: {x: 28, y: 24},
         polygon: [
-          [27, 34], [30, 33], [34, 34], [35, 36], [34, 38],
-          [30, 39], [27, 38], [26, 36]
+          [25, 22], [30, 20], [32, 22], [32, 26],
+          [30, 28], [25, 26]
         ],
         priDetail: {
           layer1: {
@@ -294,11 +288,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Anococcygeal Ligament',
         type: 'muscle',
         priColor: '--pri-yellow',
-        panelBox: {x: 85, y: 56, w: 15, h: 5},
-        arrowTo: {x: 50, y: 58},
+        panelBox: {x: 86, y: 36, w: 14, h: 5},
+        arrowTo: {x: 48, y: 58},
         polygon: [
-          [47, 52], [50, 50], [53, 52], [54, 56], [53, 62],
-          [50, 66], [47, 62], [46, 56]
+          [45, 52], [50, 50], [53, 52], [54, 58],
+          [52, 64], [48, 66], [44, 64], [44, 58]
         ],
         priDetail: {
           layer1: {
@@ -319,9 +313,9 @@ window.ANATOMIZE_IMAGES = [
         label: 'Sacrum',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 55, y: 0, w: 13, h: 5},
-        arrowTo: {x: 50, y: 6},
-        landmarkMarker: {x: 50, y: 6},
+        panelBox: {x: 20, y: 90, w: 13, h: 5},
+        arrowTo: {x: 48, y: 64},
+        landmarkMarker: {x: 48, y: 64},
         priDetail: {
           layer1: {
             standard: 'Triangular bone at base of spine.',
@@ -335,9 +329,9 @@ window.ANATOMIZE_IMAGES = [
         label: 'Coccyx',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 85, y: 64, w: 15, h: 5},
-        arrowTo: {x: 50, y: 68},
-        landmarkMarker: {x: 50, y: 68},
+        panelBox: {x: 60, y: 90, w: 12, h: 5},
+        arrowTo: {x: 42, y: 84},
+        landmarkMarker: {x: 42, y: 84},
         priDetail: {
           layer1: {
             standard: 'Terminal spine segment. Outlet landmark.',
@@ -351,9 +345,9 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubic Symphysis',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 32, y: 0, w: 16, h: 5},
-        arrowTo: {x: 50, y: 8},
-        landmarkMarker: {x: 50, y: 8},
+        panelBox: {x: 34, y: 0, w: 14, h: 4},
+        arrowTo: {x: 49, y: 7},
+        landmarkMarker: {x: 49, y: 7},
         priDetail: {
           layer1: {
             standard: 'Midline cartilaginous joint.',
@@ -367,9 +361,9 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ischial Tuberosity (L)',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 0, y: 0, w: 15, h: 5},
-        arrowTo: {x: 20, y: 10},
-        landmarkMarker: {x: 20, y: 10},
+        panelBox: {x: 0, y: 4, w: 14, h: 5},
+        arrowTo: {x: 18, y: 10},
+        landmarkMarker: {x: 18, y: 10},
         priDetail: {
           layer1: {
             standard: 'Weight-bearing bony prominence. Outlet landmark.',
@@ -383,9 +377,9 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ischial Tuberosity (R)',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 85, y: 0, w: 15, h: 5},
-        arrowTo: {x: 80, y: 10},
-        landmarkMarker: {x: 80, y: 10},
+        panelBox: {x: 86, y: 4, w: 14, h: 5},
+        arrowTo: {x: 82, y: 10},
+        landmarkMarker: {x: 82, y: 10},
         priDetail: {
           layer1: {
             standard: 'Weight-bearing bony prominence. Outlet landmark.',
@@ -407,7 +401,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliac crest',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 2, y: 8, w: 10, h: 3},
+        hitbox: {x: 1, y: 7, w: 10, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -421,7 +415,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Inner lip',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 5, y: 12, w: 8, h: 2.5},
+        hitbox: {x: 10, y: 10, w: 8, h: 2.5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -435,7 +429,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Intermediate zone',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 5, y: 15, w: 14, h: 2.5},
+        hitbox: {x: 7, y: 13, w: 14, h: 2.5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -449,7 +443,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Outer lip',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 5, y: 18, w: 8, h: 2.5},
+        hitbox: {x: 10, y: 16, w: 8, h: 2.5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -463,7 +457,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Tubercle',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 5, y: 21, w: 8, h: 2.5},
+        hitbox: {x: 8, y: 19, w: 8, h: 2.5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -477,7 +471,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Anterior superior iliac spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 1, y: 34, w: 14, h: 5},
+        hitbox: {x: 0, y: 34, w: 16, h: 5},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -492,7 +486,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Anterior inferior iliac spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 1, y: 42, w: 14, h: 5},
+        hitbox: {x: 0, y: 41, w: 16, h: 5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -506,7 +500,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliopubic eminence',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 1, y: 56, w: 14, h: 4},
+        hitbox: {x: 0, y: 54, w: 15, h: 4},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -520,7 +514,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Superior pubic ramus',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 1, y: 64, w: 14, h: 4},
+        hitbox: {x: 0, y: 62, w: 15, h: 4},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -534,7 +528,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Obturator foramen',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 1, y: 72, w: 14, h: 4},
+        hitbox: {x: 0, y: 70, w: 14, h: 4},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -549,7 +543,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubic tubercle',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 1, y: 79, w: 12, h: 3},
+        hitbox: {x: 0, y: 78, w: 13, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -563,7 +557,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Inferior pubic ramus',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 1, y: 84, w: 14, h: 4},
+        hitbox: {x: 0, y: 84, w: 14, h: 4},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -577,7 +571,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Sacral promontory',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 42, y: 14, w: 14, h: 3},
+        hitbox: {x: 24, y: 10, w: 16, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -591,7 +585,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'L2',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 48, y: 0.5, w: 4, h: 2.5},
+        hitbox: {x: 42, y: 1, w: 4, h: 2.5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -605,7 +599,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'L3',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 48, y: 3.5, w: 4, h: 2.5},
+        hitbox: {x: 42, y: 5, w: 4, h: 2.5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -619,7 +613,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'L4',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 48, y: 6.5, w: 4, h: 2.5},
+        hitbox: {x: 42, y: 9, w: 4, h: 2.5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -633,7 +627,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'L5',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 48, y: 9.5, w: 4, h: 2.5},
+        hitbox: {x: 42, y: 14, w: 4, h: 2.5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -647,7 +641,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Transverse processes of lumbar vertebrae',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 62, y: 2, w: 14, h: 5},
+        hitbox: {x: 62, y: 2, w: 30, h: 4},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -661,7 +655,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Sacrum',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 43, y: 24, w: 8, h: 3},
+        hitbox: {x: 44, y: 43, w: 9, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -676,7 +670,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Coccyx',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 43, y: 40, w: 8, h: 3},
+        hitbox: {x: 46, y: 54, w: 8, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -691,7 +685,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Inferior pubic ligament',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 36, y: 88, w: 14, h: 3},
+        hitbox: {x: 30, y: 89, w: 18, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -705,7 +699,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubic arch',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 36, y: 92, w: 10, h: 3},
+        hitbox: {x: 55, y: 90, w: 10, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -719,7 +713,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliac tuberosity',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 76, y: 8, w: 12, h: 3},
+        hitbox: {x: 78, y: 7, w: 13, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -733,7 +727,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliac crest',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 12, w: 10, h: 3},
+        hitbox: {x: 82, y: 12, w: 11, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -747,7 +741,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ala of ilium',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 20, w: 10, h: 3},
+        hitbox: {x: 82, y: 18, w: 11, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -761,7 +755,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Greater sciatic notch',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 28, w: 14, h: 4},
+        hitbox: {x: 80, y: 24, w: 16, h: 4},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -775,7 +769,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Arcuate line',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 36, w: 11, h: 3},
+        hitbox: {x: 82, y: 32, w: 12, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -790,7 +784,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ischial spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 42, w: 10, h: 3},
+        hitbox: {x: 82, y: 38, w: 12, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -804,7 +798,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Lesser sciatic notch',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 48, w: 14, h: 4},
+        hitbox: {x: 80, y: 44, w: 15, h: 4},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -818,7 +812,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Greater trochanter of femur',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 55, w: 14, h: 5},
+        hitbox: {x: 78, y: 52, w: 18, h: 5},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -832,7 +826,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pecten pubis',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 64, w: 11, h: 3},
+        hitbox: {x: 82, y: 62, w: 13, h: 3},
         hasPriData: false,
         priDetail: {
           layer1: {
@@ -846,7 +840,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubic symphysis',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 72, w: 13, h: 3},
+        hitbox: {x: 80, y: 70, w: 15, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -861,7 +855,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ischial tuberosity',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 78, w: 13, h: 3},
+        hitbox: {x: 80, y: 76, w: 15, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -876,7 +870,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Lesser trochanter of femur',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 84, w: 14, h: 5},
+        hitbox: {x: 78, y: 82, w: 18, h: 5},
         hasPriData: false,
         priDetail: {
           layer1: {
