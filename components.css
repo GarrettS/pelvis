@@ -1229,6 +1229,10 @@
   }
 }
 
+.aic-chain-detail {
+  margin-top:1rem;
+}
+
 @media (max-width:600px) {
 
   .aic-chain-container {

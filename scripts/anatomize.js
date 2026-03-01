@@ -38,6 +38,7 @@ window.AnatomizeModule = (() => {
     dom.arena = container.querySelector('.anatomize-arena');
     dom.scoreDisplay = container.querySelector('.anatomize-score');
     dom.detail = container.querySelector('.anatomize-detail');
+    dom.imageTitle = container.parentElement.querySelector('.anatomize-image-title');
 
     isMobile = window.matchMedia('(max-width: 600px)').matches;
     window.matchMedia('(max-width: 600px)').addEventListener(
@@ -213,6 +214,10 @@ window.AnatomizeModule = (() => {
 
     state.imageId = imageId;
     state.mechanic = imgSet.mechanic;
+
+    if (dom.imageTitle) {
+      dom.imageTitle.textContent = imgSet.label;
+    }
 
     dom.imageSelector.querySelectorAll('button').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.imageId === imageId);

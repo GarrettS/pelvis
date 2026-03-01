@@ -6,39 +6,72 @@ window.AicChainModule = (function() {
       id: 'diaphragm',
       label: 'Diaphragm',
       connection: 'crural pull / ZOA loss',
-      anchor: [22, 18]
+      anchor: [25, 20]
     },
     {
       id: 'psoas',
       label: 'Psoas',
       connection: 'shortens, pulls ilium forward',
-      anchor: [25, 35]
+      anchor: [28, 36]
     },
     {
       id: 'iliacus',
       label: 'Iliacus',
       connection: 'anterior pelvic tilt (L IP ER)',
-      anchor: [22, 42]
+      anchor: [22, 47]
     },
     {
       id: 'tfl',
       label: 'TFL',
       connection: 'orientates femur',
-      anchor: [18, 52]
+      anchor: [15, 57]
     },
     {
       id: 'vastus_lateralis',
       label: 'Vastus Lateralis',
       connection: 'lateral knee tension',
-      anchor: [18, 68]
+      anchor: [17, 72]
     },
     {
       id: 'biceps_femoris',
       label: 'Biceps Femoris',
       connection: null,
-      anchor: [28, 78]
+      anchor: [72, 72]
     }
   ];
+
+  const AIC_DETAIL = {
+    diaphragm: {
+      role: 'Drives respiration. In L AIC, the left diaphragm loses its Zone of Apposition (ZOA), flattening and pulling the crura downward.',
+      pattern: 'L diaphragm descends \u2192 L crural pull \u2192 lumbar hyperextension bias. Loss of ZOA = loss of respiratory opposition.',
+      correction: 'Restore L ZOA via 90-90 hip lift with balloon. Exhale to reposition diaphragm dome.'
+    },
+    psoas: {
+      role: 'Primary hip flexor and lumbar spine stabilizer. In L AIC, the left psoas shortens, pulling the left ilium into anterior tilt.',
+      pattern: 'L psoas shortens \u2192 L lumbar lordosis \u2192 L IP ER (anterior tilt). Feeds forward into iliacus.',
+      correction: 'Inhibit through positioning (90-90). Not directly stretched \u2014 repositioned via pelvic correction.'
+    },
+    iliacus: {
+      role: 'Hip flexor originating from iliac fossa. Works with psoas to anteriorly tilt the pelvis.',
+      pattern: 'L iliacus pulls ilium forward \u2192 L IP ER \u2192 anterior pelvic tilt on left.',
+      correction: 'Repositioned via L AF IR activities. Not directly targeted in isolation.'
+    },
+    tfl: {
+      role: 'Tensor fasciae latae. Abducts, flexes, and internally rotates the femur. Orientates femoral position.',
+      pattern: 'L TFL compensates for femoral orientation in L AIC pattern. Contributes to lateral knee tension.',
+      correction: 'Addressed indirectly through femoral repositioning (L AF IR).'
+    },
+    vastus_lateralis: {
+      role: 'Largest quadriceps component. Extends the knee with a lateral pull vector.',
+      pattern: 'Lateral knee tension from TFL transmitted through IT band and vastus lateralis. Knee tracks laterally.',
+      correction: 'Corrected by restoring femoral IR and addressing proximal chain (hip/pelvis).'
+    },
+    biceps_femoris: {
+      role: 'Long head: hip extension and knee flexion. Terminal muscle in L AIC chain.',
+      pattern: 'L biceps femoris (long head) = terminal link. Compensatory ER of tibia on femur.',
+      correction: 'Inhibited as compensator. Corrective hamstring work uses medial hamstrings (semimembranosus/semitendinosus).'
+    }
+  };
 
   const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -48,6 +81,7 @@ window.AicChainModule = (function() {
   let overlayEl = null;
   let leaderEl = null;
   let imgEl = null;
+  let detailEl = null;
 
   function init() {
     containerEl = document.querySelector('.aic-chain-container');
@@ -57,6 +91,12 @@ window.AicChainModule = (function() {
     overlayEl = containerEl.querySelector('.aic-chain-overlay');
     imgEl = containerEl.querySelector('.aic-chain-img');
     leaderEl = containerEl.parentElement.querySelector('.aic-leader-svg');
+    detailEl = containerEl.parentElement.querySelector('.aic-chain-detail');
+    if (!detailEl) {
+      detailEl = document.createElement('div');
+      detailEl.className = 'aic-chain-detail';
+      containerEl.parentElement.appendChild(detailEl);
+    }
 
     buildPanel();
     setupOverlay();
@@ -101,8 +141,11 @@ window.AicChainModule = (function() {
       const circle = document.createElementNS(SVG_NS, 'circle');
       circle.setAttribute('cx', String(muscle.anchor[0]));
       circle.setAttribute('cy', String(muscle.anchor[1]));
-      circle.setAttribute('r', '5');
-      circle.setAttribute('fill', 'transparent');
+      circle.setAttribute('r', '3');
+      circle.setAttribute('fill', 'var(--accent)');
+      circle.setAttribute('fill-opacity', '0.4');
+      circle.setAttribute('stroke', 'var(--accent)');
+      circle.setAttribute('stroke-width', '0.5');
       circle.setAttribute('data-muscle-id', muscle.id);
       circle.style.cursor = 'pointer';
       circle.style.pointerEvents = 'all';
@@ -153,6 +196,7 @@ window.AicChainModule = (function() {
 
     showPulseCircle(entry);
     drawLeaderLine(row, entry);
+    showDetail(entry);
   }
 
   function deactivateAll() {
@@ -163,6 +207,43 @@ window.AicChainModule = (function() {
 
     clearSvg(leaderEl);
     removePulseCircle();
+    if (detailEl) detailEl.textContent = '';
+  }
+
+  function showDetail(entry) {
+    if (!detailEl) return;
+    detailEl.textContent = '';
+    var info = AIC_DETAIL[entry.id];
+    if (!info) return;
+
+    var panel = document.createElement('div');
+    panel.className = 'detail-panel';
+    panel.style.borderLeft = '4px solid var(--accent)';
+
+    var heading = document.createElement('h3');
+    heading.textContent = entry.label;
+    panel.appendChild(heading);
+
+    var fields = [
+      {label: 'Role', value: info.role},
+      {label: 'L AIC Pattern', value: info.pattern},
+      {label: 'Correction', value: info.correction}
+    ];
+    fields.forEach(function(f) {
+      var row = document.createElement('div');
+      row.className = 'detail-row';
+      var labelEl = document.createElement('span');
+      labelEl.className = 'detail-label';
+      labelEl.textContent = f.label;
+      row.appendChild(labelEl);
+      var valEl = document.createElement('span');
+      valEl.style.fontSize = 'var(--text-sm)';
+      valEl.textContent = f.value;
+      row.appendChild(valEl);
+      panel.appendChild(row);
+    });
+
+    detailEl.appendChild(panel);
   }
 
   function showPulseCircle(entry) {
