@@ -14,9 +14,9 @@
     <li>
       <a class="nav-tab active" role="tab" data-tab="tab-anatomy" href="#anatomy">Anatomy</a>
       <ul class="subtab-row" role="tablist">
-        <li><a class="subtab active" role="tab" data-subtab="anatomy-images" href="#anatomy/images">Images</a></li>
+        <li><a class="subtab active" role="tab" data-subtab="anatomy-anatomize" href="#anatomy/anatomize">Anatomize This!</a></li>
         <li><a class="subtab" role="tab" data-subtab="anatomy-decoder" href="#anatomy/decoder">Pelvis Decoder</a></li>
-        <li><a class="subtab" role="tab" data-subtab="anatomy-anatomize" href="#anatomy/anatomize">Anatomize This!</a></li>
+        <li><a class="subtab" role="tab" data-subtab="anatomy-aic" href="#anatomy/aic">L AIC Chain</a></li>
       </ul>
     </li>
     <li>
@@ -53,56 +53,24 @@
 <main>
 
 <section id="tab-anatomy" class="tab active">
-  <div class="subtab-content active" id="anatomy-images" role="tabpanel" aria-labelledby="anatomy-images">
-  <div class="tab-section">
-    <h2 class="section-title">Interactive Anatomy Images</h2>
-    <ul class="subview-tabs" role="tablist" id="anatomy-subview-tabs">
-      <li><a class="subview-tab active" data-view="lateral">Muscle Attachments (Lateral)</a></li>
-      <li><a class="subview-tab" data-view="anterior">Bony Landmarks (Anterior)</a></li>
-      <li><a class="subview-tab" data-view="aic">L AIC Chain</a></li>
-      <li><a class="subview-tab" data-view="hip">Hip Overview</a></li>
-    </ul>
-    <div id="anatomy-image-wrap">
-      <!-- Lateral -->
-      <div id="view-lateral" class="hotspot-container" style="display:block;">
-        <img src="img/pelvis-angle-r-side.png" alt="Lateral pelvis with muscle attachment sites" id="img-lateral" />
-      </div>
-      <!-- Anterior -->
-      <div id="view-anterior" class="hotspot-container" style="display:none;">
-        <img src="img/pelvis-m-front.png" alt="Anterior pelvis with bony landmarks" id="img-anterior" />
-      </div>
-      <!-- AIC Chain -->
-      <div id="view-aic" class="hotspot-container" style="display:none;">
-        <div class="aic-diagram">
-          <div class="aic-heading">ANTERIOR INTERIOR CHAIN (L AIC)</div>
-          <div class="aic-divider"></div>
-          <span class="aic-muscle">Diaphragm</span>
-          <span class="aic-arrow">↓ crural pull / ZOA loss</span>
-          <span class="aic-muscle">Psoas</span>
-          <span class="aic-arrow">↓ shortens, pulls ilium forward</span>
-          <span class="aic-muscle">Iliacus</span>
-          <span class="aic-arrow">↓ anterior pelvic tilt (L IP ER)</span>
-          <span class="aic-muscle">TFL</span>
-          <span class="aic-arrow">↓ orientates femur</span>
-          <span class="aic-muscle">Vastus Lateralis</span>
-          <span class="aic-arrow">↓ lateral knee tension</span>
-          <span class="aic-muscle">Biceps Femoris</span>
-          <span class="aic-terminal">(long head — terminal)</span>
+  <div class="subtab-content active" id="anatomy-anatomize" role="tabpanel">
+    <div class="tab-section">
+      <div class="anatomize-controls">
+        <div class="anatomize-image-selector btn-row"></div>
+        <div class="anatomize-mode-row">
+          <div class="anatomize-filter btn-row"></div>
+          <div class="anatomize-mode-toggle btn-row"></div>
+          <button class="btn anatomize-reset">Reset</button>
         </div>
-        <p class="text-dim aic-caption">The Anterior Interior Chain (AIC): diaphragm → psoas → iliacus → TFL → vastus lateralis → biceps femoris. Left side shown.</p>
       </div>
-      <!-- Hip -->
-      <div id="view-hip" class="hotspot-container" style="display:none;">
-        <img src="img/hip-r.png" alt="Right hip overview" id="img-hip" />
-      </div>
+      <div class="anatomize-prompt"></div>
+      <div class="anatomize-arena"></div>
+      <div class="anatomize-score"></div>
+      <div class="anatomize-detail"></div>
     </div>
-    <div id="anatomy-detail" class="detail-panel hidden">
-      <div id="anatomy-detail-content"></div>
-    </div>
-  </div>
   </div>
 
-  <div class="subtab-content" id="anatomy-decoder" role="tabpanel" aria-labelledby="anatomy-decoder">
+  <div class="subtab-content" id="anatomy-decoder" role="tabpanel">
   <div class="tab-section">
     <h2 class="section-title">SVG Pelvis Decoder</h2>
     <div class="decoder-controls">
@@ -141,10 +109,16 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="anatomy-anatomize" role="tabpanel" aria-labelledby="anatomy-anatomize">
+  <div class="subtab-content" id="anatomy-aic" role="tabpanel">
     <div class="tab-section">
-      <h2 class="section-title">Anatomize This!</h2>
-      <p class="placeholder-text">Coming soon. Interactive anatomy identification game.</p>
+      <div class="aic-chain-container">
+        <div class="aic-chain-panel"></div>
+        <div class="aic-chain-image-wrap">
+          <img src="img/left-aic.png" alt="Left Anterior Interior Chain" class="aic-chain-img" />
+          <svg class="aic-chain-overlay"></svg>
+        </div>
+      </div>
+      <svg class="aic-leader-svg"></svg>
     </div>
   </div>
 </section>
@@ -2415,7 +2389,7 @@ const NavModule = (() => {
   };
 
   const SUBTAB_MAP = {
-    anatomy: { images: 'anatomy-images', decoder: 'anatomy-decoder', anatomize: 'anatomy-anatomize' },
+    anatomy: { anatomize: 'anatomy-anatomize', decoder: 'anatomy-decoder', aic: 'anatomy-aic' },
     nomenclature: { joints: 'nom-joints', translation: 'nom-translation', keydistinction: 'nom-keydistinction' },
     patterns: { cheatsheet: 'patterns-cheatsheet', conceptmap: 'patterns-conceptmap', tests: 'patterns-tests' },
     diagnose: { patternid: 'diagnose-patternid', cases: 'diagnose-cases', chains: 'diagnose-chains', tree: 'diagnose-tree', exercises: 'diagnose-exercises' }
@@ -2578,120 +2552,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script type="module" id="module-anatomy">
 const AnatomyModule = (() => {
-  let currentView = 'lateral';
-  let currentHotspot = null;
-  let layerState = { muscle: 0, landmark: 0 };
-
   function init() {
-    initSubviewTabs();
-    renderHotspots('lateral', window.MUSCLE_HOTSPOTS);
-    renderHotspots('anterior', window.LANDMARK_HOTSPOTS);
     initDecoder();
-  }
-
-  function initSubviewTabs() {
-    const tabs = document.querySelectorAll('#anatomy-subview-tabs .subview-tab');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const view = tab.dataset.view;
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        switchView(view);
-      });
-    });
-  }
-
-  function switchView(view) {
-    currentView = view;
-    currentHotspot = null;
-    document.getElementById('anatomy-detail').classList.add('hidden');
-    const views = ['lateral','anterior','aic','hip'];
-    views.forEach(v => {
-      const el = document.getElementById('view-' + v);
-      if (el) el.style.display = v === view ? 'block' : 'none';
-    });
-  }
-
-  function renderHotspots(viewId, hotspots) {
-    const container = document.getElementById('view-' + viewId);
-    if (!container) return;
-    // remove existing hotspot divs
-    container.querySelectorAll('.hotspot').forEach(h => h.remove());
-    hotspots.forEach(hs => {
-      const div = document.createElement('div');
-      div.className = 'hotspot';
-      div.style.left = hs.x + '%';
-      div.style.top = hs.y + '%';
-      div.style.width = hs.w + '%';
-      div.style.height = hs.h + '%';
-      div.setAttribute('aria-label', hs.name);
-      div.setAttribute('role', 'button');
-      div.setAttribute('tabindex', '0');
-      // label tooltip
-      const label = document.createElement('div');
-      label.className = 'hotspot-label';
-      label.textContent = hs.name;
-      div.appendChild(label);
-      div.addEventListener('click', () => showDetail(viewId, hs));
-      div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showDetail(viewId, hs); } });
-      container.appendChild(div);
-    });
-  }
-
-  function showDetail(viewId, hs) {
-    // clear active state
-    document.querySelectorAll('#view-' + viewId + ' .hotspot').forEach(h => h.classList.remove('active'));
-    // mark current
-    event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.add('active');
-    currentHotspot = hs;
-    const panel = document.getElementById('anatomy-detail');
-    const content = document.getElementById('anatomy-detail-content');
-    panel.classList.remove('hidden');
-    if (viewId === 'lateral') renderMuscleDetail(content, hs);
-    else renderLandmarkDetail(content, hs);
-    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function renderMuscleDetail(container, hs) {
-    const layerKey = 'muscle';
-    layerState[layerKey] = 0;
-    function render(level) {
-      let html = `<h3>${hs.name}</h3>`;
-      html += `<div class="detail-row"><span class="detail-label">Standard action:</span><span>${hs.standard}</span></div>`;
-      html += `<div class="detail-row"><span class="detail-label">PRI translation:</span><span>${hs.pri}</span></div>`;
-      html += `<div class="detail-row"><span class="detail-label">Color family:</span><span>${hs.colorFamily}</span></div>`;
-      html += `<div class="detail-row"><span class="detail-label">Chain:</span><span>${hs.chain}</span></div>`;
-      if (level >= 1) {
-        html += `<div class="detail-layer"><div style="font-family:var(--mono);font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.4rem;">L AIC PATTERN ROLE</div>`;
-        html += `<p style="font-size:var(--text-sm);">${hs.laic}</p></div>`;
-      }
-      if (level >= 2) {
-        html += `<div class="detail-layer"><div style="font-family:var(--mono);font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.4rem;">TREATMENT</div>`;
-        html += `<p style="font-size:var(--text-sm);">${hs.treatment}</p></div>`;
-      }
-      if (level < 1) {
-        html += `<div class="btn-row"><button class="btn primary" id="detail-layer-btn">Show Pattern Role</button></div>`;
-      } else if (level < 2) {
-        html += `<div class="btn-row"><button class="btn primary" id="detail-layer-btn">Show Treatment</button></div>`;
-      }
-      container.innerHTML = html;
-      if (level < 2) {
-        const btn = document.getElementById('detail-layer-btn');
-        if (btn) btn.addEventListener('click', () => {
-          layerState[layerKey]++;
-          render(layerState[layerKey]);
-        });
-      }
-    }
-    render(0);
-  }
-
-  function renderLandmarkDetail(container, hs) {
-    let html = `<h3>${hs.name}</h3>`;
-    html += `<div class="detail-row"><span class="detail-label">PRI Role:</span><span>${hs.pri_role}</span></div>`;
-    html += `<div class="detail-row"><span class="detail-label">Joints:</span><span>${hs.joints}</span></div>`;
-    html += `<div class="detail-row"><span class="detail-label">L AIC relevance:</span><span>${hs.laic}</span></div>`;
-    container.innerHTML = html;
   }
 
   function initDecoder() {
@@ -4371,5 +4233,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <script type="module" id="module-masterquiz">
 
 </script>
+<script type="module" src="scripts/anatomize-data.js"></script>
+<script type="module" src="scripts/anatomize.js"></script>
+<script type="module" src="scripts/aic-chain.js"></script>
 </body>
 </html>
