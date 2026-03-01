@@ -572,15 +572,27 @@ window.AnatomizeModule = (() => {
         renderDetailPanel(structure);
       }
 
-      setTimeout(() => {
-        promptNext();
-      }, 600);
+      showNextButton();
     } else {
       state.score--;
       attemptedOnCurrent = true;
       renderVisualFeedback(structureId, false);
       updateScore();
     }
+  }
+
+  function showNextButton() {
+    const existing = dom.prompt.querySelector('.anatomize-next-btn');
+    if (existing) existing.remove();
+
+    const btn = document.createElement('button');
+    btn.className = 'btn anatomize-next-btn';
+    btn.textContent = 'Next \u2192';
+    btn.addEventListener('click', () => {
+      btn.remove();
+      promptNext();
+    });
+    dom.prompt.appendChild(btn);
   }
 
   function handleSpeedClick(structureId, correct) {

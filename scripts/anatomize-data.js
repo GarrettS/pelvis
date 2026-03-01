@@ -397,8 +397,8 @@ window.ANATOMIZE_IMAGES = [
     ]
   },
   {
-    id: 'lateral_hip',
-    label: 'Lateral Hip',
+    id: 'anterior_pelvis',
+    label: 'Anterior Pelvis',
     mechanic: 'label_hunt',
     imageSrc: 'img/pelvis-angle-r-side.png',
     structures: [
