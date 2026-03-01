@@ -305,8 +305,8 @@ window.AnatomizeModule = (() => {
 
       if (s.landmarkMarker) {
         const circle = document.createElementNS(SVG_NS, 'circle');
-        circle.setAttribute('cx', s.landmarkMarker[0]);
-        circle.setAttribute('cy', s.landmarkMarker[1]);
+        circle.setAttribute('cx', s.landmarkMarker.x);
+        circle.setAttribute('cy', s.landmarkMarker.y);
         circle.setAttribute('r', '2');
         circle.classList.add('anatomize-landmark-circle');
         circle.style.opacity = '0';
@@ -326,15 +326,15 @@ window.AnatomizeModule = (() => {
         const line = document.createElementNS(SVG_NS, 'line');
         line.setAttribute('x1', centerX);
         line.setAttribute('y1', centerY);
-        line.setAttribute('x2', s.arrowTo[0]);
-        line.setAttribute('y2', s.arrowTo[1]);
+        line.setAttribute('x2', s.arrowTo.x);
+        line.setAttribute('y2', s.arrowTo.y);
         line.classList.add('anatomize-arrow-line');
         line.style.stroke = 'var(--text-dim)';
         line.style.strokeWidth = '0.3';
         group.appendChild(line);
 
         const arrowHead = createArrowHead(
-            centerX, centerY, s.arrowTo[0], s.arrowTo[1]);
+            centerX, centerY, s.arrowTo.x, s.arrowTo.y);
         arrowHead.style.fill = 'var(--text-dim)';
         group.appendChild(arrowHead);
 

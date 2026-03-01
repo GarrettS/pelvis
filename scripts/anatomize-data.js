@@ -7,15 +7,15 @@ window.ANATOMIZE_IMAGES = [
     structures: [
       {
         id: 'obturator_internus',
-        label: 'Obturator Internus',
+        label: 'Obturator Internus (L)',
         type: 'muscle',
         priColor: '--pri-green-family',
-        panelBox: {x: 0, y: 30, w: 14, h: 5},
-        arrowTo: {x: 30, y: 45},
+        panelBox: {x: 0, y: 18, w: 15, h: 5},
+        arrowTo: {x: 30, y: 28},
         polygon: [
-          [22, 35], [25, 32], [30, 30], [35, 31], [38, 34],
-          [39, 38], [38, 42], [36, 46], [33, 50], [30, 52],
-          [27, 50], [24, 46], [22, 42], [21, 38]
+          [20, 18], [26, 14], [34, 14], [40, 17], [42, 22],
+          [42, 28], [40, 34], [36, 38], [30, 40], [24, 38],
+          [20, 34], [18, 28], [18, 22]
         ],
         priDetail: {
           layer1: {
@@ -33,15 +33,15 @@ window.ANATOMIZE_IMAGES = [
       },
       {
         id: 'obturator_internus_r',
-        label: 'Obturator Internus',
+        label: 'Obturator Internus (R)',
         type: 'muscle',
         priColor: '--pri-green-family',
-        panelBox: {x: 86, y: 30, w: 14, h: 5},
-        arrowTo: {x: 70, y: 45},
+        panelBox: {x: 85, y: 18, w: 15, h: 5},
+        arrowTo: {x: 70, y: 28},
         polygon: [
-          [62, 34], [64, 31], [67, 30], [70, 30], [74, 32],
-          [77, 35], [78, 38], [78, 42], [76, 46], [73, 50],
-          [70, 52], [67, 50], [64, 46], [62, 42], [61, 38]
+          [58, 22], [58, 18], [60, 14], [66, 14], [74, 14],
+          [80, 17], [82, 22], [82, 28], [80, 34], [76, 38],
+          [70, 40], [64, 38], [60, 34], [58, 28]
         ],
         priDetail: {
           layer1: {
@@ -62,12 +62,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliococcygeus',
         type: 'muscle',
         priColor: '--pri-green-family',
-        panelBox: {x: 0, y: 42, w: 14, h: 5},
-        arrowTo: {x: 36, y: 55},
+        panelBox: {x: 0, y: 44, w: 15, h: 5},
+        arrowTo: {x: 32, y: 50},
         polygon: [
-          [30, 50], [33, 48], [37, 49], [40, 52], [42, 56],
-          [42, 60], [40, 63], [37, 65], [34, 64], [31, 61],
-          [29, 57], [29, 53]
+          [26, 42], [32, 40], [38, 42], [42, 46], [44, 52],
+          [44, 56], [42, 60], [38, 62], [34, 60], [30, 56],
+          [26, 52], [24, 48]
         ],
         priDetail: {
           layer1: {
@@ -88,12 +88,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubococcygeus',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 0, y: 12, w: 14, h: 5},
-        arrowTo: {x: 42, y: 30},
+        panelBox: {x: 0, y: 8, w: 15, h: 5},
+        arrowTo: {x: 42, y: 22},
         polygon: [
-          [38, 22], [42, 20], [46, 21], [49, 24], [50, 28],
-          [50, 32], [48, 36], [46, 38], [43, 38], [40, 36],
-          [38, 32], [37, 28], [37, 24]
+          [40, 14], [44, 12], [48, 12], [52, 12], [56, 14],
+          [58, 18], [58, 24], [56, 30], [52, 34], [48, 36],
+          [44, 34], [42, 30], [40, 24], [40, 18]
         ],
         priDetail: {
           layer1: {
@@ -114,12 +114,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Puborectalis',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 86, y: 12, w: 14, h: 5},
-        arrowTo: {x: 50, y: 38},
+        panelBox: {x: 85, y: 30, w: 15, h: 5},
+        arrowTo: {x: 54, y: 42},
         polygon: [
-          [42, 32], [45, 30], [48, 30], [52, 30], [55, 32],
-          [57, 36], [57, 40], [56, 44], [53, 46], [50, 47],
-          [47, 46], [44, 44], [42, 40], [42, 36]
+          [42, 34], [46, 32], [50, 32], [54, 32], [58, 34],
+          [60, 38], [60, 44], [58, 48], [54, 50], [50, 50],
+          [46, 48], [42, 44], [42, 38]
         ],
         priDetail: {
           layer1: {
@@ -140,12 +140,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Medial Hamstring',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 86, y: 5, w: 14, h: 5},
-        arrowTo: {x: 72, y: 18},
+        panelBox: {x: 85, y: 8, w: 15, h: 5},
+        arrowTo: {x: 80, y: 12},
         polygon: [
-          [68, 12], [71, 10], [75, 10], [78, 12], [79, 16],
-          [78, 20], [75, 23], [72, 24], [69, 22], [67, 18],
-          [67, 14]
+          [76, 8], [80, 6], [84, 8], [86, 12], [86, 18],
+          [84, 22], [80, 24], [76, 22], [74, 18], [74, 12]
         ],
         priDetail: {
           layer1: {
@@ -166,11 +165,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Coccygeus',
         type: 'muscle',
         priColor: '--pri-violet',
-        panelBox: {x: 0, y: 55, w: 14, h: 5},
-        arrowTo: {x: 28, y: 60},
+        panelBox: {x: 0, y: 54, w: 15, h: 5},
+        arrowTo: {x: 24, y: 48},
         polygon: [
-          [22, 55], [26, 53], [30, 54], [34, 57], [35, 61],
-          [34, 65], [30, 67], [26, 66], [23, 63], [22, 59]
+          [16, 42], [22, 38], [28, 40], [32, 44], [34, 48],
+          [33, 52], [30, 56], [26, 58], [20, 56], [16, 52],
+          [14, 48]
         ],
         priDetail: {
           layer1: {
@@ -191,11 +191,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Piriformis',
         type: 'muscle',
         priColor: '--pri-violet',
-        panelBox: {x: 86, y: 48, w: 14, h: 5},
-        arrowTo: {x: 76, y: 55},
+        panelBox: {x: 85, y: 40, w: 15, h: 5},
+        arrowTo: {x: 74, y: 42},
         polygon: [
-          [70, 50], [74, 48], [78, 49], [82, 52], [83, 56],
-          [82, 60], [78, 62], [74, 61], [71, 58], [70, 54]
+          [68, 36], [74, 34], [80, 36], [84, 40], [84, 44],
+          [82, 48], [78, 50], [72, 50], [68, 48], [66, 44],
+          [66, 40]
         ],
         priDetail: {
           layer1: {
@@ -213,15 +214,15 @@ window.ANATOMIZE_IMAGES = [
       },
       {
         id: 'glute_max',
-        label: 'Gluteus Maximus',
+        label: 'Gluteus Maximus (L)',
         type: 'muscle',
         priColor: '--pri-violet',
-        panelBox: {x: 0, y: 88, w: 14, h: 5},
-        arrowTo: {x: 22, y: 80},
+        panelBox: {x: 0, y: 72, w: 15, h: 5},
+        arrowTo: {x: 22, y: 72},
         polygon: [
-          [10, 70], [15, 66], [20, 65], [26, 67], [30, 72],
-          [32, 78], [30, 84], [26, 88], [20, 90], [14, 88],
-          [10, 84], [9, 78], [9, 74]
+          [8, 62], [14, 58], [22, 58], [30, 62], [34, 68],
+          [36, 76], [34, 82], [30, 86], [22, 88], [14, 86],
+          [8, 80], [6, 72]
         ],
         priDetail: {
           layer1: {
@@ -239,15 +240,15 @@ window.ANATOMIZE_IMAGES = [
       },
       {
         id: 'glute_max_r',
-        label: 'Gluteus Maximus',
+        label: 'Gluteus Maximus (R)',
         type: 'muscle',
         priColor: '--pri-violet',
-        panelBox: {x: 86, y: 88, w: 14, h: 5},
-        arrowTo: {x: 78, y: 80},
+        panelBox: {x: 85, y: 72, w: 15, h: 5},
+        arrowTo: {x: 78, y: 72},
         polygon: [
-          [68, 72], [70, 67], [74, 65], [80, 65], [85, 68],
-          [89, 74], [90, 80], [89, 86], [86, 90], [80, 91],
-          [74, 88], [70, 84], [68, 78]
+          [66, 68], [70, 62], [78, 58], [86, 58], [92, 62],
+          [94, 72], [92, 80], [86, 86], [78, 88], [70, 86],
+          [66, 82], [64, 76]
         ],
         priDetail: {
           layer1: {
@@ -268,11 +269,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Arcuate Tendon',
         type: 'muscle',
         priColor: '--pri-yellow',
-        panelBox: {x: 0, y: 22, w: 14, h: 5},
-        arrowTo: {x: 32, y: 38},
+        panelBox: {x: 0, y: 34, w: 15, h: 5},
+        arrowTo: {x: 30, y: 36},
         polygon: [
-          [29, 35], [32, 34], [35, 35], [36, 38], [35, 41],
-          [32, 42], [29, 41], [28, 38]
+          [27, 34], [30, 33], [34, 34], [35, 36], [34, 38],
+          [30, 39], [27, 38], [26, 36]
         ],
         priDetail: {
           layer1: {
@@ -293,11 +294,11 @@ window.ANATOMIZE_IMAGES = [
         label: 'Anococcygeal Ligament',
         type: 'muscle',
         priColor: '--pri-yellow',
-        panelBox: {x: 86, y: 62, w: 14, h: 5},
-        arrowTo: {x: 50, y: 65},
+        panelBox: {x: 85, y: 56, w: 15, h: 5},
+        arrowTo: {x: 50, y: 58},
         polygon: [
-          [46, 60], [50, 58], [54, 60], [55, 64], [54, 68],
-          [50, 70], [46, 68], [45, 64]
+          [47, 52], [50, 50], [53, 52], [54, 56], [53, 62],
+          [50, 66], [47, 62], [46, 56]
         ],
         priDetail: {
           layer1: {
@@ -318,9 +319,9 @@ window.ANATOMIZE_IMAGES = [
         label: 'Sacrum',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 35, y: 92, w: 12, h: 5},
-        arrowTo: {x: 50, y: 82},
-        landmarkMarker: {x: 50, y: 82},
+        panelBox: {x: 55, y: 0, w: 13, h: 5},
+        arrowTo: {x: 50, y: 6},
+        landmarkMarker: {x: 50, y: 6},
         priDetail: {
           layer1: {
             standard: 'Triangular bone at base of spine.',
@@ -334,9 +335,9 @@ window.ANATOMIZE_IMAGES = [
         label: 'Coccyx',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 52, y: 92, w: 12, h: 5},
-        arrowTo: {x: 50, y: 75},
-        landmarkMarker: {x: 50, y: 75},
+        panelBox: {x: 85, y: 64, w: 15, h: 5},
+        arrowTo: {x: 50, y: 68},
+        landmarkMarker: {x: 50, y: 68},
         priDetail: {
           layer1: {
             standard: 'Terminal spine segment. Outlet landmark.',
@@ -350,9 +351,9 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubic Symphysis',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 38, y: 0, w: 14, h: 5},
-        arrowTo: {x: 50, y: 12},
-        landmarkMarker: {x: 50, y: 12},
+        panelBox: {x: 32, y: 0, w: 16, h: 5},
+        arrowTo: {x: 50, y: 8},
+        landmarkMarker: {x: 50, y: 8},
         priDetail: {
           layer1: {
             standard: 'Midline cartilaginous joint.',
@@ -363,12 +364,12 @@ window.ANATOMIZE_IMAGES = [
       },
       {
         id: 'ischial_tuberosity',
-        label: 'Ischial Tuberosity',
+        label: 'Ischial Tuberosity (L)',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 0, y: 0, w: 14, h: 5},
-        arrowTo: {x: 18, y: 18},
-        landmarkMarker: {x: 18, y: 18},
+        panelBox: {x: 0, y: 0, w: 15, h: 5},
+        arrowTo: {x: 20, y: 10},
+        landmarkMarker: {x: 20, y: 10},
         priDetail: {
           layer1: {
             standard: 'Weight-bearing bony prominence. Outlet landmark.',
@@ -379,12 +380,12 @@ window.ANATOMIZE_IMAGES = [
       },
       {
         id: 'ischial_tuberosity_r',
-        label: 'Ischial Tuberosity',
+        label: 'Ischial Tuberosity (R)',
         type: 'landmark',
         priColor: '--pri-neutral',
-        panelBox: {x: 86, y: 22, w: 14, h: 5},
-        arrowTo: {x: 82, y: 18},
-        landmarkMarker: {x: 82, y: 18},
+        panelBox: {x: 85, y: 0, w: 15, h: 5},
+        arrowTo: {x: 80, y: 10},
+        landmarkMarker: {x: 80, y: 10},
         priDetail: {
           layer1: {
             standard: 'Weight-bearing bony prominence. Outlet landmark.',
