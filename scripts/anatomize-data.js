@@ -1,122 +1,259 @@
+/**
+ * Structures for the Pelvic Outlet (Inferior) view — shared between the
+ * normal and flipped image sets so data isn't duplicated.
+ */
+const OUTLET_INFERIOR_STRUCTURES = [
+  // === Anatomical Right (image-left in the natural inferior view) ===
+  {
+    id: 'arcuate_tendon_r',
+    label: 'Arcuate Tendon (R)',
+    type: 'muscle',
+    priColor: '--pri-neutral',
+    panelBox: {x: 0, y: 14, w: 14.5, h: 3.5},
+    arrowTo: {x: 26, y: 22},
+    priDetail: {
+      layer1: {
+        standard: 'Thickened fascia of obturator internus, origin of levator ani.',
+        pri: 'R arcuate tendon is not a primary PRI corrective. Only L is yellow (Integration).',
+        chain: 'Integration \u2014 structural bridge'
+      }
+    }
+  },
+  {
+    id: 'obturator_internus_r',
+    label: 'Obturator Internus (R)',
+    type: 'muscle',
+    priColor: '--pri-neutral',
+    panelBox: {x: 0, y: 32, w: 17, h: 3.5},
+    arrowTo: {x: 12, y: 40},
+    priDetail: {
+      layer1: {
+        standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
+        pri: 'R obturator internus is not a primary PRI corrective. Only L OI is green (Frontal Abduction).',
+        chain: 'Pelvic floor \u2014 deep interior chain'
+      }
+    }
+  },
+  {
+    id: 'coccygeus_r',
+    label: 'Coccygeus (R)',
+    type: 'muscle',
+    priColor: '--pri-violet',
+    panelBox: {x: 0, y: 54, w: 11, h: 3.5},
+    arrowTo: {x: 18, y: 62},
+    priDetail: {
+      layer1: {
+        standard: 'Pulls coccyx forward, supports pelvic floor.',
+        pri: 'R coccygeus \u2192 R SI IR (posterior outlet closing). Internal rotation family.',
+        chain: 'Deep posterior \u2014 internal rotation'
+      },
+      layer2: {
+        laic: 'R coccygeus assists R SI IR. Bilateral coccygeus hypertonic in B PEC.'
+      },
+      layer3: {
+        treatment: 'Release through pelvic floor relaxation. Not directly facilitated.'
+      }
+    }
+  },
+  {
+    id: 'iliococcygeus_r',
+    label: 'Iliococcygeus (R)',
+    type: 'muscle',
+    priColor: '--pri-neutral',
+    panelBox: {x: 0, y: 64, w: 14.5, h: 3.5},
+    arrowTo: {x: 26, y: 70},
+    priDetail: {
+      layer1: {
+        standard: 'Pelvic floor support, coccyx stabilization.',
+        pri: 'R iliococcygeus is not a primary PRI corrective. Only L is green (Frontal Abduction).',
+        chain: 'Pelvic floor \u2014 frontal plane'
+      }
+    }
+  },
+  // === Midline ===
+  {
+    id: 'puborectalis',
+    label: 'Puborectalis (L)',
+    type: 'muscle',
+    priColor: '--pri-brown',
+    panelBox: {x: 18, y: 88, w: 14, h: 3.5},
+    arrowTo: {x: 44, y: 55},
+    priDetail: {
+      layer1: {
+        standard: 'Maintains anorectal angle, fecal continence.',
+        pri: 'Sagittal plane muscle. U-shaped sling around rectum.',
+        chain: 'Pelvic floor \u2014 sagittal'
+      },
+      layer2: {
+        laic: 'Part of sagittal pelvic floor restoration.'
+      },
+      layer3: {
+        treatment: 'Restored through comprehensive pelvic floor activities.'
+      }
+    }
+  },
+  {
+    id: 'anococcygeal_ligament',
+    label: 'Anococcygeal Lig.',
+    type: 'muscle',
+    priColor: '--pri-yellow',
+    panelBox: {x: 52, y: 88, w: 14.5, h: 3.5},
+    arrowTo: {x: 38, y: 72},
+    priDetail: {
+      layer1: {
+        standard: 'Fibrous band between anus and coccyx, anchors pelvic floor.',
+        pri: 'Integration structure connecting pelvic floor to coccyx.',
+        chain: 'Integration \u2014 midline anchor'
+      },
+      layer2: {
+        laic: 'Midline reference for sagittal pelvic floor position.'
+      },
+      layer3: {
+        treatment: 'Not directly targeted. Structural landmark.'
+      }
+    }
+  },
+  // === Anatomical Left (image-right in the natural inferior view) ===
+  {
+    id: 'arcuate_tendon_l',
+    label: 'Arcuate Tendon (L)',
+    type: 'muscle',
+    priColor: '--pri-yellow',
+    panelBox: {x: 85.5, y: 8, w: 14.5, h: 3.5},
+    arrowTo: {x: 72, y: 18},
+    priDetail: {
+      layer1: {
+        standard: 'Thickened fascia of obturator internus, origin of levator ani.',
+        pri: 'Integration landmark \u2014 connects obturator internus to pelvic floor.',
+        chain: 'Integration \u2014 structural bridge'
+      },
+      layer2: {
+        laic: 'Key anatomical bridge for pelvic floor muscle activation sequences.'
+      },
+      layer3: {
+        treatment: 'Not directly targeted. Awareness landmark for pelvic floor anatomy.'
+      }
+    }
+  },
+  {
+    id: 'medial_hamstring',
+    label: 'Medial Hamstring (L)',
+    type: 'muscle',
+    priColor: '--pri-brown',
+    panelBox: {x: 83.5, y: 20, w: 16.5, h: 3.5},
+    arrowTo: {x: 76, y: 30},
+    priDetail: {
+      layer1: {
+        standard: 'Hip extension, knee flexion, tibial IR.',
+        pri: 'L hamstrings assist posterior pelvic tilt. IsP IR correction on left.',
+        chain: 'Posterior chain \u2014 sagittal'
+      },
+      layer2: {
+        laic: 'L hamstrings assist corrective posterior tilt but are not primary facilitation targets.'
+      },
+      layer3: {
+        treatment: 'Indirectly trained. 90-90 hip lift uses hamstrings for posterior tilt.'
+      }
+    }
+  },
+  {
+    id: 'obturator_internus_l',
+    label: 'Obturator Internus (L)',
+    type: 'muscle',
+    priColor: '--pri-green-family',
+    panelBox: {x: 83, y: 32, w: 17, h: 3.5},
+    arrowTo: {x: 84, y: 40},
+    priDetail: {
+      layer1: {
+        standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
+        pri: 'Key corrective \u2014 L IsP ER (outlet abduction). Pulls ischium laterally in closed chain.',
+        chain: 'Pelvic floor \u2014 deep interior chain'
+      },
+      layer2: {
+        laic: 'L obturator internus \u2192 L IsP ER. Opens left outlet, ascends pelvic diaphragm. THE key corrective muscle.'
+      },
+      layer3: {
+        treatment: 'Step 2: L obturator internus + L pelvic floor. HALT 1/5 \u2192 2/5.'
+      }
+    }
+  },
+  {
+    id: 'glute_max_l',
+    label: 'Glute Max (L)',
+    type: 'muscle',
+    priColor: '--pri-neutral',
+    panelBox: {x: 89, y: 48, w: 11, h: 3.5},
+    arrowTo: {x: 87, y: 58},
+    priDetail: {
+      layer1: {
+        standard: 'Hip extension, ER, abduction (upper fibers).',
+        pri: 'L glute max is not a primary PRI corrective. Only R glute max is violet (Internal Rotation).',
+        chain: 'Posterior \u2014 extension and rotation'
+      }
+    }
+  },
+  {
+    id: 'iliococcygeus_l',
+    label: 'Iliococcygeus (L)',
+    type: 'muscle',
+    priColor: '--pri-green-family',
+    panelBox: {x: 85.5, y: 60, w: 14.5, h: 3.5},
+    arrowTo: {x: 72, y: 68},
+    priDetail: {
+      layer1: {
+        standard: 'Pelvic floor support, coccyx stabilization.',
+        pri: 'Part of pelvic diaphragm. Assists outlet abduction with obturator internus.',
+        chain: 'Pelvic floor \u2014 frontal plane'
+      },
+      layer2: {
+        laic: 'Works with obturator internus for L pelvic diaphragm ascension.'
+      },
+      layer3: {
+        treatment: 'Facilitated alongside obturator internus in pelvic floor activities.'
+      }
+    }
+  },
+  {
+    id: 'pubococcygeus_l',
+    label: 'Pubococcygeus (L)',
+    type: 'muscle',
+    priColor: '--pri-brown',
+    panelBox: {x: 85.5, y: 72, w: 14.5, h: 3.5},
+    arrowTo: {x: 68, y: 76},
+    priDetail: {
+      layer1: {
+        standard: 'Pelvic floor support, urinary/fecal continence.',
+        pri: 'Sagittal plane pelvic floor component. Assists posterior pelvic tilt.',
+        chain: 'Pelvic floor \u2014 sagittal plane'
+      },
+      layer2: {
+        laic: 'Assists sagittal correction of pelvic position.'
+      },
+      layer3: {
+        treatment: 'Indirectly facilitated through 90-90 hip lift and pelvic floor integration.'
+      }
+    }
+  }
+];
+
 window.ANATOMIZE_IMAGES = [
+  // =====================================================================
+  // 1. Pelvic Outlet — Superior view (page 6)
+  // =====================================================================
   {
     id: 'pelvic_outlet',
-    label: 'Pelvic Outlet',
+    label: 'Outlet Superior',
     mechanic: 'blank_panels',
     imageSrc: 'img/PRI-1-Pelvic-Outlet2.jpg',
     structures: [
-      {
-        id: 'obturator_internus',
-        label: 'Obturator Internus (L)',
-        type: 'muscle',
-        priColor: '--pri-green-family',
-        panelBox: {x: 0, y: 20, w: 14, h: 5},
-        arrowTo: {x: 22, y: 34},
-        polygon: [
-          [17, 24], [24, 20], [28, 24], [28, 32],
-          [26, 38], [22, 42], [17, 40], [15, 34]
-        ],
-        priDetail: {
-          layer1: {
-            standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
-            pri: 'Key corrective \u2014 L IsP ER (outlet abduction). Pulls ischium laterally in closed chain.',
-            chain: 'Pelvic floor \u2014 deep interior chain'
-          },
-          layer2: {
-            laic: 'L obturator internus \u2192 L IsP ER. Opens left outlet, ascends pelvic diaphragm. THE key corrective muscle.'
-          },
-          layer3: {
-            treatment: 'Step 2: L obturator internus + L pelvic floor. HALT 1/5 \u2192 2/5.'
-          }
-        }
-      },
-      {
-        id: 'obturator_internus_r',
-        label: 'Obturator Internus (R)',
-        type: 'muscle',
-        priColor: '--pri-green-family',
-        panelBox: {x: 86, y: 20, w: 14, h: 5},
-        arrowTo: {x: 78, y: 34},
-        polygon: [
-          [72, 24], [76, 20], [83, 24], [85, 34],
-          [83, 40], [78, 42], [72, 38], [72, 32]
-        ],
-        priDetail: {
-          layer1: {
-            standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
-            pri: 'Key corrective \u2014 L IsP ER (outlet abduction). Pulls ischium laterally in closed chain.',
-            chain: 'Pelvic floor \u2014 deep interior chain'
-          },
-          layer2: {
-            laic: 'L obturator internus \u2192 L IsP ER. Opens left outlet, ascends pelvic diaphragm. THE key corrective muscle.'
-          },
-          layer3: {
-            treatment: 'Step 2: L obturator internus + L pelvic floor. HALT 1/5 \u2192 2/5.'
-          }
-        }
-      },
-      {
-        id: 'iliococcygeus',
-        label: 'Iliococcygeus',
-        type: 'muscle',
-        priColor: '--pri-green-family',
-        panelBox: {x: 0, y: 36, w: 14, h: 5},
-        arrowTo: {x: 33, y: 44},
-        polygon: [
-          [26, 38], [34, 36], [40, 40], [42, 46],
-          [40, 52], [34, 54], [28, 50], [24, 44]
-        ],
-        priDetail: {
-          layer1: {
-            standard: 'Pelvic floor support, coccyx stabilization.',
-            pri: 'Part of pelvic diaphragm. Assists outlet abduction with obturator internus.',
-            chain: 'Pelvic floor \u2014 frontal plane'
-          },
-          layer2: {
-            laic: 'Works with obturator internus for L pelvic diaphragm ascension.'
-          },
-          layer3: {
-            treatment: 'Facilitated alongside obturator internus in pelvic floor activities.'
-          }
-        }
-      },
-      {
-        id: 'pubococcygeus',
-        label: 'Pubococcygeus',
-        type: 'muscle',
-        priColor: '--pri-brown',
-        panelBox: {x: 0, y: 12, w: 14, h: 5},
-        arrowTo: {x: 42, y: 22},
-        polygon: [
-          [38, 14], [44, 12], [52, 12], [58, 14],
-          [58, 22], [54, 28], [48, 30], [42, 28],
-          [38, 22]
-        ],
-        priDetail: {
-          layer1: {
-            standard: 'Pelvic floor support, urinary/fecal continence.',
-            pri: 'Sagittal plane pelvic floor component. Assists posterior pelvic tilt.',
-            chain: 'Pelvic floor \u2014 sagittal plane'
-          },
-          layer2: {
-            laic: 'Assists sagittal correction of pelvic position.'
-          },
-          layer3: {
-            treatment: 'Indirectly facilitated through 90-90 hip lift and pelvic floor integration.'
-          }
-        }
-      },
+      // --- Left side (8 structures) ---
       {
         id: 'puborectalis',
-        label: 'Puborectalis',
+        label: 'Puborectalis (L)',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 86, y: 28, w: 14, h: 5},
-        arrowTo: {x: 52, y: 38},
-        polygon: [
-          [40, 32], [48, 30], [56, 32], [60, 38],
-          [58, 44], [52, 46], [44, 44], [40, 38]
-        ],
+        panelBox: {x: 0, y: 6, w: 14, h: 3.5},
+        arrowTo: {x: 38, y: 22},
         priDetail: {
           layer1: {
             standard: 'Maintains anorectal angle, fecal continence.',
@@ -132,143 +269,33 @@ window.ANATOMIZE_IMAGES = [
         }
       },
       {
-        id: 'medial_hamstring',
-        label: 'Medial Hamstring',
+        id: 'pubococcygeus',
+        label: 'Pubococcygeus (L)',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 86, y: 12, w: 14, h: 5},
-        arrowTo: {x: 78, y: 18},
-        polygon: [
-          [74, 14], [80, 12], [84, 16], [84, 22],
-          [80, 24], [76, 22], [74, 18]
-        ],
+        panelBox: {x: 0, y: 13, w: 14.5, h: 3.5},
+        arrowTo: {x: 33, y: 28},
         priDetail: {
           layer1: {
-            standard: 'Hip extension, knee flexion, tibial IR.',
-            pri: 'L hamstrings assist posterior pelvic tilt. IsP IR correction on left.',
-            chain: 'Posterior chain \u2014 sagittal'
+            standard: 'Pelvic floor support, urinary/fecal continence.',
+            pri: 'Sagittal plane pelvic floor component. Assists posterior pelvic tilt.',
+            chain: 'Pelvic floor \u2014 sagittal plane'
           },
           layer2: {
-            laic: 'L hamstrings assist corrective posterior tilt but are not primary facilitation targets.'
+            laic: 'Assists sagittal correction of pelvic position.'
           },
           layer3: {
-            treatment: 'Indirectly trained. 90-90 hip lift uses hamstrings for posterior tilt.'
-          }
-        }
-      },
-      {
-        id: 'coccygeus',
-        label: 'Coccygeus',
-        type: 'muscle',
-        priColor: '--pri-violet',
-        panelBox: {x: 0, y: 44, w: 14, h: 5},
-        arrowTo: {x: 28, y: 60},
-        polygon: [
-          [22, 56], [30, 54], [36, 56], [38, 62],
-          [36, 66], [30, 68], [24, 66], [20, 62]
-        ],
-        priDetail: {
-          layer1: {
-            standard: 'Pulls coccyx forward, supports pelvic floor.',
-            pri: 'R coccygeus \u2192 R SI IR (posterior outlet closing). Internal rotation family.',
-            chain: 'Deep posterior \u2014 internal rotation'
-          },
-          layer2: {
-            laic: 'R coccygeus assists R SI IR. Bilateral coccygeus hypertonic in B PEC.'
-          },
-          layer3: {
-            treatment: 'Release through pelvic floor relaxation. Not directly facilitated.'
-          }
-        }
-      },
-      {
-        id: 'piriformis',
-        label: 'Piriformis',
-        type: 'muscle',
-        priColor: '--pri-violet',
-        panelBox: {x: 0, y: 52, w: 14, h: 5},
-        arrowTo: {x: 30, y: 70},
-        polygon: [
-          [24, 66], [32, 64], [38, 66], [40, 72],
-          [38, 76], [32, 78], [26, 76], [22, 72]
-        ],
-        priDetail: {
-          layer1: {
-            standard: 'Hip ER (hip extended), hip abduction.',
-            pri: 'R piriformis \u2192 R SI IR assist. Internal rotation family.',
-            chain: 'Deep posterior lateral rotator'
-          },
-          layer2: {
-            laic: 'Overactive bilaterally in compensated patterns. Release, don\'t strengthen.'
-          },
-          layer3: {
-            treatment: 'Inhibited through positioning. Not directly facilitated in early steps.'
-          }
-        }
-      },
-      {
-        id: 'glute_max',
-        label: 'Gluteus Maximus (L)',
-        type: 'muscle',
-        priColor: '--pri-violet',
-        panelBox: {x: 0, y: 60, w: 14, h: 5},
-        arrowTo: {x: 22, y: 78},
-        polygon: [
-          [10, 68], [18, 64], [28, 66], [34, 72],
-          [34, 80], [28, 86], [18, 88], [10, 84],
-          [8, 76]
-        ],
-        priDetail: {
-          layer1: {
-            standard: 'Hip extension, ER, abduction (upper fibers).',
-            pri: 'R glute max (superior fibers) \u2192 R IS ER. Internal rotation family.',
-            chain: 'Posterior \u2014 extension and rotation'
-          },
-          layer2: {
-            laic: 'R superior glute max = corrective. L glute max compensatory in L AIC.'
-          },
-          layer3: {
-            treatment: 'Step 6: R glute max facilitation. HALT 4/5 \u2192 5/5.'
-          }
-        }
-      },
-      {
-        id: 'glute_max_r',
-        label: 'Gluteus Maximus (R)',
-        type: 'muscle',
-        priColor: '--pri-violet',
-        panelBox: {x: 86, y: 44, w: 14, h: 5},
-        arrowTo: {x: 78, y: 78},
-        polygon: [
-          [66, 72], [72, 66], [82, 64], [90, 68],
-          [92, 76], [90, 84], [82, 88], [72, 86],
-          [66, 80]
-        ],
-        priDetail: {
-          layer1: {
-            standard: 'Hip extension, ER, abduction (upper fibers).',
-            pri: 'R glute max (superior fibers) \u2192 R IS ER. Internal rotation family.',
-            chain: 'Posterior \u2014 extension and rotation'
-          },
-          layer2: {
-            laic: 'R superior glute max = corrective. L glute max compensatory in L AIC.'
-          },
-          layer3: {
-            treatment: 'Step 6: R glute max facilitation. HALT 4/5 \u2192 5/5.'
+            treatment: 'Indirectly facilitated through 90-90 hip lift and pelvic floor integration.'
           }
         }
       },
       {
         id: 'arcuate_tendon',
-        label: 'Arcuate Tendon',
+        label: 'Arcuate Tendon (L)',
         type: 'muscle',
         priColor: '--pri-yellow',
-        panelBox: {x: 0, y: 28, w: 14, h: 5},
-        arrowTo: {x: 28, y: 24},
-        polygon: [
-          [25, 22], [30, 20], [32, 22], [32, 26],
-          [30, 28], [25, 26]
-        ],
+        panelBox: {x: 0, y: 20, w: 14.5, h: 3.5},
+        arrowTo: {x: 22, y: 25},
         priDetail: {
           layer1: {
             standard: 'Thickened fascia of obturator internus, origin of levator ani.',
@@ -284,16 +311,84 @@ window.ANATOMIZE_IMAGES = [
         }
       },
       {
+        id: 'iliococcygeus',
+        label: 'Iliococcygeus (L)',
+        type: 'muscle',
+        priColor: '--pri-green-family',
+        panelBox: {x: 0, y: 30, w: 14.5, h: 3.5},
+        arrowTo: {x: 30, y: 40},
+        priDetail: {
+          layer1: {
+            standard: 'Pelvic floor support, coccyx stabilization.',
+            pri: 'Part of pelvic diaphragm. Assists outlet abduction with obturator internus.',
+            chain: 'Pelvic floor \u2014 frontal plane'
+          },
+          layer2: {
+            laic: 'Works with obturator internus for L pelvic diaphragm ascension.'
+          },
+          layer3: {
+            treatment: 'Facilitated alongside obturator internus in pelvic floor activities.'
+          }
+        }
+      },
+      {
+        id: 'obturator_internus',
+        label: 'Obturator Internus (L)',
+        type: 'muscle',
+        priColor: '--pri-green-family',
+        panelBox: {x: 0, y: 40, w: 17, h: 3.5},
+        arrowTo: {x: 16, y: 48},
+        priDetail: {
+          layer1: {
+            standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
+            pri: 'Key corrective \u2014 L IsP ER (outlet abduction). Pulls ischium laterally in closed chain.',
+            chain: 'Pelvic floor \u2014 deep interior chain'
+          },
+          layer2: {
+            laic: 'L obturator internus \u2192 L IsP ER. Opens left outlet, ascends pelvic diaphragm. THE key corrective muscle.'
+          },
+          layer3: {
+            treatment: 'Step 2: L obturator internus + L pelvic floor. HALT 1/5 \u2192 2/5.'
+          }
+        }
+      },
+      {
+        id: 'coccygeus_l',
+        label: 'Coccygeus (L)',
+        type: 'muscle',
+        priColor: '--pri-neutral',
+        panelBox: {x: 0, y: 50, w: 11, h: 3.5},
+        arrowTo: {x: 28, y: 58},
+        priDetail: {
+          layer1: {
+            standard: 'Pulls coccyx forward, supports pelvic floor.',
+            pri: 'L coccygeus is not a primary PRI corrective. Only R coccygeus is violet (Internal Rotation).',
+            chain: 'Deep posterior \u2014 internal rotation'
+          }
+        }
+      },
+      {
+        id: 'piriformis_l',
+        label: 'Piriformis (L)',
+        type: 'muscle',
+        priColor: '--pri-neutral',
+        panelBox: {x: 0, y: 60, w: 11.5, h: 3.5},
+        arrowTo: {x: 24, y: 66},
+        priDetail: {
+          layer1: {
+            standard: 'Hip ER (hip extended), hip abduction.',
+            pri: 'L piriformis is not a primary PRI corrective. Only R piriformis is violet (Internal Rotation).',
+            chain: 'Deep posterior lateral rotator'
+          }
+        }
+      },
+      {
         id: 'anococcygeal_ligament',
-        label: 'Anococcygeal Ligament',
+        label: 'Anococcygeal Lig.',
         type: 'muscle',
         priColor: '--pri-yellow',
-        panelBox: {x: 86, y: 36, w: 14, h: 5},
-        arrowTo: {x: 48, y: 58},
-        polygon: [
-          [45, 52], [50, 50], [53, 52], [54, 58],
-          [52, 64], [48, 66], [44, 64], [44, 58]
-        ],
+        panelBox: {x: 0, y: 70, w: 14.5, h: 3.5},
+        arrowTo: {x: 48, y: 60},
         priDetail: {
           layer1: {
             standard: 'Fibrous band between anus and coccyx, anchors pelvic floor.',
@@ -308,175 +403,309 @@ window.ANATOMIZE_IMAGES = [
           }
         }
       },
+      // --- Right side (4 structures) ---
       {
-        id: 'sacrum',
-        label: 'Sacrum',
-        type: 'landmark',
+        id: 'iliococcygeus_r',
+        label: 'Iliococcygeus (R)',
+        type: 'muscle',
         priColor: '--pri-neutral',
-        panelBox: {x: 20, y: 90, w: 13, h: 5},
-        arrowTo: {x: 48, y: 64},
-        landmarkMarker: {x: 48, y: 64},
+        panelBox: {x: 85.5, y: 28, w: 14.5, h: 3.5},
+        arrowTo: {x: 70, y: 38},
         priDetail: {
           layer1: {
-            standard: 'Triangular bone at base of spine.',
-            pri: 'Sacral base = posterior inlet border. IS/SI joint reference.',
-            chain: 'N/A \u2014 bony landmark'
+            standard: 'Pelvic floor support, coccyx stabilization.',
+            pri: 'R iliococcygeus is not a primary PRI corrective. Only L is green (Frontal Abduction).',
+            chain: 'Pelvic floor \u2014 frontal plane'
           }
         }
       },
       {
-        id: 'coccyx_bone',
-        label: 'Coccyx',
-        type: 'landmark',
+        id: 'obturator_internus_r',
+        label: 'Obturator Internus (R)',
+        type: 'muscle',
         priColor: '--pri-neutral',
-        panelBox: {x: 60, y: 90, w: 12, h: 5},
-        arrowTo: {x: 42, y: 84},
-        landmarkMarker: {x: 42, y: 84},
+        panelBox: {x: 83, y: 38, w: 17, h: 3.5},
+        arrowTo: {x: 82, y: 46},
         priDetail: {
           layer1: {
-            standard: 'Terminal spine segment. Outlet landmark.',
-            pri: 'Coccyx + ischial tuberosities + pubic symphysis define outlet.',
-            chain: 'N/A \u2014 bony landmark'
+            standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
+            pri: 'R obturator internus is not a primary PRI corrective. Only L OI is green (Frontal Abduction).',
+            chain: 'Pelvic floor \u2014 deep interior chain'
           }
         }
       },
       {
-        id: 'pubic_symphysis',
-        label: 'Pubic Symphysis',
-        type: 'landmark',
-        priColor: '--pri-neutral',
-        panelBox: {x: 34, y: 0, w: 14, h: 4},
-        arrowTo: {x: 49, y: 7},
-        landmarkMarker: {x: 49, y: 7},
+        id: 'coccygeus_r',
+        label: 'Coccygeus (R)',
+        type: 'muscle',
+        priColor: '--pri-violet',
+        panelBox: {x: 89, y: 50, w: 11, h: 3.5},
+        arrowTo: {x: 72, y: 56},
         priDetail: {
           layer1: {
-            standard: 'Midline cartilaginous joint.',
-            pri: 'Shared inlet AND outlet reference. IP and IsP joint reference bone.',
-            chain: 'N/A \u2014 bony landmark'
+            standard: 'Pulls coccyx forward, supports pelvic floor.',
+            pri: 'R coccygeus \u2192 R SI IR (posterior outlet closing). Internal rotation family.',
+            chain: 'Deep posterior \u2014 internal rotation'
+          },
+          layer2: {
+            laic: 'R coccygeus assists R SI IR. Bilateral coccygeus hypertonic in B PEC.'
+          },
+          layer3: {
+            treatment: 'Release through pelvic floor relaxation. Not directly facilitated.'
           }
         }
       },
       {
-        id: 'ischial_tuberosity',
-        label: 'Ischial Tuberosity (L)',
-        type: 'landmark',
-        priColor: '--pri-neutral',
-        panelBox: {x: 0, y: 4, w: 14, h: 5},
-        arrowTo: {x: 18, y: 10},
-        landmarkMarker: {x: 18, y: 10},
+        id: 'piriformis_r',
+        label: 'Piriformis (R)',
+        type: 'muscle',
+        priColor: '--pri-violet',
+        panelBox: {x: 88.5, y: 60, w: 11.5, h: 3.5},
+        arrowTo: {x: 76, y: 65},
         priDetail: {
           layer1: {
-            standard: 'Weight-bearing bony prominence. Outlet landmark.',
-            pri: 'IsP IR = tuberosities adducting (outlet closing).',
-            chain: 'N/A \u2014 bony landmark'
-          }
-        }
-      },
-      {
-        id: 'ischial_tuberosity_r',
-        label: 'Ischial Tuberosity (R)',
-        type: 'landmark',
-        priColor: '--pri-neutral',
-        panelBox: {x: 86, y: 4, w: 14, h: 5},
-        arrowTo: {x: 82, y: 10},
-        landmarkMarker: {x: 82, y: 10},
-        priDetail: {
-          layer1: {
-            standard: 'Weight-bearing bony prominence. Outlet landmark.',
-            pri: 'IsP IR = tuberosities adducting (outlet closing).',
-            chain: 'N/A \u2014 bony landmark'
+            standard: 'Hip ER (hip extended), hip abduction.',
+            pri: 'R piriformis \u2192 R SI IR assist. Internal rotation family.',
+            chain: 'Deep posterior lateral rotator'
+          },
+          layer2: {
+            laic: 'Overactive bilaterally in compensated patterns. Release, don\'t strengthen.'
+          },
+          layer3: {
+            treatment: 'Inhibited through positioning. Not directly facilitated in early steps.'
           }
         }
       }
     ]
   },
+
+  // =====================================================================
+  // 2. Pelvic Outlet — Inferior view (page 4)
+  // =====================================================================
+  {
+    id: 'pelvic_outlet_inferior',
+    label: 'Outlet Inferior',
+    mechanic: 'blank_panels',
+    imageSrc: 'img/PRI-1-Pelvic-Outlet.jpg',
+    structures: OUTLET_INFERIOR_STRUCTURES
+  },
+
+  // =====================================================================
+  // 3. Pelvic Outlet — Inferior (Flipped) — same image CSS-mirrored
+  // =====================================================================
+  {
+    id: 'pelvic_outlet_inferior_flipped',
+    label: 'Outlet Inferior (Flipped)',
+    mechanic: 'blank_panels',
+    imageSrc: 'img/PRI-1-Pelvic-Outlet.jpg',
+    flipped: true,
+    structures: OUTLET_INFERIOR_STRUCTURES
+  },
+
+  // =====================================================================
+  // 4. Pelvic Inlet (page 2)
+  // =====================================================================
+  {
+    id: 'pelvic_inlet',
+    label: 'Pelvic Inlet',
+    mechanic: 'blank_panels',
+    imageSrc: 'img/PRI-1-Pelvic-Inlet.png',
+    structures: [
+      {
+        id: 'iliacus',
+        label: 'Iliacus (L)',
+        type: 'muscle',
+        priColor: '--pri-red',
+        panelBox: {x: 0, y: 10, w: 11, h: 3.5},
+        arrowTo: {x: 62, y: 35},
+        priDetail: {
+          layer1: {
+            standard: 'Hip flexion, stabilizes hip joint.',
+            pri: 'L iliacus \u2192 L IP ER (anterior tilt). Frontal Adduction family.',
+            chain: 'Anterior chain \u2014 frontal adduction'
+          },
+          layer2: {
+            laic: 'L iliacus pulls left ilium into anterior tilt (IP ER). Part of L AIC pattern.'
+          },
+          layer3: {
+            treatment: 'Inhibited through reciprocal inhibition. Not directly facilitated.'
+          }
+        }
+      },
+      {
+        id: 'sartorius',
+        label: 'Sartorius (R)',
+        type: 'muscle',
+        priColor: '--pri-brown',
+        panelBox: {x: 0, y: 55, w: 12, h: 3.5},
+        arrowTo: {x: 22, y: 72},
+        priDetail: {
+          layer1: {
+            standard: 'Hip flexion, abduction, ER; knee flexion, IR.',
+            pri: 'R sartorius \u2192 sagittal plane. Brown (Sagittal) family.',
+            chain: 'Anterior \u2014 sagittal plane'
+          }
+        }
+      },
+      {
+        id: 'rectus_femoris',
+        label: 'Rectus Femoris (R)',
+        type: 'muscle',
+        priColor: '--pri-brown',
+        panelBox: {x: 0, y: 70, w: 14.5, h: 3.5},
+        arrowTo: {x: 24, y: 82},
+        priDetail: {
+          layer1: {
+            standard: 'Hip flexion, knee extension.',
+            pri: 'R rectus femoris \u2192 sagittal plane. Brown (Sagittal) family.',
+            chain: 'Anterior \u2014 sagittal plane'
+          }
+        }
+      },
+      {
+        id: 'internal_oblique_ta',
+        label: 'Int. Oblique / TA (L)',
+        type: 'muscle',
+        priColor: '--pri-yellow',
+        panelBox: {x: 84, y: 10, w: 16, h: 3.5},
+        arrowTo: {x: 75, y: 18},
+        priDetail: {
+          layer1: {
+            standard: 'Trunk rotation, compression of abdominal contents.',
+            pri: 'L internal obliques + L transverse abdominis \u2192 Integration (Yellow). ZOA restoration.',
+            chain: 'Integration \u2014 abdominal wall'
+          },
+          layer2: {
+            laic: 'Key Integration muscles. Restore ZOA, oppose diaphragm descent on L side.'
+          },
+          layer3: {
+            treatment: 'Facilitated through 90-90 hip lift with balloon, wall squat exhale.'
+          }
+        }
+      }
+    ]
+  },
+
+  // =====================================================================
+  // 5. Pelvic Inlet (Bone) — Glute Med / Glute Max
+  // =====================================================================
+  {
+    id: 'pelvic_inlet_bone',
+    label: 'Glute Med / Max',
+    mechanic: 'blank_panels',
+    imageSrc: 'img/PRI-1-glute-med--glute-max.png',
+    structures: [
+      {
+        id: 'glute_medius',
+        label: 'Gluteus Medius (L)',
+        type: 'muscle',
+        priColor: '--pri-orange',
+        panelBox: {x: 0, y: 10, w: 14.5, h: 3.5},
+        arrowTo: {x: 22, y: 22},
+        priDetail: {
+          layer1: {
+            standard: 'Hip abduction, IR (anterior fibers), ER (posterior fibers).',
+            pri: 'L gluteus medius \u2192 Transverse Plane. Orange family.',
+            chain: 'Lateral \u2014 transverse plane'
+          },
+          layer2: {
+            laic: 'L glute med anterior fibers assist femoral IR correction. Transverse plane stabilizer.'
+          },
+          layer3: {
+            treatment: 'Step 5: L glute med facilitation. HALT 3/5 \u2192 4/5.'
+          }
+        }
+      },
+      {
+        id: 'glute_maximus_inlet',
+        label: 'Gluteus Maximus (R)',
+        type: 'muscle',
+        priColor: '--pri-violet',
+        panelBox: {x: 83, y: 10, w: 17, h: 3.5},
+        arrowTo: {x: 62, y: 42},
+        priDetail: {
+          layer1: {
+            standard: 'Hip extension, ER, abduction (upper fibers).',
+            pri: 'R glute max (superior fibers) \u2192 R IS ER. Internal Rotation (Violet) family.',
+            chain: 'Posterior \u2014 internal rotation'
+          },
+          layer2: {
+            laic: 'R superior glute max = corrective. L glute max compensatory in L AIC.'
+          },
+          layer3: {
+            treatment: 'Step 6: R glute max facilitation. HALT 4/5 \u2192 5/5.'
+          }
+        }
+      }
+    ]
+  },
+
+  // =====================================================================
+  // 6. Anterior Pelvis — label_hunt (Netter image)
+  // =====================================================================
   {
     id: 'anterior_pelvis',
     label: 'Anterior Pelvis',
     mechanic: 'label_hunt',
     imageSrc: 'img/pelvis-angle-r-side.png',
     structures: [
+      // --- Left column (top to bottom) ---
       {
         id: 'iliac_crest_l',
         label: 'Iliac crest',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 1, y: 7, w: 10, h: 3},
+        hitbox: {x: 0, y: 7.5, w: 6, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Superior border of the ilium. Attachment site for abdominal and back muscles.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Superior border of the ilium. Attachment site for abdominal and back muscles.'}}
       },
       {
         id: 'inner_lip',
         label: 'Inner lip',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 10, y: 10, w: 8, h: 2.5},
+        hitbox: {x: 8, y: 4.5, w: 7, h: 2.5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Medial edge of the iliac crest. Origin of transversus abdominis and iliacus.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Medial edge of the iliac crest. Origin of transversus abdominis and iliacus.'}}
       },
       {
         id: 'intermediate_zone',
         label: 'Intermediate zone',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 7, y: 13, w: 14, h: 2.5},
+        hitbox: {x: 6.5, y: 8, w: 13, h: 2.5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Middle area of the iliac crest between inner and outer lips. Origin of internal oblique.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Middle area of the iliac crest. Origin of internal oblique.'}}
       },
       {
         id: 'outer_lip',
         label: 'Outer lip',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 10, y: 16, w: 8, h: 2.5},
+        hitbox: {x: 8, y: 12, w: 7, h: 2.5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Lateral edge of the iliac crest. Origin of external oblique and latissimus dorsi.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Lateral edge of the iliac crest. Origin of external oblique and latissimus dorsi.'}}
       },
       {
         id: 'tubercle',
         label: 'Tubercle',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 8, y: 19, w: 8, h: 2.5},
+        hitbox: {x: 8, y: 16.5, w: 8, h: 2.5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Palpable prominence on the outer lip of the iliac crest. Landmark for the inguinal ligament.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Prominence on the outer lip of the iliac crest. Landmark for inguinal ligament.'}}
       },
       {
         id: 'asis_l',
         label: 'Anterior superior iliac spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 34, w: 16, h: 5},
+        hitbox: {x: 0, y: 33.5, w: 16, h: 5.5},
         hasPriData: true,
         priDetail: {
           layer1: {
             standard: 'Anterior projection of the iliac crest. Attachment of inguinal ligament and sartorius.',
-            pri: 'INLET landmark. Defines anterior border of pelvic inlet with sacral base and pubic symphysis. ASIS drops forward/down in IP ER (anterior tilt).',
+            pri: 'INLET landmark. ASIS drops forward/down in IP ER (anterior tilt).',
             chain: 'Inlet reference \u2014 IP joint'
           }
         }
@@ -486,54 +715,39 @@ window.ANATOMIZE_IMAGES = [
         label: 'Anterior inferior iliac spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 41, w: 16, h: 5},
+        hitbox: {x: 0, y: 42, w: 16, h: 5.5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Bony projection inferior to ASIS. Origin of rectus femoris (straight head).',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Bony projection inferior to ASIS. Origin of rectus femoris (straight head).'}}
       },
       {
         id: 'iliopubic_eminence',
         label: 'Iliopubic eminence',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 54, w: 15, h: 4},
+        hitbox: {x: 0, y: 52, w: 14, h: 5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Bony ridge at junction of ilium and superior pubic ramus. Landmark for the pelvic brim.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Bony ridge at junction of ilium and superior pubic ramus. Pelvic brim landmark.'}}
       },
       {
         id: 'superior_pubic_ramus',
         label: 'Superior pubic ramus',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 62, w: 15, h: 4},
+        hitbox: {x: 0, y: 61, w: 13, h: 5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Upper branch of the pubic bone extending from body to iliopubic eminence.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Upper branch of the pubic bone extending from body to iliopubic eminence.'}}
       },
       {
         id: 'obturator_foramen_l',
         label: 'Obturator foramen',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 70, w: 14, h: 4},
+        hitbox: {x: 0, y: 70, w: 13, h: 5},
         hasPriData: true,
         priDetail: {
           layer1: {
-            standard: 'Large opening in the hip bone formed by pubis and ischium. Mostly covered by obturator membrane.',
-            pri: 'Obturator internus originates from inner surface. Key PRI muscle for outlet abduction. L obturator internus \u2192 L IsP ER (outlet opening).',
+            standard: 'Large opening formed by pubis and ischium. Covered by obturator membrane.',
+            pri: 'Obturator internus originates from inner surface. Key PRI muscle for outlet abduction.',
             chain: 'Outlet reference \u2014 IsP joint'
           }
         }
@@ -545,122 +759,74 @@ window.ANATOMIZE_IMAGES = [
         priColor: '--pri-neutral',
         hitbox: {x: 0, y: 78, w: 13, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Small projection on the superior pubic ramus. Attachment for the inguinal ligament.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Small projection on the superior pubic ramus. Attachment for inguinal ligament.'}}
       },
       {
         id: 'inferior_pubic_ramus',
         label: 'Inferior pubic ramus',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 84, w: 14, h: 4},
+        hitbox: {x: 0, y: 84.5, w: 13, h: 5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Lower branch of the pubic bone joining the ischial ramus. Forms inferior border of obturator foramen.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Lower branch of the pubic bone joining the ischial ramus.'}}
       },
+      // --- Center / spine labels ---
       {
         id: 'sacral_promontory',
         label: 'Sacral promontory',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 24, y: 10, w: 16, h: 3},
+        hitbox: {x: 21, y: 6, w: 14, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Anterior projection of the S1 vertebral body. Superior border of the pelvic inlet.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Anterior projection of S1 vertebral body. Superior border of the pelvic inlet.'}}
       },
       {
         id: 'l2_vertebra',
         label: 'L2',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 42, y: 1, w: 4, h: 2.5},
+        hitbox: {x: 39.5, y: 1, w: 3, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Second lumbar vertebra.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Second lumbar vertebra.'}}
       },
       {
         id: 'l3_vertebra',
         label: 'L3',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 42, y: 5, w: 4, h: 2.5},
+        hitbox: {x: 37.5, y: 7.5, w: 3, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Third lumbar vertebra.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Third lumbar vertebra.'}}
       },
       {
         id: 'l4_vertebra',
         label: 'L4',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 42, y: 9, w: 4, h: 2.5},
+        hitbox: {x: 37.5, y: 14.5, w: 3, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Fourth lumbar vertebra.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Fourth lumbar vertebra.'}}
       },
       {
         id: 'l5_vertebra',
         label: 'L5',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 42, y: 14, w: 4, h: 2.5},
+        hitbox: {x: 37, y: 21, w: 3, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Fifth lumbar vertebra. Articulates with the sacrum at L5-S1.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
-      },
-      {
-        id: 'transverse_processes',
-        label: 'Transverse processes of lumbar vertebrae',
-        type: 'landmark',
-        priColor: '--pri-neutral',
-        hitbox: {x: 62, y: 2, w: 30, h: 4},
-        hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Lateral projections from lumbar vertebral bodies. Attachment sites for psoas major and quadratus lumborum.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Fifth lumbar vertebra. Articulates with the sacrum at L5-S1.'}}
       },
       {
         id: 'sacrum_ant',
         label: 'Sacrum',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 44, y: 43, w: 9, h: 3},
+        hitbox: {x: 35, y: 46, w: 9, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
             standard: 'Triangular bone formed by fusion of five sacral vertebrae. Keystone of the pelvic ring.',
-            pri: 'INLET landmark (sacral base = posterior inlet border). Also posterior outlet reference. IS IR/ER = ilium on sacrum. SI IR/ER = sacrum on ilium.',
+            pri: 'INLET landmark (sacral base = posterior inlet border). IS/SI joint reference.',
             chain: 'Inlet/Outlet reference \u2014 IS and SI joints'
           }
         }
@@ -670,111 +836,74 @@ window.ANATOMIZE_IMAGES = [
         label: 'Coccyx',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 46, y: 54, w: 8, h: 3},
+        hitbox: {x: 36, y: 52.5, w: 8, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
-            standard: 'Terminal segment of the vertebral column, formed by fusion of 3-5 coccygeal vertebrae.',
-            pri: 'OUTLET landmark. Coccyx + ischial tuberosities + pubic symphysis define outlet borders. Coccygeus muscle attaches here. R coccygeus \u2192 R SI IR.',
+            standard: 'Terminal segment of the vertebral column.',
+            pri: 'OUTLET landmark. Coccyx + ischial tuberosities + pubic symphysis define outlet. R coccygeus \u2192 R SI IR.',
             chain: 'Outlet reference \u2014 SI joint'
           }
         }
       },
+      // --- Top right ---
       {
-        id: 'inferior_pubic_ligament',
-        label: 'Inferior pubic ligament',
+        id: 'transverse_processes',
+        label: 'Transverse processes of lumbar vertebrae',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 30, y: 89, w: 18, h: 3},
+        hitbox: {x: 54, y: 1, w: 38, h: 3.5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Ligament arching across the inferior aspect of the pubic symphysis, forming the upper border of the pubic arch.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
-      },
-      {
-        id: 'pubic_arch',
-        label: 'Pubic arch',
-        type: 'landmark',
-        priColor: '--pri-neutral',
-        hitbox: {x: 55, y: 90, w: 10, h: 3},
-        hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'The arch formed by the convergence of the inferior pubic rami. Angle differs between males and females.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Lateral projections from lumbar vertebral bodies. Attachment for psoas major and quadratus lumborum.'}}
       },
       {
         id: 'iliac_tuberosity',
         label: 'Iliac tuberosity',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 7, w: 13, h: 3},
+        hitbox: {x: 71, y: 6.5, w: 14, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Roughened area on posterior ilium. Attachment of the posterior sacroiliac ligaments.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Roughened area on posterior ilium. Attachment of posterior sacroiliac ligaments.'}}
       },
+      // --- Right column (top to bottom) ---
       {
         id: 'iliac_crest_r',
         label: 'Iliac crest',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 82, y: 12, w: 11, h: 3},
+        hitbox: {x: 78, y: 11, w: 11, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Superior border of the ilium (right side). Attachment site for abdominal and back muscles.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Superior border of the ilium (right side).'}}
       },
       {
         id: 'ala_of_ilium',
         label: 'Ala of ilium',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 82, y: 18, w: 11, h: 3},
+        hitbox: {x: 79, y: 16, w: 12, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Wing-shaped flat expansion of the upper ilium. Provides surface for gluteal muscle attachment.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Wing-shaped expansion of the upper ilium. Surface for gluteal muscle attachment.'}}
       },
       {
         id: 'greater_sciatic_notch',
         label: 'Greater sciatic notch',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 24, w: 16, h: 4},
+        hitbox: {x: 77, y: 23, w: 16, h: 5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Large notch on the posterior ilium/ischium. Piriformis and sciatic nerve pass through here.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Large notch on the posterior ilium/ischium. Piriformis and sciatic nerve pass through.'}}
       },
       {
         id: 'arcuate_line',
         label: 'Arcuate line',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 82, y: 32, w: 12, h: 3},
+        hitbox: {x: 79, y: 31, w: 13, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
-            standard: 'Smooth ridge on the internal surface of the ilium. Part of the linea terminalis defining the pelvic brim.',
-            pri: 'Part of the linea terminalis \u2014 defines the pelvic brim (inlet border). Separates greater (false) pelvis from lesser (true) pelvis.',
+            standard: 'Ridge on internal surface of the ilium. Part of the linea terminalis (pelvic brim).',
+            pri: 'Defines the pelvic brim (inlet border). Separates false from true pelvis.',
             chain: 'Inlet reference \u2014 pelvic brim'
           }
         }
@@ -784,68 +913,48 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ischial spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 82, y: 38, w: 12, h: 3},
+        hitbox: {x: 79, y: 37, w: 13, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Pointed eminence on the posterior ischium. Attachment of the sacrospinous ligament and coccygeus muscle.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Pointed eminence on the posterior ischium. Attachment of sacrospinous ligament and coccygeus.'}}
       },
       {
         id: 'lesser_sciatic_notch',
         label: 'Lesser sciatic notch',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 44, w: 15, h: 4},
+        hitbox: {x: 77, y: 43, w: 14, h: 5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Notch inferior to the ischial spine. Obturator internus tendon passes through the lesser sciatic foramen.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Notch inferior to ischial spine. Obturator internus tendon passes through.'}}
       },
       {
         id: 'greater_trochanter',
         label: 'Greater trochanter of femur',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 52, w: 18, h: 5},
+        hitbox: {x: 77, y: 51, w: 20, h: 5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Large bony prominence on the lateral proximal femur. Attachment of gluteus medius, gluteus minimus, and piriformis.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Large bony prominence on lateral proximal femur. Attachment of gluteus medius, minimus, piriformis.'}}
       },
       {
         id: 'pecten_pubis',
         label: 'Pecten pubis',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 82, y: 62, w: 13, h: 3},
+        hitbox: {x: 79, y: 61, w: 13, h: 3},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Ridge on the superior ramus of the pubic bone forming part of the pelvic brim. Attachment of pectineus.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Ridge on the superior pubic ramus forming part of the pelvic brim. Attachment of pectineus.'}}
       },
       {
         id: 'pubic_symphysis_ant',
         label: 'Pubic symphysis',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 70, w: 15, h: 3},
+        hitbox: {x: 78, y: 68.5, w: 16, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
             standard: 'Midline cartilaginous joint connecting left and right pubic bones.',
-            pri: 'SHARED landmark \u2014 both inlet AND outlet. The reference bone for IP (Ilio-Pubo) and IsP (Ischio-Pubo) joints. Pubalgia: B PEC position creates shearing here.',
+            pri: 'SHARED landmark \u2014 both inlet AND outlet. Reference for IP and IsP joints.',
             chain: 'Inlet/Outlet reference \u2014 IP and IsP joints'
           }
         }
@@ -855,12 +964,12 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ischial tuberosity',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 80, y: 76, w: 15, h: 3},
+        hitbox: {x: 78, y: 75, w: 16, h: 3},
         hasPriData: true,
         priDetail: {
           layer1: {
-            standard: 'Weight-bearing bony prominence of the ischium. Origin of hamstrings.',
-            pri: 'OUTLET landmark. Defines lateral borders of pelvic outlet. IsP IR = ischial tuberosities adducting (outlet closing). IsP ER = abducting (outlet opening, pelvic diaphragm ascension).',
+            standard: 'Weight-bearing bony prominence. Origin of hamstrings.',
+            pri: 'OUTLET landmark. IsP IR = tuberosities adducting. IsP ER = abducting (outlet opening).',
             chain: 'Outlet reference \u2014 IsP joint'
           }
         }
@@ -870,14 +979,28 @@ window.ANATOMIZE_IMAGES = [
         label: 'Lesser trochanter of femur',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 82, w: 18, h: 5},
+        hitbox: {x: 77, y: 82, w: 20, h: 5},
         hasPriData: false,
-        priDetail: {
-          layer1: {
-            standard: 'Small conical projection on the posteromedial proximal femur. Attachment of the iliopsoas tendon.',
-            note: 'Bony landmark \u2014 no PRI color assignment.'
-          }
-        }
+        priDetail: {layer1: {standard: 'Small conical projection on posteromedial proximal femur. Attachment of iliopsoas.'}}
+      },
+      // --- Bottom center ---
+      {
+        id: 'inferior_pubic_ligament',
+        label: 'Inferior pubic ligament',
+        type: 'landmark',
+        priColor: '--pri-neutral',
+        hitbox: {x: 29, y: 89, w: 19, h: 3},
+        hasPriData: false,
+        priDetail: {layer1: {standard: 'Ligament arching across the inferior pubic symphysis.'}}
+      },
+      {
+        id: 'pubic_arch',
+        label: 'Pubic arch',
+        type: 'landmark',
+        priColor: '--pri-neutral',
+        hitbox: {x: 48, y: 89, w: 11, h: 3},
+        hasPriData: false,
+        priDetail: {layer1: {standard: 'Arch formed by convergence of inferior pubic rami.'}}
       }
     ]
   }

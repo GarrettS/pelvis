@@ -4,6 +4,7 @@ window.AnatomizeModule = (() => {
   let state = {
     imageId: null,
     mechanic: null,
+    flipped: false,
     structures: [],
     queue: [],
     current: null,
@@ -11,18 +12,31 @@ window.AnatomizeModule = (() => {
     identified: new Set(),
     firstAttempt: new Set(),
     attempts: 0,
-    mode: 'standard',
-    filter: 'all',
-    timer: null,
-    startTime: null,
-    speedResults: [],
-    reviewing: false
+    filter: 'all'
   };
 
   let dom = {};
   let isMobile = false;
   let initialized = false;
   let attemptedOnCurrent = false;
+
+  /**
+   * Returns the point on the edge of `box` closest to `target`.
+   * All values in the 0-100 SVG coordinate space.
+   */
+  function edgePoint(box, target) {
+    const cx = box.x + box.w / 2;
+    const cy = box.y + box.h / 2;
+    const dx = target.x - cx;
+    const dy = target.y - cy;
+    if (dx === 0 && dy === 0) return {x: cx, y: cy};
+    const hw = box.w / 2;
+    const hh = box.h / 2;
+    const sx = dx !== 0 ? hw / Math.abs(dx) : Infinity;
+    const sy = dy !== 0 ? hh / Math.abs(dy) : Infinity;
+    const s = Math.min(sx, sy);
+    return {x: cx + dx * s, y: cy + dy * s};
+  }
 
   function init() {
     const container = document.querySelector(
@@ -32,13 +46,13 @@ window.AnatomizeModule = (() => {
     dom.container = container;
     dom.imageSelector = container.querySelector('.anatomize-image-selector');
     dom.filterRow = container.querySelector('.anatomize-filter');
-    dom.modeToggle = container.querySelector('.anatomize-mode-toggle');
     dom.resetBtn = container.querySelector('.anatomize-reset');
     dom.prompt = container.querySelector('.anatomize-prompt');
+    dom.nextSlot = container.querySelector('.anatomize-next-slot');
     dom.arena = container.querySelector('.anatomize-arena');
     dom.scoreDisplay = container.querySelector('.anatomize-score');
     dom.detail = container.querySelector('.anatomize-detail');
-    dom.imageTitle = container.parentElement.querySelector('.anatomize-image-title');
+    dom.imageTitle = container.querySelector('.anatomize-image-title');
 
     isMobile = window.matchMedia('(max-width: 600px)').matches;
     window.matchMedia('(max-width: 600px)').addEventListener(
@@ -77,6 +91,7 @@ window.AnatomizeModule = (() => {
     resetState();
     dom.arena.textContent = '';
     dom.prompt.textContent = '';
+    dom.nextSlot.textContent = '';
     dom.scoreDisplay.textContent = '';
     dom.detail.textContent = '';
   }
@@ -84,6 +99,7 @@ window.AnatomizeModule = (() => {
   function resetState() {
     state.imageId = null;
     state.mechanic = null;
+    state.flipped = false;
     state.structures = [];
     state.queue = [];
     state.current = null;
@@ -91,10 +107,6 @@ window.AnatomizeModule = (() => {
     state.identified = new Set();
     state.firstAttempt = new Set();
     state.attempts = 0;
-    state.timer = null;
-    state.startTime = null;
-    state.speedResults = [];
-    state.reviewing = false;
     attemptedOnCurrent = false;
   }
 
@@ -141,29 +153,6 @@ window.AnatomizeModule = (() => {
       updateFilterButtons();
       resetSession();
     });
-
-    dom.modeToggle.textContent = '';
-    const modes = [
-      {key: 'standard', label: 'Standard'},
-      {key: 'speed', label: 'Speed Round'}
-    ];
-    modes.forEach((m) => {
-      const btn = document.createElement('button');
-      btn.className = 'btn';
-      btn.textContent = m.label;
-      btn.dataset.mode = m.key;
-      if (m.key === state.mode) {
-        btn.classList.add('active');
-      }
-      dom.modeToggle.appendChild(btn);
-    });
-    dom.modeToggle.addEventListener('click', (e) => {
-      const btn = e.target.closest('button[data-mode]');
-      if (!btn) return;
-      state.mode = btn.dataset.mode;
-      updateModeButtons();
-      resetSession();
-    });
   }
 
   function updateFilterButtons() {
@@ -171,12 +160,6 @@ window.AnatomizeModule = (() => {
       btn.classList.toggle('active', btn.dataset.filter === state.filter);
     });
     updateFilterDisabled();
-  }
-
-  function updateModeButtons() {
-    dom.modeToggle.querySelectorAll('button').forEach((btn) => {
-      btn.classList.toggle('active', btn.dataset.mode === state.mode);
-    });
   }
 
   function updateFilterDisabled() {
@@ -214,6 +197,7 @@ window.AnatomizeModule = (() => {
 
     state.imageId = imageId;
     state.mechanic = imgSet.mechanic;
+    state.flipped = imgSet.flipped || false;
 
     if (dom.imageTitle) {
       dom.imageTitle.textContent = imgSet.label;
@@ -236,10 +220,6 @@ window.AnatomizeModule = (() => {
     state.firstAttempt = new Set();
     state.attempts = 0;
     state.current = null;
-    state.timer = null;
-    state.startTime = null;
-    state.speedResults = [];
-    state.reviewing = false;
     attemptedOnCurrent = false;
 
     state.structures = imgSet.structures.filter(
@@ -247,6 +227,7 @@ window.AnatomizeModule = (() => {
     state.queue = shuffle(state.structures.map((s) => s.id));
 
     dom.detail.textContent = '';
+    dom.nextSlot.textContent = '';
 
     if (isMobile) {
       renderMobile(imgSet);
@@ -273,6 +254,9 @@ window.AnatomizeModule = (() => {
     dom.arena.textContent = '';
     const wrap = document.createElement('div');
     wrap.className = 'anatomize-arena-wrap';
+    if (imgSet.flipped) {
+      wrap.classList.add('anatomize-flipped');
+    }
 
     const img = document.createElement('img');
     img.src = imgSet.imageSrc;
@@ -284,63 +268,42 @@ window.AnatomizeModule = (() => {
     svg.setAttribute('viewBox', '0 0 100 100');
     svg.setAttribute('preserveAspectRatio', 'none');
     svg.classList.add('anatomize-svg-overlay');
-    svg.style.position = 'absolute';
-    svg.style.top = '0';
-    svg.style.left = '0';
-    svg.style.width = '100%';
-    svg.style.height = '100%';
 
     state.structures.forEach((s) => {
       const group = document.createElementNS(SVG_NS, 'g');
       group.dataset.structureId = s.id;
+      const color = resolvePriColor(s.priColor);
 
-      if (s.polygon) {
-        const poly = document.createElementNS(SVG_NS, 'polygon');
-        poly.setAttribute('points',
-            s.polygon.map((p) => p.join(',')).join(' '));
-        poly.classList.add('anatomize-polygon');
-        poly.style.opacity = '0';
-        poly.style.transition = 'opacity 300ms ease';
-        const color = resolvePriColor(s.priColor);
-        poly.style.fill = withAlpha(color, 0.25);
-        poly.style.stroke = withAlpha(color, 0.6);
-        poly.style.strokeWidth = '0.3';
-        group.appendChild(poly);
-      }
-
-      if (s.landmarkMarker) {
-        const circle = document.createElementNS(SVG_NS, 'circle');
-        circle.setAttribute('cx', s.landmarkMarker.x);
-        circle.setAttribute('cy', s.landmarkMarker.y);
-        circle.setAttribute('r', '2');
-        circle.classList.add('anatomize-landmark-circle');
-        circle.style.opacity = '0';
-        circle.style.transition = 'opacity 300ms ease';
-        const color = resolvePriColor(s.priColor);
-        circle.style.fill = withAlpha(color, 0.25);
-        circle.style.stroke = withAlpha(color, 0.6);
-        circle.style.strokeWidth = '0.3';
-        group.appendChild(circle);
-      }
+      const marker = document.createElementNS(SVG_NS, 'circle');
+      marker.setAttribute('cx', s.arrowTo.x);
+      marker.setAttribute('cy', s.arrowTo.y);
+      marker.setAttribute('r', '1.8');
+      marker.classList.add('anatomize-target-circle');
+      marker.style.opacity = '0';
+      marker.style.transition = 'opacity 300ms ease';
+      marker.style.fill = withAlpha(color, 0.35);
+      marker.style.stroke = withAlpha(color, 0.7);
+      marker.style.strokeWidth = '0.4';
+      group.appendChild(marker);
 
       if (s.panelBox) {
         const pb = s.panelBox;
-        const centerX = pb.x + pb.w / 2;
-        const centerY = pb.y + pb.h / 2;
+        const ep = edgePoint(pb, s.arrowTo);
 
         const line = document.createElementNS(SVG_NS, 'line');
-        line.setAttribute('x1', centerX);
-        line.setAttribute('y1', centerY);
+        line.setAttribute('x1', ep.x);
+        line.setAttribute('y1', ep.y);
         line.setAttribute('x2', s.arrowTo.x);
         line.setAttribute('y2', s.arrowTo.y);
         line.classList.add('anatomize-arrow-line');
-        line.style.stroke = 'var(--text-dim)';
+        line.style.stroke = withAlpha(color, 0.6);
         line.style.strokeWidth = '0.3';
         group.appendChild(line);
 
         const arrowHead = createArrowHead(
-            centerX, centerY, s.arrowTo.x, s.arrowTo.y);
-        arrowHead.style.fill = 'var(--text-dim)';
+            ep.x, ep.y, s.arrowTo.x, s.arrowTo.y);
+        arrowHead.style.fill = withAlpha(color, 0.6);
+        arrowHead.classList.add('anatomize-arrowhead');
         group.appendChild(arrowHead);
 
         const rect = document.createElementNS(SVG_NS, 'rect');
@@ -350,23 +313,30 @@ window.AnatomizeModule = (() => {
         rect.setAttribute('height', pb.h);
         rect.classList.add('anatomize-panel-rect');
         rect.style.fill = 'transparent';
-        rect.style.stroke = 'var(--border)';
+        rect.style.stroke = withAlpha(color, 0.5);
         rect.style.strokeWidth = '0.3';
         rect.style.cursor = 'pointer';
         rect.dataset.structureId = s.id;
         group.appendChild(rect);
 
+        const fontSize = Math.min(1.6, pb.w / (s.label.length * 0.55));
         const text = document.createElementNS(SVG_NS, 'text');
         text.setAttribute('x', pb.x + pb.w / 2);
         text.setAttribute('y', pb.y + pb.h / 2 + 0.5);
         text.setAttribute('text-anchor', 'middle');
         text.setAttribute('dominant-baseline', 'middle');
         text.classList.add('anatomize-panel-label');
-        text.style.fontSize = '1.8px';
+        text.style.fontSize = fontSize + 'px';
         text.style.fontFamily = 'var(--mono)';
         text.style.fill = 'var(--text)';
         text.style.display = 'none';
         text.textContent = s.label;
+        if (imgSet.flipped) {
+          const tx = pb.x + pb.w / 2;
+          const ty = pb.y + pb.h / 2 + 0.5;
+          text.setAttribute('transform',
+              `translate(${tx},${ty}) scale(-1,1) translate(${-tx},${-ty})`);
+        }
         group.appendChild(text);
       }
 
@@ -521,38 +491,24 @@ window.AnatomizeModule = (() => {
 
     const structure = state.structures.find((s) => s.id === state.current);
     dom.prompt.textContent = '';
+    dom.nextSlot.textContent = '';
+
     const promptText = document.createElement('span');
     promptText.className = 'anatomize-prompt-text';
-    promptText.style.fontSize = 'var(--text-2xl)';
-    promptText.style.fontWeight = '700';
     promptText.textContent = structure ? structure.label : '';
-    dom.prompt.appendChild(promptText);
-
-    if (state.mode === 'speed' && state.startTime) {
-      updateTimerDisplay();
+    if (structure) {
+      const color = resolvePriColor(structure.priColor);
+      promptText.style.color = color;
     }
+    dom.prompt.appendChild(promptText);
   }
 
   function handleClick(structureId) {
-    if (state.reviewing) {
-      const structure = state.structures.find((s) => s.id === structureId);
-      if (structure) {
-        renderDetailPanel(structure);
-      }
-      return;
-    }
-
     if (!state.current) return;
-    if (state.mode === 'standard' &&
-        state.identified.has(structureId)) return;
+    if (state.identified.has(structureId)) return;
 
     const correct = structureId === state.current;
-
-    if (state.mode === 'standard') {
-      handleStandardClick(structureId, correct);
-    } else {
-      handleSpeedClick(structureId, correct);
-    }
+    handleStandardClick(structureId, correct);
   }
 
   function handleStandardClick(structureId, correct) {
@@ -582,9 +538,7 @@ window.AnatomizeModule = (() => {
   }
 
   function showNextButton() {
-    const existing = dom.prompt.querySelector('.anatomize-next-btn');
-    if (existing) existing.remove();
-
+    dom.nextSlot.textContent = '';
     const btn = document.createElement('button');
     btn.className = 'btn anatomize-next-btn';
     btn.textContent = 'Next \u2192';
@@ -592,33 +546,7 @@ window.AnatomizeModule = (() => {
       btn.remove();
       promptNext();
     });
-    dom.prompt.appendChild(btn);
-  }
-
-  function handleSpeedClick(structureId, correct) {
-    if (!state.startTime) {
-      state.startTime = Date.now();
-      state.timer = setInterval(updateTimerDisplay, 100);
-    }
-
-    state.attempts++;
-    const structure = state.structures.find(
-        (s) => s.id === state.current);
-    state.speedResults.push({
-      structureId: state.current,
-      clicked: structureId,
-      correct: correct,
-      label: structure ? structure.label : ''
-    });
-
-    if (correct) {
-      state.score++;
-      state.identified.add(state.current);
-      state.firstAttempt.add(state.current);
-    }
-
-    updateScore();
-    promptNext();
+    dom.nextSlot.appendChild(btn);
   }
 
   function renderVisualFeedback(structureId, correct) {
@@ -645,9 +573,8 @@ window.AnatomizeModule = (() => {
     const rect = group.querySelector('.anatomize-panel-rect');
     const label = group.querySelector('.anatomize-panel-label');
     const line = group.querySelector('.anatomize-arrow-line');
-    const arrowHead = group.querySelector('polygon:not(.anatomize-polygon)');
-    const polygon = group.querySelector('.anatomize-polygon');
-    const landmark = group.querySelector('.anatomize-landmark-circle');
+    const arrowHead = group.querySelector('.anatomize-arrowhead');
+    const targetCircle = group.querySelector('.anatomize-target-circle');
     const pb = structure.panelBox;
 
     if (correct) {
@@ -668,21 +595,24 @@ window.AnatomizeModule = (() => {
       if (arrowHead) {
         arrowHead.style.fill = color;
       }
-      if (polygon) {
-        polygon.style.opacity = '1';
-      }
-      if (landmark) {
-        landmark.style.opacity = '1';
+      if (targetCircle) {
+        targetCircle.style.opacity = '1';
       }
 
       if (pb) {
+        const cx = pb.x + pb.w - 1.5;
+        const cy = pb.y + 2.5;
         const check = document.createElementNS(SVG_NS, 'text');
-        check.setAttribute('x', pb.x + pb.w - 1.5);
-        check.setAttribute('y', pb.y + 2.5);
+        check.setAttribute('x', cx);
+        check.setAttribute('y', cy);
         check.classList.add('anatomize-check');
         check.style.fontSize = '2.5px';
         check.style.fill = 'var(--green)';
         check.textContent = '\u2713';
+        if (state.flipped) {
+          check.setAttribute('transform',
+              `translate(${cx},${cy}) scale(-1,1) translate(${-cx},${-cy})`);
+        }
         group.appendChild(check);
       }
     } else {
@@ -697,13 +627,19 @@ window.AnatomizeModule = (() => {
       }
 
       if (pb) {
+        const mx = pb.x + pb.w - 1.5;
+        const my = pb.y + 2.5;
         const xMark = document.createElementNS(SVG_NS, 'text');
-        xMark.setAttribute('x', pb.x + pb.w - 1.5);
-        xMark.setAttribute('y', pb.y + 2.5);
+        xMark.setAttribute('x', mx);
+        xMark.setAttribute('y', my);
         xMark.classList.add('anatomize-x');
         xMark.style.fontSize = '2.5px';
         xMark.style.fill = 'var(--red)';
         xMark.textContent = '\u2717';
+        if (state.flipped) {
+          xMark.setAttribute('transform',
+              `translate(${mx},${my}) scale(-1,1) translate(${-mx},${-my})`);
+        }
         group.appendChild(xMark);
         setTimeout(() => {
           xMark.remove();
@@ -721,7 +657,6 @@ window.AnatomizeModule = (() => {
 
     if (correct) {
       const color = resolvePriColor(structure.priColor);
-      const bgColor = resolvePriBgColor(structure.priColor);
       hitbox.style.borderBottomColor = color;
       hitbox.style.backgroundColor = withAlpha(color, 0.10);
       hitbox.dataset.answered = 'true';
@@ -824,17 +759,12 @@ window.AnatomizeModule = (() => {
 
     const bullet = document.createElement('span');
     bullet.className = 'anatomize-detail-bullet';
-    bullet.style.display = 'inline-block';
-    bullet.style.width = '10px';
-    bullet.style.height = '10px';
-    bullet.style.borderRadius = '50%';
     bullet.style.backgroundColor = color;
-    bullet.style.flexShrink = '0';
     nameRow.appendChild(bullet);
 
     const nameText = document.createElement('span');
     nameText.style.fontWeight = '700';
-    nameText.style.color = 'var(--accent)';
+    nameText.style.color = color;
     nameText.style.fontFamily = 'var(--mono)';
     nameText.style.fontSize = 'var(--text-sm)';
     nameText.textContent = structure.label;
@@ -864,7 +794,7 @@ window.AnatomizeModule = (() => {
       note.style.fontStyle = 'italic';
       note.style.marginTop = '0.5rem';
       if (structure.type === 'landmark') {
-        note.textContent = 'Bony landmark — no PRI color assignment.';
+        note.textContent = 'Bony landmark \u2014 no PRI color assignment.';
       } else {
         note.textContent = 'Not a primary PRI muscle.';
       }
@@ -943,194 +873,26 @@ window.AnatomizeModule = (() => {
   function endSession() {
     state.current = null;
     dom.prompt.textContent = '';
+    dom.nextSlot.textContent = '';
 
-    if (state.mode === 'speed') {
-      if (state.timer) {
-        clearInterval(state.timer);
-        state.timer = null;
-      }
-      const elapsed = state.startTime ?
-          ((Date.now() - state.startTime) / 1000).toFixed(1) : '0.0';
-      revealSpeedResults();
-      state.reviewing = true;
+    const total = state.structures.length;
+    const accuracy = total > 0 ?
+        Math.round((state.firstAttempt.size / total) * 100) : 0;
 
-      const total = state.speedResults.length;
-      const correctCount = state.speedResults.filter(
-          (r) => r.correct).length;
-      const accuracy = total > 0 ?
-          Math.round((correctCount / total) * 100) : 0;
-
-      const summary = document.createElement('div');
-      summary.className = 'anatomize-end-summary';
-      summary.style.fontSize = 'var(--text-base)';
-      summary.style.fontFamily = 'var(--mono)';
-      summary.style.marginTop = '1rem';
-      summary.style.padding = '1rem';
-      summary.style.background = 'var(--surface)';
-      summary.style.border = '1px solid var(--border)';
-      summary.style.borderRadius = '6px';
-      summary.textContent =
-          `Session complete. Score: ${state.score}. ` +
-          `Accuracy: ${accuracy}%. Time: ${elapsed}s.`;
-      dom.prompt.appendChild(summary);
-    } else {
-      const total = state.structures.length;
-      const accuracy = total > 0 ?
-          Math.round((state.firstAttempt.size / total) * 100) : 0;
-
-      const summary = document.createElement('div');
-      summary.className = 'anatomize-end-summary';
-      summary.style.fontSize = 'var(--text-base)';
-      summary.style.fontFamily = 'var(--mono)';
-      summary.style.marginTop = '1rem';
-      summary.style.padding = '1rem';
-      summary.style.background = 'var(--surface)';
-      summary.style.border = '1px solid var(--border)';
-      summary.style.borderRadius = '6px';
-      summary.textContent =
-          `Session complete. Score: ${state.score}. Accuracy: ${accuracy}%.`;
-      dom.prompt.appendChild(summary);
-    }
-  }
-
-  function revealSpeedResults() {
-    state.speedResults.forEach((result) => {
-      const structure = state.structures.find(
-          (s) => s.id === result.structureId);
-      if (!structure) return;
-
-      if (isMobile) {
-        revealSpeedMobile(result, structure);
-      } else if (state.mechanic === 'blank_panels') {
-        revealSpeedBlankPanels(result, structure);
-      } else if (state.mechanic === 'label_hunt') {
-        revealSpeedLabelHunt(result, structure);
-      }
-    });
-  }
-
-  function revealSpeedBlankPanels(result, structure) {
-    const svg = dom.arena.querySelector('.anatomize-svg-overlay');
-    if (!svg) return;
-    const group = svg.querySelector(
-        `g[data-structure-id="${result.structureId}"]`);
-    if (!group) return;
-
-    const rect = group.querySelector('.anatomize-panel-rect');
-    const label = group.querySelector('.anatomize-panel-label');
-    const line = group.querySelector('.anatomize-arrow-line');
-    const arrowHead = group.querySelector(
-        'polygon:not(.anatomize-polygon)');
-    const polygon = group.querySelector('.anatomize-polygon');
-    const landmark = group.querySelector('.anatomize-landmark-circle');
-    const pb = structure.panelBox;
-
-    const color = result.correct ?
-        resolvePriColor(structure.priColor) : 'var(--red)';
-    const bgColor = result.correct ?
-        resolvePriBgColor(structure.priColor) : 'var(--error-bg)';
-
-    if (rect) {
-      rect.style.stroke = color;
-      rect.style.fill = bgColor;
-      rect.style.strokeWidth = '0.5';
-    }
-    if (label) {
-      label.style.display = '';
-    }
-    if (line) {
-      line.style.stroke = color;
-    }
-    if (arrowHead) {
-      arrowHead.style.fill = color;
-    }
-    if (result.correct) {
-      if (polygon) polygon.style.opacity = '1';
-      if (landmark) landmark.style.opacity = '1';
-    }
-
-    if (pb) {
-      const indicator = document.createElementNS(SVG_NS, 'text');
-      indicator.setAttribute('x', pb.x + pb.w - 1.5);
-      indicator.setAttribute('y', pb.y + 2.5);
-      indicator.classList.add(
-          result.correct ? 'anatomize-check' : 'anatomize-x');
-      indicator.style.fontSize = '2.5px';
-      indicator.style.fill = result.correct ? 'var(--green)' : 'var(--red)';
-      indicator.textContent = result.correct ? '\u2713' : '\u2717';
-      group.appendChild(indicator);
-    }
-  }
-
-  function revealSpeedLabelHunt(result, structure) {
-    const hitbox = dom.arena.querySelector(
-        `.anatomize-hitbox[data-structure-id="${result.structureId}"]`);
-    if (!hitbox) return;
-
-    const color = result.correct ?
-        resolvePriColor(structure.priColor) : 'var(--red)';
-
-    hitbox.style.borderBottomColor = color;
-    if (result.correct) {
-      hitbox.style.backgroundColor = withAlpha(
-          resolvePriColor(structure.priColor), 0.10);
-    } else {
-      hitbox.style.backgroundColor = 'var(--error-bg)';
-    }
-    hitbox.dataset.answered = 'true';
-
-    const indicator = document.createElement('span');
-    indicator.className = result.correct ?
-        'anatomize-check' : 'anatomize-x';
-    indicator.textContent = result.correct ? '\u2713' : '\u2717';
-    indicator.style.position = 'absolute';
-    indicator.style.top = '0';
-    indicator.style.right = '0';
-    indicator.style.color = result.correct ? 'var(--green)' : 'var(--red)';
-    indicator.style.fontSize = 'var(--text-xs)';
-    indicator.style.fontWeight = '700';
-    indicator.style.lineHeight = '1';
-    hitbox.appendChild(indicator);
-  }
-
-  function revealSpeedMobile(result, structure) {
-    const btn = dom.arena.querySelector(
-        `.anatomize-mobile-btn[data-structure-id="${result.structureId}"]`);
-    if (!btn) return;
-
-    const color = result.correct ?
-        resolvePriColor(structure.priColor) : 'var(--red)';
-
-    btn.textContent = structure.label +
-        (result.correct ? ' \u2713' : ' \u2717');
-    btn.style.borderColor = color;
-    btn.style.backgroundColor = result.correct ?
-        resolvePriBgColor(structure.priColor) : 'var(--error-bg)';
-    if (result.correct) {
-      btn.style.color = color;
-    }
+    const summary = document.createElement('div');
+    summary.className = 'anatomize-end-summary';
+    summary.textContent =
+        `Session complete. Score: ${state.score}. Accuracy: ${accuracy}%.`;
+    dom.prompt.appendChild(summary);
   }
 
   function updateScore() {
     dom.scoreDisplay.textContent = '';
     const scoreText = document.createElement('span');
     scoreText.className = 'score-display';
-
-    let text = `Score: ${state.score} \u00b7 ` +
+    scoreText.textContent = `Score: ${state.score} \u00b7 ` +
         `${state.identified.size} of ${state.structures.length} identified`;
-
-    if (state.mode === 'speed' && state.startTime) {
-      const elapsed = ((Date.now() - state.startTime) / 1000).toFixed(1);
-      text += ` \u00b7 ${elapsed}s`;
-    }
-
-    scoreText.textContent = text;
     dom.scoreDisplay.appendChild(scoreText);
-  }
-
-  function updateTimerDisplay() {
-    if (!state.startTime) return;
-    updateScore();
   }
 
   function resolvePriColor(priColor) {

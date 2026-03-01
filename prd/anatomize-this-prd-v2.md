@@ -21,7 +21,7 @@ Both mechanics share the same game loop: prompt → click → score → detail p
 2. Spatial mapping between name and location.
 3. Repeatable, gamified practice with PRI color-coded feedback.
 4. Progressive disclosure of PRI-specific detail (standard action, pattern role, treatment) on each correct answer.
-5. Accuracy and speed tracking across sessions.
+5. Accuracy tracking across sessions.
 
 ---
 
@@ -83,7 +83,7 @@ const ANATOMIZE_IMAGES = [
 - `blank_panels` → SVG overlay with panels, arrows, polygon overlays.
 - `label_hunt` → image-map hitboxes over existing printed text labels, hover underlines.
 
-All other game logic (prompting, scoring, modes, detail panel) is shared.
+All other game logic (prompting, scoring, detail panel) is shared.
 
 ---
 
@@ -91,9 +91,7 @@ All other game logic (prompting, scoring, modes, detail panel) is shared.
 
 These apply to both `blank_panels` and `label_hunt` images.
 
-### Game Modes
-
-#### Standard Mode (Default)
+### Game Loop
 
 1. Game selects a structure name at random from the structure set. Name appears in the prompt banner.
 2. User clicks the correct target on the image.
@@ -113,27 +111,12 @@ These apply to both `blank_panels` and `label_hunt` images.
 
 4. Session ends when all structures have been correctly identified once.
 
-#### Speed Round Mode
-
-- Timer starts at first click.
-- Structure names are presented serially.
-- One attempt per structure. If wrong, session advances to the next structure (no retry).
-- No right/wrong indicators during play. No detail panels during play.
-- Timer visible throughout.
-
-**End of Speed Round session:**
-- Timer stops.
-- All targets reveal simultaneously with correct/incorrect indicators.
-- Detail panels are accessible in a post-session review mode: user clicks any revealed structure to view its detail panel.
-- Display: accuracy percentage, total time, score.
-
 ### Structure Set Rules
 
 - Each structure is tested once per session.
 - Order randomized each session.
 - No repeats within a session.
-- Standard Mode: session completion requires all structures to be correctly identified (retry on miss).
-- Speed Round: session completion after all structures prompted once (one attempt each).
+- Session completion requires all structures to be correctly identified (retry on miss).
 - Session state resets on image switch, tab switch, or page reload. No persistence.
 
 ### Scoring
@@ -153,7 +136,6 @@ Fixed at top of the game area. Displays the current structure name in large text
 
 Above the prompt banner:
 - Image selector button row.
-- Mode toggle: Standard / Speed Round.
 - Reset button.
 - Structure filter (see below).
 
@@ -171,7 +153,7 @@ Default: All. Filtering resets the current session. Minimum 4 structures require
 
 ## Detail Panel — Progressive Disclosure
 
-On correct identification in Standard Mode, a detail panel expands below the image. It uses the same 3-layer progressive disclosure from the old hotspot system.
+On correct identification, a detail panel expands below the image. It uses the same 3-layer progressive disclosure from the old hotspot system.
 
 ### For Structures with PRI Data
 
@@ -208,7 +190,6 @@ No additional layers. No Layer 2/3 buttons.
 - Panel slides open with a CSS transition (~200ms ease).
 - Showing a new structure's detail replaces the previous one.
 - Panel has a close/collapse button.
-- In Speed Round, detail panels are suppressed during play and only accessible in post-session review mode.
 
 ---
 
@@ -241,7 +222,7 @@ Image sets where the source illustration is clean (no embedded text labels). Str
 - Muscle polygon overlay fades in over the image: precise SVG polygon tracing the muscle boundary, filled with PRI hue at ~0.25 alpha. For bony landmarks, use a circle marker at the landmark location instead.
 - Revealed panel, colored arrow, and polygon overlay persist for the rest of the session. They accumulate, gradually painting the anatomy in color.
 
-### Incorrect Answer Visual (Standard Mode)
+### Incorrect Answer Visual
 
 - Red X icon (✗) in upper-right of clicked panel, disappears after 1 second.
 - Panel border briefly flashes `var(--red)`, then reverts to default.
@@ -327,7 +308,7 @@ Image sets where the source image already has printed text labels with leader li
 - The PRI-colored underline and check persist for the rest of the session.
 - Detail panel expands below the image.
 
-### Incorrect Answer Visual (Standard Mode)
+### Incorrect Answer Visual
 
 - The clicked label's hitbox briefly shows a red underline (`var(--red)`) for 1 second, then reverts to neutral.
 - Red X icon (✗) appears adjacent to the label for 1 second, then disappears.
@@ -642,7 +623,7 @@ Internal structure:
 5. `promptNext()` — selects next structure, updates prompt banner.
 6. `handleAnswer(structureId, isCorrect)` — scores, triggers visual feedback, shows detail panel.
 7. `renderDetailPanel(structure)` — progressive disclosure below image.
-8. `endSession()` — final score display, review mode for Speed Round.
+8. `endSession()` — final score display.
 
 Wire into the Anatomy tab's subtab switching logic, replacing the old 1A content.
 
@@ -677,8 +658,7 @@ Preserve:
 - Image selector switches between Pelvic Outlet and Lateral Hip correctly.
 - Pelvic Outlet: all 14+ panels render without overlap. Arrows point to correct structures. Polygon overlays accumulate.
 - Lateral Hip: all 33+ hitboxes are clickable. Hover shows neutral underline. Correct shows PRI-colored underline.
-- Standard Mode: correct answer reveals visual + detail panel + advances. Incorrect flashes red + decrements score + retries.
-- Speed Round: timer runs, no feedback during play, full reveal + review mode at end.
+- Correct answer reveals visual + detail panel + advances. Incorrect flashes red + decrements score + retries.
 - Detail panel: Layer 1 shows on correct. Layer 2/3 buttons work. Structures without PRI data show minimal panel.
 - Structure filter (All / Muscles / Landmarks) works for both images.
 - Mobile: both images fall back to button list below image.

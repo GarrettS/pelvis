@@ -55,17 +55,18 @@
 <section id="tab-anatomy" class="tab active">
   <div class="subtab-content active" id="anatomy-anatomize" role="tabpanel">
     <div class="tab-section">
-      <h2 class="section-title">Anatomize This!</h2>
       <div class="anatomize-controls">
-        <div class="anatomize-image-selector btn-row"></div>
-        <div class="anatomize-mode-row">
+        <div class="anatomize-control-row">
+          <div class="anatomize-image-selector btn-row"></div>
           <div class="anatomize-filter btn-row"></div>
-          <div class="anatomize-mode-toggle btn-row"></div>
           <button class="btn anatomize-reset">Reset</button>
         </div>
       </div>
-      <div class="anatomize-prompt"></div>
-      <h3 class="subsection-title anatomize-image-title"></h3>
+      <div class="anatomize-status-row">
+        <span class="anatomize-image-title"></span>
+        <span class="anatomize-prompt"></span>
+        <span class="anatomize-next-slot"></span>
+      </div>
       <div class="anatomize-arena"></div>
       <div class="anatomize-score"></div>
       <div class="anatomize-detail"></div>
