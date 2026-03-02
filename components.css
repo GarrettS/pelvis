@@ -947,6 +947,7 @@
   flex-wrap:wrap;
   gap:.5rem;
   align-items:center;
+  width:82%;
 }
 
 .anatomize-control-row .btn-row {
@@ -961,6 +962,7 @@
   margin-bottom:.5rem;
   flex-wrap:nowrap;
   overflow:hidden;
+  width:82%;
 }
 
 .anatomize-image-title {
@@ -989,8 +991,9 @@
 }
 
 .anatomize-next-slot {
-  flex-shrink:0;
-  margin-left:auto;
+  display:flex;
+  justify-content:flex-end;
+  width:82%;
 }
 
 .anatomize-next-btn {
@@ -1157,6 +1160,7 @@
   padding:1rem;
   margin-top:1rem;
 }
+
 
 #anatomy-aic .tab-section {
   position:relative;

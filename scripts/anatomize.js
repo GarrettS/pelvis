@@ -70,7 +70,7 @@ window.AnatomizeModule = (() => {
       resetSession();
     });
 
-    const anatomizePanel = document.getElementById('anatomy-anatomize');
+const anatomizePanel = document.getElementById('anatomy-anatomize');
     if (anatomizePanel) {
       anatomizePanel.addEventListener('subtab-shown', () => {
         if (!initialized && window.ANATOMIZE_IMAGES &&
@@ -85,6 +85,7 @@ window.AnatomizeModule = (() => {
       loadImageSet(window.ANATOMIZE_IMAGES[0].id);
       initialized = true;
     }
+
   }
 
   function reset() {

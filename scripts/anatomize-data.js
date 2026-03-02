@@ -10,7 +10,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-neutral',
     panelBox: {x: 0, y: 14, w: 14.5, h: 3.5},
-    arrowTo: {x: 26, y: 22},
+    arrowTo: {x: 28, y: 20},
     priDetail: {
       layer1: {
         standard: 'Thickened fascia of obturator internus, origin of levator ani.',
@@ -25,7 +25,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-neutral',
     panelBox: {x: 0, y: 32, w: 17, h: 3.5},
-    arrowTo: {x: 12, y: 40},
+    arrowTo: {x: 18, y: 35},
     priDetail: {
       layer1: {
         standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
@@ -40,7 +40,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-violet',
     panelBox: {x: 0, y: 54, w: 11, h: 3.5},
-    arrowTo: {x: 18, y: 62},
+    arrowTo: {x: 22, y: 58},
     priDetail: {
       layer1: {
         standard: 'Pulls coccyx forward, supports pelvic floor.',
@@ -61,7 +61,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-neutral',
     panelBox: {x: 0, y: 64, w: 14.5, h: 3.5},
-    arrowTo: {x: 26, y: 70},
+    arrowTo: {x: 30, y: 62},
     priDetail: {
       layer1: {
         standard: 'Pelvic floor support, coccyx stabilization.',
@@ -77,7 +77,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-brown',
     panelBox: {x: 18, y: 88, w: 14, h: 3.5},
-    arrowTo: {x: 44, y: 55},
+    arrowTo: {x: 46, y: 50},
     priDetail: {
       layer1: {
         standard: 'Maintains anorectal angle, fecal continence.',
@@ -98,7 +98,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-yellow',
     panelBox: {x: 52, y: 88, w: 14.5, h: 3.5},
-    arrowTo: {x: 38, y: 72},
+    arrowTo: {x: 48, y: 68},
     priDetail: {
       layer1: {
         standard: 'Fibrous band between anus and coccyx, anchors pelvic floor.',
@@ -120,7 +120,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-yellow',
     panelBox: {x: 85.5, y: 8, w: 14.5, h: 3.5},
-    arrowTo: {x: 72, y: 18},
+    arrowTo: {x: 70, y: 20},
     priDetail: {
       layer1: {
         standard: 'Thickened fascia of obturator internus, origin of levator ani.',
@@ -141,7 +141,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-brown',
     panelBox: {x: 83.5, y: 20, w: 16.5, h: 3.5},
-    arrowTo: {x: 76, y: 30},
+    arrowTo: {x: 74, y: 28},
     priDetail: {
       layer1: {
         standard: 'Hip extension, knee flexion, tibial IR.',
@@ -162,7 +162,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-green-family',
     panelBox: {x: 83, y: 32, w: 17, h: 3.5},
-    arrowTo: {x: 84, y: 40},
+    arrowTo: {x: 80, y: 35},
     priDetail: {
       layer1: {
         standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
@@ -183,7 +183,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-neutral',
     panelBox: {x: 89, y: 48, w: 11, h: 3.5},
-    arrowTo: {x: 87, y: 58},
+    arrowTo: {x: 85, y: 52},
     priDetail: {
       layer1: {
         standard: 'Hip extension, ER, abduction (upper fibers).',
@@ -198,7 +198,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-green-family',
     panelBox: {x: 85.5, y: 60, w: 14.5, h: 3.5},
-    arrowTo: {x: 72, y: 68},
+    arrowTo: {x: 68, y: 62},
     priDetail: {
       layer1: {
         standard: 'Pelvic floor support, coccyx stabilization.',
@@ -219,7 +219,7 @@ const OUTLET_INFERIOR_STRUCTURES = [
     type: 'muscle',
     priColor: '--pri-brown',
     panelBox: {x: 85.5, y: 72, w: 14.5, h: 3.5},
-    arrowTo: {x: 68, y: 76},
+    arrowTo: {x: 62, y: 55},
     priDetail: {
       layer1: {
         standard: 'Pelvic floor support, urinary/fecal continence.',
@@ -253,7 +253,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-brown',
         panelBox: {x: 0, y: 6, w: 14, h: 3.5},
-        arrowTo: {x: 38, y: 22},
+        arrowTo: {x: 40, y: 25},
         priDetail: {
           layer1: {
             standard: 'Maintains anorectal angle, fecal continence.',
@@ -274,7 +274,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-brown',
         panelBox: {x: 0, y: 13, w: 14.5, h: 3.5},
-        arrowTo: {x: 33, y: 28},
+        arrowTo: {x: 35, y: 32},
         priDetail: {
           layer1: {
             standard: 'Pelvic floor support, urinary/fecal continence.',
@@ -295,7 +295,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-yellow',
         panelBox: {x: 0, y: 20, w: 14.5, h: 3.5},
-        arrowTo: {x: 22, y: 25},
+        arrowTo: {x: 25, y: 28},
         priDetail: {
           layer1: {
             standard: 'Thickened fascia of obturator internus, origin of levator ani.',
@@ -316,7 +316,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-green-family',
         panelBox: {x: 0, y: 30, w: 14.5, h: 3.5},
-        arrowTo: {x: 30, y: 40},
+        arrowTo: {x: 30, y: 42},
         priDetail: {
           layer1: {
             standard: 'Pelvic floor support, coccyx stabilization.',
@@ -337,7 +337,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-green-family',
         panelBox: {x: 0, y: 40, w: 17, h: 3.5},
-        arrowTo: {x: 16, y: 48},
+        arrowTo: {x: 18, y: 35},
         priDetail: {
           layer1: {
             standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
@@ -358,7 +358,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-neutral',
         panelBox: {x: 0, y: 50, w: 11, h: 3.5},
-        arrowTo: {x: 28, y: 58},
+        arrowTo: {x: 32, y: 60},
         priDetail: {
           layer1: {
             standard: 'Pulls coccyx forward, supports pelvic floor.',
@@ -373,7 +373,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-neutral',
         panelBox: {x: 0, y: 60, w: 11.5, h: 3.5},
-        arrowTo: {x: 24, y: 66},
+        arrowTo: {x: 28, y: 68},
         priDetail: {
           layer1: {
             standard: 'Hip ER (hip extended), hip abduction.',
@@ -388,7 +388,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-yellow',
         panelBox: {x: 0, y: 70, w: 14.5, h: 3.5},
-        arrowTo: {x: 48, y: 60},
+        arrowTo: {x: 48, y: 55},
         priDetail: {
           layer1: {
             standard: 'Fibrous band between anus and coccyx, anchors pelvic floor.',
@@ -410,7 +410,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-neutral',
         panelBox: {x: 85.5, y: 28, w: 14.5, h: 3.5},
-        arrowTo: {x: 70, y: 38},
+        arrowTo: {x: 68, y: 42},
         priDetail: {
           layer1: {
             standard: 'Pelvic floor support, coccyx stabilization.',
@@ -425,7 +425,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-neutral',
         panelBox: {x: 83, y: 38, w: 17, h: 3.5},
-        arrowTo: {x: 82, y: 46},
+        arrowTo: {x: 80, y: 35},
         priDetail: {
           layer1: {
             standard: 'Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).',
@@ -440,7 +440,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-violet',
         panelBox: {x: 89, y: 50, w: 11, h: 3.5},
-        arrowTo: {x: 72, y: 56},
+        arrowTo: {x: 68, y: 60},
         priDetail: {
           layer1: {
             standard: 'Pulls coccyx forward, supports pelvic floor.',
@@ -461,7 +461,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-violet',
         panelBox: {x: 88.5, y: 60, w: 11.5, h: 3.5},
-        arrowTo: {x: 76, y: 65},
+        arrowTo: {x: 72, y: 68},
         priDetail: {
           layer1: {
             standard: 'Hip ER (hip extended), hip abduction.',
@@ -538,7 +538,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-brown',
         panelBox: {x: 0, y: 55, w: 12, h: 3.5},
-        arrowTo: {x: 22, y: 72},
+        arrowTo: {x: 25, y: 52},
         priDetail: {
           layer1: {
             standard: 'Hip flexion, abduction, ER; knee flexion, IR.',
@@ -553,7 +553,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-brown',
         panelBox: {x: 0, y: 70, w: 14.5, h: 3.5},
-        arrowTo: {x: 24, y: 82},
+        arrowTo: {x: 28, y: 58},
         priDetail: {
           layer1: {
             standard: 'Hip flexion, knee extension.',
@@ -601,7 +601,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-orange',
         panelBox: {x: 0, y: 10, w: 14.5, h: 3.5},
-        arrowTo: {x: 22, y: 22},
+        arrowTo: {x: 25, y: 30},
         priDetail: {
           layer1: {
             standard: 'Hip abduction, IR (anterior fibers), ER (posterior fibers).',
@@ -622,7 +622,7 @@ window.ANATOMIZE_IMAGES = [
         type: 'muscle',
         priColor: '--pri-violet',
         panelBox: {x: 83, y: 10, w: 17, h: 3.5},
-        arrowTo: {x: 62, y: 42},
+        arrowTo: {x: 65, y: 45},
         priDetail: {
           layer1: {
             standard: 'Hip extension, ER, abduction (upper fibers).',
@@ -655,7 +655,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliac crest',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 7.5, w: 6, h: 3},
+        hitbox: {x: 4, y: 20, w: 5, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Superior border of the ilium. Attachment site for abdominal and back muscles.'}}
       },
@@ -664,7 +664,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Inner lip',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 8, y: 4.5, w: 7, h: 2.5},
+        hitbox: {x: 7, y: 13, w: 7, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Medial edge of the iliac crest. Origin of transversus abdominis and iliacus.'}}
       },
@@ -673,7 +673,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Intermediate zone',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 6.5, y: 8, w: 13, h: 2.5},
+        hitbox: {x: 5, y: 16, w: 10, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Middle area of the iliac crest. Origin of internal oblique.'}}
       },
@@ -682,7 +682,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Outer lip',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 8, y: 12, w: 7, h: 2.5},
+        hitbox: {x: 7, y: 22, w: 7, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Lateral edge of the iliac crest. Origin of external oblique and latissimus dorsi.'}}
       },
@@ -691,7 +691,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Tubercle',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 8, y: 16.5, w: 8, h: 2.5},
+        hitbox: {x: 7, y: 26, w: 7, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Prominence on the outer lip of the iliac crest. Landmark for inguinal ligament.'}}
       },
@@ -700,7 +700,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Anterior superior iliac spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 33.5, w: 16, h: 5.5},
+        hitbox: {x: 1, y: 45, w: 14, h: 4},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -715,7 +715,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Anterior inferior iliac spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 42, w: 16, h: 5.5},
+        hitbox: {x: 1, y: 52, w: 14, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Bony projection inferior to ASIS. Origin of rectus femoris (straight head).'}}
       },
@@ -724,7 +724,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliopubic eminence',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 52, w: 14, h: 5},
+        hitbox: {x: 3, y: 59, w: 9, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Bony ridge at junction of ilium and superior pubic ramus. Pelvic brim landmark.'}}
       },
@@ -733,7 +733,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Superior pubic ramus',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 61, w: 13, h: 5},
+        hitbox: {x: 3, y: 66, w: 10, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Upper branch of the pubic bone extending from body to iliopubic eminence.'}}
       },
@@ -742,7 +742,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Obturator foramen',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 70, w: 13, h: 5},
+        hitbox: {x: 3, y: 73, w: 9, h: 4},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -757,7 +757,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubic tubercle',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 78, w: 13, h: 3},
+        hitbox: {x: 3, y: 79, w: 11, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Small projection on the superior pubic ramus. Attachment for inguinal ligament.'}}
       },
@@ -766,7 +766,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Inferior pubic ramus',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 0, y: 84.5, w: 13, h: 5},
+        hitbox: {x: 2, y: 85, w: 10, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Lower branch of the pubic bone joining the ischial ramus.'}}
       },
@@ -776,7 +776,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Sacral promontory',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 21, y: 6, w: 14, h: 3},
+        hitbox: {x: 28, y: 11, w: 8, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Anterior projection of S1 vertebral body. Superior border of the pelvic inlet.'}}
       },
@@ -785,7 +785,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'L2',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 39.5, y: 1, w: 3, h: 3},
+        hitbox: {x: 50, y: 6, w: 2.5, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Second lumbar vertebra.'}}
       },
@@ -794,7 +794,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'L3',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 37.5, y: 7.5, w: 3, h: 3},
+        hitbox: {x: 48, y: 12, w: 2.5, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Third lumbar vertebra.'}}
       },
@@ -803,7 +803,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'L4',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 37.5, y: 14.5, w: 3, h: 3},
+        hitbox: {x: 46, y: 18, w: 2.5, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Fourth lumbar vertebra.'}}
       },
@@ -812,7 +812,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'L5',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 37, y: 21, w: 3, h: 3},
+        hitbox: {x: 42, y: 25, w: 2.5, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Fifth lumbar vertebra. Articulates with the sacrum at L5-S1.'}}
       },
@@ -821,7 +821,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Sacrum',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 35, y: 46, w: 9, h: 3},
+        hitbox: {x: 48, y: 49, w: 6, h: 2.5},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -836,7 +836,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Coccyx',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 36, y: 52.5, w: 8, h: 3},
+        hitbox: {x: 46, y: 58, w: 6, h: 2.5},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -852,7 +852,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Transverse processes of lumbar vertebrae',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 54, y: 1, w: 38, h: 3.5},
+        hitbox: {x: 56, y: 10, w: 28, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Lateral projections from lumbar vertebral bodies. Attachment for psoas major and quadratus lumborum.'}}
       },
@@ -861,7 +861,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliac tuberosity',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 71, y: 6.5, w: 14, h: 3},
+        hitbox: {x: 56, y: 15, w: 12, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Roughened area on posterior ilium. Attachment of posterior sacroiliac ligaments.'}}
       },
@@ -871,7 +871,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Iliac crest',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 11, w: 11, h: 3},
+        hitbox: {x: 69, y: 20, w: 9, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Superior border of the ilium (right side).'}}
       },
@@ -880,7 +880,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ala of ilium',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 79, y: 16, w: 12, h: 3},
+        hitbox: {x: 68, y: 25, w: 10, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Wing-shaped expansion of the upper ilium. Surface for gluteal muscle attachment.'}}
       },
@@ -889,7 +889,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Greater sciatic notch',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 77, y: 23, w: 16, h: 5},
+        hitbox: {x: 68, y: 31, w: 10, h: 6},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Large notch on the posterior ilium/ischium. Piriformis and sciatic nerve pass through.'}}
       },
@@ -898,7 +898,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Arcuate line',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 79, y: 31, w: 13, h: 3},
+        hitbox: {x: 68, y: 41, w: 10, h: 2.5},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -913,7 +913,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ischial spine',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 79, y: 37, w: 13, h: 3},
+        hitbox: {x: 68, y: 46, w: 10, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Pointed eminence on the posterior ischium. Attachment of sacrospinous ligament and coccygeus.'}}
       },
@@ -922,7 +922,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Lesser sciatic notch',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 77, y: 43, w: 14, h: 5},
+        hitbox: {x: 68, y: 51, w: 10, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Notch inferior to ischial spine. Obturator internus tendon passes through.'}}
       },
@@ -931,7 +931,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Greater trochanter of femur',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 77, y: 51, w: 20, h: 5},
+        hitbox: {x: 68, y: 59, w: 12, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Large bony prominence on lateral proximal femur. Attachment of gluteus medius, minimus, piriformis.'}}
       },
@@ -940,7 +940,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pecten pubis',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 79, y: 61, w: 13, h: 3},
+        hitbox: {x: 68, y: 67, w: 10, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Ridge on the superior pubic ramus forming part of the pelvic brim. Attachment of pectineus.'}}
       },
@@ -949,7 +949,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubic symphysis',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 68.5, w: 16, h: 3},
+        hitbox: {x: 68, y: 73, w: 12, h: 2.5},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -964,7 +964,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Ischial tuberosity',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 78, y: 75, w: 16, h: 3},
+        hitbox: {x: 68, y: 79, w: 12, h: 2.5},
         hasPriData: true,
         priDetail: {
           layer1: {
@@ -979,7 +979,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Lesser trochanter of femur',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 77, y: 82, w: 20, h: 5},
+        hitbox: {x: 68, y: 84, w: 12, h: 4},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Small conical projection on posteromedial proximal femur. Attachment of iliopsoas.'}}
       },
@@ -989,7 +989,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Inferior pubic ligament',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 29, y: 89, w: 19, h: 3},
+        hitbox: {x: 30, y: 83, w: 16, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Ligament arching across the inferior pubic symphysis.'}}
       },
@@ -998,7 +998,7 @@ window.ANATOMIZE_IMAGES = [
         label: 'Pubic arch',
         type: 'landmark',
         priColor: '--pri-neutral',
-        hitbox: {x: 48, y: 89, w: 11, h: 3},
+        hitbox: {x: 58, y: 81, w: 8, h: 2.5},
         hasPriData: false,
         priDetail: {layer1: {standard: 'Arch formed by convergence of inferior pubic rami.'}}
       }

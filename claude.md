@@ -10,6 +10,7 @@
 ## HTML
 - Semantic elements: headings not divs, nav lists not buttons, appropriate ARIA roles.
 - No inline styles except those set dynamically by JS at runtime.
+- don't add "self-closing syntax" slash where end tag is forbidden.
 
 ## CSS
 - External stylesheets only. No inline <style> blocks.
