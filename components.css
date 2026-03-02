@@ -957,11 +957,11 @@
 .anatomize-status-row {
   display:flex;
   align-items:center;
+  justify-content:space-between;
   gap:.75rem;
-  min-height:2.2rem;
+  min-height:3rem;
   margin-bottom:.5rem;
   flex-wrap:nowrap;
-  overflow:hidden;
   width:82%;
 }
 
@@ -977,23 +977,21 @@
 .anatomize-prompt {
   display:flex;
   align-items:center;
+  justify-content:center;
   flex:1;
   min-width:0;
+  text-align:center;
 }
 
 .anatomize-prompt-text {
   font-family:var(--mono);
   font-size:var(--text-lg);
   font-weight:700;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
 }
 
 .anatomize-next-slot {
-  display:flex;
-  justify-content:flex-end;
-  width:82%;
+  flex-shrink:0;
+  margin-left:auto;
 }
 
 .anatomize-next-btn {
@@ -1160,7 +1158,6 @@
   padding:1rem;
   margin-top:1rem;
 }
-
 
 #anatomy-aic .tab-section {
   position:relative;

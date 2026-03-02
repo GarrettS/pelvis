@@ -70,7 +70,7 @@ window.AnatomizeModule = (() => {
       resetSession();
     });
 
-const anatomizePanel = document.getElementById('anatomy-anatomize');
+    const anatomizePanel = document.getElementById('anatomy-anatomize');
     if (anatomizePanel) {
       anatomizePanel.addEventListener('subtab-shown', () => {
         if (!initialized && window.ANATOMIZE_IMAGES &&
@@ -85,7 +85,6 @@ const anatomizePanel = document.getElementById('anatomy-anatomize');
       loadImageSet(window.ANATOMIZE_IMAGES[0].id);
       initialized = true;
     }
-
   }
 
   function reset() {
@@ -811,6 +810,11 @@ const anatomizePanel = document.getElementById('anatomy-anatomize');
 
       if (priDetail.layer2.laic) {
         const row = createDetailRow('Pattern Role', priDetail.layer2.laic);
+        layer2Wrapper.appendChild(row);
+      }
+      if (priDetail.layer2.pathology) {
+        const row = createDetailRow(
+            'Pathology', priDetail.layer2.pathology);
         layer2Wrapper.appendChild(row);
       }
 

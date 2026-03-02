@@ -6,37 +6,37 @@ window.AicChainModule = (function() {
       id: 'diaphragm',
       label: 'Diaphragm',
       connection: 'crural pull / ZOA loss',
-      anchor: [25, 18]
+      anchor: [25, 15]
     },
     {
       id: 'psoas',
       label: 'Psoas',
       connection: 'shortens, pulls ilium forward',
-      anchor: [27, 34]
+      anchor: [30, 28]
     },
     {
       id: 'iliacus',
       label: 'Iliacus',
       connection: 'anterior pelvic tilt (L IP ER)',
-      anchor: [20, 40]
+      anchor: [35, 40]
     },
     {
       id: 'tfl',
       label: 'TFL',
       connection: 'orientates femur',
-      anchor: [14, 46]
+      anchor: [33, 48]
     },
     {
       id: 'vastus_lateralis',
       label: 'Vastus Lateralis',
       connection: 'lateral knee tension',
-      anchor: [18, 58]
+      anchor: [35, 62]
     },
     {
       id: 'biceps_femoris',
       label: 'Biceps Femoris',
       connection: null,
-      anchor: [60, 55]
+      anchor: [58, 68]
     }
   ];
 

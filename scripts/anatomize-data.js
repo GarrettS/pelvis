@@ -548,17 +548,46 @@ window.ANATOMIZE_IMAGES = [
         }
       },
       {
-        id: 'rectus_femoris',
-        label: 'Rectus Femoris (R)',
+        id: 'rectus_femoris_direct',
+        label: 'Direct head of rectus (R)',
         type: 'muscle',
         priColor: '--pri-brown',
-        panelBox: {x: 0, y: 70, w: 14.5, h: 3.5},
-        arrowTo: {x: 28, y: 58},
+        panelBox: {x: 0, y: 65, w: 16, h: 3.5},
+        arrowTo: {x: 28, y: 55},
         priDetail: {
           layer1: {
-            standard: 'Hip flexion, knee extension.',
-            pri: 'R rectus femoris \u2192 sagittal plane. Brown (Sagittal) family.',
-            chain: 'Anterior \u2014 sagittal plane'
+            standard: 'Rectus femoris has two pelvic origins. The direct (straight) head originates from the AIIS. The reflected (indirect) head originates from the superior acetabular rim and hip joint capsule.',
+            pri: 'R rectus femoris \u2192 R IP ER (anterior inlet flexion). Shortened in R AIC position. Lengthened on L side in L AIC.',
+            chain: 'Brown \u2014 Sagittal'
+          },
+          layer2: {
+            laic: 'R rectus femoris is shortened (ON) in L AIC. L rectus femoris is lengthened (OFF). Facilitation goal: L rectus femoris activation to oppose L IP ER.',
+            pathology: 'Implicated in L AIC, B PEC, Patho PEC. In B PEC: bilateral rectus femoris lengthened (both sides OFF).'
+          },
+          layer3: {
+            treatment: 'Not directly facilitated in isolation. Addressed through hip flexor repositioning and 90-90 activities.'
+          }
+        }
+      },
+      {
+        id: 'rectus_femoris_reflected',
+        label: 'Reflected tendon of rectus (R)',
+        type: 'muscle',
+        priColor: '--pri-brown',
+        panelBox: {x: 0, y: 75, w: 18, h: 3.5},
+        arrowTo: {x: 25, y: 60},
+        priDetail: {
+          layer1: {
+            standard: 'Rectus femoris has two pelvic origins. The direct (straight) head originates from the AIIS. The reflected (indirect) head originates from the superior acetabular rim and hip joint capsule.',
+            pri: 'R rectus femoris \u2192 R IP ER (anterior inlet flexion). Shortened in R AIC position. Lengthened on L side in L AIC.',
+            chain: 'Brown \u2014 Sagittal'
+          },
+          layer2: {
+            laic: 'R rectus femoris is shortened (ON) in L AIC. L rectus femoris is lengthened (OFF). Facilitation goal: L rectus femoris activation to oppose L IP ER.',
+            pathology: 'Implicated in L AIC, B PEC, Patho PEC. In B PEC: bilateral rectus femoris lengthened (both sides OFF).'
+          },
+          layer3: {
+            treatment: 'Not directly facilitated in isolation. Addressed through hip flexor repositioning and 90-90 activities.'
           }
         }
       },
