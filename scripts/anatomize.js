@@ -15,10 +15,38 @@ window.AnatomizeModule = (() => {
     filter: 'all'
   };
 
+  const INFO_MIN_W = 340;
+  const SHRINK_STEP = 20;
+  const MIN_H_RATIO = 0.4;
+
   let dom = {};
   let isMobile = false;
   let initialized = false;
   let attemptedOnCurrent = false;
+  let layoutObserver = null;
+  let lastLayoutInputs = '';
+  let reviewMode = false;
+
+  let anatomizeData = null;
+
+  async function loadAnatomizeData() {
+    if (anatomizeData) return anatomizeData;
+    const resp = await fetch('data/anatomize-data.json');
+    anatomizeData = await resp.json();
+    return anatomizeData;
+  }
+
+  function priColorClass(priColor) {
+    return priColor ? priColor.replace('--', '') : 'pri-neutral';
+  }
+
+  function resolveStructures(imgEntry, shared) {
+    if (imgEntry.structures) return imgEntry.structures;
+    if (imgEntry.structuresRef && shared[imgEntry.structuresRef]) {
+      return shared[imgEntry.structuresRef];
+    }
+    return [];
+  }
 
   /**
    * Returns the point on the edge of `box` closest to `target`.
@@ -38,21 +66,21 @@ window.AnatomizeModule = (() => {
     return {x: cx + dx * s, y: cy + dy * s};
   }
 
-  function init() {
+  async function init() {
     const container = document.querySelector(
         '#anatomy-anatomize .tab-section');
     if (!container) return;
+
+    await loadAnatomizeData();
 
     dom.container = container;
     dom.imageSelector = container.querySelector('.anatomize-image-selector');
     dom.filterRow = container.querySelector('.anatomize-filter');
     dom.resetBtn = container.querySelector('.anatomize-reset');
-    dom.prompt = container.querySelector('.anatomize-prompt');
-    dom.nextSlot = container.querySelector('.anatomize-next-slot');
+    dom.nextBtn = container.querySelector('.anatomize-next');
     dom.arena = container.querySelector('.anatomize-arena');
     dom.scoreDisplay = container.querySelector('.anatomize-score');
     dom.detail = container.querySelector('.anatomize-detail');
-    dom.imageTitle = container.querySelector('.anatomize-image-title');
 
     isMobile = window.matchMedia('(max-width: 600px)').matches;
     window.matchMedia('(max-width: 600px)').addEventListener(
@@ -70,28 +98,61 @@ window.AnatomizeModule = (() => {
       resetSession();
     });
 
+    dom.nextBtn.addEventListener('click', () => {
+      if (dom.nextBtn.classList.contains('disabled')) return;
+      if (dom.nextBtn.dataset.action === 'reset') {
+        resetSession();
+        return;
+      }
+      dom.nextBtn.classList.add('disabled');
+      promptNext();
+    });
+    dom.nextBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        dom.nextBtn.click();
+      }
+    });
+
     const anatomizePanel = document.getElementById('anatomy-anatomize');
     if (anatomizePanel) {
       anatomizePanel.addEventListener('subtab-shown', () => {
-        if (!initialized && window.ANATOMIZE_IMAGES &&
-            window.ANATOMIZE_IMAGES.length > 0) {
-          loadImageSet(window.ANATOMIZE_IMAGES[0].id);
+        if (!initialized && anatomizeData &&
+            anatomizeData.images.length > 0) {
+          const hashParts = location.hash.replace(/^#/, '').split('/');
+          const hashImageId = (hashParts[0] === 'anatomy' &&
+              hashParts[1] === 'anatomize' && hashParts[2]) ?
+              hashParts[2] : null;
+          const startId = (hashImageId && getImageSet(hashImageId)) ?
+              hashImageId : anatomizeData.images[0].id;
+          loadImageSet(startId, true);
           initialized = true;
         }
       });
     }
 
-    if (window.ANATOMIZE_IMAGES && window.ANATOMIZE_IMAGES.length > 0) {
-      loadImageSet(window.ANATOMIZE_IMAGES[0].id);
+    initResizeHandle();
+    hookLayout();
+
+    if (anatomizeData && anatomizeData.images.length > 0) {
+      const hashParts = location.hash.replace(/^#/, '').split('/');
+      const hashImageId = (hashParts[0] === 'anatomy' &&
+          hashParts[1] === 'anatomize' && hashParts[2]) ?
+          hashParts[2] : null;
+      const startId = (hashImageId && getImageSet(hashImageId)) ?
+          hashImageId : anatomizeData.images[0].id;
+      loadImageSet(startId, true);
       initialized = true;
     }
   }
 
   function reset() {
     resetState();
+    reviewMode = false;
     dom.arena.textContent = '';
-    dom.prompt.textContent = '';
-    dom.nextSlot.textContent = '';
+    dom.nextBtn.textContent = 'Next \u2192';
+    delete dom.nextBtn.dataset.action;
+    dom.nextBtn.classList.add('disabled');
     dom.scoreDisplay.textContent = '';
     dom.detail.textContent = '';
   }
@@ -112,9 +173,9 @@ window.AnatomizeModule = (() => {
 
   function renderImageSelector() {
     dom.imageSelector.textContent = '';
-    if (!window.ANATOMIZE_IMAGES) return;
+    if (!anatomizeData) return;
 
-    window.ANATOMIZE_IMAGES.forEach((imgSet) => {
+    anatomizeData.images.forEach((imgSet) => {
       const btn = document.createElement('button');
       btn.className = 'btn';
       btn.textContent = imgSet.label;
@@ -180,33 +241,56 @@ window.AnatomizeModule = (() => {
   function matchesFilter(structure, filter) {
     if (filter === 'all') return true;
     if (filter === 'muscles') {
-      return structure.type === 'muscle' || structure.type === 'ligament';
+      return structure.type === 'muscle' || structure.type === 'ligament' ||
+          structure.type === 'connective';
     }
     if (filter === 'landmarks') return structure.type === 'landmark';
     return true;
   }
 
   function getImageSet(imageId) {
-    if (!window.ANATOMIZE_IMAGES) return null;
-    return window.ANATOMIZE_IMAGES.find((img) => img.id === imageId) || null;
+    if (!anatomizeData) return null;
+    const entry = anatomizeData.images.find((img) => img.id === imageId);
+    if (!entry) return null;
+    return Object.assign({}, entry, {
+      structures: resolveStructures(entry, anatomizeData.sharedStructures)
+    });
   }
 
-  function loadImageSet(imageId) {
+  function loadImageSet(imageId, skipHash) {
+    if (!dom.container) return;
     const imgSet = getImageSet(imageId);
     if (!imgSet) return;
 
     state.imageId = imageId;
     state.mechanic = imgSet.mechanic;
     state.flipped = imgSet.flipped || false;
+    lastLayoutInputs = '';
+    dom.arena.classList.toggle('anatomize-dark-bg',
+        imgSet.theme === 'dark');
 
-    if (dom.imageTitle) {
-      dom.imageTitle.textContent = imgSet.label;
+    if (!skipHash) {
+      const hash = 'anatomy/anatomize/' + imageId;
+      if (location.hash.replace(/^#/, '') !== hash) {
+        location.hash = hash;
+      }
     }
 
     dom.imageSelector.querySelectorAll('button').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.imageId === imageId);
     });
 
+    const hasMuscles = imgSet.structures.some(
+        (s) => s.type === 'muscle' || s.type === 'ligament');
+    const hasLandmarks = imgSet.structures.some(
+        (s) => s.type === 'landmark');
+    const showFilter = hasMuscles && hasLandmarks;
+    dom.filterRow.style.display = showFilter ? '' : 'none';
+    dom.resetBtn.style.display = showFilter ? '' : 'none';
+
+    if (!showFilter) {
+      state.filter = 'all';
+    }
     updateFilterDisabled();
     resetSession();
   }
@@ -221,13 +305,16 @@ window.AnatomizeModule = (() => {
     state.attempts = 0;
     state.current = null;
     attemptedOnCurrent = false;
+    reviewMode = false;
+    dom.nextBtn.textContent = 'Next \u2192';
+    delete dom.nextBtn.dataset.action;
 
     state.structures = imgSet.structures.filter(
         (s) => matchesFilter(s, state.filter));
     state.queue = shuffle(state.structures.map((s) => s.id));
 
     dom.detail.textContent = '';
-    dom.nextSlot.textContent = '';
+    dom.nextBtn.classList.add('disabled');
 
     if (isMobile) {
       renderMobile(imgSet);
@@ -262,6 +349,7 @@ window.AnatomizeModule = (() => {
     img.src = imgSet.imageSrc;
     img.alt = imgSet.label;
     img.draggable = false;
+
     wrap.appendChild(img);
 
     const svg = document.createElementNS(SVG_NS, 'svg');
@@ -269,10 +357,53 @@ window.AnatomizeModule = (() => {
     svg.setAttribute('preserveAspectRatio', 'none');
     svg.classList.add('anatomize-svg-overlay');
 
+    if (imgSet.sideLabels) {
+      const sl = imgSet.sideLabels;
+      const labelFontSize = 3;
+      [
+        {text: sl.left, x: 8, anchor: 'start'},
+        {text: sl.right, x: 92, anchor: 'end'}
+      ].forEach((cfg) => {
+        const shadow = document.createElementNS(SVG_NS, 'text');
+        shadow.setAttribute('x', cfg.x);
+        shadow.setAttribute('y', 5);
+        shadow.setAttribute('text-anchor', cfg.anchor);
+        shadow.classList.add('anatomize-side-label');
+        shadow.style.fontSize = labelFontSize;
+        shadow.style.fontFamily = 'var(--mono)';
+        shadow.style.fill = 'rgba(0,0,0,0.6)';
+        shadow.style.stroke = 'rgba(0,0,0,0.6)';
+        shadow.style.strokeWidth = '0.6';
+        shadow.style.pointerEvents = 'none';
+        shadow.textContent = cfg.text;
+        if (imgSet.flipped) {
+          shadow.setAttribute('transform',
+              `translate(${cfg.x},5) scale(-1,1) translate(${-cfg.x},-5)`);
+        }
+        svg.appendChild(shadow);
+
+        const label = document.createElementNS(SVG_NS, 'text');
+        label.setAttribute('x', cfg.x);
+        label.setAttribute('y', 5);
+        label.setAttribute('text-anchor', cfg.anchor);
+        label.classList.add('anatomize-side-label');
+        label.style.fontSize = labelFontSize;
+        label.style.fontFamily = 'var(--mono)';
+        label.style.fill = 'rgba(255,255,255,0.9)';
+        label.style.pointerEvents = 'none';
+        label.textContent = cfg.text;
+        if (imgSet.flipped) {
+          label.setAttribute('transform',
+              `translate(${cfg.x},5) scale(-1,1) translate(${-cfg.x},-5)`);
+        }
+        svg.appendChild(label);
+      });
+    }
+
     state.structures.forEach((s) => {
       const group = document.createElementNS(SVG_NS, 'g');
       group.dataset.structureId = s.id;
-      const color = resolvePriColor(s.priColor);
+      group.classList.add(priColorClass(s.priColor));
 
       const marker = document.createElementNS(SVG_NS, 'circle');
       marker.setAttribute('cx', s.arrowTo.x);
@@ -280,15 +411,29 @@ window.AnatomizeModule = (() => {
       marker.setAttribute('r', '1.8');
       marker.classList.add('anatomize-target-circle');
       marker.style.opacity = '0';
-      marker.style.transition = 'opacity 300ms ease';
-      marker.style.fill = withAlpha(color, 0.35);
-      marker.style.stroke = withAlpha(color, 0.7);
-      marker.style.strokeWidth = '0.4';
       group.appendChild(marker);
 
       if (s.panelBox) {
         const pb = s.panelBox;
-        const ep = edgePoint(pb, s.arrowTo);
+        const fontSize = 1.6;
+        const charW = fontSize * 0.6;
+        const padX = 1.2;
+        const padY = 0.8;
+        const checkW = 2.8;
+        const labelW = s.label.length * charW + padX * 2 + checkW;
+        const labelH = fontSize + padY * 2;
+        const boxW = Math.max(pb.w, labelW);
+        const boxH = Math.max(pb.h, labelH);
+        const edgePad = 0.5;
+        let boxX = pb.x;
+        let boxY = pb.y;
+        if (boxX + boxW > 100 - edgePad) boxX = 100 - edgePad - boxW;
+        if (boxX < edgePad) boxX = edgePad;
+        if (boxY + boxH > 100 - edgePad) boxY = 100 - edgePad - boxH;
+        if (boxY < edgePad) boxY = edgePad;
+        const box = {x: boxX, y: boxY, w: boxW, h: boxH};
+
+        const ep = edgePoint(box, s.arrowTo);
 
         const line = document.createElementNS(SVG_NS, 'line');
         line.setAttribute('x1', ep.x);
@@ -296,44 +441,39 @@ window.AnatomizeModule = (() => {
         line.setAttribute('x2', s.arrowTo.x);
         line.setAttribute('y2', s.arrowTo.y);
         line.classList.add('anatomize-arrow-line');
-        line.style.stroke = withAlpha(color, 0.6);
-        line.style.strokeWidth = '0.3';
         group.appendChild(line);
 
         const arrowHead = createArrowHead(
             ep.x, ep.y, s.arrowTo.x, s.arrowTo.y);
-        arrowHead.style.fill = withAlpha(color, 0.6);
         arrowHead.classList.add('anatomize-arrowhead');
         group.appendChild(arrowHead);
 
         const rect = document.createElementNS(SVG_NS, 'rect');
-        rect.setAttribute('x', pb.x);
-        rect.setAttribute('y', pb.y);
-        rect.setAttribute('width', pb.w);
-        rect.setAttribute('height', pb.h);
+        rect.setAttribute('x', boxX);
+        rect.setAttribute('y', boxY);
+        rect.setAttribute('width', boxW);
+        rect.setAttribute('height', boxH);
+        rect.setAttribute('rx', '0.5');
+        rect.setAttribute('ry', '0.5');
         rect.classList.add('anatomize-panel-rect');
-        rect.style.fill = 'transparent';
-        rect.style.stroke = withAlpha(color, 0.5);
-        rect.style.strokeWidth = '0.3';
-        rect.style.cursor = 'pointer';
         rect.dataset.structureId = s.id;
         group.appendChild(rect);
 
-        const fontSize = Math.min(1.6, pb.w / (s.label.length * 0.55));
         const text = document.createElementNS(SVG_NS, 'text');
-        text.setAttribute('x', pb.x + pb.w / 2);
-        text.setAttribute('y', pb.y + pb.h / 2 + 0.5);
+        text.setAttribute('x', boxX + (boxW - checkW) / 2);
+        text.setAttribute('y', boxY + boxH / 2);
         text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('dominant-baseline', 'central');
         text.classList.add('anatomize-panel-label');
-        text.style.fontSize = fontSize + 'px';
+        text.style.fontSize = fontSize;
         text.style.fontFamily = 'var(--mono)';
-        text.style.fill = 'var(--text)';
+        text.style.opacity = '1';
+        text.style.fontWeight = '600';
         text.style.display = 'none';
         text.textContent = s.label;
         if (imgSet.flipped) {
-          const tx = pb.x + pb.w / 2;
-          const ty = pb.y + pb.h / 2 + 0.5;
+          const tx = boxX + (boxW - checkW) / 2;
+          const ty = boxY + boxH / 2;
           text.setAttribute('transform',
               `translate(${tx},${ty}) scale(-1,1) translate(${-tx},${-ty})`);
         }
@@ -354,6 +494,8 @@ window.AnatomizeModule = (() => {
         handleClick(structureId);
       }
     });
+
+    hookImageLoad();
   }
 
   function createArrowHead(x1, y1, x2, y2) {
@@ -367,7 +509,7 @@ window.AnatomizeModule = (() => {
     }
     const ux = dx / len;
     const uy = dy / len;
-    const size = 1.0;
+    const size = 1.3;
     const px = -uy;
     const py = ux;
     const tipX = x2;
@@ -391,6 +533,7 @@ window.AnatomizeModule = (() => {
     img.src = imgSet.imageSrc;
     img.alt = imgSet.label;
     img.draggable = false;
+
     wrap.appendChild(img);
 
     state.structures.forEach((s) => {
@@ -438,6 +581,8 @@ window.AnatomizeModule = (() => {
     });
 
     dom.arena.appendChild(wrap);
+
+    hookImageLoad();
   }
 
   function renderMobile(imgSet) {
@@ -488,22 +633,57 @@ window.AnatomizeModule = (() => {
     }
     state.current = state.queue.shift();
     attemptedOnCurrent = false;
+    dom.nextBtn.classList.add('disabled');
 
     const structure = state.structures.find((s) => s.id === state.current);
-    dom.prompt.textContent = '';
-    dom.nextSlot.textContent = '';
-
-    const promptText = document.createElement('span');
-    promptText.className = 'anatomize-prompt-text';
-    promptText.textContent = structure ? structure.label : '';
     if (structure) {
-      const color = resolvePriColor(structure.priColor);
-      promptText.style.color = color;
+      renderPromptPanel(structure);
     }
-    dom.prompt.appendChild(promptText);
+  }
+
+  function renderPromptPanel(structure) {
+    dom.detail.textContent = '';
+    const panel = document.createElement('div');
+    panel.className = 'anatomize-detail-panel';
+    panel.classList.add(priColorClass(structure.priColor));
+
+    const nameRow = document.createElement('div');
+    nameRow.style.display = 'flex';
+    nameRow.style.alignItems = 'center';
+    nameRow.style.gap = '0.5rem';
+
+    const bullet = document.createElement('span');
+    bullet.className = 'anatomize-detail-bullet';
+    nameRow.appendChild(bullet);
+
+    const nameText = document.createElement('span');
+    nameText.classList.add('anatomize-detail-name');
+    nameText.style.fontWeight = '700';
+    nameText.style.fontFamily = 'var(--mono)';
+    nameText.style.fontSize = 'var(--text-sm)';
+    nameText.textContent = structure.label;
+    nameRow.appendChild(nameText);
+    panel.appendChild(nameRow);
+
+    const hint = document.createElement('p');
+    hint.style.fontSize = 'var(--text-xs)';
+    hint.style.color = 'var(--text-dim)';
+    hint.style.fontStyle = 'italic';
+    hint.style.marginTop = '0.5rem';
+    hint.textContent = 'Identify on image';
+    panel.appendChild(hint);
+
+    dom.detail.appendChild(panel);
   }
 
   function handleClick(structureId) {
+    if (reviewMode) {
+      const structure = state.structures.find((s) => s.id === structureId);
+      if (structure) {
+        renderDetailPanel(structure);
+      }
+      return;
+    }
     if (!state.current) return;
     if (state.identified.has(structureId)) return;
 
@@ -538,15 +718,10 @@ window.AnatomizeModule = (() => {
   }
 
   function showNextButton() {
-    dom.nextSlot.textContent = '';
-    const btn = document.createElement('button');
-    btn.className = 'btn anatomize-next-btn';
-    btn.textContent = 'Next \u2192';
-    btn.addEventListener('click', () => {
-      btn.remove();
-      promptNext();
-    });
-    dom.nextSlot.appendChild(btn);
+    dom.nextBtn.classList.remove('disabled');
+    if (state.queue.length === 0) {
+      dom.nextBtn.textContent = 'Finish';
+    }
   }
 
   function renderVisualFeedback(structureId, correct) {
@@ -575,38 +750,30 @@ window.AnatomizeModule = (() => {
     const line = group.querySelector('.anatomize-arrow-line');
     const arrowHead = group.querySelector('.anatomize-arrowhead');
     const targetCircle = group.querySelector('.anatomize-target-circle');
-    const pb = structure.panelBox;
+    const boxX = rect ? parseFloat(rect.getAttribute('x')) : 0;
+    const boxY = rect ? parseFloat(rect.getAttribute('y')) : 0;
+    const boxW = rect ? parseFloat(rect.getAttribute('width')) : 0;
+    const boxH = rect ? parseFloat(rect.getAttribute('height')) : 0;
 
     if (correct) {
-      const color = resolvePriColor(structure.priColor);
-      const bgColor = resolvePriBgColor(structure.priColor);
-
-      if (rect) {
-        rect.style.stroke = color;
-        rect.style.fill = bgColor;
-        rect.style.strokeWidth = '0.5';
-      }
+      group.classList.add('correct');
       if (label) {
         label.style.display = '';
-      }
-      if (line) {
-        line.style.stroke = color;
-      }
-      if (arrowHead) {
-        arrowHead.style.fill = color;
       }
       if (targetCircle) {
         targetCircle.style.opacity = '1';
       }
 
-      if (pb) {
-        const cx = pb.x + pb.w - 1.5;
-        const cy = pb.y + 2.5;
+      if (rect) {
+        const cx = boxX + boxW - 2.0;
+        const cy = boxY + boxH / 2;
         const check = document.createElementNS(SVG_NS, 'text');
         check.setAttribute('x', cx);
         check.setAttribute('y', cy);
+        check.setAttribute('text-anchor', 'middle');
+        check.setAttribute('dominant-baseline', 'central');
         check.classList.add('anatomize-check');
-        check.style.fontSize = '2.5px';
+        check.style.fontSize = '2.5';
         check.style.fill = 'var(--green)';
         check.textContent = '\u2713';
         if (state.flipped) {
@@ -617,23 +784,24 @@ window.AnatomizeModule = (() => {
       }
     } else {
       if (rect) {
-        const origStroke = rect.style.stroke;
         rect.style.stroke = 'var(--red)';
         setTimeout(() => {
           if (!state.identified.has(structureId)) {
-            rect.style.stroke = origStroke || 'var(--border)';
+            rect.style.stroke = '';
           }
         }, 1000);
       }
 
-      if (pb) {
-        const mx = pb.x + pb.w - 1.5;
-        const my = pb.y + 2.5;
+      if (rect) {
+        const mx = boxX + boxW - 2.0;
+        const my = boxY + boxH / 2;
         const xMark = document.createElementNS(SVG_NS, 'text');
         xMark.setAttribute('x', mx);
         xMark.setAttribute('y', my);
+        xMark.setAttribute('text-anchor', 'middle');
+        xMark.setAttribute('dominant-baseline', 'central');
         xMark.classList.add('anatomize-x');
-        xMark.style.fontSize = '2.5px';
+        xMark.style.fontSize = '2.5';
         xMark.style.fill = 'var(--red)';
         xMark.textContent = '\u2717';
         if (state.flipped) {
@@ -656,9 +824,7 @@ window.AnatomizeModule = (() => {
     if (!structure) return;
 
     if (correct) {
-      const color = resolvePriColor(structure.priColor);
-      hitbox.style.borderBottomColor = color;
-      hitbox.style.backgroundColor = withAlpha(color, 0.10);
+      hitbox.classList.add(priColorClass(structure.priColor));
       hitbox.dataset.answered = 'true';
 
       const check = document.createElement('span');
@@ -704,10 +870,7 @@ window.AnatomizeModule = (() => {
     if (!structure) return;
 
     if (correct) {
-      const color = resolvePriColor(structure.priColor);
-      btn.style.borderColor = color;
-      btn.style.backgroundColor = resolvePriBgColor(structure.priColor);
-      btn.style.color = color;
+      btn.classList.add(priColorClass(structure.priColor), 'correct');
       btn.textContent = structure.label + ' \u2713';
       btn.disabled = true;
     } else {
@@ -727,23 +890,7 @@ window.AnatomizeModule = (() => {
 
     const panel = document.createElement('div');
     panel.className = 'anatomize-detail-panel';
-    const color = resolvePriColor(structure.priColor);
-    panel.style.borderLeft = '4px solid ' + color;
-    panel.style.maxHeight = '0';
-    panel.style.overflow = 'hidden';
-    panel.style.transition = 'max-height 200ms ease';
-
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'btn';
-    closeBtn.textContent = 'Close';
-    closeBtn.style.float = 'right';
-    closeBtn.addEventListener('click', () => {
-      panel.style.maxHeight = '0';
-      setTimeout(() => {
-        dom.detail.textContent = '';
-      }, 200);
-    });
-    panel.appendChild(closeBtn);
+    panel.classList.add(priColorClass(structure.priColor));
 
     const priDetail = structure.priDetail;
     const hasLayers = priDetail && (priDetail.layer2 || priDetail.layer3);
@@ -759,12 +906,11 @@ window.AnatomizeModule = (() => {
 
     const bullet = document.createElement('span');
     bullet.className = 'anatomize-detail-bullet';
-    bullet.style.backgroundColor = color;
     nameRow.appendChild(bullet);
 
     const nameText = document.createElement('span');
+    nameText.classList.add('anatomize-detail-name');
     nameText.style.fontWeight = '700';
-    nameText.style.color = color;
     nameText.style.fontFamily = 'var(--mono)';
     nameText.style.fontSize = 'var(--text-sm)';
     nameText.textContent = structure.label;
@@ -774,6 +920,19 @@ window.AnatomizeModule = (() => {
     if (priDetail && priDetail.layer1) {
       if (priDetail.layer1.standard) {
         const row = createDetailRow('Standard', priDetail.layer1.standard);
+        layer1.appendChild(row);
+      }
+      if (priDetail.layer1.attachments) {
+        const row = createDetailRow(
+            'Attachments', priDetail.layer1.attachments);
+        layer1.appendChild(row);
+      }
+      if (priDetail.layer1.actions) {
+        const row = createDetailRow('Actions', priDetail.layer1.actions);
+        layer1.appendChild(row);
+      }
+      if (priDetail.layer1.movements) {
+        const row = createDetailRow('Movements', priDetail.layer1.movements);
         layer1.appendChild(row);
       }
       if (priDetail.layer1.pri) {
@@ -852,10 +1011,12 @@ window.AnatomizeModule = (() => {
     }
 
     dom.detail.appendChild(panel);
+  }
 
-    requestAnimationFrame(() => {
-      panel.style.maxHeight = panel.scrollHeight + 'px';
-    });
+  function formatAttachments(obj) {
+    const prox = (obj.proximal || []).join(', ');
+    const dist = (obj.distal || []).join(', ');
+    return prox + ' \u2192 ' + dist;
   }
 
   function createDetailRow(label, value) {
@@ -867,9 +1028,13 @@ window.AnatomizeModule = (() => {
     labelEl.textContent = label;
     row.appendChild(labelEl);
 
+    const display = (typeof value === 'object' && value !== null &&
+        (value.proximal || value.distal)) ?
+        formatAttachments(value) : value;
+
     const valEl = document.createElement('span');
     valEl.style.fontSize = 'var(--text-sm)';
-    valEl.textContent = value;
+    valEl.textContent = display;
     row.appendChild(valEl);
 
     return row;
@@ -877,8 +1042,17 @@ window.AnatomizeModule = (() => {
 
   function endSession() {
     state.current = null;
-    dom.prompt.textContent = '';
-    dom.nextSlot.textContent = '';
+    reviewMode = true;
+
+    dom.nextBtn.textContent = 'Reset';
+    dom.nextBtn.classList.remove('disabled');
+    dom.nextBtn.dataset.action = 'reset';
+
+    if (isMobile) {
+      dom.arena.querySelectorAll('.anatomize-mobile-btn').forEach((btn) => {
+        btn.disabled = false;
+      });
+    }
 
     const total = state.structures.length;
     const accuracy = total > 0 ?
@@ -887,8 +1061,8 @@ window.AnatomizeModule = (() => {
     const summary = document.createElement('div');
     summary.className = 'anatomize-end-summary';
     summary.textContent =
-        `Session complete. Score: ${state.score}. Accuracy: ${accuracy}%.`;
-    dom.prompt.appendChild(summary);
+        `Complete. Score: ${state.score}. Accuracy: ${accuracy}%.`;
+    dom.detail.appendChild(summary);
   }
 
   function updateScore() {
@@ -896,45 +1070,344 @@ window.AnatomizeModule = (() => {
     const scoreText = document.createElement('span');
     scoreText.className = 'score-display';
     scoreText.textContent = `Score: ${state.score} \u00b7 ` +
-        `${state.identified.size} of ${state.structures.length} identified`;
+        `${state.identified.size} of ${state.structures.length}`;
     dom.scoreDisplay.appendChild(scoreText);
   }
 
-  function resolvePriColor(priColor) {
-    if (!priColor) return 'var(--pri-neutral)';
-    return getComputedStyle(document.documentElement)
-        .getPropertyValue(priColor).trim() || 'var(--pri-neutral)';
+  function initResizeHandle() {
+    const body = dom.container.querySelector('.anatomize-body');
+    if (!body) return;
+    const imageCol = body.querySelector('.anatomize-image-col');
+    if (!imageCol) return;
+
+    const handle = document.createElement('div');
+    handle.className = 'anatomize-resize-handle';
+    const grip = document.createElement('div');
+    grip.className = 'anatomize-resize-grip';
+    handle.appendChild(grip);
+    body.insertBefore(handle, imageCol);
+
+    function onDown(e) {
+      e.preventDefault();
+      const infoCol = body.querySelector('.anatomize-info-col');
+      if (!infoCol || !body.classList.contains('two-col')) return;
+
+      handle.classList.add('dragging');
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+
+      const startX = e.type === 'touchstart' ?
+          e.touches[0].clientX : e.clientX;
+      const startW = infoCol.getBoundingClientRect().width;
+      const maxW = body.clientWidth * 0.6;
+
+      function onMove(ev) {
+        ev.preventDefault();
+        const clientX = ev.type === 'touchmove' ?
+            ev.touches[0].clientX : ev.clientX;
+        const delta = clientX - startX;
+        const newW = Math.max(200, Math.min(maxW, startW + delta));
+        body.style.setProperty('--info-w', Math.floor(newW) + 'px');
+      }
+
+      function onUp() {
+        handle.classList.remove('dragging');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+      }
+
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchmove', onMove, {passive: false});
+      document.addEventListener('touchend', onUp);
+    }
+
+    handle.addEventListener('mousedown', onDown);
+    handle.addEventListener('touchstart', onDown, {passive: false});
   }
 
-  function resolvePriBgColor(priColor) {
-    if (!priColor) return 'var(--pri-neutral-bg)';
-    const bgVar = priColor + '-bg';
-    return getComputedStyle(document.documentElement)
-        .getPropertyValue(bgVar).trim() || 'var(--pri-neutral-bg)';
+  // ---- Two-column layout algorithm ----
+
+  function isTwoCol() {
+    return window.innerWidth >= 768 &&
+        window.innerWidth > window.innerHeight;
   }
 
-  function withAlpha(color, alpha) {
-    if (!color || color.startsWith('var(')) return color;
-    if (color.startsWith('hsl(')) {
-      return color.replace('hsl(', 'hsla(').replace(')', `, ${alpha})`);
-    }
-    if (color.startsWith('hsla(')) {
-      return color.replace(
-          /,\s*[\d.]+\)$/, `, ${alpha})`);
-    }
-    if (color.startsWith('#')) {
-      const r = parseInt(color.slice(1, 3), 16);
-      const g = parseInt(color.slice(3, 5), 16);
-      const b = parseInt(color.slice(5, 7), 16);
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-    if (color.startsWith('rgb(')) {
-      return color.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
-    }
-    return color;
+  function findWorstCaseStructure() {
+    let longest = null;
+    let maxLen = 0;
+    state.structures.forEach((s) => {
+      let len = s.label.length;
+      const pd = s.priDetail;
+      if (pd && pd.layer1) {
+        len += (pd.layer1.standard || '').length;
+        const att = pd.layer1.attachments;
+        len += (typeof att === 'object' && att !== null) ?
+            (att.proximal || []).join().length +
+            (att.distal || []).join().length :
+            (att || '').length;
+        len += (pd.layer1.actions || '').length;
+        len += (pd.layer1.movements || '').length;
+        len += (pd.layer1.pri || '').length;
+        len += (pd.layer1.chain || '').length;
+      }
+      if (len > maxLen) {
+        maxLen = len;
+        longest = s;
+      }
+    });
+    return longest;
   }
 
-  return {init, reset};
+  function buildMeasurePanel(structure) {
+    const frag = document.createDocumentFragment();
+
+    const panel = document.createElement('div');
+    panel.className = 'anatomize-detail-panel';
+    panel.classList.add(priColorClass(structure.priColor));
+    const priDetail = structure.priDetail;
+
+    const layer1 = document.createElement('div');
+    layer1.className = 'anatomize-detail-layer';
+    const nameRow = document.createElement('div');
+    nameRow.style.cssText =
+        'display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem';
+    const bullet = document.createElement('span');
+    bullet.className = 'anatomize-detail-bullet';
+    nameRow.appendChild(bullet);
+    const nameText = document.createElement('span');
+    nameText.classList.add('anatomize-detail-name');
+    nameText.style.cssText =
+        'font-weight:700;font-family:var(--mono);font-size:var(--text-sm)';
+    nameText.textContent = structure.label;
+    nameRow.appendChild(nameText);
+    layer1.appendChild(nameRow);
+
+    if (priDetail && priDetail.layer1) {
+      const keys = [
+        ['standard', 'Standard'], ['attachments', 'Attachments'],
+        ['actions', 'Actions'], ['movements', 'Movements'],
+        ['pri', 'PRI'], ['chain', 'Chain']
+      ];
+      keys.forEach((pair) => {
+        if (priDetail.layer1[pair[0]]) {
+          layer1.appendChild(
+              createDetailRow(pair[1], priDetail.layer1[pair[0]]));
+        }
+      });
+    }
+    panel.appendChild(layer1);
+
+    frag.appendChild(panel);
+    return frag;
+  }
+
+  function measureWorstCaseHeight(infoW) {
+    const worst = findWorstCaseStructure();
+    if (!worst) return 0;
+
+    let measurer = dom.container.querySelector('.anatomize-measure');
+    if (!measurer) {
+      measurer = document.createElement('div');
+      measurer.className = 'anatomize-measure';
+      measurer.style.cssText =
+          'position:absolute;visibility:hidden;left:-9999px;top:0';
+      dom.container.appendChild(measurer);
+    }
+    measurer.style.width = infoW + 'px';
+    measurer.textContent = '';
+    measurer.appendChild(buildMeasurePanel(worst));
+    const h = measurer.scrollHeight;
+    measurer.remove();
+    return h;
+  }
+
+  function computeLayout() {
+    const key = window.innerWidth + ',' + window.innerHeight + ',' +
+        state.imageId;
+    if (key === lastLayoutInputs) return;
+
+    const body = dom.container.querySelector('.anatomize-body');
+    if (!body) {
+      console.log('[layout] no .anatomize-body');
+      return;
+    }
+
+    const mainEl = document.querySelector('main');
+
+    const infoColReset = body.querySelector('.anatomize-info-col');
+
+    body.classList.remove('two-col');
+    body.style.removeProperty('--body-h');
+    body.style.removeProperty('--image-h');
+    body.style.removeProperty('--info-h');
+    body.style.removeProperty('--info-w');
+    body.style.removeProperty('--image-w');
+    if (infoColReset) infoColReset.style.height = '';
+    mainEl.style.paddingBottom = '';
+    mainEl.style.paddingRight = '';
+    dom.container.style.marginBottom = '';
+    if (!isTwoCol()) {
+      console.log('[layout] not two-col: ' +
+          window.innerWidth + 'x' + window.innerHeight);
+      lastLayoutInputs = key;
+      return;
+    }
+
+    mainEl.style.paddingBottom = '0';
+    mainEl.style.paddingRight = '0';
+    dom.container.style.marginBottom = '0';
+
+    const img = dom.arena.querySelector('img');
+    if (!img || !img.naturalWidth) {
+      console.log('[layout] no img or no naturalWidth', !!img,
+          img ? img.naturalWidth : 'n/a');
+      return;
+    }
+    const R = img.naturalWidth / img.naturalHeight;
+
+    const bodyRect = body.getBoundingClientRect();
+    let availH = window.innerHeight - bodyRect.top - 8;
+    if (availH <= 100) return;
+
+    const gap = 8;
+    const availW = body.clientWidth - gap;
+
+    const imageMaxH = availH;
+    const imageMinH = availH * MIN_H_RATIO;
+
+    let imageH = imageMaxH;
+    let imageW = imageH * R;
+    let infoW = availW - imageW;
+
+    if (infoW < INFO_MIN_W) {
+      infoW = INFO_MIN_W;
+      imageW = availW - infoW;
+      imageH = imageW / R;
+    }
+
+    let scrollH = measureWorstCaseHeight(infoW);
+
+    let fallback = false;
+    if (scrollH > availH) {
+      const maxInfoW = availW - (imageMinH * R);
+      const minScrollH = measureWorstCaseHeight(
+          Math.max(maxInfoW, INFO_MIN_W));
+      if (minScrollH > availH) {
+        fallback = true;
+      } else {
+        while (scrollH > availH && imageH > imageMinH) {
+          imageH = Math.max(imageH - SHRINK_STEP, imageMinH);
+          imageW = imageH * R;
+          infoW = availW - imageW;
+          if (infoW < INFO_MIN_W) {
+            infoW = INFO_MIN_W;
+            imageW = availW - infoW;
+            imageH = imageW / R;
+            break;
+          }
+          scrollH = measureWorstCaseHeight(infoW);
+        }
+        if (scrollH > availH) {
+          fallback = true;
+        }
+      }
+    }
+
+    if (fallback) {
+      imageH = imageMaxH;
+      imageW = imageH * R;
+      infoW = availW - imageW;
+      if (infoW < INFO_MIN_W) {
+        infoW = INFO_MIN_W;
+        imageW = availW - infoW;
+        imageH = imageW / R;
+      }
+    }
+
+    const infoCol = body.querySelector('.anatomize-info-col');
+    const infoH = scrollH > imageH ? availH : imageH;
+
+    body.classList.add('two-col');
+    body.style.setProperty('--body-h', Math.floor(availH) + 'px');
+    body.style.setProperty('--image-h', Math.floor(imageH) + 'px');
+    body.style.setProperty('--info-h', Math.floor(infoH) + 'px');
+    body.style.setProperty('--info-w', Math.floor(infoW) + 'px');
+    body.style.setProperty('--image-w', Math.floor(imageW) + 'px');
+    if (infoCol) {
+      infoCol.style.height = Math.floor(infoH) + 'px';
+      console.log('[layout] set infoCol.style.height=' +
+          infoCol.style.height +
+          ' imageH=' + Math.floor(imageH) +
+          ' availH=' + Math.floor(availH) +
+          ' scrollH=' + scrollH);
+    } else {
+      console.log('[layout] infoCol NOT FOUND');
+    }
+
+    console.log(
+        'Layout: availH=' + Math.floor(availH) +
+        ' availW=' + Math.floor(availW) +
+        ' imageH=' + Math.floor(imageH) +
+        ' imageW=' + Math.floor(imageW) +
+        ' infoW=' + Math.floor(infoW) +
+        ' infoScrollH=' + scrollH +
+        ' fallback=' + fallback);
+
+    requestAnimationFrame(() => {
+      const docRect = document.documentElement.getBoundingClientRect();
+      const imgEl = dom.arena.querySelector('img');
+      const infoCol = body.querySelector('.anatomize-info-col');
+      const imgRect = imgEl ? imgEl.getBoundingClientRect() : null;
+      const infoRect = infoCol ? infoCol.getBoundingClientRect() : null;
+      console.log('[rects] docEl:', JSON.stringify({
+        h: docRect.height, scrollH: document.documentElement.scrollHeight,
+        innerH: window.innerHeight
+      }));
+      if (imgRect) {
+        console.log('[rects] img:', JSON.stringify({
+          top: Math.round(imgRect.top), bottom: Math.round(imgRect.bottom),
+          h: Math.round(imgRect.height), w: Math.round(imgRect.width)
+        }));
+      }
+      if (infoRect) {
+        console.log('[rects] info:', JSON.stringify({
+          top: Math.round(infoRect.top), bottom: Math.round(infoRect.bottom),
+          h: Math.round(infoRect.height), scrollH: infoCol.scrollHeight
+        }));
+      }
+    });
+
+    lastLayoutInputs = key;
+  }
+
+  function hookLayout() {
+    if (layoutObserver) {
+      layoutObserver.disconnect();
+    }
+    layoutObserver = new ResizeObserver(() => {
+      computeLayout();
+    });
+    layoutObserver.observe(dom.container);
+  }
+
+  function hookImageLoad() {
+    const img = dom.arena.querySelector('img');
+    if (!img) return;
+    if (img.complete && img.naturalWidth) {
+      computeLayout();
+    } else {
+      img.addEventListener('load', () => {
+        computeLayout();
+      }, {once: true});
+    }
+  }
+
+  return {init, reset, loadImageSet};
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
