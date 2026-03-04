@@ -107,7 +107,6 @@ nav {
   gap: 0;
   width: 100%;
   background: var(--surface2);
-  border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   overflow-x: auto;
   overflow-y: hidden;
@@ -161,28 +160,26 @@ nav {
 
 
 .nav-tab {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  background:none;
-  border:none;
-  color:var(--text-dim);
-  padding:0.5rem .75rem;
-  white-space:nowrap;
-  border-bottom:2px solid transparent;
-  transition:color .15s,border-color .15s;
-  text-decoration:none;
-  cursor:pointer;
-  display:block;
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  padding: 0.5rem .75rem;
+  white-space: nowrap;
+  transition: color .15s, background .15s;
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
 }
 
 .nav-tab:hover {
-  color:var(--text);
+  color: var(--text);
 }
 
 .nav-tab.active {
-  color:var(--accent);
-  border-bottom-color:var(--accent);
-  background:var(--surface2);
+  color: var(--accent);
+  background: var(--surface2);
 }
 
 main {
