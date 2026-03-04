@@ -316,10 +316,10 @@ window.AnatomizeModule = (() => {
     dom.detail.textContent = '';
     dom.nextBtn.classList.add('disabled');
 
-    if (isMobile) {
-      renderMobile(imgSet);
-    } else if (state.mechanic === 'blank_panels') {
+    if (state.mechanic === 'blank_panels') {
       renderBlankPanels(imgSet);
+    } else if (isMobile) {
+      renderMobile(imgSet);
     } else if (state.mechanic === 'label_hunt') {
       renderLabelHunt(imgSet);
     }
@@ -448,36 +448,57 @@ window.AnatomizeModule = (() => {
         arrowHead.classList.add('anatomize-arrowhead');
         group.appendChild(arrowHead);
 
-        const rect = document.createElementNS(SVG_NS, 'rect');
-        rect.setAttribute('x', boxX);
-        rect.setAttribute('y', boxY);
-        rect.setAttribute('width', boxW);
-        rect.setAttribute('height', boxH);
-        rect.setAttribute('rx', '0.5');
-        rect.setAttribute('ry', '0.5');
-        rect.classList.add('anatomize-panel-rect');
-        rect.dataset.structureId = s.id;
-        group.appendChild(rect);
+        if (isMobile) {
+          const labelDiv = document.createElement('div');
+          labelDiv.className = 'anatomize-label';
+          labelDiv.classList.add(priColorClass(s.priColor));
+          labelDiv.dataset.structureId = s.id;
+          if (pb.x > 50) {
+            labelDiv.style.right = (100 - pb.x - pb.w) + '%';
+          } else {
+            labelDiv.style.left = pb.x + '%';
+          }
+          labelDiv.style.top = pb.y + '%';
+          if (imgSet.flipped) {
+            labelDiv.style.transform = 'scaleX(-1)';
+          }
+          const labelText = document.createElement('span');
+          labelText.className = 'anatomize-label-text';
+          labelText.textContent = s.label;
+          labelDiv.appendChild(labelText);
+          wrap.appendChild(labelDiv);
+        } else {
+          const rect = document.createElementNS(SVG_NS, 'rect');
+          rect.setAttribute('x', boxX);
+          rect.setAttribute('y', boxY);
+          rect.setAttribute('width', boxW);
+          rect.setAttribute('height', boxH);
+          rect.setAttribute('rx', '0.5');
+          rect.setAttribute('ry', '0.5');
+          rect.classList.add('anatomize-panel-rect');
+          rect.dataset.structureId = s.id;
+          group.appendChild(rect);
 
-        const text = document.createElementNS(SVG_NS, 'text');
-        text.setAttribute('x', boxX + (boxW - checkW) / 2);
-        text.setAttribute('y', boxY + boxH / 2);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('dominant-baseline', 'central');
-        text.classList.add('anatomize-panel-label');
-        text.style.fontSize = fontSize;
-        text.style.fontFamily = 'var(--mono)';
-        text.style.opacity = '1';
-        text.style.fontWeight = '600';
-        text.style.display = 'none';
-        text.textContent = s.label;
-        if (imgSet.flipped) {
-          const tx = boxX + (boxW - checkW) / 2;
-          const ty = boxY + boxH / 2;
-          text.setAttribute('transform',
-              `translate(${tx},${ty}) scale(-1,1) translate(${-tx},${-ty})`);
+          const text = document.createElementNS(SVG_NS, 'text');
+          text.setAttribute('x', boxX + (boxW - checkW) / 2);
+          text.setAttribute('y', boxY + boxH / 2);
+          text.setAttribute('text-anchor', 'middle');
+          text.setAttribute('dominant-baseline', 'central');
+          text.classList.add('anatomize-panel-label');
+          text.style.fontSize = fontSize;
+          text.style.fontFamily = 'var(--mono)';
+          text.style.opacity = '1';
+          text.style.fontWeight = '600';
+          text.style.display = 'none';
+          text.textContent = s.label;
+          if (imgSet.flipped) {
+            const tx = boxX + (boxW - checkW) / 2;
+            const ty = boxY + boxH / 2;
+            text.setAttribute('transform',
+                `translate(${tx},${ty}) scale(-1,1) translate(${-tx},${-ty})`);
+          }
+          group.appendChild(text);
         }
-        group.appendChild(text);
       }
 
       svg.appendChild(group);
@@ -486,12 +507,17 @@ window.AnatomizeModule = (() => {
     wrap.appendChild(svg);
     dom.arena.appendChild(wrap);
 
-    svg.addEventListener('click', (e) => {
+    wrap.addEventListener('click', (e) => {
+      const label = e.target.closest('.anatomize-label');
+      if (label) {
+        const structureId = label.dataset.structureId;
+        if (structureId) handleClick(structureId);
+        return;
+      }
       const rect = e.target.closest('.anatomize-panel-rect');
-      if (!rect) return;
-      const structureId = rect.dataset.structureId;
-      if (structureId) {
-        handleClick(structureId);
+      if (rect) {
+        const structureId = rect.dataset.structureId;
+        if (structureId) handleClick(structureId);
       }
     });
 
@@ -725,13 +751,10 @@ window.AnatomizeModule = (() => {
   }
 
   function renderVisualFeedback(structureId, correct) {
-    if (isMobile) {
-      renderMobileFeedback(structureId, correct);
-      return;
-    }
-
     if (state.mechanic === 'blank_panels') {
       renderBlankPanelsFeedback(structureId, correct);
+    } else if (isMobile) {
+      renderMobileFeedback(structureId, correct);
     } else if (state.mechanic === 'label_hunt') {
       renderLabelHuntFeedback(structureId, correct);
     }
@@ -745,11 +768,37 @@ window.AnatomizeModule = (() => {
     const structure = state.structures.find((s) => s.id === structureId);
     if (!structure) return;
 
+    const targetCircle = group.querySelector('.anatomize-target-circle');
+    const htmlLabel = dom.arena.querySelector(
+        `.anatomize-label[data-structure-id="${structureId}"]`);
+
+    if (htmlLabel) {
+      if (correct) {
+        group.classList.add('correct');
+        if (targetCircle) targetCircle.style.opacity = '1';
+        htmlLabel.classList.add('correct');
+        const check = document.createElement('span');
+        check.className = 'anatomize-check';
+        check.textContent = '\u2713';
+        htmlLabel.appendChild(check);
+      } else {
+        htmlLabel.classList.add('wrong');
+        const xMark = document.createElement('span');
+        xMark.className = 'anatomize-x';
+        xMark.textContent = '\u2717';
+        htmlLabel.appendChild(xMark);
+        setTimeout(() => {
+          xMark.remove();
+          if (!htmlLabel.classList.contains('correct')) {
+            htmlLabel.classList.remove('wrong');
+          }
+        }, 1000);
+      }
+      return;
+    }
+
     const rect = group.querySelector('.anatomize-panel-rect');
     const label = group.querySelector('.anatomize-panel-label');
-    const line = group.querySelector('.anatomize-arrow-line');
-    const arrowHead = group.querySelector('.anatomize-arrowhead');
-    const targetCircle = group.querySelector('.anatomize-target-circle');
     const boxX = rect ? parseFloat(rect.getAttribute('x')) : 0;
     const boxY = rect ? parseFloat(rect.getAttribute('y')) : 0;
     const boxW = rect ? parseFloat(rect.getAttribute('width')) : 0;
@@ -1133,7 +1182,7 @@ window.AnatomizeModule = (() => {
   // ---- Two-column layout algorithm ----
 
   function isTwoCol() {
-    return window.innerWidth >= 768 &&
+    return window.innerWidth >= 1024 &&
         window.innerWidth > window.innerHeight;
   }
 
@@ -1258,21 +1307,25 @@ window.AnatomizeModule = (() => {
       return;
     }
 
-    mainEl.style.paddingBottom = '0';
-    mainEl.style.paddingRight = '0';
-    dom.container.style.marginBottom = '0';
-
     const img = dom.arena.querySelector('img');
     if (!img || !img.naturalWidth) {
       console.log('[layout] no img or no naturalWidth', !!img,
           img ? img.naturalWidth : 'n/a');
+      lastLayoutInputs = key;
       return;
     }
     const R = img.naturalWidth / img.naturalHeight;
 
     const bodyRect = body.getBoundingClientRect();
     let availH = window.innerHeight - bodyRect.top - 8;
-    if (availH <= 100) return;
+    if (availH <= 100) {
+      lastLayoutInputs = key;
+      return;
+    }
+
+    mainEl.style.paddingBottom = '0';
+    mainEl.style.paddingRight = '0';
+    dom.container.style.marginBottom = '0';
 
     const gap = 8;
     const availW = body.clientWidth - gap;
