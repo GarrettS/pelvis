@@ -1,0 +1,1625 @@
+{
+  "acronyms": [
+    {
+      "code": "IP IR",
+      "name": "Ilio-Pubo Internal Rotation",
+      "region": "Anterior Inlet",
+      "regionType": "inlet",
+      "description": "Innominate moves into extension, adduction, IR. The inlet closes.",
+      "patternContext": "R side in L AIC (compensatory). Goal position for L side when correcting L AIC.",
+      "treatment": "Facilitate L proximal iliacus + L IO/TA. L AIC Facilitation steps 1-3."
+    },
+    {
+      "code": "IP ER",
+      "name": "Ilio-Pubo External Rotation",
+      "region": "Anterior Inlet",
+      "regionType": "inlet",
+      "description": "Innominate moves into flexion, abduction, ER. The inlet opens. This is the tri-planar anterior tilt — the psoas/iliacus pull the innominate forward in sagittal, outward in frontal, and externally rotate it in transverse, all simultaneously.",
+      "patternContext": "L side in L AIC. Both sides in B PEC and B Patho PEC.",
+      "treatment": "Inhibit via IO/TAs + posterior pelvic tilt. Repositioning clears ADT first."
+    },
+    {
+      "code": "IS IR",
+      "name": "Ilio-Sacral Internal Rotation",
+      "region": "Posterior Inlet",
+      "regionType": "inlet",
+      "description": "The ilium has been pulled forward relative to the sacrum at the SI joint, producing nutation. The ilium moved; the sacrum stayed. Caused by: psoas, iliacus, rectus femoris pulling the ilium forward.",
+      "patternContext": "L side in L AIC (left SI joint is nutated).",
+      "treatment": "Facilitate L gluteus medius to pull the ilium back (toward counter-nutation / IS ER). L AIC Facilitation step 3."
+    },
+    {
+      "code": "IS ER",
+      "name": "Ilio-Sacral External Rotation",
+      "region": "Posterior Inlet",
+      "regionType": "inlet",
+      "description": "The ilium has rotated outward relative to the sacrum at the SI joint, producing counter-nutation. Closes the inlet and opens the outlet.",
+      "patternContext": "R side in L AIC. Goal position for L side.",
+      "treatment": "L side: facilitate L gluteus medius. R side: facilitate R glute max (superior fibers) to produce R IS IR instead."
+    },
+    {
+      "code": "IsP IR",
+      "name": "Ischio-Pubo Internal Rotation",
+      "region": "Anterior Outlet",
+      "regionType": "outlet",
+      "description": "Ischium + pubis move into extension, adduction, IR. The outlet closes. The pelvic floor descends (drops inferiorly). This is the 'stuck inhalation' position of the pelvic diaphragm.",
+      "patternContext": "L side in L AIC. Both sides in B PEC and B Patho PEC.",
+      "treatment": "Facilitate L pelvic floor muscles (obturator internus, iliococcygeus, puborectalis, pubococcygeus) to open the outlet toward IsP ER. Adductors are the access point. L AIC Facilitation step 2."
+    },
+    {
+      "code": "IsP ER",
+      "name": "Ischio-Pubo External Rotation",
+      "region": "Anterior Outlet",
+      "regionType": "outlet",
+      "description": "Ischium + pubis move into flexion, abduction, ER. The outlet opens. The pelvic floor ascends (lifts). Goal position — the pelvic diaphragm can now cycle between descent and ascension.",
+      "patternContext": "R side in L AIC. Goal position for L side.",
+      "treatment": "Facilitate L obturator internus + L iliococcygeus via L adductors. L AIC Facilitation step 2."
+    },
+    {
+      "code": "SI IR",
+      "name": "Sacro-Ilio Internal Rotation",
+      "region": "Posterior Outlet",
+      "regionType": "outlet",
+      "description": "The sacrum has rotated inward relative to the ilium at the SI joint. The posterior outlet closes. Same SI joint as IS IR/ER, but PRI uses this frame because treatment targets sacrum-movers (glute max, piriformis, coccygeus).",
+      "patternContext": "L side in L AIC. Goal position for R side.",
+      "treatment": "R side: facilitate R glute max (inferior fibers), R piriformis, R coccygeus. L AIC Facilitation step 4."
+    },
+    {
+      "code": "SI ER",
+      "name": "Sacro-Ilio External Rotation",
+      "region": "Posterior Outlet",
+      "regionType": "outlet",
+      "description": "The sacrum has rotated outward relative to the ilium at the SI joint. The posterior outlet opens.",
+      "patternContext": "R side in L AIC.",
+      "treatment": "Inhibit by facilitating R glute max into R SI IR. L AIC Facilitation step 4."
+    },
+    {
+      "code": "AF IR",
+      "name": "Acetabular-Femoral Internal Rotation",
+      "region": "Hip",
+      "regionType": "hip",
+      "description": "The pelvis (acetabulum) rotates back over a fixed femur. In closed chain (standing), the femur is planted; the pelvis moves. This is the net result of the entire left-side correction.",
+      "patternContext": "Goal for L side. Required at Functional Squat level 5.",
+      "treatment": "Achieved through the full facilitation hierarchy. Final integration at step 10 (squatting)."
+    },
+    {
+      "code": "AF ER",
+      "name": "Acetabular-Femoral External Rotation",
+      "region": "Hip",
+      "regionType": "hip",
+      "description": "The pelvis (acetabulum) has rotated forward/outward over a fixed femur. Equivalent to L IP ER viewed from the hip joint perspective.",
+      "patternContext": "L side in L AIC (the pelvis has rotated forward over the left femur).",
+      "treatment": "Repositioning first (clear ADT), then full facilitation hierarchy."
+    },
+    {
+      "code": "FA IR",
+      "name": "Femoral-Acetabular Internal Rotation",
+      "region": "Hip",
+      "regionType": "hip",
+      "description": "The femur rotates inward on a fixed pelvis. Standard hip internal rotation. The only PRI acronym that matches conventional kinesiology exactly.",
+      "patternContext": "Not a pathological finding. Used in treatment positions (e.g., 'Passive FA IR' in 90-90 Hip Lift with Balloon).",
+      "treatment": "N/A — this is a treatment position, not something to correct."
+    },
+    {
+      "code": "FA ER",
+      "name": "Femoral-Acetabular External Rotation",
+      "region": "Hip",
+      "regionType": "hip",
+      "description": "The femur rotates outward on a fixed pelvis. Standard hip external rotation.",
+      "patternContext": "Hyperactive FA external rotators implicated at Functional Squat level 2 failure.",
+      "treatment": "Inhibited by achieving femoral adduction and inlet extension. See B PEC/B Patho PEC treatment hierarchies."
+    }
+  ],
+  "terminology": {
+    "joints": [
+      {
+        "name": "Sacroiliac Joint",
+        "structure": "Where the ilium meets the sacrum. Synovial joint with minimal ROM — a few degrees at most. Permits the ilium and sacrum to rotate relative to each other in a small arc. Nutation: the sacral base ends up relatively forward compared to the ilium (the sacrum 'nods yes'). Counter-nutation: sacral base ends up relatively backward (the 'un-nod'). Both bones are passive — muscles, gravity, and load produce the motion; the joint just permits it.",
+        "muscles": [
+          {
+            "group": "Muscles that pull the ilium forward (toward nutation)",
+            "members": [
+              "Psoas",
+              "Iliacus",
+              "Rectus femoris"
+            ]
+          },
+          {
+            "group": "Muscles that pull the ilium backward (toward counter-nutation)",
+            "members": [
+              "Gluteus medius",
+              "Hamstrings"
+            ]
+          },
+          {
+            "group": "Muscles that act on the sacrum",
+            "members": [
+              "Gluteus maximus (pulls sacrum backward)",
+              "Piriformis (stabilizes; pulls sacrum forward when overactive)",
+              "Coccygeus (controls coccyx position)"
+            ]
+          }
+        ],
+        "priOverlay": {
+          "names": [
+            {
+              "acronym": "IS",
+              "fullName": "Ilio-Sacral",
+              "priRegion": "Posterior Inlet",
+              "meaning": "PRI considers the ilium displaced. Treatment targets ilium-movers: gluteus medius, iliacus."
+            },
+            {
+              "acronym": "SI",
+              "fullName": "Sacro-Ilio",
+              "priRegion": "Posterior Outlet",
+              "meaning": "PRI considers the sacrum displaced. Treatment targets sacrum-movers: gluteus maximus, piriformis, coccygeus."
+            }
+          ],
+          "callout": "Same joint, two names. The name tells you which bone PRI wants you to target."
+        }
+      },
+      {
+        "name": "Hip Joint",
+        "structure": "Where the acetabulum (part of the pelvis) meets the femoral head. Ball and socket, large ROM in all three planes. In open chain (leg off ground), the femur moves and the pelvis is relatively stable. In closed chain (foot planted), the pelvis moves over the femur. Both bones can contribute movement — which moves more depends on loading, not the joint itself.",
+        "muscles": [
+          {
+            "group": "Muscles that move the pelvis on the femur (closed chain)",
+            "members": [
+              "IO/TA (posterior pelvic tilt)",
+              "Proximal iliacus (inlet adduction)",
+              "Gluteus medius (frontal plane stabilizer)",
+              "Hamstrings (posterior tilt via ischium pull)",
+              "Adductors (connect to pelvic floor)"
+            ]
+          },
+          {
+            "group": "Muscles that move the femur on the pelvis (open chain)",
+            "members": [
+              "Standard hip flexors, extensors, abductors, adductors, rotators — conventional kinesiology applies here"
+            ]
+          },
+          {
+            "group": "Pelvic floor muscles (outlet control)",
+            "members": [
+              "Obturator internus (outlet abduction + femoral adduction in closed chain)",
+              "Iliococcygeus (outlet abduction, pelvic floor ascension)",
+              "Puborectalis (outlet control)",
+              "Pubococcygeus (outlet control)"
+            ]
+          }
+        ],
+        "priOverlay": {
+          "names": [
+            {
+              "acronym": "AF",
+              "fullName": "Acetabular-Femoral",
+              "priRegion": "Hip (pelvis-on-femur)",
+              "meaning": "PRI uses this when the pelvis moved on the femur. Closed-chain perspective. AF IR = goal (pelvis rotated back). AF ER = pathological in L AIC (pelvis rotated forward)."
+            },
+            {
+              "acronym": "FA",
+              "fullName": "Femoral-Acetabular",
+              "priRegion": "Hip (femur-on-pelvis)",
+              "meaning": "PRI uses this when the femur moved on the pelvis. Open-chain perspective. Used in treatment positions (e.g., 'Passive FA IR'), not as pathological findings."
+            }
+          ],
+          "callout": "Same joint, two names. AF = fix the pelvis position. FA = the femur is being positioned for treatment."
+        }
+      }
+    ],
+    "keyInsight": "Joints are passive structures. They permit motion; they do not produce it. Muscles, gravity, and momentum produce motion. PRI’s acronym system encodes a clinical conclusion — which bone is displaced — into a joint name. IS vs. SI, AF vs. FA: same joint, different target bone. The first letter tells you which bone PRI wants you to move. IS = target the ilium. SI = target the sacrum. AF = reposition the pelvis over the femur. FA = mobilize the femur in the socket. IP and IsP use the pubic symphysis as a midline reference for describing innominate orientation at the inlet and outlet. The acronyms are treatment codes, not anatomical terms."
+  },
+  "causalChains": [
+    {
+      "id": 1,
+      "title": "From Diaphragm to Positive ADT",
+      "start": "Left hemidiaphragm loses ZOA (no liver support)",
+      "end": "Positive left ADT",
+      "steps": [
+        "Left diaphragm flattens, becomes postural instead of respiratory",
+        "Left psoas and iliacus shorten (share anterior lumbar attachments with crura)",
+        "Left innominate pulled into anterior tilt (IP ER: flexion, abduction, ER)",
+        "Left acetabulum rotates forward over the femur (AF ER)",
+        "Femoral head position changes relative to acetabular rim",
+        "In sidelying, femur cannot adduct past midline (impingement on acetabular rim)",
+        "Positive left ADT"
+      ],
+      "annotations": [
+        "The left diaphragm sits above the stomach/spleen — no solid platform like the liver on the right. It loses dome shape more easily.",
+        "The crura of the diaphragm attach to anterior L1-L3. The psoas attaches to the same vertebrae. When the diaphragm flattens, the crural pull increases lordosis and the psoas shortens in parallel.",
+        "The psoas/iliacus don't just flex the hip — they pull the entire innominate forward. This is a tri-planar event: forward (sagittal), outward (frontal), and rotated (transverse).",
+        "The acetabulum is part of the innominate. When the innominate tips forward, the socket goes with it. The femur didn't move — the socket moved around it.",
+        "With the acetabulum rotated forward, the posterior-inferior femoral neck approximates the anterior-inferior acetabular rim and transverse ligament.",
+        "The ADT positions the femur in adduction. If the acetabulum is forwardly rotated, bone-on-bone contact blocks full adduction.",
+        "A positive ADT confirms the innominate is stuck in anterior rotation. It's a position test, not a flexibility test."
+      ]
+    },
+    {
+      "id": 2,
+      "title": "From Outlet Closure to Positive PADT",
+      "start": "Left outlet in IsP IR (closed, pelvic floor descended)",
+      "end": "Positive left PADT",
+      "steps": [
+        "Left ischial tuberosities are adducted (outlet closed)",
+        "Left pelvic floor is descended and cannot ascend",
+        "Left inlet is in IP ER (open) — ilium can't adduct",
+        "Distal iliacus is pulling femur, overriding proximal iliacus inlet adduction",
+        "In sidelying, patient cannot lower top knee to mat",
+        "Positive left PADT"
+      ],
+      "annotations": [
+        "IsP IR = ischium and pubis in extension, adduction, IR. The bottom ring of the pelvis is squeezed shut.",
+        "The pelvic floor (obturator internus, iliococcygeus, puborectalis, pubococcygeus) is stuck in a descended position — PRI's 'state of inhalation.' It can't cycle.",
+        "Inlet and outlet move in opposite directions. Closed outlet = open inlet. The ilium is abducted (IP ER).",
+        "The iliacus has two functional zones: proximal (acts on inlet — adducts) and distal (acts on femur — flexes). When distal dominates, the femoral pull prevents the inlet from closing.",
+        "The PADT asks the patient to actively adduct: lower the top knee. This requires the inlet to close (IP IR) and the outlet to open (IsP ER). Neither can happen.",
+        "A positive PADT means the pelvic floor can't ascend and the inlet/outlet can't switch. This is the Pelvis Restoration problem."
+      ]
+    },
+    {
+      "id": 3,
+      "title": "From Left AIC to Right Compensatory Position",
+      "start": "Left innominate in anterior tilt (L IP ER)",
+      "end": "Right innominate in compensatory position (R IP IR)",
+      "steps": [
+        "Left pelvis rotates forward, sacrum rotates rightward",
+        "Spine orients to the right (follows the sacrum)",
+        "Body weight shifts to the right leg",
+        "Right innominate is loaded in weight-bearing and held posteriorly",
+        "Right inlet closes (R IP IR: extension, adduction, IR)",
+        "Right outlet opens (R IsP ER: flexion, abduction, ER)"
+      ],
+      "annotations": [
+        "The left innominate rotating forward pulls the sacrum with it into right rotation.",
+        "The lumbar spine follows the sacrum. The thorax compensates. The whole body orients rightward.",
+        "Standing posture shifts right. The right leg becomes the default stance leg.",
+        "Weight-bearing compresses the right SI joint and holds the right innominate in a posteriorly tilted position.",
+        "Right inlet closing is the compensatory mirror of left inlet opening.",
+        "Right outlet opening is why the right pelvic floor is typically in better position than the left in L AIC. The right pelvic diaphragm can ascend."
+      ]
+    },
+    {
+      "id": 4,
+      "title": "From IO/TA Weakness to Respiratory Dysfunction",
+      "start": "Left IO/TAs become weak",
+      "end": "Positive right Apical Expansion Test",
+      "steps": [
+        "Left abdominal wall loses tension",
+        "Left respiratory diaphragm loses ZOA (no abdominal counter-pressure)",
+        "Left anterior ribs flare into external rotation",
+        "Left anterior thorax hyperinflates (air goes where resistance is lowest)",
+        "Left posterior mediastinum can't expand (air is already anterior)",
+        "Right anterior upper chest can't expand (limited by left-dominant inflation pattern)",
+        "Positive right Apical Expansion Test"
+      ],
+      "annotations": [
+        "IO/TAs connect the respiratory diaphragm to the pelvis — they're the 'conduit for airflow and pressure regulation' between the two diaphragms.",
+        "Without abdominal wall tension pushing back, the diaphragm has nothing to push against. It flattens. ZOA shrinks.",
+        "A flat diaphragm pushes ribs outward instead of down. The lower ribs on the left flare anteriorly.",
+        "With left ribs flared and left abdominal wall slack, inhalation fills the left anterior chest preferentially.",
+        "Posterior mediastinum expansion requires the diaphragm to descend symmetrically. A flat left diaphragm can't direct air posteriorly.",
+        "The respiratory system compensates asymmetrically. The right anterior upper chest gets restricted.",
+        "The Apical Expansion Test asks: can the patient inhale into the right anterior chest wall? If the left side has monopolized the air space, the answer is no."
+      ]
+    },
+    {
+      "id": 5,
+      "title": "From B PEC to Pubalgia",
+      "start": "Bilateral PEC pattern (both inlets in IP ER)",
+      "end": "Pubic symphysis shearing / pubalgia",
+      "steps": [
+        "Both inlets are in IP ER (bilateral anterior tilt)",
+        "Both outlets are in IsP IR (bilateral adduction/closure)",
+        "Rectus abdominis is eccentrically lengthened by bilateral anterior tilt",
+        "Paraspinals are short and tight (pulling spine into extension)",
+        "Adductors are lengthened by outlet IsP IR position",
+        "Opposing forces create shearing at pubic symphysis",
+        "Pubalgia"
+      ],
+      "annotations": [
+        "B PEC = both sides have adopted the anterior tilt. Both ASIS are dropped forward.",
+        "When both inlets open, both outlets close. The ischial tuberosities are squeezed together bilaterally.",
+        "The rectus abdominis spans from ribs to pubis. Bilateral anterior tilt increases the distance between these attachments. The muscle is chronically stretched.",
+        "The PEC (posterior exterior chain) is overactive bilaterally — lats, QL, paraspinals all pulling the spine into extension.",
+        "The adductors attach to the inferior pubic rami. With the ischia adducted (outlet closed), the adductor origin is displaced.",
+        "The pubic symphysis is caught between the eccentrically loaded rectus above and the displaced adductor origins below. Shearing force across the joint.",
+        "Treatment: inhibit anterior inlet/posterior outlet via IO/TAs → maximize inlet extension → maximize L posterior outlet expansion → reciprocal activity."
+      ]
+    },
+    {
+      "id": 6,
+      "title": "From Repositioning to Pelvis Restoration Decision",
+      "start": "Patient presents with + bilateral ADT, + bilateral PADT",
+      "end": "Enter Pelvis Restoration program",
+      "steps": [
+        "Perform repositioning: 3 techniques matched to pattern",
+        "Retest ADT: now negative bilaterally (bone repositioned)",
+        "Retest PADT: still positive bilaterally (pelvic floor still dysfunctional)",
+        "The bone is in the right place but the pelvic floor can't cycle",
+        "This is a motor control deficit, not a positional problem",
+        "Enter Pelvis Restoration program"
+      ],
+      "annotations": [
+        "Repositioning = the starting point. Three techniques per pattern (B PEC/Patho get one set, L AIC gets a different set).",
+        "Negative ADT means the innominate is no longer anteriorly rotated. The femur can adduct freely. The positional problem is resolved.",
+        "Positive PADT means the pelvic floor is still descended. The outlet can't open and the inlet can't close. The bone is in the right place but the muscles can't control it.",
+        "This is the key clinical distinction: ADT tests position. PADT tests function.",
+        "Position is corrected by repositioning. Function is corrected by the Pelvis Restoration facilitation hierarchy.",
+        "If both ADT and PADT had cleared, you'd go to Myokinematic Restoration instead — different course, different problem."
+      ]
+    }
+  ],
+  "game": {
+    "scenarios": [
+      {
+        "id": 1,
+        "testProfile": {
+          "ADT": "+ left",
+          "PADT": "+ left",
+          "PART": "+ right",
+          "SRT": "4 inches (cannot touch toes)",
+          "Squat": "2/5",
+          "HALT": "1/5"
+        },
+        "correctPattern": "Left AIC",
+        "explanation": "Positive ADT and PADT on the left only (asymmetric) = Left AIC. Positive PART on the right is expected (lateral buttressing of right femoral head). SRT > 0 and Squat < 3/5 confirm not Patho.",
+        "round2": {
+          "repositioning": {
+            "question": "Which 3 repositioning techniques for Left AIC?",
+            "options": [
+              "Standing Wall Supported Reach",
+              "90-90 Supported Hip Lift with Hemibridge",
+              "90-90 Hip Lift in Passive FA IR with Balloon",
+              "Right Sidelying Respiratory Left Adductor Pull Back",
+              "Modified All Four Belly Lift",
+              "Left Sidelying Right Glute Max"
+            ],
+            "correct": [
+              "90-90 Supported Hip Lift with Hemibridge",
+              "Right Sidelying Respiratory Left Adductor Pull Back",
+              "Left Sidelying Right Glute Max"
+            ],
+            "explanation": "Left AIC uses asymmetric repositioning. The B PEC/Patho set (Standing Wall Supported Reach, 90-90 in Passive FA IR with Balloon, Modified All Four Belly Lift) is bilateral."
+          },
+          "postReposition": {
+            "question": "Post-repositioning: − L ADT, − R ADT, + L PADT, + R PART. What program?",
+            "options": [
+              "Myokinematic Restoration & Postural Respiration",
+              "Left AIC Pelvis Restoration Program",
+              "Reevaluate technique or other PRI courses"
+            ],
+            "correct": "Left AIC Pelvis Restoration Program",
+            "explanation": "− L ADT / + L PADT ± R PART → Left AIC Pelvis Restoration. ADT cleared (bone repositioned) but PADT positive (pelvic floor can't ascend)."
+          },
+          "facilitation": {
+            "question": "First muscle group to facilitate in the L AIC Facilitation Hierarchy?",
+            "options": [
+              "L pelvic floor (obturator internus, iliococcygeus)",
+              "R anterior inlet (R rectus femoris + R sartorius)",
+              "L gluteus medius",
+              "R gluteus maximus"
+            ],
+            "correct": "R anterior inlet (R rectus femoris + R sartorius)",
+            "explanation": "Step 1: Turn ON R anterior inlet (IP ER) via R rectus femoris + R sartorius. R HALT 0/5."
+          }
+        }
+      },
+      {
+        "id": 2,
+        "testProfile": {
+          "ADT": "+ bilateral",
+          "PADT": "+ bilateral",
+          "PART": "− bilateral",
+          "SRT": "8 inches (cannot touch toes)",
+          "Squat": "1/5",
+          "HALT": "1/5"
+        },
+        "correctPattern": "Bilateral PEC",
+        "explanation": "Bilateral positive ADT/PADT (symmetric) with negative PART bilaterally = B PEC. SRT > 0 and Squat < 3/5 confirm standard B PEC, not Patho. Key: PART negative bilaterally.",
+        "round2": {
+          "repositioning": {
+            "question": "Which 3 repositioning techniques for Bilateral PEC?",
+            "options": [
+              "Standing Wall Supported Reach",
+              "90-90 Supported Hip Lift with Hemibridge",
+              "90-90 Hip Lift in Passive FA IR with Balloon",
+              "Right Sidelying Respiratory Left Adductor Pull Back",
+              "Modified All Four Belly Lift",
+              "Left Sidelying Right Glute Max"
+            ],
+            "correct": [
+              "Standing Wall Supported Reach",
+              "90-90 Hip Lift in Passive FA IR with Balloon",
+              "Modified All Four Belly Lift"
+            ],
+            "explanation": "B PEC and B Patho PEC use the same three bilateral repositioning techniques."
+          },
+          "postReposition": {
+            "question": "Post-repositioning: − B ADT, + B PADT. What program?",
+            "options": [
+              "Myokinematic Restoration & Postural Respiration",
+              "Pelvis Restoration Program",
+              "Reevaluate technique or other PRI courses"
+            ],
+            "correct": "Pelvis Restoration Program",
+            "explanation": "− B ADT / + B PADT → Pelvis Restoration. If both had cleared → Myokinematic Restoration & Postural Respiration."
+          },
+          "facilitation": {
+            "question": "First priority in the B PEC hierarchy after repositioning?",
+            "options": [
+              "Maximize inhibition of bilateral anterior inlet",
+              "Maximize diaphragmatic respiratory function",
+              "Left AIC Alternating Program",
+              "Promote squatting"
+            ],
+            "correct": "Maximize diaphragmatic respiratory function",
+            "explanation": "B PEC hierarchy step 1: maximize diaphragmatic respiratory function. Before inlet/outlet inhibition (step 2) and L AIC alternating program (step 3)."
+          }
+        }
+      },
+      {
+        "id": 3,
+        "testProfile": {
+          "ADT": "+ bilateral",
+          "PADT": "+ bilateral",
+          "PART": "+ bilateral",
+          "SRT": "0 inches (touches toes)",
+          "Squat": "4/5",
+          "HALT": "2/5"
+        },
+        "correctPattern": "Bilateral Patho PEC",
+        "explanation": "Patho = Paradoxical performance. Bilateral + ADT/PADT (like B PEC) but three distinguishers: (1) PART positive (B PEC: negative), (2) SRT = 0 / touches toes (B PEC: can't), (3) Squat > 3/5 (B PEC: < 3/5). Better ROM = worse pathology.",
+        "round2": {
+          "repositioning": {
+            "question": "Which 3 repositioning techniques for Bilateral Patho PEC?",
+            "options": [
+              "Standing Wall Supported Reach",
+              "90-90 Supported Hip Lift with Hemibridge",
+              "90-90 Hip Lift in Passive FA IR with Balloon",
+              "Right Sidelying Respiratory Left Adductor Pull Back",
+              "Modified All Four Belly Lift",
+              "Left Sidelying Right Glute Max"
+            ],
+            "correct": [
+              "Standing Wall Supported Reach",
+              "90-90 Hip Lift in Passive FA IR with Balloon",
+              "Modified All Four Belly Lift"
+            ],
+            "explanation": "Same three as B PEC. Treatment tracks diverge after repositioning, not at the repositioning step."
+          },
+          "postReposition": {
+            "question": "Patient needs a balloon exercise but Squat is 4/5. What do you do?",
+            "options": [
+              "Use the balloon as prescribed",
+              "Substitute a straw, kazoo, or party favor",
+              "Skip the respiratory exercise entirely"
+            ],
+            "correct": "Substitute a straw, kazoo, or party favor",
+            "explanation": "Functional Squat > 3/5 (Patho) → patient likely cannot handle a balloon. Use straw, kazoo, or party favor. Noted twice in the manual."
+          },
+          "facilitation": {
+            "question": "First priority in the B Patho PEC hierarchy?",
+            "options": [
+              "Maximize inhibition of bilateral anterior inlet",
+              "Maximize diaphragmatic respiratory function",
+              "Left AIC Alternating Program",
+              "Promote squatting"
+            ],
+            "correct": "Maximize diaphragmatic respiratory function",
+            "explanation": "Same as B PEC: step 1 is respiratory function. But for Patho, substitute balloon with straw/kazoo/party favor."
+          }
+        }
+      },
+      {
+        "id": 4,
+        "testProfile": {
+          "ADT": "+ left",
+          "PADT": "+ left",
+          "PART": "+ right",
+          "SRT": "6 inches with L hip shift",
+          "Squat": "1/5",
+          "HALT": "0/5"
+        },
+        "correctPattern": "Left AIC",
+        "explanation": "Asymmetric: + L ADT, + L PADT, + R PART. SRT uses hip-shift version (L AIC). Squat < 3/5, HALT 0/5 = early-stage L AIC.",
+        "round2": {
+          "repositioning": {
+            "question": "Which 3 repositioning techniques?",
+            "options": [
+              "Standing Wall Supported Reach",
+              "90-90 Supported Hip Lift with Hemibridge",
+              "90-90 Hip Lift in Passive FA IR with Balloon",
+              "Right Sidelying Respiratory Left Adductor Pull Back",
+              "Modified All Four Belly Lift",
+              "Left Sidelying Right Glute Max"
+            ],
+            "correct": [
+              "90-90 Supported Hip Lift with Hemibridge",
+              "Right Sidelying Respiratory Left Adductor Pull Back",
+              "Left Sidelying Right Glute Max"
+            ],
+            "explanation": "Left AIC repositioning."
+          },
+          "postReposition": {
+            "question": "Post-repositioning: − L ADT, − R ADT, + L PADT, − R PART. What program?",
+            "options": [
+              "Myokinematic Restoration",
+              "Left AIC Pelvis Restoration Program",
+              "Reevaluate technique or other PRI courses"
+            ],
+            "correct": "Left AIC Pelvis Restoration Program",
+            "explanation": "− L ADT / + L PADT → Left AIC Pelvis Restoration. The R PART clearing doesn't change the pathway."
+          },
+          "facilitation": {
+            "question": "R HALT is 0/5. Per the facilitation hierarchy, what first?",
+            "options": [
+              "R anterior inlet via R rectus femoris + R sartorius",
+              "L anterior outlet via L pelvic floor muscles",
+              "L posterior inlet via L iliacus + L gluteus medius",
+              "R posterior outlet via R gluteus maximus"
+            ],
+            "correct": "R anterior inlet via R rectus femoris + R sartorius",
+            "explanation": "HALT 0/5 = facilitation step 1: Turn ON R anterior inlet (IP ER) via R rectus femoris + R sartorius."
+          }
+        }
+      },
+      {
+        "id": 5,
+        "testProfile": {
+          "ADT": "+ bilateral",
+          "PADT": "+ bilateral",
+          "PART": "+ left",
+          "SRT": "0 inches (touches toes)",
+          "Squat": "3/5",
+          "HALT": "1/5"
+        },
+        "correctPattern": "Bilateral Patho PEC",
+        "explanation": "Bilateral + ADT/PADT. PART positive (unilateral — manual says 'bilateral or unilateral' for Patho). SRT = 0 (touches toes). Squat 3/5 is borderline but positive PART + touching toes clinches it. B PEC would have negative PART and can't touch toes.",
+        "round2": {
+          "repositioning": {
+            "question": "Which 3 repositioning techniques?",
+            "options": [
+              "Standing Wall Supported Reach",
+              "90-90 Supported Hip Lift with Hemibridge",
+              "90-90 Hip Lift in Passive FA IR with Balloon",
+              "Right Sidelying Respiratory Left Adductor Pull Back",
+              "Modified All Four Belly Lift",
+              "Left Sidelying Right Glute Max"
+            ],
+            "correct": [
+              "Standing Wall Supported Reach",
+              "90-90 Hip Lift in Passive FA IR with Balloon",
+              "Modified All Four Belly Lift"
+            ],
+            "explanation": "B Patho PEC → same three as B PEC."
+          },
+          "postReposition": {
+            "question": "Post-repositioning: − B ADT, − B PADT. What program?",
+            "options": [
+              "Myokinematic Restoration & Postural Respiration",
+              "Pelvis Restoration Program",
+              "Reevaluate technique or other PRI courses"
+            ],
+            "correct": "Myokinematic Restoration & Postural Respiration",
+            "explanation": "− B ADT / − B PADT → Myokinematic Restoration & Postural Respiration. Both cleared = positional problem resolved, pelvic floor functioning."
+          },
+          "facilitation": {
+            "question": "Both ADT and PADT cleared with repositioning alone. What does this mean?",
+            "options": [
+              "Pelvic floor dysfunction was secondary to bone position — repositioning restored function",
+              "The patient has a Right AIC pattern",
+              "Repositioning was ineffective; retry",
+              "Patient needs Pelvis Restoration program"
+            ],
+            "correct": "Pelvic floor dysfunction was secondary to bone position — repositioning restored function",
+            "explanation": "When both clear with repositioning, the problem was positional. The patient moves to Myokinematic Restoration — they don't need Pelvis Restoration."
+          }
+        }
+      },
+      {
+        "id": 6,
+        "testProfile": {
+          "ADT": "+ bilateral",
+          "PADT": "+ bilateral",
+          "PART": "− bilateral",
+          "SRT": "3 inches (cannot touch toes)",
+          "Squat": "2/5",
+          "HALT": "0/5"
+        },
+        "correctPattern": "Bilateral PEC",
+        "explanation": "Bilateral + ADT/PADT, negative PART bilaterally, SRT > 0, Squat < 3/5 = standard B PEC. If PART were positive, SRT were 0, or Squat > 3/5 → suspect Patho.",
+        "round2": {
+          "repositioning": {
+            "question": "'Passive FA IR' in the 90-90 Hip Lift — what does this mean?",
+            "options": [
+              "Pelvis internally rotates on a fixed femur",
+              "Femur is passively placed in internal rotation on a fixed pelvis",
+              "Patient actively internally rotates the femur",
+              "Acetabulum externally rotates on the femur"
+            ],
+            "correct": "Femur is passively placed in internal rotation on a fixed pelvis",
+            "explanation": "FA = Femoral-Acetabular = femur is the moving bone. 'Passive' = clinician positions it. IR = internal rotation. Standard hip IR in an open-chain position."
+          },
+          "postReposition": {
+            "question": "'Promote inlet extension' means:",
+            "options": [
+              "Move inlets from IP ER (flexion/open) into IP IR (extension/closed)",
+              "Stretch the hip extensors",
+              "Extend the lumbar spine",
+              "Promote thoracic extension"
+            ],
+            "correct": "Move inlets from IP ER (flexion/open) into IP IR (extension/closed)",
+            "explanation": "In B PEC both inlets are in IP ER (flexion, abduction, ER = open). 'Inlet extension' = IP IR (extension, adduction, IR = closed). IO/TAs are the primary movers."
+          },
+          "facilitation": {
+            "question": "B PEC hierarchy ends with 'Left AIC Alternating Program.' Why?",
+            "options": [
+              "Behind every Bilateral PEC pattern is a Left AIC pattern",
+              "The left side is always weaker",
+              "The right side corrects automatically",
+              "B PEC only affects the left side"
+            ],
+            "correct": "Behind every Bilateral PEC pattern is a Left AIC pattern",
+            "explanation": "The bilateral compensation started as a left-sided problem (structural asymmetry). After addressing the bilateral component, address the underlying L AIC."
+          }
+        }
+      },
+      {
+        "id": 7,
+        "testProfile": {
+          "ADT": "+ left (negative right)",
+          "PADT": "+ left (negative right)",
+          "PART": "+ right",
+          "SRT": "2 inches with L hip shift",
+          "Squat": "2/5",
+          "HALT": "R 1/5"
+        },
+        "correctPattern": "Left AIC",
+        "explanation": "Asymmetric: + L ADT/PADT, − R ADT/PADT, + R PART. SRT with L hip shift. Classic L AIC. Right side already partly neutral.",
+        "round2": {
+          "repositioning": {
+            "question": "R ADT already negative. After L AIC repositioning, L ADT clears. + L PADT, + R PART, R HALT 1/5. What facilitation step?",
+            "options": [
+              "Step 1: R anterior inlet (R rectus femoris + R sartorius)",
+              "Step 2: L anterior outlet (L pelvic floor via adductors)",
+              "Step 3: L posterior inlet (L iliacus + L gluteus medius)",
+              "Step 4: R posterior outlet (R glute max)"
+            ],
+            "correct": "Step 2: L anterior outlet (L pelvic floor via adductors)",
+            "explanation": "R HALT 1/5 = facilitation step 2: Turn ON L anterior outlet (IsP ER) via L pelvic floor muscles (via L adductors). The HALT score tells you where you are."
+          },
+          "postReposition": {
+            "question": "All tests negative but patient is only 80% better. First thing to address?",
+            "options": [
+              "Reciprocal L inlet IP IR / outlet IsP ER with inhalation and mid-zone with exhalation",
+              "Hormonal considerations",
+              "Refer to another PRI course",
+              "PRI Kegel immediately"
+            ],
+            "correct": "Reciprocal L inlet IP IR / outlet IsP ER with inhalation and mid-zone with exhalation",
+            "explanation": "Neutrality achieved but symptoms persist → first: reciprocal inlet/outlet cycling with respiration. PRI Kegel is step 2 (requires HALT 4/5). Hormonal/psychosocial come later."
+          },
+          "facilitation": {
+            "question": "PRI Kegel prerequisites?",
+            "options": [
+              "HALT 4/5 and all tests negative (neutral)",
+              "HALT 2/5 and negative ADT only",
+              "Any HALT score with negative PADT",
+              "No prerequisites"
+            ],
+            "correct": "HALT 4/5 and all tests negative (neutral)",
+            "explanation": "PRI Kegel requires HALT 4/5 and neutral tests. Performed in L inlet IP IR / outlet IsP ER position."
+          }
+        }
+      },
+      {
+        "id": 8,
+        "testProfile": {
+          "ADT": "+ bilateral",
+          "PADT": "+ bilateral",
+          "PART": "+ right",
+          "SRT": "0 inches (touches toes)",
+          "Squat": "4/5",
+          "HALT": "2/5"
+        },
+        "correctPattern": "Bilateral Patho PEC",
+        "explanation": "Bilateral + ADT/PADT. Patho tells: (1) PART positive (unilateral on R), (2) SRT = 0 (touches toes), (3) Squat > 3/5. HALT < 3/5 is consistent with all patterns.",
+        "round2": {
+          "repositioning": {
+            "question": "ADT cleared bilaterally, PADT still + bilaterally, Squat 4/5. Manual says 90-90 Hip Lift with Balloon. Adjustment?",
+            "options": [
+              "Use balloon as prescribed",
+              "Substitute straw, kazoo, or party favor",
+              "Skip respiratory exercise",
+              "Use a smaller balloon"
+            ],
+            "correct": "Substitute straw, kazoo, or party favor",
+            "explanation": "Squat > 3/5 (Patho) → substitute balloon. Noted twice in manual."
+          },
+          "postReposition": {
+            "question": "Pelvic floor in B Patho PEC vs. B PEC?",
+            "options": [
+              "Patho: descended, bulged, high resting tone. PEC: descended, hypertonic, inflexible.",
+              "Patho: ascended and weak. PEC: descended and hypertonic.",
+              "No difference.",
+              "Patho: normal. PEC: descended."
+            ],
+            "correct": "Patho: descended, bulged, high resting tone. PEC: descended, hypertonic, inflexible.",
+            "explanation": "Both descended. B PEC: hypertonic/inflexible (stuck, still has tone). Patho: bulged outward under pressure, high resting tone (muscles failing to resist IAP)."
+          },
+          "facilitation": {
+            "question": "B Patho PEC hierarchy step 3?",
+            "options": [
+              "Left AIC Alternating Program",
+              "Promote squatting",
+              "PRI Kegel",
+              "Myokinematic Restoration"
+            ],
+            "correct": "Left AIC Alternating Program",
+            "explanation": "Both B PEC and B Patho PEC hierarchies end with L AIC Alternating Program — because behind every bilateral PEC is a Left AIC."
+          }
+        }
+      }
+    ]
+  },
+  "caseStudies": [
+    {
+      "id": 1,
+      "title": "Bilateral PEC Case",
+      "visits": [
+        {
+          "visit": 1,
+          "testResults": {
+            "ADT": "+ bilateral",
+            "PADT": "+ bilateral",
+            "PART": "− bilateral",
+            "SRT": "8 inches",
+            "Squat": "1/5",
+            "HALT": "1/1"
+          },
+          "question": "What pattern is this?",
+          "options": [
+            "Left AIC",
+            "Bilateral PEC",
+            "Bilateral Patho PEC"
+          ],
+          "correct": "Bilateral PEC",
+          "explanation": "Bilateral + ADT/PADT, negative PART, SRT > 0, Squat < 3/5 = B PEC. Not Patho (PART is negative, can't touch toes, low squat).",
+          "treatmentQuestion": "Select the 3 repositioning techniques:",
+          "treatmentOptions": [
+            "Standing Wall Supported Reach",
+            "90-90 Supported Hip Lift with Hemibridge",
+            "90-90 Hip Lift in Passive FA IR with Balloon",
+            "Right Sidelying Respiratory Left Adductor Pull Back",
+            "Modified All Four Belly Lift",
+            "Left Sidelying Right Glute Max"
+          ],
+          "correctTreatment": [
+            "Standing Wall Supported Reach",
+            "90-90 Hip Lift in Passive FA IR with Balloon",
+            "Modified All Four Belly Lift"
+          ],
+          "treatmentExplanation": "B PEC repositioning: bilateral techniques."
+        },
+        {
+          "visit": 2,
+          "testResults": {
+            "ADT": "− bilateral",
+            "PADT": "+ bilateral"
+          },
+          "question": "ADT cleared. PADT still positive. What program?",
+          "options": [
+            "Myokinematic Restoration",
+            "Pelvis Restoration",
+            "Reevaluate"
+          ],
+          "correct": "Pelvis Restoration",
+          "explanation": "− B ADT / + B PADT → Pelvis Restoration. Focus: mediastinum expansion and abs with reciprocal repositioning."
+        },
+        {
+          "visit": 3,
+          "testResults": {
+            "ADT": "− bilateral",
+            "PADT": "+ left / − right",
+            "PART": "− left / + right"
+          },
+          "question": "R PADT cleared but L PADT still positive. R PART is now positive. What does the R PART finding indicate?",
+          "options": [
+            "Right outlet can't abduct and left outlet can't adduct",
+            "Right hip is too tight",
+            "The repositioning failed"
+          ],
+          "correct": "Right outlet can't abduct and left outlet can't adduct",
+          "explanation": "Now showing L AIC characteristics emerging from under the B PEC. Promote L inlet adduction via L proximal iliacus."
+        },
+        {
+          "visit": 4,
+          "testResults": {
+            "ADT": "− bilateral",
+            "PADT": "− bilateral",
+            "PART": "− left / + right"
+          },
+          "question": "PADT now negative bilaterally. R PART still positive. What to address?",
+          "options": [
+            "Promote R inlet abduction via R posterior glute max",
+            "L AIC repositioning",
+            "Discharge"
+          ],
+          "correct": "Promote R inlet abduction via R posterior glute max",
+          "explanation": "With neutral PADT bilaterally and isolated + R PART, facilitate R glute max to address remaining R outlet/inlet deficit."
+        },
+        {
+          "visit": 5,
+          "testResults": {
+            "ADT": "− bilateral",
+            "PADT": "− bilateral",
+            "PART": "− bilateral",
+            "HALT": "4/4"
+          },
+          "question": "All tests negative, HALT 4/4. What to integrate next?",
+          "options": [
+            "R outlet adduction via R inferior glute max",
+            "More repositioning",
+            "PRI Kegel"
+          ],
+          "correct": "R outlet adduction via R inferior glute max",
+          "explanation": "HALT 4/4 = near-complete frontal plane control. Integrate R outlet adduction to reach HALT 5/5."
+        },
+        {
+          "visit": 6,
+          "testResults": {
+            "HALT": "5/5",
+            "Squat": "4/5"
+          },
+          "question": "HALT 5/5, Squat 4/5. What final phase?",
+          "options": [
+            "Reciprocal alternating function (retro walking, heel stair descents, reverse squatting)",
+            "Continue repositioning",
+            "Refer out"
+          ],
+          "correct": "Reciprocal alternating function (retro walking, heel stair descents, reverse squatting)",
+          "explanation": "Full frontal plane control achieved. Final phase: gait integration with reciprocal alternating activities."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Left AIC Case",
+      "visits": [
+        {
+          "visit": 1,
+          "testResults": {
+            "ADT": "+ left",
+            "PADT": "+ left",
+            "PART": "+ right",
+            "SRT": "4 inches"
+          },
+          "question": "What pattern?",
+          "options": [
+            "Left AIC",
+            "Bilateral PEC",
+            "Bilateral Patho PEC"
+          ],
+          "correct": "Left AIC",
+          "explanation": "Asymmetric: + L ADT, + L PADT, + R PART. SRT > 0. Classic Left AIC.",
+          "treatmentQuestion": "Select the 3 repositioning techniques:",
+          "treatmentOptions": [
+            "Standing Wall Supported Reach",
+            "90-90 Supported Hip Lift with Hemibridge",
+            "90-90 Hip Lift in Passive FA IR with Balloon",
+            "Right Sidelying Respiratory Left Adductor Pull Back",
+            "Modified All Four Belly Lift",
+            "Left Sidelying Right Glute Max"
+          ],
+          "correctTreatment": [
+            "90-90 Supported Hip Lift with Hemibridge",
+            "Right Sidelying Respiratory Left Adductor Pull Back",
+            "Left Sidelying Right Glute Max"
+          ],
+          "treatmentExplanation": "Left AIC repositioning: asymmetric techniques."
+        },
+        {
+          "visit": 2,
+          "testResults": {
+            "ADT": "− bilateral",
+            "PADT": "− bilateral",
+            "PART": "+ right"
+          },
+          "question": "ADT and PADT both negative bilaterally. R PART still positive. What to do?",
+          "options": [
+            "Inhibit L posterior mediastinum, promote R inlet abduction via R glute max",
+            "Discharge — tests are mostly negative",
+            "Repeat repositioning"
+          ],
+          "correct": "Inhibit L posterior mediastinum, promote R inlet abduction via R glute max",
+          "explanation": "With neutral ADT/PADT and isolated + R PART: address remaining R posterior inlet deficit via R glute max. Also address respiratory component (L posterior mediastinum)."
+        },
+        {
+          "visit": 3,
+          "testResults": {
+            "ADT": "− bilateral",
+            "PADT": "− bilateral",
+            "PART": "− bilateral"
+          },
+          "question": "All tests negative. What to integrate?",
+          "options": [
+            "L IO/TAs with R outlet adduction",
+            "Restart repositioning",
+            "PRI Kegel (if HALT allows)"
+          ],
+          "correct": "L IO/TAs with R outlet adduction",
+          "explanation": "All tests negative = neutral pelvis achieved. Integrate L IO/TAs (the conduit between respiratory and pelvic diaphragms) with R outlet adduction for full reciprocal function."
+        }
+      ]
+    }
+  ],
+  "decisionTree": {
+    "id": "root",
+    "question": "Perform ADT bilaterally. What are the results?",
+    "branches": [
+      {
+        "answer": "+ Bilateral ADT",
+        "next": {
+          "id": "padt_check",
+          "question": "Perform PADT bilaterally. What are the results?",
+          "branches": [
+            {
+              "answer": "+ Bilateral PADT",
+              "next": {
+                "id": "pattern_id",
+                "question": "Check PART, SRT, and Squat to determine pattern.",
+                "branches": [
+                  {
+                    "answer": "− bilateral PART, SRT > 0, Squat < 3/5 → Bilateral PEC",
+                    "next": {
+                      "id": "bpec_reposition",
+                      "question": "Reposition with: (1) Standing Wall Supported Reach, (2) 90-90 Hip Lift in Passive FA IR with Balloon, (3) Modified All Four Belly Lift. Retest ADT.",
+                      "branches": [
+                        {
+                          "answer": "− B ADT, − B PADT",
+                          "next": {
+                            "id": "bpec_myokin",
+                            "terminal": true,
+                            "content": "Myokinematic Restoration & Postural Respiration program. Both position (ADT) and function (PADT) resolved."
+                          }
+                        },
+                        {
+                          "answer": "− B ADT, + B PADT",
+                          "next": {
+                            "id": "bpec_pelvis",
+                            "terminal": true,
+                            "content": "Pelvis Restoration program. B PEC Hierarchy: (1) Maximize respiratory function, (2) Maximize inhibition of bilateral anterior inlet / posterior outlet, (3) Left AIC Alternating Program."
+                          }
+                        },
+                        {
+                          "answer": "All still positive",
+                          "next": {
+                            "id": "bpec_reeval",
+                            "terminal": true,
+                            "content": "Reevaluate technique. Consider other PRI courses or interdisciplinary referral."
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "answer": "+ PART (bilateral or unilateral), SRT = 0, Squat > 3/5 → Bilateral Patho PEC",
+                    "next": {
+                      "id": "patho_reposition",
+                      "question": "Reposition with SAME 3 techniques as B PEC. Note: if Squat > 3/5, use straw/kazoo/party favor instead of balloon. Retest ADT.",
+                      "branches": [
+                        {
+                          "answer": "− B ADT, − B PADT",
+                          "next": {
+                            "id": "patho_myokin",
+                            "terminal": true,
+                            "content": "Myokinematic Restoration & Postural Respiration. Both resolved with repositioning alone."
+                          }
+                        },
+                        {
+                          "answer": "− B ADT, + B PADT",
+                          "next": {
+                            "id": "patho_pelvis",
+                            "terminal": true,
+                            "content": "Pelvis Restoration program. B Patho PEC Hierarchy: (1) Maximize respiratory function (straw/kazoo, NOT balloon), (2) Maximize inhibition of bilateral anterior inlet / posterior outlet, (3) Left AIC Alternating Program."
+                          }
+                        },
+                        {
+                          "answer": "All still positive",
+                          "next": {
+                            "id": "patho_reeval",
+                            "terminal": true,
+                            "content": "Reevaluate. Patho PEC is the most decompensated pattern — may need longer repositioning or manual techniques."
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "answer": "+ Left ADT only",
+        "next": {
+          "id": "laic_padt",
+          "question": "Confirm: + L PADT, + R PART. This is Left AIC. Reposition with: (1) 90-90 Supported Hip Lift with Hemibridge, (2) R Sidelying Respiratory L Adductor Pull Back, (3) L Sidelying R Glute Max. Retest.",
+          "branches": [
+            {
+              "answer": "− L ADT, − L PADT, − R PART",
+              "next": {
+                "id": "laic_myokin",
+                "terminal": true,
+                "content": "Myokinematic Restoration. All cleared."
+              }
+            },
+            {
+              "answer": "− L ADT, + L PADT ± R PART",
+              "next": {
+                "id": "laic_pelvis",
+                "question": "Left AIC Pelvis Restoration. Check R HALT to determine facilitation step.",
+                "branches": [
+                  {
+                    "answer": "R HALT 0/5",
+                    "next": {
+                      "id": "laic_step1",
+                      "terminal": true,
+                      "content": "Step 1: Turn ON R anterior inlet (IP ER) via R rectus femoris + R sartorius."
+                    }
+                  },
+                  {
+                    "answer": "R HALT 1/5",
+                    "next": {
+                      "id": "laic_step2",
+                      "terminal": true,
+                      "content": "Step 2: Turn ON L anterior outlet (IsP ER) via L pelvic floor muscles (via L adductors). Pelvic diaphragm ascension."
+                    }
+                  },
+                  {
+                    "answer": "R HALT 2/5",
+                    "next": {
+                      "id": "laic_step3",
+                      "terminal": true,
+                      "content": "Step 3: Turn ON L posterior inlet (IS ER) via L iliacus + L gluteus medius. Counter-nutation on left."
+                    }
+                  },
+                  {
+                    "answer": "R HALT 3/5",
+                    "next": {
+                      "id": "laic_step5",
+                      "terminal": true,
+                      "content": "Step 5: Upright L single-leg frontal plane control (L outlet abduction via L iliacus, L obturator, L iliococcygeus)."
+                    }
+                  },
+                  {
+                    "answer": "R HALT 4/5",
+                    "next": {
+                      "id": "laic_step4",
+                      "terminal": true,
+                      "content": "Step 4: Turn ON R posterior outlet (SI IR) via R glute max (coccygeus, piriformis). Then progress to steps 5-10."
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "answer": "All still positive",
+              "next": {
+                "id": "laic_reeval",
+                "terminal": true,
+                "content": "Reevaluate repositioning technique or consider other PRI courses."
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "muscleExerciseMap": {
+    "byMuscle": [
+      {
+        "muscle": "L Proximal Iliacus",
+        "action": "Adducts left inlet (closes top ring)",
+        "pattern": "Corrects L AIC (L inlet in IP ER → needs IP IR)",
+        "exercises": [
+          "90-90 Supported Hip Lift with Hemibridge",
+          "Hemi 90-90 positions",
+          "Standing single-leg activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation steps 1-3, also PADT correction"
+      },
+      {
+        "muscle": "L IO/TA",
+        "action": "Posteriorly tilts pelvis, connects respiratory diaphragm to pelvic inlet",
+        "pattern": "Weak in L AIC (left side), weak bilaterally in B PEC / B Patho PEC",
+        "exercises": [
+          "Standing Wall Supported Reach",
+          "Modified All Four Belly Lift",
+          "All Four Belly Lift",
+          "Wall and Chair Supported IO/TA",
+          "90-90 Supported Alternating Crossover w/ IO/TA"
+        ],
+        "hierarchyStep": "Integration muscle (Yellow family). Used throughout all hierarchies."
+      },
+      {
+        "muscle": "R Rectus Femoris",
+        "action": "Flexes right inlet (opens right top ring = R IP ER)",
+        "pattern": "Facilitates R anterior inlet to oppose L AIC",
+        "exercises": [
+          "Supine Hemi Extension w/ Alternating Respiratory Rectus Femoris and Sartorius",
+          "Hemi 90-90 positions"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 1 (R HALT 0/5)"
+      },
+      {
+        "muscle": "R Sartorius",
+        "action": "Flexes right inlet (assists R rectus femoris)",
+        "pattern": "Facilitates R anterior inlet to oppose L AIC",
+        "exercises": [
+          "Supine Hemi Extension w/ Alternating Respiratory Rectus Femoris and Sartorius"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 1 (R HALT 0/5)"
+      },
+      {
+        "muscle": "L Obturator Internus",
+        "action": "Abducts left outlet (opens bottom ring), adducts femur in closed chain",
+        "pattern": "Corrects L AIC (L outlet in IsP IR → needs IsP ER)",
+        "exercises": [
+          "R Sidelying Respiratory L Adductor Pull Back",
+          "L adductor facilitation activities",
+          "Standing single-leg activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 2 (R HALT 1/5)"
+      },
+      {
+        "muscle": "L Iliococcygeus",
+        "action": "Abducts left outlet, ascends pelvic floor",
+        "pattern": "Corrects L AIC (L pelvic diaphragm descended → needs ascension)",
+        "exercises": [
+          "R Sidelying Respiratory L Adductor Pull Back",
+          "L adductor facilitation activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 2 (R HALT 1/5)"
+      },
+      {
+        "muscle": "L Puborectalis",
+        "action": "Controls left outlet, contributes to pelvic floor ascension",
+        "pattern": "Corrects L AIC outlet closure",
+        "exercises": [
+          "L adductor facilitation activities",
+          "PRI Kegel (when HALT 4/5)"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 2"
+      },
+      {
+        "muscle": "L Pubococcygeus",
+        "action": "Controls left outlet, contributes to pelvic floor ascension",
+        "pattern": "Corrects L AIC outlet closure",
+        "exercises": [
+          "L adductor facilitation activities",
+          "PRI Kegel (when HALT 4/5)"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 2"
+      },
+      {
+        "muscle": "L Gluteus Medius",
+        "action": "Counter-nutates left ilium on sacrum (IS ER), frontal plane pelvic stabilizer",
+        "pattern": "Corrects L AIC (L posterior inlet in IS IR → needs IS ER)",
+        "exercises": [
+          "L Sidelying R Glute Max (L glute med co-activates)",
+          "Standing single-leg frontal plane activities",
+          "HALT progression"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 3 (R HALT 2/5)"
+      },
+      {
+        "muscle": "R Gluteus Maximus (superior fibers)",
+        "action": "Nutates right ilium on sacrum (R IS IR)",
+        "pattern": "Facilitates R posterior inlet position to oppose L AIC",
+        "exercises": [
+          "L Sidelying R Glute Max",
+          "Supine Hooklying Synchronized Resisted Glute Max"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 4 / also R posterior inlet"
+      },
+      {
+        "muscle": "R Gluteus Maximus (inferior fibers)",
+        "action": "Closes right posterior outlet (R SI IR), extends hip",
+        "pattern": "Facilitates R posterior outlet closure",
+        "exercises": [
+          "L Sidelying R Glute Max",
+          "Supine Hooklying Synchronized Resisted Glute Max",
+          "Standing R single-leg activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 4 (R HALT 4/5)"
+      },
+      {
+        "muscle": "R Piriformis",
+        "action": "Stabilizes right sacrum, contributes to R posterior outlet closure",
+        "pattern": "Facilitates R posterior outlet (SI IR)",
+        "exercises": [
+          "R posterior outlet facilitation activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 4"
+      },
+      {
+        "muscle": "R Coccygeus",
+        "action": "Controls coccyx position, contributes to R posterior outlet closure",
+        "pattern": "Facilitates R posterior outlet (SI IR)",
+        "exercises": [
+          "R posterior outlet facilitation activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 4"
+      },
+      {
+        "muscle": "L Hamstrings",
+        "action": "Pulls ischium down/back, posteriorly tilts pelvis",
+        "pattern": "Opposes L AIC anterior tilt",
+        "exercises": [
+          "90-90 Hip Lift positions (hamstrings activate to maintain 90-90)"
+        ],
+        "hierarchyStep": "Brown (Sagittal) family — active throughout"
+      }
+    ],
+    "byFinding": [
+      {
+        "finding": "+ L ADT",
+        "meaning": "Left innominate anteriorly rotated. Femur can't adduct.",
+        "muscles": "Not a muscle problem — positional. Requires repositioning.",
+        "exercises": [
+          "L AIC Repositioning: 90-90 Supported Hip Lift with Hemibridge, R Sidelying Respiratory L Adductor Pull Back, L Sidelying R Glute Max"
+        ],
+        "hierarchyStep": "Repositioning (pre-hierarchy)"
+      },
+      {
+        "finding": "+ B ADT",
+        "meaning": "Both innominates anteriorly rotated.",
+        "muscles": "Not a muscle problem — positional. Requires repositioning.",
+        "exercises": [
+          "B PEC Repositioning: Standing Wall Supported Reach, 90-90 Hip Lift in Passive FA IR with Balloon, Modified All Four Belly Lift"
+        ],
+        "hierarchyStep": "Repositioning (pre-hierarchy)"
+      },
+      {
+        "finding": "+ L PADT",
+        "meaning": "Left pelvic diaphragm can't ascend. Outlet closed, inlet open.",
+        "muscles": "Facilitate: L proximal iliacus (inlet adduction), L obturator internus + L iliococcygeus (outlet abduction), L pelvic floor (ascension)",
+        "exercises": [
+          "Hemi 90-90 positions",
+          "L adductor facilitation",
+          "Standing L single-leg activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation steps 1-4"
+      },
+      {
+        "finding": "+ B PADT",
+        "meaning": "Bilateral pelvic diaphragm dysfunction. Both outlets closed, both inlets open.",
+        "muscles": "Facilitate: bilateral IO/TAs, bilateral proximal iliacus, bilateral pelvic floor",
+        "exercises": [
+          "B PEC or B Patho PEC hierarchy: respiratory function first, then inlet/outlet inhibition, then L AIC alternating"
+        ],
+        "hierarchyStep": "B PEC / B Patho PEC hierarchy steps 1-3"
+      },
+      {
+        "finding": "+ R PART (with − B ADT)",
+        "meaning": "Right outlet can't abduct / right inlet can't abduct. Right pelvic diaphragm can't descend.",
+        "muscles": "Facilitate: R gluteus maximus",
+        "exercises": [
+          "L Sidelying R Glute Max",
+          "Standing R single-leg activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 3-4 territory"
+      },
+      {
+        "finding": "SRT = 0 with + B ADT and + B PADT",
+        "meaning": "Patient can touch toes despite bilateral dysfunction = Bilateral Patho PEC (compensatory hypermobility, not flexibility)",
+        "muscles": "All inlet and outlet muscles are 'OFF' (mechanically disadvantaged). Everything needs facilitation.",
+        "exercises": [
+          "B Patho PEC hierarchy. Use straw/kazoo instead of balloon."
+        ],
+        "hierarchyStep": "Repositioning first, then B Patho PEC hierarchy"
+      },
+      {
+        "finding": "Squat > 3/5 with + B ADT",
+        "meaning": "High squat score with positive ADT = Patho PEC. Compensatory strategy, not motor control.",
+        "muscles": "Global muscle insufficiency — do not progress aggressively",
+        "exercises": [
+          "Respiratory exercises with straw/kazoo (not balloon). Small movements."
+        ],
+        "hierarchyStep": "B Patho PEC hierarchy step 1"
+      },
+      {
+        "finding": "R HALT 0/5",
+        "meaning": "Can't even position for the test. Malaligned pelvis.",
+        "muscles": "R rectus femoris + R sartorius (R anterior inlet)",
+        "exercises": [
+          "Hemi 90-90 with R knee advancement"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 1"
+      },
+      {
+        "finding": "R HALT 1/5",
+        "meaning": "IO/TA weakness, can't inhibit inlet abduction of flexed leg.",
+        "muscles": "L pelvic floor (obturator internus, iliococcygeus) via L adductors",
+        "exercises": [
+          "R Sidelying Respiratory L Adductor Pull Back",
+          "L adductor facilitation"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 2"
+      },
+      {
+        "finding": "R HALT 2/5",
+        "meaning": "Poor IC adductor / anterior glute med. Can't achieve outlet abduction of flexed leg.",
+        "muscles": "L iliacus + L gluteus medius",
+        "exercises": [
+          "Standing L single-leg activities",
+          "L glute med facilitation"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 3"
+      },
+      {
+        "finding": "R HALT 4/5",
+        "meaning": "Poor contralateral adductor / ipsilateral glute med integration.",
+        "muscles": "R glute max (inferior fibers), R piriformis, R coccygeus",
+        "exercises": [
+          "L Sidelying R Glute Max",
+          "Standing R activities"
+        ],
+        "hierarchyStep": "L AIC Facilitation step 4"
+      }
+    ]
+  },
+  "flashcards": [
+    {
+      "front": "L IP ER",
+      "back": "Left Ilio-Pubo External Rotation. Left innominate pulled into flexion, abduction, ER (inlet opens). This IS the Left AIC position. Caused by psoas/iliacus. Corrected by: IO/TAs + posterior pelvic tilt. Repositioning clears ADT first."
+    },
+    {
+      "front": "R IP IR",
+      "back": "Right Ilio-Pubo Internal Rotation. Right innominate in extension, adduction, IR (inlet closes). Compensatory right-side position in Left AIC. Also the goal position for the left side."
+    },
+    {
+      "front": "L IS IR",
+      "back": "Left Ilio-Sacral Internal Rotation = nutation at left SI joint. Ilium pulled forward relative to sacrum by psoas/iliacus. Opens inlet, closes outlet. Corrected by: L gluteus medius (counter-nutation). L AIC Facilitation step 3."
+    },
+    {
+      "front": "IS ER",
+      "back": "Ilio-Sacral External Rotation = counter-nutation. Ilium outward/back relative to sacrum. Closes inlet, opens outlet. Goal for L side in L AIC."
+    },
+    {
+      "front": "L IsP IR",
+      "back": "Left Ischio-Pubo Internal Rotation. Left outlet closed (ext, add, IR). Pelvic floor descended / 'stuck inhalation.' In L AIC (L side) and B PEC/Patho (both). Corrected by: L pelvic floor via L adductors. Step 2."
+    },
+    {
+      "front": "IsP ER",
+      "back": "Ischio-Pubo External Rotation. Outlet opens (flex, abd, ER). Pelvic floor ascends. Goal position for L side in L AIC."
+    },
+    {
+      "front": "SI IR",
+      "back": "Sacro-Ilio Internal Rotation. Sacrum rotated inward on ilium. Posterior outlet closes. Same SI joint as IS, but PRI names it SI because treatment targets sacrum-movers (glute max, piriformis, coccygeus). R side goal: step 4."
+    },
+    {
+      "front": "AF ER",
+      "back": "Acetabular-Femoral External Rotation. Pelvis rotated forward/outward over fixed femur. = L AIC at the hip joint. Equivalent to L IP ER. Corrected by: repositioning then facilitation hierarchy."
+    },
+    {
+      "front": "AF IR",
+      "back": "Acetabular-Femoral Internal Rotation. Pelvis rotates back over fixed femur. Goal for L side. Net result of entire correction. Final integration at step 10 (squatting)."
+    },
+    {
+      "front": "FA IR",
+      "back": "Femoral-Acetabular Internal Rotation. Femur rotates inward on fixed pelvis. Standard hip IR. Not pathological — used in treatment positions (e.g., 'Passive FA IR' in 90-90 Hip Lift)."
+    },
+    {
+      "front": "FA ER",
+      "back": "Femoral-Acetabular External Rotation. Femur rotates outward. Hyperactive FA ERs → Squat level 2 failure."
+    },
+    {
+      "front": "Master Equivalence",
+      "back": "L IP ER = L IS IR = L IsP IR = L SI IR = L AF ER. Same L AIC position, different viewpoints. Inlet mirrors femur. Outlet is opposite."
+    },
+    {
+      "front": "ZOA",
+      "back": "Zone of Apposition. Diaphragm dome area apposes inner rib cage. Flat diaphragm = no ZOA = postural instead of respiratory. Restoring ZOA = dome shape = better breathing."
+    },
+    {
+      "front": "ADT",
+      "back": "Adduction Drop Test. Sidelying, top leg released. Positive = femur can't adduct past midline. Tests innominate position (bone, not muscle). First treatment goal: negative bilateral ADT."
+    },
+    {
+      "front": "PADT",
+      "back": "Pelvic Ascension Drop Test. Sidelying, actively lower top knee. Positive = can't reach mat. Tests pelvic diaphragm function. ADT clear + PADT positive → Pelvis Restoration program."
+    },
+    {
+      "front": "PART",
+      "back": "Passive Abduction Raise Test. Sidelying, passively abduct top leg. Positive = < 45°. Key Patho distinguisher: negative in B PEC, positive in Patho."
+    },
+    {
+      "front": "Patho Tells",
+      "back": "Three B Patho PEC distinguishers (vs. B PEC): (1) PART positive, (2) SRT = 0 / touches toes, (3) Squat > 3/5. Patho = Paradoxical performance."
+    },
+    {
+      "front": "L AIC Repositioning",
+      "back": "(1) 90-90 Supported Hip Lift with Hemibridge, (2) Right Sidelying Respiratory Left Adductor Pull Back, (3) Left Sidelying Right Glute Max."
+    },
+    {
+      "front": "B PEC / B Patho PEC Repositioning",
+      "back": "(1) Standing Wall Supported Reach, (2) 90-90 Hip Lift in Passive FA IR with Balloon, (3) Modified All Four Belly Lift. Same three for both."
+    },
+    {
+      "front": "Balloon vs. Straw",
+      "back": "Functional Squat > 3/5 (Patho) → use straw, kazoo, or party favor. Not balloon."
+    },
+    {
+      "front": "A-B-A Design",
+      "back": "Single-subject design. A = baseline test. B = intervention + retest. Second A = withdrawal + retest. If tests revert, intervention caused the change. Each patient = own control."
+    },
+    {
+      "front": "Nutation",
+      "back": "Sacral base ends up relatively forward compared to the ilium. The ilium was pulled forward (by psoas/iliacus) — the sacrum stayed. Opens inlet, closes outlet. PRI label: IS IR."
+    },
+    {
+      "front": "Counter-nutation",
+      "back": "Opposite of nutation. Sacral base relatively backward compared to ilium. Closes inlet, opens outlet. PRI label: IS ER. Achieved by: L gluteus medius."
+    },
+    {
+      "front": "Facilitation Step 1",
+      "back": "Turn ON R anterior inlet (IP ER) via R rectus femoris + R sartorius. +L PADT, +R PART, R HALT 0/5."
+    },
+    {
+      "front": "Facilitation Step 2",
+      "back": "Turn ON L anterior outlet (IsP ER) via L pelvic floor (via L adductors). Pelvic diaphragm ascension. +L PADT, +R PART, R HALT 1/5."
+    },
+    {
+      "front": "Facilitation Step 3",
+      "back": "Turn ON L posterior inlet (IS ER) via L iliacus + L gluteus medius. Counter-nutation on left. +L PADT, −R PART, R HALT 2/5."
+    },
+    {
+      "front": "Facilitation Step 4",
+      "back": "Turn ON R posterior outlet (SI IR) via R glute max (coccygeus, piriformis). −L PADT, −R PART, R HALT 4/5."
+    },
+    {
+      "front": "IO/TAs",
+      "back": "Internal Obliques + Transversus Abdominis. Posteriorly tilt pelvis, promote inlet extension (IP IR), connect respiratory diaphragm to pelvic inlet. The 'conduit' between the two diaphragms."
+    },
+    {
+      "front": "Pelvic Diaphragm 'Inhalation'",
+      "back": "Metaphor: chronically descended pelvic floor = stuck-inhale pelvis. Like a flat respiratory diaphragm = stuck-inhale thorax. Lost ability to cycle between descent and ascension."
+    },
+    {
+      "front": "Respiratory Test Clustering",
+      "back": "+L PADT → +L Posterior Outlet Mediastinum Expansion → +R Apical Expansion. +B PADT → bilateral versions. Same pelvic position drives both failures."
+    },
+    {
+      "front": "PRI Kegel",
+      "back": "Requires: HALT 4/5 + all tests negative. Position: L inlet IP IR / outlet IsP ER. Cue: feel L inner thigh → pull pelvic floor 'up and in' → hold 1-5 sec × 5 reps."
+    },
+    {
+      "front": "Footwear",
+      "back": "Running shoes with calcaneal + arch support, WITHOUT lateral calcaneal give."
+    }
+  ],
+  "translationMap": [
+    {
+      "priTerm": "IS IR",
+      "priFullName": "Ilio-Sacral Internal Rotation",
+      "priRegion": "Posterior Inlet",
+      "realStructure": "Sacroiliac joint",
+      "whatPriRenamed": "PRI reversed the standard joint name ('sacroiliac') to 'ilio-sacral' to encode that the ilium is the bone they consider displaced. The 'I' comes first because PRI treats the ilium as the mover.",
+      "whatActuallyHappened": "Psoas and iliacus pulled the ilium forward relative to the sacrum. The sacrum stayed. The resulting relative angle at the SI joint is called nutation.",
+      "standardTerm": "Nutation at the SI joint",
+      "encodedTreatment": "IS = target the ilium. Facilitate muscles that pull the ilium back: L gluteus medius (counter-nutation). L AIC Facilitation step 3."
+    },
+    {
+      "priTerm": "IS ER",
+      "priFullName": "Ilio-Sacral External Rotation",
+      "priRegion": "Posterior Inlet",
+      "realStructure": "Sacroiliac joint",
+      "whatPriRenamed": "Same renaming as IS IR — 'ilio-sacral' to indicate the ilium is the bone of interest. ER = the ilium has rotated outward/back.",
+      "whatActuallyHappened": "Gluteus medius and/or hamstrings pulled the ilium backward relative to the sacrum. The resulting position is counter-nutation.",
+      "standardTerm": "Counter-nutation at the SI joint",
+      "encodedTreatment": "IS = target the ilium. This is the goal position for the L side in L AIC. Achieved by facilitating L gluteus medius."
+    },
+    {
+      "priTerm": "SI IR",
+      "priFullName": "Sacro-Ilio Internal Rotation",
+      "priRegion": "Posterior Outlet",
+      "realStructure": "Sacroiliac joint (same joint as IS IR/ER)",
+      "whatPriRenamed": "PRI kept the standard name order ('sacro-ilio') to encode that the sacrum is the bone they consider displaced. Same joint as IS, different clinical frame. The 'S' comes first because PRI treats the sacrum as the mover here.",
+      "whatActuallyHappened": "Gluteus maximus pulled the sacrum backward/inward relative to the ilium. The posterior outlet closes.",
+      "standardTerm": "No distinct standard term. In conventional anatomy this is still motion at the SI joint. PRI creates a separate name to distinguish 'treat the sacrum' from 'treat the ilium.'",
+      "encodedTreatment": "SI = target the sacrum. Facilitate R glute max (inferior fibers), R piriformis, R coccygeus. L AIC Facilitation step 4."
+    },
+    {
+      "priTerm": "SI ER",
+      "priFullName": "Sacro-Ilio External Rotation",
+      "priRegion": "Posterior Outlet",
+      "realStructure": "Sacroiliac joint (same joint as IS IR/ER)",
+      "whatPriRenamed": "Same as SI IR — sacrum-first naming to indicate sacrum is the target.",
+      "whatActuallyHappened": "The sacrum rotated outward relative to the ilium, possibly due to piriformis overactivity or loss of glute max control. The posterior outlet opens.",
+      "standardTerm": "No distinct standard term. Motion at the SI joint.",
+      "encodedTreatment": "SI = target the sacrum. Correct by facilitating R glute max into SI IR."
+    },
+    {
+      "priTerm": "IP ER",
+      "priFullName": "Ilio-Pubo External Rotation",
+      "priRegion": "Anterior Inlet",
+      "realStructure": "Pubic symphysis (where the two innominates meet anteriorly). Not a standard joint in the way the SI or hip joint is — the pubic symphysis is a cartilaginous joint with very little motion.",
+      "whatPriRenamed": "PRI created a joint name ('ilio-pubo') that doesn't exist in standard anatomy. There is no 'ilio-pubo joint.' PRI is describing innominate bone motion relative to the pubic symphysis midline. 'External rotation' here means the innominate rotated outward/anteriorly relative to that midline.",
+      "whatActuallyHappened": "Psoas, iliacus, and rectus femoris pulled the innominate into anterior tilt. This is a tri-planar event: forward (sagittal = flexion), outward (frontal = abduction), and rotated (transverse = external rotation). PRI describes all three planes simultaneously as 'IP ER.'",
+      "standardTerm": "No single standard term. The closest conventional description: 'anterior pelvic tilt with innominate anterior rotation.' But this only captures the sagittal plane. PRI's tri-planar descriptor (flex/abd/ER) is actually more complete than the standard term — this is one case where PRI adds information rather than losing it.",
+      "encodedTreatment": "IP = targets the ilio-pubo region (anterior inlet). Correct by inhibiting via IO/TAs and posterior pelvic tilt. Repositioning clears ADT first."
+    },
+    {
+      "priTerm": "IP IR",
+      "priFullName": "Ilio-Pubo Internal Rotation",
+      "priRegion": "Anterior Inlet",
+      "realStructure": "Pubic symphysis (same non-standard 'joint' as IP ER)",
+      "whatPriRenamed": "Same invented joint. IR = innominate rotated inward/posteriorly relative to midline.",
+      "whatActuallyHappened": "IO/TAs and proximal iliacus pulled the innominate into posterior tilt / adduction / internal rotation. The inlet closes.",
+      "standardTerm": "Closest: 'posterior pelvic tilt with innominate posterior rotation.' Again, only captures sagittal plane.",
+      "encodedTreatment": "This is the goal position for the L side. Achieved by facilitating L proximal iliacus + L IO/TA."
+    },
+    {
+      "priTerm": "IsP IR",
+      "priFullName": "Ischio-Pubo Internal Rotation",
+      "priRegion": "Anterior Outlet",
+      "realStructure": "Inferior pubic rami / ischiopubic ramus. Not a standard joint — this is a bony junction (the ischium and pubis are fused in adults). PRI is describing the position of the lower pelvis relative to the pubic symphysis.",
+      "whatPriRenamed": "PRI created another non-standard joint name ('ischio-pubo'). There is no ischio-pubo joint. PRI is describing the ischial tuberosity position relative to midline. 'Internal rotation' = the ischia are adducted (squeezed together), closing the outlet.",
+      "whatActuallyHappened": "The outlet closed because the inlet opened (they move in opposite directions on the same bone). When psoas/iliacus pulled the top of the innominate forward (IP ER), the bottom of the same bone (the ischium) was pulled inward. The pelvic floor descended under pressure with the outlet squeezed shut.",
+      "standardTerm": "No standard term. 'Pelvic floor descent with ischial adduction' is the closest description.",
+      "encodedTreatment": "IsP = targets the ischio-pubo region (anterior outlet). Correct by facilitating L pelvic floor muscles (obturator internus, iliococcygeus) to open the outlet. L AIC Facilitation step 2."
+    },
+    {
+      "priTerm": "IsP ER",
+      "priFullName": "Ischio-Pubo External Rotation",
+      "priRegion": "Anterior Outlet",
+      "realStructure": "Inferior pubic rami / ischiopubic ramus (same as IsP IR)",
+      "whatPriRenamed": "Same non-standard joint. ER = the ischia have abducted (spread apart), opening the outlet.",
+      "whatActuallyHappened": "Pelvic floor muscles (obturator internus, iliococcygeus) contracted, pulling the ischial tuberosities laterally. The outlet opens. The pelvic floor ascends.",
+      "standardTerm": "No standard term. 'Pelvic floor ascension with ischial abduction.'",
+      "encodedTreatment": "Goal position for L side. Achieved via L adductor facilitation activating L pelvic floor."
+    },
+    {
+      "priTerm": "AF IR",
+      "priFullName": "Acetabular-Femoral Internal Rotation",
+      "priRegion": "Hip",
+      "realStructure": "Hip joint (acetabulum + femoral head)",
+      "whatPriRenamed": "PRI reversed standard 'femoral-acetabular' to 'acetabular-femoral' to encode that the acetabulum (pelvis) is the moving bone. In standard kinesiology, hip motion is described as the femur moving on the pelvis (FA). PRI's AF frame describes the pelvis moving on the femur — a closed-chain perspective.",
+      "whatActuallyHappened": "In standing (closed chain), IO/TAs posteriorly tilted the pelvis, glute med stabilized it, hamstrings pulled the ischium down — the net effect rotated the pelvis back over the planted femur.",
+      "standardTerm": "Closest: 'closed-chain posterior pelvic tilt' or 'closed-chain hip internal rotation.' But these are rarely used as compound terms in standard kinesiology because conventional descriptions focus on the femur.",
+      "encodedTreatment": "AF = target the pelvis (over the femur). This is the goal position for the L side — the net result of the entire facilitation hierarchy. Final integration at step 10."
+    },
+    {
+      "priTerm": "AF ER",
+      "priFullName": "Acetabular-Femoral External Rotation",
+      "priRegion": "Hip",
+      "realStructure": "Hip joint (same as AF IR)",
+      "whatPriRenamed": "Same reversed naming. AF ER = the pelvis has rotated forward/outward over the femur.",
+      "whatActuallyHappened": "Psoas, iliacus, and rectus femoris pulled the pelvis into anterior tilt over a planted femur. This is the L AIC position viewed from the hip joint.",
+      "standardTerm": "Closest: 'closed-chain anterior pelvic tilt.' Equivalent to L IP ER viewed from a different frame.",
+      "encodedTreatment": "AF = target the pelvis. Correct by repositioning first (clear ADT), then full facilitation hierarchy."
+    },
+    {
+      "priTerm": "FA IR",
+      "priFullName": "Femoral-Acetabular Internal Rotation",
+      "priRegion": "Hip",
+      "realStructure": "Hip joint (same as AF)",
+      "whatPriRenamed": "PRI kept the standard naming order here — femur first, because the femur is the moving bone. This is the one PRI term that matches standard kinesiology exactly.",
+      "whatActuallyHappened": "The femur rotated inward on a relatively fixed pelvis. Standard open-chain hip internal rotation.",
+      "standardTerm": "Hip internal rotation. Exact match.",
+      "encodedTreatment": "FA = the femur is being moved. Not a pathological finding. Used in treatment positions: 'Passive FA IR' means the clinician passively places the femur in internal rotation."
+    },
+    {
+      "priTerm": "FA ER",
+      "priFullName": "Femoral-Acetabular External Rotation",
+      "priRegion": "Hip",
+      "realStructure": "Hip joint",
+      "whatPriRenamed": "Same as FA IR — standard naming, femur is the mover.",
+      "whatActuallyHappened": "The femur rotated outward on a relatively fixed pelvis. Standard open-chain hip external rotation.",
+      "standardTerm": "Hip external rotation. Exact match.",
+      "encodedTreatment": "FA = the femur moved. Hyperactive FA ERs are implicated at Functional Squat level 2 failure. Inhibited by achieving femoral adduction and inlet extension."
+    }
+  ]
+}

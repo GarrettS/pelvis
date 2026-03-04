@@ -16,20 +16,6 @@
   --outlet: #9a5a2a;
   --green: #2a7a4a;
   --red: #a03030;
-  --pri-brown: hsl(25, 50%, 35%);
-  --pri-brown-bg: hsla(25, 50%, 35%, 0.25);
-  --pri-red: hsl(0, 60%, 45%);
-  --pri-red-bg: hsla(0, 60%, 45%, 0.25);
-  --pri-green-family: hsl(140, 45%, 38%);
-  --pri-green-family-bg: hsla(140, 45%, 38%, 0.25);
-  --pri-orange: hsl(35, 80%, 48%);
-  --pri-orange-bg: hsla(35, 80%, 48%, 0.25);
-  --pri-violet: hsl(270, 40%, 48%);
-  --pri-violet-bg: hsla(270, 40%, 48%, 0.25);
-  --pri-yellow: hsl(50, 70%, 48%);
-  --pri-yellow-bg: hsla(50, 70%, 48%, 0.25);
-  --pri-neutral: var(--green);
-  --pri-neutral-bg: hsla(140, 30%, 45%, 0.2);
   --text-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
   --text-sm: clamp(0.875rem, 0.82rem + 0.25vw, 1.0625rem);
   --text-base: clamp(1rem, 0.92rem + 0.35vw, 1.1875rem);
@@ -63,20 +49,6 @@
     --outlet: #d4815e;
     --green: #5a9a5a;
     --red: #b05555;
-    --pri-brown: hsl(25, 50%, 50%);
-    --pri-brown-bg: hsla(25, 50%, 50%, 0.2);
-    --pri-red: hsl(0, 60%, 60%);
-    --pri-red-bg: hsla(0, 60%, 60%, 0.2);
-    --pri-green-family: hsl(140, 45%, 53%);
-    --pri-green-family-bg: hsla(140, 45%, 53%, 0.2);
-    --pri-orange: hsl(35, 80%, 63%);
-    --pri-orange-bg: hsla(35, 80%, 63%, 0.2);
-    --pri-violet: hsl(270, 40%, 63%);
-    --pri-violet-bg: hsla(270, 40%, 63%, 0.2);
-    --pri-yellow: hsl(50, 70%, 63%);
-    --pri-yellow-bg: hsla(50, 70%, 63%, 0.2);
-    --pri-neutral: var(--green);
-    --pri-neutral-bg: hsla(140, 30%, 45%, 0.15);
   }
 }
 
@@ -211,10 +183,14 @@ nav:has(.nav-tab.active + .subtab-row) {
 }
 
 main {
-  max-width:1160px;
   margin:0 auto;
   padding:1.5rem 1rem 3rem;
 }
+
+main:not(:has(#tab-anatomy.active)) {
+  max-width:1160px;
+}
+
 
 section.tab {
   display:none;

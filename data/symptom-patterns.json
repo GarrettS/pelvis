@@ -1,0 +1,32 @@
+[
+  {
+    "condition": "Pubalgia",
+    "pattern": "Bilateral PEC",
+    "explanation": "Bilateral IP ER creates eccentrically lengthened rectus abdominis and short paraspinals. Lengthened adductors from bilateral IsP IR create shearing at pubic symphysis."
+  },
+  {
+    "condition": "Levator ani syndrome (left-predominant) (literal pain in the butt)",
+    "pattern": "Left AIC",
+    "explanation": "Left pelvic diaphragm descended in L AIC (L IsP IR). PRI manual: 'typically more prominent on the left side' — consistent with L AIC foundation."
+  },
+  {
+    "condition": "Stress urinary incontinence",
+    "pattern": "B Patho PEC",
+    "explanation": "Bilateral pelvic diaphragm descended, hypertonic, and inflexible (B PEC) or descended, bulged with high resting tone (Patho). Lost ability to cycle between descent and ascension."
+  },
+  {
+    "condition": "IS instability (right side pain)",
+    "pattern": "Left AIC",
+    "explanation": "In L AIC: left SI joint is compressed (L IS IR = nutation). Right SI joint is distracted (R IS ER = counter-nutation). Distraction = instability on right."
+  },
+  {
+    "condition": "Coccygodynia",
+    "pattern": "B Patho PEC",
+    "explanation": "Bilateral outlet in IsP IR. Coccyx flexed anteriorly. Coccygeus hypertonic. Pelvic floor dysfunction at the posterior outlet."
+  },
+  {
+    "condition": "Patient touches toes easily but has bilateral positive ADT and PADT",
+    "pattern": "B Patho PEC",
+    "explanation": "Paradoxical performance. SRT = 0 with positive ADT/PADT = Patho. Better ROM = worse pathology. Compensatory hypermobility, not motor control."
+  }
+]

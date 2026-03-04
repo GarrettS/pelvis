@@ -1,0 +1,197 @@
+[
+  {
+    "name": "Left AIC",
+    "rows": [
+      {
+        "l": "Symmetry",
+        "v": "Asymmetric — left side",
+        "key": false
+      },
+      {
+        "l": "Inlet L / R",
+        "v": "L: IP ER (open) / R: IP IR (closed)",
+        "key": false
+      },
+      {
+        "l": "Outlet L / R",
+        "v": "L: IsP IR (closed) / R: IsP ER (open)",
+        "key": false
+      },
+      {
+        "l": "Pelvic floor",
+        "v": "L descended — R can ascend",
+        "key": false
+      },
+      {
+        "l": "IO/TA",
+        "v": "L weak",
+        "key": false
+      },
+      {
+        "l": "ZOA",
+        "v": "L lost",
+        "key": false
+      },
+      {
+        "l": "ADT",
+        "v": "+ Left only",
+        "key": false
+      },
+      {
+        "l": "PADT",
+        "v": "+ Left only",
+        "key": false
+      },
+      {
+        "l": "PART",
+        "v": "+ Right",
+        "key": false
+      },
+      {
+        "l": "SRT",
+        "v": "> 0\" (hip shift left)",
+        "key": false
+      },
+      {
+        "l": "Squat",
+        "v": "< 3/5 (usually)",
+        "key": false
+      },
+      {
+        "l": "Repositioning",
+        "v": "90-90 Hemi Hip Lift · R Sidelying L Adductor Pull Back · L Sidelying R Glute Max",
+        "key": false
+      }
+    ]
+  },
+  {
+    "name": "Bilateral PEC",
+    "rows": [
+      {
+        "l": "Symmetry",
+        "v": "Symmetric",
+        "key": false
+      },
+      {
+        "l": "Inlet L / R",
+        "v": "Both IP ER (both open)",
+        "key": false
+      },
+      {
+        "l": "Outlet L / R",
+        "v": "Both IsP IR (both closed)",
+        "key": false
+      },
+      {
+        "l": "Pelvic floor",
+        "v": "B descended, hypertonic, inflexible",
+        "key": false
+      },
+      {
+        "l": "IO/TA",
+        "v": "B long and weak",
+        "key": false
+      },
+      {
+        "l": "ZOA",
+        "v": "B lost",
+        "key": false
+      },
+      {
+        "l": "ADT",
+        "v": "+ Bilateral",
+        "key": false
+      },
+      {
+        "l": "PADT",
+        "v": "+ Bilateral",
+        "key": false
+      },
+      {
+        "l": "PART",
+        "v": "− Bilateral",
+        "key": true
+      },
+      {
+        "l": "SRT",
+        "v": "> 0\" (cannot touch toes)",
+        "key": true
+      },
+      {
+        "l": "Squat",
+        "v": "< 3/5",
+        "key": true
+      },
+      {
+        "l": "Repositioning",
+        "v": "Standing Wall Reach · 90-90 Hip Lift Passive FA IR w/ Balloon · Modified All Four Belly Lift",
+        "key": false
+      }
+    ]
+  },
+  {
+    "name": "Bilateral Patho PEC",
+    "rows": [
+      {
+        "l": "Symmetry",
+        "v": "Symmetric (more decompensated)",
+        "key": false
+      },
+      {
+        "l": "Inlet L / R",
+        "v": "Both IP ER (both open)",
+        "key": false
+      },
+      {
+        "l": "Outlet L / R",
+        "v": "Both IsP IR (both closed)",
+        "key": false
+      },
+      {
+        "l": "Pelvic floor",
+        "v": "B descended, bulged, high resting tone",
+        "key": false
+      },
+      {
+        "l": "IO/TA",
+        "v": "B insufficient (worse than PEC)",
+        "key": false
+      },
+      {
+        "l": "ZOA",
+        "v": "B lost (worse)",
+        "key": false
+      },
+      {
+        "l": "ADT",
+        "v": "+ Bilateral",
+        "key": false
+      },
+      {
+        "l": "PADT",
+        "v": "+ Bilateral",
+        "key": false
+      },
+      {
+        "l": "PART",
+        "v": "+ Bilateral or unilateral",
+        "key": true
+      },
+      {
+        "l": "SRT",
+        "v": "= 0\" — touches toes",
+        "key": true
+      },
+      {
+        "l": "Squat",
+        "v": "> 3/5",
+        "key": true
+      },
+      {
+        "l": "Repositioning",
+        "v": "Same 3 as B PEC — substitute straw/kazoo for balloon if Squat > 3/5",
+        "key": false
+      }
+    ]
+  }
+]

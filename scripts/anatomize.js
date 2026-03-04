@@ -1175,10 +1175,7 @@ window.AnatomizeModule = (() => {
     if (key === lastLayoutInputs) return;
 
     const body = dom.container.querySelector('.anatomize-body');
-    if (!body) {
-      console.log('[layout] no .anatomize-body');
-      return;
-    }
+    if (!body) return;
 
     const mainEl = document.querySelector('main');
 
@@ -1200,18 +1197,12 @@ window.AnatomizeModule = (() => {
       resetImg.style.maxHeight = '';
     }
     if (!isTwoCol()) {
-      console.log('[layout] not two-col: ' +
-          window.innerWidth + 'x' + window.innerHeight);
       lastLayoutInputs = key;
       return;
     }
 
     const img = dom.arena.querySelector('img');
-    if (!img || !img.naturalWidth) {
-      console.log('[layout] no img or no naturalWidth', !!img,
-          img ? img.naturalWidth : 'n/a');
-      return;
-    }
+    if (!img || !img.naturalWidth) return;
     const R = img.naturalWidth / img.naturalHeight;
 
     const bodyRect = body.getBoundingClientRect();
@@ -1299,47 +1290,7 @@ window.AnatomizeModule = (() => {
     body.style.setProperty('--image-w', Math.floor(imageW) + 'px');
     if (infoCol) {
       infoCol.style.height = Math.floor(infoH) + 'px';
-      console.log('[layout] set infoCol.style.height=' +
-          infoCol.style.height +
-          ' imageH=' + Math.floor(imageH) +
-          ' availH=' + Math.floor(availH) +
-          ' scrollH=' + scrollH);
-    } else {
-      console.log('[layout] infoCol NOT FOUND');
     }
-
-    console.log(
-        'Layout: availH=' + Math.floor(availH) +
-        ' availW=' + Math.floor(availW) +
-        ' imageH=' + Math.floor(imageH) +
-        ' imageW=' + Math.floor(imageW) +
-        ' infoW=' + Math.floor(infoW) +
-        ' infoScrollH=' + scrollH +
-        ' fallback=' + fallback);
-
-    requestAnimationFrame(() => {
-      const docRect = document.documentElement.getBoundingClientRect();
-      const imgEl = dom.arena.querySelector('img');
-      const infoCol = body.querySelector('.anatomize-info-col');
-      const imgRect = imgEl ? imgEl.getBoundingClientRect() : null;
-      const infoRect = infoCol ? infoCol.getBoundingClientRect() : null;
-      console.log('[rects] docEl:', JSON.stringify({
-        h: docRect.height, scrollH: document.documentElement.scrollHeight,
-        innerH: window.innerHeight
-      }));
-      if (imgRect) {
-        console.log('[rects] img:', JSON.stringify({
-          top: Math.round(imgRect.top), bottom: Math.round(imgRect.bottom),
-          h: Math.round(imgRect.height), w: Math.round(imgRect.width)
-        }));
-      }
-      if (infoRect) {
-        console.log('[rects] info:', JSON.stringify({
-          top: Math.round(infoRect.top), bottom: Math.round(infoRect.bottom),
-          h: Math.round(infoRect.height), scrollH: infoCol.scrollHeight
-        }));
-      }
-    });
 
     lastLayoutInputs = key;
   }

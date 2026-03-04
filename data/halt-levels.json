@@ -1,0 +1,32 @@
+[
+  {
+    "level": 0,
+    "failure": "Can't position (malaligned pelvis) + can't inhibit outlet abduction of extended leg",
+    "facilitate": "Repositioning first — pelvis not yet neutral"
+  },
+  {
+    "level": 1,
+    "failure": "IO/TA weakness + can't inhibit inlet abduction (rectus femoris/sartorius) of flexed leg",
+    "facilitate": "IO/TAs + inlet inhibition"
+  },
+  {
+    "level": 2,
+    "failure": "Poor IC adductor/anterior glute med + can't achieve outlet abduction of flexed leg",
+    "facilitate": "IC adductor + anterior glute med"
+  },
+  {
+    "level": 3,
+    "failure": "Poor glute min/anterior glute med or labral impingement + can't achieve inlet adduction of flexed leg",
+    "facilitate": "Glute min + anterior glute med"
+  },
+  {
+    "level": 4,
+    "failure": "Poor contralateral adductor/ipsilateral glute med integration + can't achieve inlet abduction of extended leg",
+    "facilitate": "Contralateral adductor + ipsilateral glute med"
+  },
+  {
+    "level": 5,
+    "failure": "Can't extend with glute max during concomitant abduction + can't achieve outlet adduction of extended leg",
+    "facilitate": "Glute max extension during abduction"
+  }
+]

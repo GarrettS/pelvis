@@ -1,0 +1,27 @@
+[
+  {
+    "level": 1,
+    "failure": "Can't initiate squat (slight knee bend, trunk flexed)",
+    "hyperactive": "Extensors, rectus femoris, sartorius"
+  },
+  {
+    "level": 2,
+    "failure": "Can't get bottom back, knees forward, trunk flexed",
+    "hyperactive": "Hip flexors, FA external rotators. Lack of femoral adduction."
+  },
+  {
+    "level": 3,
+    "failure": "Can't get bottom below knees, heels down, trunk flexed",
+    "hyperactive": "Intercostals, tib ant/post. Poor IO/TA integration."
+  },
+  {
+    "level": 4,
+    "failure": "Can't achieve full squat, heels down, bottom to heels",
+    "hyperactive": "Quads, gastroc-soleus. Poor IO/TA frontal plane integration."
+  },
+  {
+    "level": 5,
+    "failure": "Can't achieve maximal squat with COG through heels",
+    "hyperactive": "Lack of maximal AF IR. Poor respiratory/pelvic diaphragm synchronization."
+  }
+]

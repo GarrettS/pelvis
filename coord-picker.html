@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Arrow Coordinate Picker</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: monospace; background: #1a1a1a; color: #eee; padding: 1rem; }
+h1 { font-size: 1.2rem; margin-bottom: .5rem; }
+.instructions { color: #aaa; font-size: .85rem; margin-bottom: .5rem; }
+.controls { margin-bottom: .5rem; display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.controls button { font-family: monospace; padding: .3rem .6rem; cursor: pointer; font-size: .8rem; }
+.controls button.active { background: #4a4; color: #fff; }
+.main { display: flex; gap: 1rem; align-items: flex-start; }
+.image-col { flex: 1; min-width: 0; }
+.image-wrap { position: relative; display: inline-block; cursor: crosshair; }
+.image-wrap img { display: block; max-width: 100%; max-height: 70vh; }
+.crosshair-v, .crosshair-h {
+  position: absolute; pointer-events: none;
+  background: rgba(255, 0, 0, 0.5);
+}
+.crosshair-v { width: 1px; top: 0; bottom: 0; }
+.crosshair-h { height: 1px; left: 0; right: 0; }
+.coord-display {
+  position: fixed; top: 1rem; right: 1rem;
+  background: #222; border: 1px solid #555; padding: .5rem .8rem;
+  font-size: 1rem; z-index: 10; min-width: 180px;
+}
+.coord-display .big { font-size: 1.3rem; color: #4f4; }
+.marker {
+  position: absolute; width: 10px; height: 10px;
+  border: 2px solid #0f0; border-radius: 50%;
+  transform: translate(-50%, -50%); pointer-events: none;
+}
+.marker::before, .marker::after {
+  content: ''; position: absolute; background: #0f0;
+}
+.marker::before { width: 10px; height: 1px; top: 3px; left: -1px; }
+.marker::after { width: 1px; height: 10px; top: -1px; left: 3px; }
+.label-col { width: 420px; flex-shrink: 0; max-height: 80vh; overflow-y: auto; }
+.label-row {
+  display: flex; align-items: center; gap: .4rem;
+  padding: .25rem .3rem; border-bottom: 1px solid #333;
+}
+.label-row.focused { background: #333; }
+.label-row .label-name {
+  flex: 1; font-size: .8rem; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+}
+.label-row input {
+  width: 120px; font-family: monospace; font-size: .75rem;
+  background: #222; color: #4f4; border: 1px solid #555; padding: .2rem .3rem;
+}
+.label-row input:focus { border-color: #4f4; outline: none; }
+.label-row input.filled { color: #4f4; }
+.label-row .view-label {
+  font-size: .65rem; color: #888; width: 2.5em; text-align: right; flex-shrink: 0;
+}
+.label-row .input-group { display: flex; align-items: center; gap: .2rem; }
+.marker.posterior { border-color: #0ff; }
+.marker.posterior::before { background: #0ff; }
+.marker.posterior::after { background: #0ff; }
+.collate-section { margin-top: 1rem; }
+.collate-section textarea {
+  width: 100%; height: 200px; font-family: monospace; font-size: .75rem;
+  background: #222; color: #ccc; border: 1px solid #555; padding: .5rem;
+  resize: vertical;
+}
+.collate-section button { font-family: monospace; padding: .3rem .8rem; cursor: pointer; margin-top: .3rem; }
+</style>
+</head>
+<body>
+<h1>Arrow Coordinate Picker</h1>
+<p class="instructions">1. Select an image set. 2. Click a structure label (or focus its text field). 3. Click on the image to record coordinates. The collating textarea updates live.</p>
+<div class="controls" id="controls"></div>
+<div class="coord-display">
+  <div>x: <span class="big" id="cx">&mdash;</span></div>
+  <div>y: <span class="big" id="cy">&mdash;</span></div>
+  <div style="margin-top:.2rem;font-size:.75rem;color:#888;">Active: <span id="active-label">none</span></div>
+</div>
+<div class="main">
+  <div class="image-col">
+    <div class="image-wrap" id="wrap">
+      <img id="img" src="" alt="anatomy" />
+      <div class="crosshair-v" id="cv"></div>
+      <div class="crosshair-h" id="ch"></div>
+    </div>
+  </div>
+  <div class="label-col" id="label-list"></div>
+</div>
+<div class="collate-section">
+  <textarea id="collate" readonly></textarea>
+  <button id="copy-btn">Copy All</button>
+  <button id="clear-btn">Clear All</button>
+</div>
+<script>
+(function() {
+  var IMAGE_SETS = [
+    {
+      id: 'outlet_superior',
+      label: 'Outlet Superior',
+      img: 'img/PRI-1-Pelvic-Outlet2.jpg',
+      structures: [
+        'Puborectalis (L)', 'Pubococcygeus (L)', 'Arcuate Tendon (L)',
+        'Iliococcygeus (L)', 'Obturator Internus (L)', 'Coccygeus (L)',
+        'Piriformis (L)', 'Glute Max (L)', 'Anococcygeal Lig.',
+        'Iliococcygeus (R)', 'Obturator Internus (R)',
+        'Coccygeus (R)', 'Piriformis (R)'
+      ]
+    },
+    {
+      id: 'outlet_inferior',
+      label: 'Outlet Inferior',
+      img: 'img/PRI-1-Pelvic-Outlet.jpg',
+      structures: [
+        'Arcuate Tendon (R)', 'Obturator Internus (R)',
+        'Coccygeus (R)', 'Iliococcygeus (R)',
+        'Puborectalis (L)', 'Anococcygeal Lig.',
+        'Arcuate Tendon (L)', 'Medial Hamstring (L)',
+        'Obturator Internus (L)', 'Glute Max (L)',
+        'Iliococcygeus (L)', 'Pubococcygeus (L)'
+      ]
+    },
+    {
+      id: 'outlet_inferior_flipped',
+      label: 'Outlet Inferior (Flipped)',
+      img: 'img/PRI-1-Pelvic-Outlet-flipped.jpg',
+      structures: [
+        'Glute Max (L)', 'Coccygeus (R)', 'Obturator Internus (L)'
+      ]
+    },
+    {
+      id: 'pelvic_inlet',
+      label: 'Pelvic Inlet',
+      img: 'img/PRI-1-Pelvic-Inlet.png',
+      structures: [
+        'Iliacus (L)', 'Sartorius (R)',
+        'Direct head of rectus (R)', 'Reflected tendon of rectus (R)',
+        'Int. Oblique / TA (L)'
+      ]
+    },
+    {
+      id: 'glute_med_max',
+      label: 'Glute Med / Max',
+      img: 'img/PRI-1-glute-med--glute-max.png',
+      structures: [
+        'Gluteus Medius (L)', 'Gluteus Maximus (R)'
+      ]
+    },
+    {
+      id: 'anterior_pelvis',
+      label: 'Anterior Pelvis',
+      img: 'img/pelvis-angle-r-side.png',
+      structures: [
+        'Iliac crest', 'Inner lip', 'Intermediate zone', 'Outer lip',
+        'Tubercle', 'Anterior superior iliac spine',
+        'Anterior inferior iliac spine', 'Iliopubic eminence',
+        'Superior pubic ramus', 'Obturator foramen', 'Pubic tubercle',
+        'Inferior pubic ramus', 'Sacral promontory',
+        'L2', 'L3', 'L4', 'L5', 'Sacrum', 'Coccyx',
+        'Transverse processes of lumbar vertebrae', 'Iliac tuberosity',
+        'Iliac crest (R)', 'Ala of ilium', 'Greater sciatic notch',
+        'Arcuate line', 'Ischial spine', 'Lesser sciatic notch',
+        'Greater trochanter of femur', 'Pecten pubis',
+        'Pubic symphysis', 'Ischial tuberosity',
+        'Lesser trochanter of femur', 'Inferior pubic ligament',
+        'Pubic arch'
+      ]
+    },
+    {
+      id: 'left_aic',
+      label: 'L AIC Chain',
+      img: 'img/left-aic.png',
+      views: ['anterior', 'posterior'],
+      structures: [
+        'Diaphragm', 'Psoas', 'Iliacus', 'TFL',
+        'Vastus Lateralis', 'Biceps Femoris'
+      ]
+    }
+  ];
+
+  var wrap = document.getElementById('wrap');
+  var imgEl = document.getElementById('img');
+  var cv = document.getElementById('cv');
+  var ch = document.getElementById('ch');
+  var cxEl = document.getElementById('cx');
+  var cyEl = document.getElementById('cy');
+  var activeLabelEl = document.getElementById('active-label');
+  var labelListEl = document.getElementById('label-list');
+  var collateEl = document.getElementById('collate');
+  var controlsEl = document.getElementById('controls');
+
+  var currentSet = null;
+  var focusedIndex = -1;
+  var focusedView = null;
+  var coordData = {};
+
+  IMAGE_SETS.forEach(function(set) {
+    var btn = document.createElement('button');
+    btn.textContent = set.label;
+    btn.dataset.setId = set.id;
+    controlsEl.appendChild(btn);
+  });
+
+  controlsEl.addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-set-id]');
+    if (!btn) return;
+    loadSet(btn.dataset.setId);
+  });
+
+  labelListEl.addEventListener('click', function(e) {
+    var row = e.target.closest('.label-row');
+    if (!row || !currentSet) return;
+    var idx = parseInt(row.dataset.index, 10);
+    var inp = e.target.closest('input');
+    var view = currentSet.views
+        ? ((inp && inp.dataset.view) || currentSet.views[0])
+        : null;
+    setFocus(idx, view);
+  });
+
+  document.getElementById('copy-btn').addEventListener('click', function() {
+    var text = collateEl.value;
+    navigator.clipboard.writeText(text).then(function() {
+      document.getElementById('copy-btn').textContent = 'Copied!';
+      setTimeout(function() {
+        document.getElementById('copy-btn').textContent = 'Copy All';
+      }, 1500);
+    });
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', function() {
+    if (!currentSet) return;
+    coordData[currentSet.id] = {};
+    wrap.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+    labelListEl.querySelectorAll('input').forEach(function(inp) {
+      inp.value = '';
+      inp.classList.remove('filled');
+    });
+    focusedIndex = -1;
+    focusedView = null;
+    activeLabelEl.textContent = 'none';
+    updateCollate();
+  });
+
+  wrap.addEventListener('mousemove', function(e) {
+    var r = imgEl.getBoundingClientRect();
+    var px = e.clientX - r.left;
+    var py = e.clientY - r.top;
+    cxEl.textContent = (px / r.width * 100).toFixed(1);
+    cyEl.textContent = (py / r.height * 100).toFixed(1);
+    cv.style.left = px + 'px';
+    ch.style.top = py + 'px';
+  });
+
+  wrap.addEventListener('click', function(e) {
+    if (focusedIndex < 0 || !currentSet) return;
+    var r = imgEl.getBoundingClientRect();
+    var px = e.clientX - r.left;
+    var py = e.clientY - r.top;
+    var xPct = (px / r.width * 100).toFixed(1);
+    var yPct = (py / r.height * 100).toFixed(1);
+
+    var coordStr = '{x: ' + xPct + ', y: ' + yPct + '}';
+    var structName = currentSet.structures[focusedIndex];
+    var isDual = currentSet.views;
+
+    if (!coordData[currentSet.id]) coordData[currentSet.id] = {};
+
+    var dataKey = isDual ? structName + '.' + focusedView : structName;
+    coordData[currentSet.id][dataKey] = coordStr;
+
+    var input = isDual
+        ? labelListEl.querySelector('input[data-index="' + focusedIndex + '"][data-view="' + focusedView + '"]')
+        : labelListEl.querySelectorAll('input')[focusedIndex];
+    if (input) {
+      input.value = coordStr;
+      input.classList.add('filled');
+    }
+
+    var markerSelector = isDual
+        ? '.marker[data-index="' + focusedIndex + '"][data-view="' + focusedView + '"]'
+        : '.marker[data-index="' + focusedIndex + '"]';
+    wrap.querySelectorAll(markerSelector).forEach(function(m) { m.remove(); });
+    var marker = document.createElement('div');
+    marker.className = 'marker' + (isDual && focusedView === 'posterior' ? ' posterior' : '');
+    marker.dataset.index = focusedIndex;
+    if (isDual) marker.dataset.view = focusedView;
+    marker.style.left = (px / r.width * 100) + '%';
+    marker.style.top = (py / r.height * 100) + '%';
+    wrap.appendChild(marker);
+
+    updateCollate();
+
+    var next = findNextEmpty(focusedIndex, isDual ? focusedView : null);
+    if (next) {
+      setFocus(next.index, next.view);
+    }
+  });
+
+  function loadSet(setId) {
+    currentSet = IMAGE_SETS.find(function(s) { return s.id === setId; });
+    if (!currentSet) return;
+
+    controlsEl.querySelectorAll('button').forEach(function(btn) {
+      btn.classList.toggle('active', btn.dataset.setId === setId);
+    });
+
+    imgEl.src = currentSet.img;
+    imgEl.style.transform = currentSet.flipped ? 'scaleX(-1)' : '';
+    wrap.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+
+    labelListEl.textContent = '';
+    focusedIndex = -1;
+    focusedView = null;
+    activeLabelEl.textContent = 'none';
+
+    if (!coordData[currentSet.id]) coordData[currentSet.id] = {};
+    var saved = coordData[currentSet.id];
+    var isDual = currentSet.views;
+    var viewAbbr = {anterior: 'ant', posterior: 'post'};
+
+    currentSet.structures.forEach(function(name, i) {
+      var row = document.createElement('div');
+      row.className = 'label-row';
+      row.dataset.index = i;
+
+      var labelSpan = document.createElement('span');
+      labelSpan.className = 'label-name';
+      labelSpan.textContent = name;
+      labelSpan.title = name;
+      row.appendChild(labelSpan);
+
+      if (isDual) {
+        currentSet.views.forEach(function(view) {
+          var group = document.createElement('span');
+          group.className = 'input-group';
+          var vLabel = document.createElement('span');
+          vLabel.className = 'view-label';
+          vLabel.textContent = viewAbbr[view] || view;
+          group.appendChild(vLabel);
+
+          var input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = 'click...';
+          input.readOnly = true;
+          input.dataset.index = i;
+          input.dataset.view = view;
+          var key = name + '.' + view;
+          if (saved[key]) {
+            input.value = saved[key];
+            input.classList.add('filled');
+          }
+          group.appendChild(input);
+          row.appendChild(group);
+        });
+      } else {
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'click image...';
+        input.readOnly = true;
+        if (saved[name]) {
+          input.value = saved[name];
+          input.classList.add('filled');
+        }
+        row.appendChild(input);
+      }
+
+      labelListEl.appendChild(row);
+    });
+
+    updateCollate();
+    setFocus(0, isDual ? currentSet.views[0] : null);
+  }
+
+  function setFocus(index, view) {
+    if (!currentSet || index < 0 || index >= currentSet.structures.length) return;
+    focusedIndex = index;
+    focusedView = view || null;
+    var viewAbbr = {anterior: 'ant', posterior: 'post'};
+    var suffix = view ? ' (' + (viewAbbr[view] || view) + ')' : '';
+    activeLabelEl.textContent = currentSet.structures[index] + suffix;
+    labelListEl.querySelectorAll('.label-row').forEach(function(row, i) {
+      row.classList.toggle('focused', i === index);
+    });
+    var input = view
+        ? labelListEl.querySelector('input[data-index="' + index + '"][data-view="' + view + '"]')
+        : labelListEl.querySelectorAll('input')[index];
+    if (input) input.focus();
+  }
+
+  function findNextEmpty(startIndex, startView) {
+    if (!currentSet) return null;
+    var saved = coordData[currentSet.id] || {};
+    var structs = currentSet.structures;
+
+    if (!currentSet.views) {
+      for (var i = startIndex + 1; i < structs.length; i++) {
+        if (!saved[structs[i]]) return {index: i, view: null};
+      }
+      for (var j = 0; j <= startIndex; j++) {
+        if (!saved[structs[j]]) return {index: j, view: null};
+      }
+      return null;
+    }
+
+    var views = currentSet.views;
+    var vIdx = views.indexOf(startView);
+    var startSlot = startIndex * views.length + vIdx + 1;
+    var totalSlots = structs.length * views.length;
+    for (var s = 0; s < totalSlots; s++) {
+      var slot = (startSlot + s) % totalSlots;
+      var si = Math.floor(slot / views.length);
+      var vi = slot % views.length;
+      var key = structs[si] + '.' + views[vi];
+      if (!saved[key]) return {index: si, view: views[vi]};
+    }
+    return null;
+  }
+
+  function updateCollate() {
+    if (!currentSet) { collateEl.value = ''; return; }
+    var saved = coordData[currentSet.id] || {};
+    var viewAbbr = {anterior: 'ant', posterior: 'post'};
+    var lines = [];
+    currentSet.structures.forEach(function(name) {
+      if (currentSet.views) {
+        currentSet.views.forEach(function(view) {
+          var key = name + '.' + view;
+          var coord = saved[key] || '—';
+          lines.push(name + ' (' + (viewAbbr[view] || view) + '): ' + coord);
+        });
+      } else {
+        var coord = saved[name] || '—';
+        lines.push(name + ': ' + coord);
+      }
+    });
+    collateEl.value = currentSet.label + '\n' +
+        '='.repeat(currentSet.label.length) + '\n' +
+        lines.join('\n');
+  }
+
+  loadSet(IMAGE_SETS[0].id);
+})();
+</script>
+</body>
+</html>
