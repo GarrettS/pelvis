@@ -977,17 +977,45 @@
 }
 
 .anatomize-resize-grip {
-  width: calc(0.17vw + 0.175rem);
-  height: calc(1vw + 1.2rem);
-  background: var(--surface2);
-  background-image: radial-gradient(var(--surface2) 0.1rem, var(--text) 0.1rem);
-  background-size: 2px 2px;
-  transition: background .12s;
+  width:calc(.17vw + .175rem);
+  height:calc(1vw + 1.2rem);
+  background:var(--border);
+  background-image:repeating-linear-gradient(
+      to bottom,
+      var(--text-dim) 0,
+      var(--text-dim) 1px,
+      transparent 1px,
+      transparent 4px);
+  border-radius:1px;
+  transition:background .12s;
 }
 
-.anatomize-resize-handle:hover .anatomize-resize-grip,
+.anatomize-resize-handle:hover {
+  background:var(--surface2);
+}
+
+.anatomize-resize-handle:hover .anatomize-resize-grip {
+  background:var(--text-dim);
+  background-image:repeating-linear-gradient(
+      to bottom,
+      var(--text) 0,
+      var(--text) 1px,
+      transparent 1px,
+      transparent 4px);
+}
+
+.anatomize-resize-handle.dragging {
+  background:var(--surface2);
+}
+
 .anatomize-resize-handle.dragging .anatomize-resize-grip {
-  border-color: var(--border);
+  background:var(--accent);
+  background-image:repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, .6) 0,
+      rgba(255, 255, 255, .6) 1px,
+      transparent 1px,
+      transparent 4px);
 }
 
 .anatomize-body.two-col .anatomize-detail {
@@ -1013,7 +1041,6 @@
 .anatomize-body.two-col .anatomize-arena-wrap img {
   width:100%;
   height:auto;
-  object-fit:contain;
 }
 
 .anatomize-info-header {
@@ -1078,26 +1105,26 @@
     max-height:45vh;
   }
 
-  .anatomize-panel-rect {
-    stroke-width:.35;
-  }
 }
 
 .anatomize-label {
   position:absolute;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
   font-family:var(--mono);
-  font-size:.6rem;
+  font-size:.5rem;
   font-weight:600;
-  color:var(--text);
-  border:1px solid var(--pri-fg);
-  border-radius:3px;
-  padding:.25rem .4rem;
+  color:rgba(0, 0, 0, .8);
+  border: 2px solid var(--pri-fg);
+  border-radius: 3px;
+  padding: .3rem 0 .25rem .1rem;
   cursor:pointer;
-  opacity:.5;
   pointer-events:auto;
+  overflow:hidden;
   z-index:1;
   white-space:nowrap;
-  transition:border-color .15s,background-color .15s,opacity .15s;
+  transition:border-color .15s,background-color .15s;
 }
 
 .anatomize-label .anatomize-label-text {
@@ -1105,7 +1132,6 @@
 }
 
 .anatomize-label.correct {
-  opacity:1;
   background-color:var(--pri-bg);
 }
 
@@ -1121,6 +1147,14 @@
   color:rgba(255, 255, 255, .9);
 }
 
+@media (max-width:600px) {
+
+  .anatomize-label .anatomize-label-text {
+    text-overflow: ellipsis;
+    overflow:hidden;
+  }
+}
+
 .anatomize-svg-overlay {
   position:absolute;
   top:0;
@@ -1134,21 +1168,6 @@
   pointer-events:all;
 }
 
-.anatomize-panel-rect {
-  fill: transparent;
-  stroke: var(--pri-fg);
-  stroke-opacity: 0.5;
-  stroke-width: 0.2;
-  cursor:pointer;
-  transition:stroke .15s, fill .15s;
-}
-
-.anatomize-panel-label {
-  font-family:var(--mono);
-  fill: var(--text);
-  pointer-events:none;
-}
-
 .anatomize-arrow-line {
   stroke: var(--pri-fg);
   stroke-opacity: 0.6;
@@ -1159,12 +1178,6 @@
 .anatomize-arrowhead {
   fill: var(--pri-fg);
   fill-opacity: 0.6;
-}
-
-g.correct .anatomize-panel-rect {
-  stroke-opacity: 1;
-  fill: var(--pri-bg);
-  stroke-width: 0.35;
 }
 
 g.correct .anatomize-arrow-line {
@@ -1198,21 +1211,21 @@ g.correct .anatomize-arrowhead {
 }
 
 .anatomize-check {
-  position:absolute;
+  margin-left:auto;
   font-size:var(--text-sm);
   line-height:1;
   color:var(--green);
   pointer-events:none;
-  z-index:10;
+  flex-shrink:0;
 }
 
 .anatomize-x {
-  position:absolute;
+  margin-left:auto;
   font-size:var(--text-sm);
   line-height:1;
   color:var(--red);
   pointer-events:none;
-  z-index:10;
+  flex-shrink:0;
 }
 
 .anatomize-score {
@@ -1296,10 +1309,6 @@ g.correct .anatomize-arrowhead {
   --pri-orange-bg: hsla(35, 80%, 63%, 0.4);
   --pri-violet: hsl(270, 40%, 63%);
   --pri-violet-bg: hsla(270, 40%, 63%, 0.4);
-}
-
-.anatomize-dark-bg .anatomize-panel-label {
-  fill: rgba(255, 255, 255, 0.9);
 }
 
 #anatomy-aic .tab-section {
