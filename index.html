@@ -12,43 +12,35 @@
 <nav>
   <div class="nav-brand">PRI · Pelvis</div>
   <ul class="nav-tabs" role="tablist">
-    <li>
-      <a class="nav-tab active" role="tab" data-tab="tab-anatomy" href="#anatomy">Anatomy</a>
-      <ul class="subtab-row" role="tablist">
-        <li><a class="subtab active" role="tab" data-subtab="anatomy-anatomize" href="#anatomy/anatomize">Anatomize This!</a></li>
-        <li><a class="subtab" role="tab" data-subtab="anatomy-decoder" href="#anatomy/decoder">Pelvis Decoder</a></li>
-        <li><a class="subtab" role="tab" data-subtab="anatomy-aic" href="#anatomy/aic">L AIC Chain</a></li>
-      </ul>
-    </li>
-    <li>
-      <a class="nav-tab" role="tab" data-tab="tab-nomenclature" href="#nomenclature">Nomenclature</a>
-      <ul class="subtab-row" role="tablist">
-        <li><a class="subtab active" role="tab" data-subtab="nom-joints" href="#nomenclature/joints">Joints</a></li>
-        <li><a class="subtab" role="tab" data-subtab="nom-translation" href="#nomenclature/translation">Translation Table</a></li>
-        <li><a class="subtab" role="tab" data-subtab="nom-keydistinction" href="#nomenclature/keydistinction">Key Distinction</a></li>
-      </ul>
-    </li>
-    <li>
-      <a class="nav-tab" role="tab" data-tab="tab-patterns" href="#patterns">Patterns</a>
-      <ul class="subtab-row" role="tablist">
-        <li><a class="subtab active" role="tab" data-subtab="patterns-cheatsheet" href="#patterns/cheatsheet">Cheat Sheet</a></li>
-        <li><a class="subtab" role="tab" data-subtab="patterns-conceptmap" href="#patterns/conceptmap">Concept Map</a></li>
-        <li><a class="subtab" role="tab" data-subtab="patterns-tests" href="#patterns/tests">Test Reference</a></li>
-      </ul>
-    </li>
-    <li>
-      <a class="nav-tab" role="tab" data-tab="tab-diagnose" href="#diagnose">Diagnose</a>
-      <ul class="subtab-row" role="tablist">
-        <li><a class="subtab active" role="tab" data-subtab="diagnose-patternid" href="#diagnose/patternid">Pattern ID</a></li>
-        <li><a class="subtab" role="tab" data-subtab="diagnose-cases" href="#diagnose/cases">Case Studies</a></li>
-        <li><a class="subtab" role="tab" data-subtab="diagnose-chains" href="#diagnose/chains">Causal Chains</a></li>
-        <li><a class="subtab" role="tab" data-subtab="diagnose-tree" href="#diagnose/tree">Decision Tree</a></li>
-        <li><a class="subtab" role="tab" data-subtab="diagnose-exercises" href="#diagnose/exercises">Exercise Map</a></li>
-      </ul>
-    </li>
+    <li><a class="nav-tab active" role="tab" data-tab="tab-anatomy" href="#anatomy">Anatomy</a></li>
+    <li><a class="nav-tab" role="tab" data-tab="tab-nomenclature" href="#nomenclature">Nomenclature</a></li>
+    <li><a class="nav-tab" role="tab" data-tab="tab-patterns" href="#patterns">Patterns</a></li>
+    <li><a class="nav-tab" role="tab" data-tab="tab-diagnose" href="#diagnose">Diagnose</a></li>
     <li><a class="nav-tab" role="tab" data-tab="tab-flashcards" href="#flashcards">Flashcards</a></li>
     <li><a class="nav-tab" role="tab" data-tab="tab-equivalence" href="#equivalence">Equivalence</a></li>
     <li><a class="nav-tab" role="tab" data-tab="tab-masterquiz" href="#masterquiz">Master Quiz</a></li>
+  </ul>
+  <ul class="subtab-row active" data-for-tab="tab-anatomy" role="tablist">
+    <li><a class="subtab active" role="tab" data-subtab="anatomy-anatomize" href="#anatomy/anatomize">Anatomize This!</a></li>
+    <li><a class="subtab" role="tab" data-subtab="anatomy-decoder" href="#anatomy/decoder">Pelvis Decoder</a></li>
+    <li><a class="subtab" role="tab" data-subtab="anatomy-aic" href="#anatomy/aic">L AIC Chain</a></li>
+  </ul>
+  <ul class="subtab-row" data-for-tab="tab-nomenclature" role="tablist">
+    <li><a class="subtab active" role="tab" data-subtab="nom-joints" href="#nomenclature/joints">Joints</a></li>
+    <li><a class="subtab" role="tab" data-subtab="nom-translation" href="#nomenclature/translation">Translation Table</a></li>
+    <li><a class="subtab" role="tab" data-subtab="nom-keydistinction" href="#nomenclature/keydistinction">Key Distinction</a></li>
+  </ul>
+  <ul class="subtab-row" data-for-tab="tab-patterns" role="tablist">
+    <li><a class="subtab active" role="tab" data-subtab="patterns-cheatsheet" href="#patterns/cheatsheet">Cheat Sheet</a></li>
+    <li><a class="subtab" role="tab" data-subtab="patterns-conceptmap" href="#patterns/conceptmap">Concept Map</a></li>
+    <li><a class="subtab" role="tab" data-subtab="patterns-tests" href="#patterns/tests">Test Reference</a></li>
+  </ul>
+  <ul class="subtab-row" data-for-tab="tab-diagnose" role="tablist">
+    <li><a class="subtab active" role="tab" data-subtab="diagnose-patternid" href="#diagnose/patternid">Pattern ID</a></li>
+    <li><a class="subtab" role="tab" data-subtab="diagnose-cases" href="#diagnose/cases">Case Studies</a></li>
+    <li><a class="subtab" role="tab" data-subtab="diagnose-chains" href="#diagnose/chains">Causal Chains</a></li>
+    <li><a class="subtab" role="tab" data-subtab="diagnose-tree" href="#diagnose/tree">Decision Tree</a></li>
+    <li><a class="subtab" role="tab" data-subtab="diagnose-exercises" href="#diagnose/exercises">Exercise Map</a></li>
   </ul>
 </nav>
 <main>
@@ -497,21 +489,27 @@ const NavModule = (() => {
 
   // Sticky subtab memory: last-active subtab per tab
   const lastSubtab = {};
+  let activeNavTab = document.querySelector('.nav-tab.active');
+  let activeSection = document.querySelector('section.tab.active');
+  let activeSubtabRow = document.querySelector('.subtab-row.active');
 
   function activateTab(sectionId) {
     const tabName = REV_TAB[sectionId];
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('section.tab').forEach(s => s.classList.remove('active'));
-    const link = document.querySelector(`.nav-tab[data-tab="${sectionId}"]`);
-    if (link) link.classList.add('active');
-    const section = document.getElementById(sectionId);
-    if (section) section.classList.add('active');
+    if (activeNavTab) activeNavTab.classList.remove('active');
+    if (activeSection) activeSection.classList.remove('active');
+    if (activeSubtabRow) activeSubtabRow.classList.remove('active');
+
+    activeNavTab = document.querySelector(`.nav-tab[data-tab="${sectionId}"]`);
+    activeSection = document.getElementById(sectionId);
+    activeSubtabRow = getSubtabRow(sectionId);
+
+    if (activeNavTab) activeNavTab.classList.add('active');
+    if (activeSection) activeSection.classList.add('active');
+    if (activeSubtabRow) activeSubtabRow.classList.add('active');
   }
 
   function getSubtabRow(sectionId) {
-    const navTab = document.querySelector(`.nav-tab[data-tab="${sectionId}"]`);
-    if (!navTab) return null;
-    return navTab.parentElement.querySelector('.subtab-row');
+    return document.querySelector(`.subtab-row[data-for-tab="${sectionId}"]`);
   }
 
   function activateSubtab(sectionId, subtabContentId) {
