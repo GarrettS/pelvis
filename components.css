@@ -1770,6 +1770,32 @@ g.correct .anatomize-arrowhead {
   margin: 0 auto;
 }
 
+.home-title {
+  font-family: var(--mono);
+  font-size: var(--text-2xl);
+  color: var(--accent);
+  margin-bottom: .25rem;
+}
+
+.home-subtitle {
+  margin-bottom: 2rem;
+}
+
+.home-callout {
+  margin-bottom: 2rem;
+}
+
+.home-heading {
+  font-family: var(--mono);
+  font-size: var(--text-base);
+  color: var(--text);
+  margin-bottom: .75rem;
+}
+
+.home-para {
+  margin-bottom: .75rem;
+}
+
 .home-nav-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
