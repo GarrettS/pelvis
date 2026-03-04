@@ -10,9 +10,9 @@
 </head>
 <body>
 <nav>
-  <div class="nav-brand">PRI · Pelvis</div>
   <ul class="nav-tabs" role="tablist">
-    <li><a class="nav-tab active" role="tab" data-tab="tab-anatomy" href="#anatomy">Anatomy</a></li>
+    <li><a class="nav-tab active" role="tab" data-tab="tab-home" href="#home">PRI · Pelvis</a></li>
+    <li><a class="nav-tab" role="tab" data-tab="tab-anatomy" href="#anatomy">Anatomy</a></li>
     <li><a class="nav-tab" role="tab" data-tab="tab-nomenclature" href="#nomenclature">Nomenclature</a></li>
     <li><a class="nav-tab" role="tab" data-tab="tab-patterns" href="#patterns">Patterns</a></li>
     <li><a class="nav-tab" role="tab" data-tab="tab-diagnose" href="#diagnose">Diagnose</a></li>
@@ -20,15 +20,14 @@
     <li><a class="nav-tab" role="tab" data-tab="tab-equivalence" href="#equivalence">Equivalence</a></li>
     <li><a class="nav-tab" role="tab" data-tab="tab-masterquiz" href="#masterquiz">Master Quiz</a></li>
   </ul>
-  <ul class="subtab-row active" data-for-tab="tab-anatomy" role="tablist">
-    <li><a class="subtab active" role="tab" data-subtab="anatomy-anatomize" href="#anatomy/anatomize">Anatomize This!</a></li>
+  <ul class="subtab-row" data-for-tab="tab-anatomy" role="tablist">
+    <li><a class="subtab" role="tab" data-subtab="anatomy-anatomize" href="#anatomy/anatomize">Anatomize This!</a></li>
     <li><a class="subtab" role="tab" data-subtab="anatomy-decoder" href="#anatomy/decoder">Pelvis Decoder</a></li>
     <li><a class="subtab" role="tab" data-subtab="anatomy-aic" href="#anatomy/aic">L AIC Chain</a></li>
   </ul>
   <ul class="subtab-row" data-for-tab="tab-nomenclature" role="tablist">
     <li><a class="subtab active" role="tab" data-subtab="nom-joints" href="#nomenclature/joints">Joints</a></li>
     <li><a class="subtab" role="tab" data-subtab="nom-translation" href="#nomenclature/translation">Translation Table</a></li>
-    <li><a class="subtab" role="tab" data-subtab="nom-keydistinction" href="#nomenclature/keydistinction">Key Distinction</a></li>
   </ul>
   <ul class="subtab-row" data-for-tab="tab-patterns" role="tablist">
     <li><a class="subtab active" role="tab" data-subtab="patterns-cheatsheet" href="#patterns/cheatsheet">Cheat Sheet</a></li>
@@ -45,7 +44,61 @@
 </nav>
 <main>
 
-<section id="tab-anatomy" class="tab active">
+<section id="tab-home" class="tab active">
+  <div class="tab-section home-landing">
+
+    <h1 style="font-family:var(--mono);font-size:var(--text-2xl);color:var(--accent);margin-bottom:.25rem;">PRI · Pelvis</h1>
+    <p class="text-dim" style="margin-bottom:2rem;">Pelvis Restoration exam preparation.</p>
+
+    <div class="callout" style="margin-bottom:2rem;">
+      <h2 style="font-family:var(--mono);font-size:var(--text-base);color:var(--text);margin-bottom:.75rem;">A Note on PRI Nomenclature</h2>
+
+      <p style="margin-bottom:.75rem;">Joints are passive structures. They permit motion; they do not produce it. Muscles produce motion. At any joint, both bones move relative to each other — which one moves more depends on loading, not on the joint itself. There is no inherent "mover" and "fixed bone."</p>
+
+      <p style="margin-bottom:.75rem;">PRI's naming system departs from this. Each acronym (IS, SI, IP, IsP, AF, FA) names a joint by putting one bone first — declaring it the reference point for treatment. IS and SI are the same sacroiliac joint. AF and FA are the same hip joint. The first letter tells you which bone PRI wants you to influence; the second letter is the bone it moves relative to. IR/ER names the direction.</p>
+
+      <p style="margin-bottom:.75rem;">This is treatment-planning shorthand, not biomechanical description. The acronyms encode three things in one label: anatomy (which bones), a clinical frame (which muscle group to facilitate), and position (IR or ER). If you read them as literal mechanics — one bone moves, the other stays put — they will not make sense, because that is not how joints work.</p>
+
+      <p>The <a href="#nomenclature/translation" class="accent-link">Translation Table</a> maps every PRI term to its standard anatomical equivalent with this logic explained.</p>
+    </div>
+
+    <h2 style="font-family:var(--mono);font-size:var(--text-base);color:var(--text);margin-bottom:.75rem;">What's in the app</h2>
+
+    <div class="home-nav-grid">
+      <a href="#anatomy/anatomize" class="home-nav-card">
+        <span class="home-nav-title">Anatomy</span>
+        <span class="home-nav-desc">Anatomize This identification game, pelvis decoder, L AIC chain diagram.</span>
+      </a>
+      <a href="#nomenclature/joints" class="home-nav-card">
+        <span class="home-nav-title">Nomenclature</span>
+        <span class="home-nav-desc">Pelvic joints, PRI-to-standard translation table.</span>
+      </a>
+      <a href="#patterns/cheatsheet" class="home-nav-card">
+        <span class="home-nav-title">Patterns</span>
+        <span class="home-nav-desc">L AIC, B PEC, Patho PEC comparison. Test profiles. Concept map.</span>
+      </a>
+      <a href="#diagnose/tree" class="home-nav-card">
+        <span class="home-nav-title">Diagnose This</span>
+        <span class="home-nav-desc">Decision tree, causal chains, case studies, exercise map.</span>
+      </a>
+      <a href="#flashcards" class="home-nav-card">
+        <span class="home-nav-title">Flashcards</span>
+        <span class="home-nav-desc">Pre-loaded deck. Tests, concepts, initialisms, muscles, treatment.</span>
+      </a>
+      <a href="#equivalence" class="home-nav-card">
+        <span class="home-nav-title">Equivalence</span>
+        <span class="home-nav-desc">Interactive quiz mapping inlet, outlet, and femoral positions.</span>
+      </a>
+      <a href="#masterquiz" class="home-nav-card">
+        <span class="home-nav-title">Master Quiz</span>
+        <span class="home-nav-desc">175 questions across all domains. Missed-question prioritization.</span>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<section id="tab-anatomy" class="tab">
   <div class="subtab-content active" id="anatomy-anatomize" role="tabpanel">
     <div class="tab-section">
       <div class="anatomize-controls">
@@ -139,6 +192,29 @@
   <div class="tab-section">
     <h2 class="section-title">Translation Table</h2>
     <div class="callout">
+      <p>Reading PRI acronyms: the first letter names the bone PRI considers the reference point for treatment. The second letter names the bone it moves relative to. IR/ER names the direction.</p>
+      <div class="table-card-mobile">
+        <table class="decoder-table">
+          <thead><tr><th>Acronym</th><th>Decode</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">IS</td><td>Ilio-Sacral</td><td>Ilium relative to sacrum — posterior inlet. Target: muscles that move the ilium.</td></tr>
+            <tr><td class="mono">SI</td><td>Sacro-Iliac</td><td>Sacrum relative to ilium — posterior outlet. Same joint as IS. Target: muscles that move the sacrum.</td></tr>
+            <tr><td class="mono">IP</td><td>Ilio-Pubo</td><td>Ilium relative to pubic symphysis — anterior inlet. Target: muscles that tilt the ilium.</td></tr>
+            <tr><td class="mono">IsP</td><td>Ischio-Pubo</td><td>Ischium relative to pubic symphysis — anterior outlet. Target: muscles that move the ischium.</td></tr>
+            <tr><td class="mono">AF</td><td>Acetabulo-Femoral</td><td>Pelvis on femur — closed chain (stance leg). Target: reposition pelvis over planted femur.</td></tr>
+            <tr><td class="mono">FA</td><td>Femoro-Acetabular</td><td>Femur on pelvis — open chain (swing leg). Target: mobilize femur in the socket.</td></tr>
+          </tbody>
+        </table>
+        <div class="table-row-card"><div class="trc-field"><span class="trc-label">Acronym</span><span class="trc-val mono">IS</span></div><div class="trc-field"><span class="trc-label">Decode</span><span class="trc-val">Ilio-Sacral</span></div><div class="trc-field"><span class="trc-label">Meaning</span><span class="trc-val">Ilium relative to sacrum — posterior inlet. Target: muscles that move the ilium.</span></div></div>
+        <div class="table-row-card"><div class="trc-field"><span class="trc-label">Acronym</span><span class="trc-val mono">SI</span></div><div class="trc-field"><span class="trc-label">Decode</span><span class="trc-val">Sacro-Iliac</span></div><div class="trc-field"><span class="trc-label">Meaning</span><span class="trc-val">Sacrum relative to ilium — posterior outlet. Same joint as IS. Target: muscles that move the sacrum.</span></div></div>
+        <div class="table-row-card"><div class="trc-field"><span class="trc-label">Acronym</span><span class="trc-val mono">IP</span></div><div class="trc-field"><span class="trc-label">Decode</span><span class="trc-val">Ilio-Pubo</span></div><div class="trc-field"><span class="trc-label">Meaning</span><span class="trc-val">Ilium relative to pubic symphysis — anterior inlet. Target: muscles that tilt the ilium.</span></div></div>
+        <div class="table-row-card"><div class="trc-field"><span class="trc-label">Acronym</span><span class="trc-val mono">IsP</span></div><div class="trc-field"><span class="trc-label">Decode</span><span class="trc-val">Ischio-Pubo</span></div><div class="trc-field"><span class="trc-label">Meaning</span><span class="trc-val">Ischium relative to pubic symphysis — anterior outlet. Target: muscles that move the ischium.</span></div></div>
+        <div class="table-row-card"><div class="trc-field"><span class="trc-label">Acronym</span><span class="trc-val mono">AF</span></div><div class="trc-field"><span class="trc-label">Decode</span><span class="trc-val">Acetabulo-Femoral</span></div><div class="trc-field"><span class="trc-label">Meaning</span><span class="trc-val">Pelvis on femur — closed chain (stance leg). Target: reposition pelvis over planted femur.</span></div></div>
+        <div class="table-row-card"><div class="trc-field"><span class="trc-label">Acronym</span><span class="trc-val mono">FA</span></div><div class="trc-field"><span class="trc-label">Decode</span><span class="trc-val">Femoro-Acetabular</span></div><div class="trc-field"><span class="trc-label">Meaning</span><span class="trc-val">Femur on pelvis — open chain (swing leg). Target: mobilize femur in the socket.</span></div></div>
+      </div>
+      <p class="text-dim">These are treatment-planning codes, not anatomical terms. The same physical joint gets two names to encode which muscle group to facilitate.</p>
+    </div>
+    <div class="callout">
       <p>PRI creates new joint names to encode treatment targets. <strong>IS</strong> vs. <strong>SI</strong> is the same sacroiliac joint — the name tells you which bone PRI considers displaced. <strong>IP</strong> and <strong>IsP</strong> describe innominate movement relative to the pubic symphysis — a real joint (amphiarthrosis) with minimal motion that PRI uses as a positional reference, not a treatment target.</p>
     </div>
     <div class="search-wrap">
@@ -154,12 +230,6 @@
       </table>
       <div id="translation-cards"></div>
     </div>
-  </div>
-  </div>
-  <div class="subtab-content" id="nom-keydistinction" role="tabpanel" aria-labelledby="nom-keydistinction">
-  <div class="tab-section">
-    <h2 class="section-title">Key Distinction</h2>
-    <div id="key-insight-callout" class="callout"></div>
   </div>
   </div>
 </section>
@@ -707,7 +777,6 @@ const NomenclatureModule = (() => {
   function init() {
     buildJointsView();
     buildTranslationTable();
-    buildKeyInsight();
   }
 
   function buildJointsView() {
@@ -808,16 +877,6 @@ const NomenclatureModule = (() => {
       renderRows(filtered);
     });
     searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
-  }
-
-  function buildKeyInsight() {
-    const el = document.getElementById('key-insight-callout');
-    const insight = DATA.terminology.keyInsight;
-    if (typeof insight === 'string') {
-      el.innerHTML = `<p>${insight}</p>`;
-    } else if (typeof insight === 'object') {
-      el.innerHTML = `<p>${insight.text || JSON.stringify(insight)}</p>`;
-    }
   }
 
   return { init };

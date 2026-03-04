@@ -1,6 +1,7 @@
 import {loadImageSet} from './anatomize.js';
 
 const TAB_MAP = {
+  home: 'tab-home',
   anatomy: 'tab-anatomy',
   nomenclature: 'tab-nomenclature',
   patterns: 'tab-patterns',
@@ -18,8 +19,7 @@ const SUBTAB_MAP = {
   },
   nomenclature: {
     joints: 'nom-joints',
-    translation: 'nom-translation',
-    keydistinction: 'nom-keydistinction'
+    translation: 'nom-translation'
   },
   patterns: {
     cheatsheet: 'patterns-cheatsheet',
@@ -118,8 +118,7 @@ function parseHash(hash) {
 function applyHash() {
   const parsed = parseHash(location.hash);
   if (!parsed.tab || !TAB_MAP[parsed.tab]) {
-    activateTab('tab-anatomy');
-    activateFirstSubtab('tab-anatomy');
+    activateTab('tab-home');
     return;
   }
 
