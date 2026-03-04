@@ -394,6 +394,8 @@ p:last-child {
 .subtab.active {
   color:var(--accent);
   border-bottom-color:var(--accent);
+  font-weight: 700;
+  background-color: var(--bg);
 }
 
 .subtab-content {
