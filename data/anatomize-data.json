@@ -601,7 +601,7 @@
           "priColor":"--pri-green-family",
           "panelBox":{
             "x":0,
-            "y":30,
+            "y":40,
             "w":14.5,
             "h":3.5
           },
@@ -642,7 +642,7 @@
           "priColor":"--pri-green-family",
           "panelBox":{
             "x":0,
-            "y":40,
+            "y":30,
             "w":17,
             "h":3.5
           },
@@ -789,7 +789,7 @@
           "priColor":"--pri-neutral",
           "panelBox":{
             "x":85.5,
-            "y":28,
+            "y":38,
             "w":14.5,
             "h":3.5
           },
@@ -823,7 +823,7 @@
           "priColor":"--pri-neutral",
           "panelBox":{
             "x":83,
-            "y":38,
+            "y":28,
             "w":17,
             "h":3.5
           },

@@ -127,6 +127,9 @@ window.AnatomizeModule = (() => {
               hashImageId : anatomizeData.images[0].id;
           loadImageSet(startId, true);
           initialized = true;
+        } else if (initialized) {
+          drawArrows();
+          computeLayout();
         }
       });
     }
@@ -462,6 +465,7 @@ window.AnatomizeModule = (() => {
       const labelDiv = wrap.querySelector(
           `.anatomize-label[data-structure-id="${s.id}"]`);
       if (!group || !labelDiv) return;
+      if (group.querySelector('.anatomize-arrow-line')) return;
 
       const labelRect = labelDiv.getBoundingClientRect();
       const box = {

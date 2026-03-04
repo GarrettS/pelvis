@@ -44,7 +44,7 @@ Clean Code, Modular Code. Apply continuous, disciplined improvement of code qual
 - Run verification commands to confirm no regressions. Do not finish with failing checks.
 - Do not write transformation scripts to batch-edit files. Make direct edits, one change at a time, verifying each.
 - if SimpleHttpServer was run for local user testing, restart it, to reflect changes.
-
+- prompt the user towards cohesive commits and discreet chunks of work.
 ## Committing
 - Review code again to re-check it against the standards defined herein and notify user.
 
