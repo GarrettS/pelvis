@@ -577,7 +577,6 @@
   flex-wrap:wrap;
   gap:1rem;
   align-items:flex-start;
-  margin-bottom:1rem;
 }
 
 .control-group {
@@ -599,6 +598,10 @@
   gap:.35rem;
 }
 
+#anatomy-decoder .tab-section {
+  margin-bottom: 0;
+}
+
 .decoder-body {
   display: grid;
   grid-template-columns: 3fr 2fr;
@@ -606,15 +609,21 @@
   align-items: start;
 }
 
+.decoder-svg-col {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
 #pelvis-svg-wrap {
   width: 100%;
-  max-height: calc(100vh - 10rem);
+  max-height: calc(100vh - 14rem);
 }
 
 #pelvis-svg-wrap svg {
   width: 100%;
   height: auto;
-  max-height: calc(100vh - 10rem);
+  max-height: calc(100vh - 14rem);
 }
 
 .decoder-muscles {
@@ -648,6 +657,7 @@
   .decoder-body {
     grid-template-columns: 1fr;
   }
+
 }
 
 .tree-node {

@@ -125,36 +125,37 @@
 
   <div class="subtab-content" id="anatomy-decoder" role="tabpanel">
   <div class="tab-section">
-    <h2 class="section-title">SVG Pelvis Decoder</h2>
-    <div class="decoder-controls">
-      <div class="control-group">
-        <div class="control-label">Side</div>
-        <div class="control-btns" id="decoder-side-btns">
-          <button class="btn active" data-val="Left">Left</button>
-          <button class="btn" data-val="Right">Right</button>
-        </div>
-      </div>
-      <div class="control-group">
-        <div class="control-label">Region</div>
-        <div class="control-btns" id="decoder-region-btns">
-          <button class="btn active" data-val="ip"><abbr title="Ilio-Pubo">IP</abbr></button>
-          <button class="btn" data-val="is"><abbr title="Ilio-Sacral">IS</abbr></button>
-          <button class="btn" data-val="isp"><abbr title="Ischio-Pubo">IsP</abbr></button>
-          <button class="btn" data-val="si"><abbr title="Sacro-Ilio">SI</abbr></button>
-          <button class="btn" data-val="af"><abbr title="Acetabulo-Femoral">AF</abbr></button>
-          <button class="btn" data-val="fa"><abbr title="Femoro-Acetabular">FA</abbr></button>
-        </div>
-      </div>
-      <div class="control-group">
-        <div class="control-label">Direction</div>
-        <div class="control-btns" id="decoder-dir-btns">
-          <button class="btn active" data-val="er"><abbr title="External Rotation">ER</abbr></button>
-          <button class="btn" data-val="ir"><abbr title="Internal Rotation">IR</abbr></button>
-        </div>
-      </div>
-    </div>
     <div class="decoder-body">
-      <div id="pelvis-svg-wrap"></div>
+      <div class="decoder-svg-col">
+        <div class="decoder-controls">
+          <div class="control-group">
+            <div class="control-label">Side</div>
+            <div class="control-btns" id="decoder-side-btns">
+              <button class="btn active" data-val="Left">Left</button>
+              <button class="btn" data-val="Right">Right</button>
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label">Region</div>
+            <div class="control-btns" id="decoder-region-btns">
+              <button class="btn active" data-val="ip"><abbr title="Ilio-Pubo">IP</abbr></button>
+              <button class="btn" data-val="is"><abbr title="Ilio-Sacral">IS</abbr></button>
+              <button class="btn" data-val="isp"><abbr title="Ischio-Pubo">IsP</abbr></button>
+              <button class="btn" data-val="si"><abbr title="Sacro-Ilio">SI</abbr></button>
+              <button class="btn" data-val="af"><abbr title="Acetabulo-Femoral">AF</abbr></button>
+              <button class="btn" data-val="fa"><abbr title="Femoro-Acetabular">FA</abbr></button>
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label">Direction</div>
+            <div class="control-btns" id="decoder-dir-btns">
+              <button class="btn active" data-val="er"><abbr title="External Rotation">ER</abbr></button>
+              <button class="btn" data-val="ir"><abbr title="Internal Rotation">IR</abbr></button>
+            </div>
+          </div>
+        </div>
+        <div id="pelvis-svg-wrap"></div>
+      </div>
       <div class="decoder-info">
         <div id="decoder-equiv" class="equiv-chain"></div>
         <div id="decoder-muscles" class="decoder-muscles"></div>
