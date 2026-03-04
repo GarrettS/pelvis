@@ -6,37 +6,43 @@ window.AicChainModule = (function() {
       id: 'diaphragm',
       label: 'Diaphragm',
       connection: 'crural pull / ZOA loss',
-      anchor: [25, 15]
+      priColor: 'pri-neutral',
+      anchor: {anterior: [22.0, 16.3], posterior: [88.4, 20.0]}
     },
     {
       id: 'psoas',
       label: 'Psoas',
       connection: 'shortens, pulls ilium forward',
-      anchor: [30, 28]
+      priColor: 'pri-neutral',
+      anchor: {anterior: [30.9, 37.1], posterior: [69.5, 28.9]}
     },
     {
       id: 'iliacus',
       label: 'Iliacus',
       connection: 'anterior pelvic tilt (L IP ER)',
-      anchor: [35, 40]
+      priColor: 'pri-red',
+      anchor: {anterior: [35.1, 50.9], posterior: [64.0, 43.7]}
     },
     {
       id: 'tfl',
       label: 'TFL',
       connection: 'orientates femur',
-      anchor: [33, 48]
+      priColor: 'pri-neutral',
+      anchor: {anterior: [38.9, 43.7], posterior: [58.6, 43.5]}
     },
     {
       id: 'vastus_lateralis',
       label: 'Vastus Lateralis',
       connection: 'lateral knee tension',
-      anchor: [35, 62]
+      priColor: 'pri-neutral',
+      anchor: {anterior: [41.6, 69.5], posterior: [57.6, 68.1]}
     },
     {
       id: 'biceps_femoris',
       label: 'Biceps Femoris',
       connection: null,
-      anchor: [58, 68]
+      priColor: 'pri-brown',
+      anchor: {anterior: [34.2, 70.7], posterior: [62.6, 67.6]}
     }
   ];
 
@@ -110,7 +116,7 @@ window.AicChainModule = (function() {
 
     AIC_CHAIN.forEach(function(muscle, i) {
       const row = document.createElement('div');
-      row.className = 'aic-chain-row';
+      row.className = 'aic-chain-row ' + muscle.priColor;
       row.dataset.muscleId = muscle.id;
       row.textContent = muscle.label;
       frag.appendChild(row);
@@ -137,19 +143,25 @@ window.AicChainModule = (function() {
     overlayEl.setAttribute('viewBox', '0 0 100 100');
     overlayEl.setAttribute('preserveAspectRatio', 'none');
 
+    var views = ['anterior', 'posterior'];
     AIC_CHAIN.forEach(function(muscle) {
-      const circle = document.createElementNS(SVG_NS, 'circle');
-      circle.setAttribute('cx', String(muscle.anchor[0]));
-      circle.setAttribute('cy', String(muscle.anchor[1]));
-      circle.setAttribute('r', '3');
-      circle.setAttribute('fill', 'var(--accent)');
-      circle.setAttribute('fill-opacity', '0.4');
-      circle.setAttribute('stroke', 'var(--accent)');
-      circle.setAttribute('stroke-width', '0.5');
-      circle.setAttribute('data-muscle-id', muscle.id);
-      circle.style.cursor = 'pointer';
-      circle.style.pointerEvents = 'all';
-      overlayEl.appendChild(circle);
+      views.forEach(function(view) {
+        var coords = muscle.anchor[view];
+        const circle = document.createElementNS(SVG_NS, 'circle');
+        circle.setAttribute('cx', String(coords[0]));
+        circle.setAttribute('cy', String(coords[1]));
+        circle.setAttribute('r', '3');
+        circle.setAttribute('class', muscle.priColor);
+        circle.setAttribute('fill', 'var(--pri-fg)');
+        circle.setAttribute('fill-opacity', '0.4');
+        circle.setAttribute('stroke', 'var(--pri-fg)');
+        circle.setAttribute('stroke-width', '0.5');
+        circle.setAttribute('data-muscle-id', muscle.id);
+        circle.setAttribute('data-view', view);
+        circle.style.cursor = 'pointer';
+        circle.style.pointerEvents = 'all';
+        overlayEl.appendChild(circle);
+      });
     });
   }
 
@@ -217,8 +229,7 @@ window.AicChainModule = (function() {
     if (!info) return;
 
     var panel = document.createElement('div');
-    panel.className = 'detail-panel';
-    panel.style.borderLeft = '4px solid var(--accent)';
+    panel.className = 'detail-panel ' + entry.priColor;
 
     var heading = document.createElement('h3');
     heading.textContent = entry.label;
@@ -249,23 +260,38 @@ window.AicChainModule = (function() {
   function showPulseCircle(entry) {
     removePulseCircle();
 
-    const circle = document.createElementNS(SVG_NS, 'circle');
-    circle.setAttribute('cx', String(entry.anchor[0]));
-    circle.setAttribute('cy', String(entry.anchor[1]));
-    circle.setAttribute('r', '2');
-    circle.setAttribute('class', 'aic-anchor-pulse');
-    circle.style.pointerEvents = 'none';
-    overlayEl.appendChild(circle);
+    ['anterior', 'posterior'].forEach(function(view) {
+      var coords = entry.anchor[view];
+      const circle = document.createElementNS(SVG_NS, 'circle');
+      circle.setAttribute('cx', String(coords[0]));
+      circle.setAttribute('cy', String(coords[1]));
+      circle.setAttribute('r', '2');
+      circle.setAttribute('class', 'aic-anchor-pulse ' + entry.priColor);
+      circle.style.pointerEvents = 'none';
+      overlayEl.appendChild(circle);
+    });
   }
 
   function removePulseCircle() {
-    const existing = overlayEl.querySelector('.aic-anchor-pulse');
-    if (existing) existing.remove();
+    var pulses = overlayEl.querySelectorAll('.aic-anchor-pulse');
+    pulses.forEach(function(el) { el.remove(); });
+  }
+
+  function resolveColor(entry) {
+    var temp = document.createElement('div');
+    temp.className = entry.priColor;
+    temp.style.display = 'none';
+    document.body.appendChild(temp);
+    var color = getComputedStyle(temp).getPropertyValue('--pri-fg').trim();
+    document.body.removeChild(temp);
+    return color;
   }
 
   function drawLeaderLine(rowEl, entry) {
     clearSvg(leaderEl);
     if (!rowEl || !entry) return;
+
+    var color = resolveColor(entry);
 
     const tabSection = containerEl.parentElement;
     const sectionRect = tabSection.getBoundingClientRect();
@@ -282,19 +308,11 @@ window.AicChainModule = (function() {
     const startY = rowRect.top + rowRect.height / 2 - sectionRect.top;
 
     const imgRect = imgEl.getBoundingClientRect();
-    const endX = imgRect.left + (entry.anchor[0] / 100) * imgRect.width -
-        sectionRect.left;
-    const endY = imgRect.top + (entry.anchor[1] / 100) * imgRect.height -
-        sectionRect.top;
 
-    const midX = startX + (endX - startX) * 0.5;
-
-    const pathD = 'M ' + startX + ' ' + startY +
-        ' Q ' + midX + ' ' + startY + ' ' + endX + ' ' + endY;
-
+    const markerId = 'aic-arrowhead-' + entry.id;
     const defs = document.createElementNS(SVG_NS, 'defs');
     const marker = document.createElementNS(SVG_NS, 'marker');
-    marker.setAttribute('id', 'aic-arrowhead');
+    marker.setAttribute('id', markerId);
     marker.setAttribute('markerWidth', '8');
     marker.setAttribute('markerHeight', '6');
     marker.setAttribute('refX', '8');
@@ -304,29 +322,46 @@ window.AicChainModule = (function() {
 
     const polygon = document.createElementNS(SVG_NS, 'polygon');
     polygon.setAttribute('points', '0 0, 8 3, 0 6');
-    polygon.setAttribute('fill', 'var(--accent)');
+    polygon.setAttribute('fill', color);
     marker.appendChild(polygon);
     defs.appendChild(marker);
     leaderEl.appendChild(defs);
 
-    const path = document.createElementNS(SVG_NS, 'path');
-    path.setAttribute('d', pathD);
-    path.setAttribute('fill', 'none');
-    path.setAttribute('stroke', 'var(--accent)');
-    path.setAttribute('stroke-width', '1.5');
-    path.setAttribute('marker-end', 'url(#aic-arrowhead)');
-    path.classList.add('aic-leader-path');
+    var paths = [];
+    ['anterior', 'posterior'].forEach(function(view) {
+      var coords = entry.anchor[view];
+      const endX = imgRect.left + (coords[0] / 100) * imgRect.width -
+          sectionRect.left;
+      const endY = imgRect.top + (coords[1] / 100) * imgRect.height -
+          sectionRect.top;
 
-    const totalLength = approximateQuadLength(
-        startX, startY, midX, startY, endX, endY);
-    path.style.strokeDasharray = String(totalLength);
-    path.style.strokeDashoffset = String(totalLength);
+      const midX = startX + (endX - startX) * 0.5;
 
-    leaderEl.appendChild(path);
+      const pathD = 'M ' + startX + ' ' + startY +
+          ' Q ' + midX + ' ' + startY + ' ' + endX + ' ' + endY;
+
+      const path = document.createElementNS(SVG_NS, 'path');
+      path.setAttribute('d', pathD);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', color);
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('marker-end', 'url(#' + markerId + ')');
+      path.classList.add('aic-leader-path');
+
+      const totalLength = approximateQuadLength(
+          startX, startY, midX, startY, endX, endY);
+      path.style.strokeDasharray = String(totalLength);
+      path.style.strokeDashoffset = String(totalLength);
+
+      leaderEl.appendChild(path);
+      paths.push(path);
+    });
 
     requestAnimationFrame(function() {
-      path.style.transition = 'stroke-dashoffset 200ms ease-out';
-      path.style.strokeDashoffset = '0';
+      paths.forEach(function(p) {
+        p.style.transition = 'stroke-dashoffset 200ms ease-out';
+        p.style.strokeDashoffset = '0';
+      });
     });
   }
 

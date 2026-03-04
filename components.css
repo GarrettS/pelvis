@@ -105,9 +105,13 @@
 .detail-panel h3 {
   font-family:var(--mono);
   font-size:var(--text-base);
-  color:var(--accent);
+  color:var(--pri-fg, var(--accent));
   font-weight:700;
   margin-bottom:.5rem;
+}
+
+.aic-chain-detail .detail-panel {
+  border-left:4px solid var(--pri-fg);
 }
 
 .detail-row {
@@ -1343,9 +1347,9 @@ g.correct .anatomize-arrowhead {
 }
 
 .aic-chain-row.active {
-  background:var(--accent-bg);
-  border-left:3px solid var(--accent);
-  color:var(--accent);
+  background:var(--pri-bg);
+  border-left:3px solid var(--pri-fg);
+  color:var(--pri-fg);
   font-weight:600;
 }
 
@@ -1362,6 +1366,7 @@ g.correct .anatomize-arrowhead {
 
 .aic-chain-image-wrap {
   position:relative;
+  justify-self:start;
 }
 
 .aic-chain-img {
@@ -1392,33 +1397,10 @@ g.correct .anatomize-arrowhead {
 }
 
 .aic-anchor-pulse {
-  fill:rgba(26, 122, 90, 0.3);
-  stroke:var(--accent);
+  fill:var(--pri-fg);
+  fill-opacity:0.3;
+  stroke:var(--pri-fg);
   stroke-width:0.5;
-  transform-origin:center;
-  animation:aic-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes aic-pulse {
-  0% {
-    transform:scale(1);
-    opacity:1;
-  }
-  50% {
-    transform:scale(1.3);
-    opacity:0.7;
-  }
-  100% {
-    transform:scale(1);
-    opacity:1;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-
-  .aic-anchor-pulse {
-    fill:rgba(58, 170, 128, 0.3);
-  }
 }
 
 .aic-chain-detail {
