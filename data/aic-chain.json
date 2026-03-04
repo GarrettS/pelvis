@@ -1,0 +1,78 @@
+{
+  "chain": [
+    {
+      "id": "diaphragm",
+      "label": "Diaphragm",
+      "connection": "crural pull / ZOA loss",
+      "priColor": "pri-neutral",
+      "anchor": {"anterior": [22.0, 16.3], "posterior": [88.4, 20.0]}
+    },
+    {
+      "id": "psoas",
+      "label": "Psoas",
+      "connection": "shortens, pulls ilium forward",
+      "priColor": "pri-neutral",
+      "anchor": {"anterior": [30.9, 37.1], "posterior": [69.5, 28.9]}
+    },
+    {
+      "id": "iliacus",
+      "label": "Iliacus",
+      "connection": "anterior pelvic tilt (L IP ER)",
+      "priColor": "pri-red",
+      "anchor": {"anterior": [35.1, 50.9], "posterior": [64.0, 43.7]}
+    },
+    {
+      "id": "tfl",
+      "label": "TFL",
+      "connection": "orientates femur",
+      "priColor": "pri-neutral",
+      "anchor": {"anterior": [38.9, 43.7], "posterior": [58.6, 43.5]}
+    },
+    {
+      "id": "vastus_lateralis",
+      "label": "Vastus Lateralis",
+      "connection": "lateral knee tension",
+      "priColor": "pri-neutral",
+      "anchor": {"anterior": [41.6, 69.5], "posterior": [57.6, 68.1]}
+    },
+    {
+      "id": "biceps_femoris",
+      "label": "Biceps Femoris",
+      "connection": null,
+      "priColor": "pri-brown",
+      "anchor": {"anterior": [34.2, 70.7], "posterior": [62.6, 67.6]}
+    }
+  ],
+  "detail": {
+    "diaphragm": {
+      "role": "Drives respiration. In L AIC, the left diaphragm loses its Zone of Apposition (ZOA), flattening and pulling the crura downward.",
+      "pattern": "L diaphragm descends \u2192 L crural pull \u2192 lumbar hyperextension bias. Loss of ZOA = loss of respiratory opposition.",
+      "correction": "Restore L ZOA via 90-90 hip lift with balloon. Exhale to reposition diaphragm dome."
+    },
+    "psoas": {
+      "role": "Primary hip flexor and lumbar spine stabilizer. In L AIC, the left psoas shortens, pulling the left ilium into anterior tilt.",
+      "pattern": "L psoas shortens \u2192 L lumbar lordosis \u2192 L IP ER (anterior tilt). Feeds forward into iliacus.",
+      "correction": "Inhibit through positioning (90-90). Not directly stretched \u2014 repositioned via pelvic correction."
+    },
+    "iliacus": {
+      "role": "Hip flexor originating from iliac fossa. Works with psoas to anteriorly tilt the pelvis.",
+      "pattern": "L iliacus pulls ilium forward \u2192 L IP ER \u2192 anterior pelvic tilt on left.",
+      "correction": "Repositioned via L AF IR activities. Not directly targeted in isolation."
+    },
+    "tfl": {
+      "role": "Tensor fasciae latae. Abducts, flexes, and internally rotates the femur. Orientates femoral position.",
+      "pattern": "L TFL compensates for femoral orientation in L AIC pattern. Contributes to lateral knee tension.",
+      "correction": "Addressed indirectly through femoral repositioning (L AF IR)."
+    },
+    "vastus_lateralis": {
+      "role": "Largest quadriceps component. Extends the knee with a lateral pull vector.",
+      "pattern": "Lateral knee tension from TFL transmitted through IT band and vastus lateralis. Knee tracks laterally.",
+      "correction": "Corrected by restoring femoral IR and addressing proximal chain (hip/pelvis)."
+    },
+    "biceps_femoris": {
+      "role": "Long head: hip extension and knee flexion. Terminal muscle in L AIC chain.",
+      "pattern": "L biceps femoris (long head) = terminal link. Compensatory ER of tibia on femur.",
+      "correction": "Inhibited as compensator. Corrective hamstring work uses medial hamstrings (semimembranosus/semitendinosus)."
+    }
+  }
+}
