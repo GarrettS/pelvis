@@ -242,3 +242,16 @@ A `requestAnimationFrame` callback then logs actual rendered rects:
 - **No image loaded yet**: Layout bails out (needs `naturalWidth` for aspect ratio).
 - **`infoW` clamped to `INFO_MIN_W`**: Image shrinks to accommodate minimum info width.
 - **Manual info-col resize**: User can drag the resize handle. CSS `min-width: 200px` and `max-width: 60%` constrain. The algorithm does not re-run on manual resize — it only responds to viewport/container size changes.
+
+---
+
+## Verification Checklist
+
+1. Open Anatomy tab, select Anatomize This: image fits viewport, no scrollbar.
+2. Switch to L AIC Chain tab, switch back: no scrollbar, arrows draw correctly.
+3. Resize window across 1024px breakpoint: layout switches between mobile/desktop.
+4. Rotate from landscape to portrait: layout switches.
+5. Drag resize handle: info column resizes.
+6. Play through a quiz round: all mechanics work, detail panel scrolls if needed.
+7. Mobile (600px or below): single column, image capped at 45vh.
+8. No orphaned CSS selectors or dead JS references.
