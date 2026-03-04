@@ -27,6 +27,12 @@
   font-family:var(--mono);
 }
 
+.decoder-table {
+  font-size:var(--text-sm);
+  width:100%;
+  margin:.5rem 0;
+}
+
 @media(max-width:600px) {
   .joint-table-wrap table {
     display:none;

@@ -205,8 +205,7 @@
           "callout": "Same joint, two names. AF = fix the pelvis position. FA = the femur is being positioned for treatment."
         }
       }
-    ],
-    "keyInsight": "Joints are passive structures. They permit motion; they do not produce it. Muscles, gravity, and momentum produce motion. PRI’s acronym system encodes a clinical conclusion — which bone is displaced — into a joint name. IS vs. SI, AF vs. FA: same joint, different target bone. The first letter tells you which bone PRI wants you to move. IS = target the ilium. SI = target the sacrum. AF = reposition the pelvis over the femur. FA = mobilize the femur in the socket. IP and IsP use the pubic symphysis as a midline reference for describing innominate orientation at the inlet and outlet. The acronyms are treatment codes, not anatomical terms."
+    ]
   },
   "causalChains": [
     {

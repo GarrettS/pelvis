@@ -148,7 +148,7 @@ anatomy, nomenclature, patterns, diagnose, flashcards, equivalence, masterquiz
 Sub-tab name mapping (hash → subtab-content ID suffix):
 ```
 anatomy: images, decoder, anatomize
-nomenclature: joints, translation, keydistinction
+nomenclature: joints, translation
 patterns: cheatsheet, conceptmap, tests
 diagnose: patternid, cases, chains, tree, exercises
 ```
