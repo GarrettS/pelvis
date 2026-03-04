@@ -30,6 +30,9 @@ Clean Code, Modular Code. Apply continuous, disciplined improvement of code qual
 - Hash-based navigation with location.hash and hashchange listener. No History API (pushState/popstate).
 - Delegated event listeners. No inline event handlers.
 - ES modules with type="module" on script tags.
+- When using modules, don't use the module pattern IIFE, use exports.
+- Favor HTML in source code over strings of HTML.
+- when making functions that use createElement and friends, especially in loops, consider creating one as a sort of prototype, then cloneNode.
 - external js files go in scripts directory
 - Using ubiquitous language, use unambiguous identifier names, like initLAIC, not "init".
 

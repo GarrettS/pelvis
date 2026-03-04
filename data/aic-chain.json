@@ -3,35 +3,35 @@
     {
       "id": "diaphragm",
       "label": "Diaphragm",
-      "connection": "crural pull / ZOA loss",
+      "connection": "via shared L1–L3 vertebral origin — crural tension loads psoas directly",
       "priColor": "pri-neutral",
       "anchor": {"anterior": [22.0, 16.3], "posterior": [88.4, 20.0]}
     },
     {
       "id": "psoas",
       "label": "Psoas",
-      "connection": "shortens, pulls ilium forward",
+      "connection": "increasing lumbar lordosis recruits iliacus to anteriorly rotate the ilium",
       "priColor": "pri-neutral",
       "anchor": {"anterior": [30.9, 37.1], "posterior": [69.5, 28.9]}
     },
     {
       "id": "iliacus",
       "label": "Iliacus",
-      "connection": "anterior pelvic tilt (L IP ER)",
+      "connection": "L innominate tilts forward (L IP ER); acetabulum rotates, orienting femur inward",
       "priColor": "pri-red",
       "anchor": {"anterior": [35.1, 50.9], "posterior": [64.0, 43.7]}
     },
     {
       "id": "tfl",
       "label": "TFL",
-      "connection": "orientates femur",
+      "connection": "overloaded as compensatory frontal plane stabilizer; tension transmits via IT band",
       "priColor": "pri-neutral",
       "anchor": {"anterior": [38.9, 43.7], "posterior": [58.6, 43.5]}
     },
     {
       "id": "vastus_lateralis",
       "label": "Vastus Lateralis",
-      "connection": "lateral knee tension",
+      "connection": "lateral overload fails to stabilize; BF recruited as terminal compensator",
       "priColor": "pri-neutral",
       "anchor": {"anterior": [41.6, 69.5], "posterior": [57.6, 68.1]}
     },
@@ -45,34 +45,46 @@
   ],
   "detail": {
     "diaphragm": {
-      "role": "Drives respiration. In L AIC, the left diaphragm loses its Zone of Apposition (ZOA), flattening and pulling the crura downward.",
-      "pattern": "L diaphragm descends \u2192 L crural pull \u2192 lumbar hyperextension bias. Loss of ZOA = loss of respiratory opposition.",
-      "correction": "Restore L ZOA via 90-90 hip lift with balloon. Exhale to reposition diaphragm dome."
+      "role": "Drives respiration. In L AIC, the left hemidiaphragm loses its Zone of Apposition (ZOA) — it flattens, becomes tonic, and shifts from a phasic respiratory muscle to a postural one. Crural tension on L1–L3 increases lumbar lordosis.",
+      "pattern": "L diaphragm flattens → ZOA lost → diaphragm becomes tonic/postural rather than phasic/respiratory → crural pull increases lumbar extension bias → loads psoas at shared vertebral origin.",
+      "correction": "Restore L ZOA via 90-90 Hip Lift with Balloon. The corrective mechanism is exhalation — active exhalation against balloon resistance re-domes the diaphragm and restores ZOA. The 90-90 position slackens the psoas and posteriorly tilts the pelvis; the balloon ensures the diaphragm domes rather than the patient simply holding their breath.",
+      "context": "The left hemidiaphragm specifically loses ZOA because it lacks the liver as a platform. The right hemidiaphragm sits on the liver and has a stable base for contraction. Without that support, the left flattens and becomes tonic. This asymmetry is why L AIC is the baseline pattern in nearly everyone.",
+      "hierarchyRole": "Inhibited during repositioning. Not directly facilitated."
     },
     "psoas": {
-      "role": "Primary hip flexor and lumbar spine stabilizer. In L AIC, the left psoas shortens, pulling the left ilium into anterior tilt.",
-      "pattern": "L psoas shortens \u2192 L lumbar lordosis \u2192 L IP ER (anterior tilt). Feeds forward into iliacus.",
-      "correction": "Inhibit through positioning (90-90). Not directly stretched \u2014 repositioned via pelvic correction."
+      "role": "Primary hip flexor and lumbar spine stabilizer. Originates at anterior L1–L4 vertebral bodies and discs; inserts at the lesser trochanter. In L AIC, the left psoas shortens, increasing lumbar lordosis and forward-rotating the left side of the lumbar spine.",
+      "pattern": "L psoas shortens → L lumbar lordosis increases → iliacus recruited to complete anterior innominate rotation (L IP ER). Psoas shortening also elongates and inhibits the left IO/TAs, removing the primary posterior tilt check on the system — this is why the pattern self-perpetuates.",
+      "correction": "Inhibited indirectly via the three L AIC repositioning exercises: (1) 90-90 Supported Hip Lift with Hemibridge, (2) Right Sidelying Respiratory Left Adductor Pull Back, (3) Left Sidelying Right Glute Max. The 90-90 position mechanically slackens the psoas by reducing lumbar lordosis and posteriorly tilting the pelvis. There is no direct psoas inhibition exercise in the L AIC program — position does the work.",
+      "context": "Psoas does not attach to the ilium. It drives anterior pelvic tilt by increasing lumbar lordosis, which tips the pelvis forward; the iliacus is the direct ilium mover. Psoas shortening also directly elongates and inhibits the left IO/TAs — this IO/TA failure is not a downstream effect of TFL or VL. It is a direct consequence of psoas-driven anterior tilt and is a key reason the pattern self-perpetuates.",
+      "hierarchyRole": "Inhibited during repositioning. Not directly facilitated in isolation."
     },
     "iliacus": {
-      "role": "Hip flexor originating from iliac fossa. Works with psoas to anteriorly tilt the pelvis.",
-      "pattern": "L iliacus pulls ilium forward \u2192 L IP ER \u2192 anterior pelvic tilt on left.",
-      "correction": "Repositioned via L AF IR activities. Not directly targeted in isolation."
+      "role": "Hip flexor originating from the iliac fossa; inserts with psoas at the lesser trochanter. In L AIC, the left iliacus anteriorly rotates the left innominate — the direct driver of L IP ER.",
+      "pattern": "L iliacus pulls ilium forward → L IP ER (anterior tilt, abduction, ER of innominate) → acetabulum rotates, passively orienting femur inward via geometry → TFL overloads in response.",
+      "correction": "Left proximal iliacus is a direct facilitation target at Step 3 of the L AIC hierarchy. Exercises: Right Sidelying Supported Left Glute Med; Right Sidelying Hemi 90-90 with Left FA IR variations. The proximal fibers act on the ilium in closed chain to produce inlet adduction (IP IR), working alongside left gluteus medius. Note: PRI calls this muscle 'anterior glute med' — it is still iliacus, not gluteus medius.",
+      "context": "Iliacus has both a pathological role (driving L IP ER in the pattern) and a corrective role. The proximal iliacus, when the femur is fixed, pulls the ilium medially — inlet adduction (IP IR). PRI's label 'anterior glute med' for this action is clinically idiosyncratic but refers specifically to the proximal iliacus fibers. Distal iliacus is part of the problem; proximal iliacus is part of the solution.",
+      "hierarchyRole": "Pathological: drives L IP ER. Corrective: left proximal iliacus facilitated at Step 3 (inlet adduction, IS ER). Test marker: −R PART achieved at Step 3, R HALT 2/5."
     },
     "tfl": {
-      "role": "Tensor fasciae latae. Abducts, flexes, and internally rotates the femur. Orientates femoral position.",
-      "pattern": "L TFL compensates for femoral orientation in L AIC pattern. Contributes to lateral knee tension.",
-      "correction": "Addressed indirectly through femoral repositioning (L AF IR)."
+      "role": "Tensor fasciae latae. Abducts, flexes, and internally rotates the femur. In L AIC, TFL becomes overactive as a compensatory frontal plane stabilizer — recruited to prevent hip collapse because left glute med and left IO/TAs are inhibited. It does not cause femoral orientation.",
+      "pattern": "Left glute med and IO/TAs inhibited → TFL recruited as compensatory abductor to maintain frontal plane stability → TFL tension transmits via iliotibial (IT) band to vastus lateralis → lateral knee loading increases.",
+      "correction": "Inhibited via L AIC Inhibition Step 1 (inhibit left anterior inlet): 90-90 Respiratory Left Hip Shift. This promotes left IP IR (extension, adduction, IR of the inlet), directly opposing the abduction bias that TFL sustains. TFL is not facilitated.",
+      "context": "TFL's overload is frontal plane, not rotational. Although TFL is an IR muscle and the femur is in FA IR, TFL is recruited because glute med and IO/TAs have failed as abductors/stabilizers — TFL fills that vacancy. Its effect on VL is transmitted via the IT band; without that anatomical link the TFL → VL relationship in the chain would be arbitrary.",
+      "hierarchyRole": "Inhibited as a compensator via L AIC Inhibition Step 1. Not facilitated."
     },
     "vastus_lateralis": {
-      "role": "Largest quadriceps component. Extends the knee with a lateral pull vector.",
-      "pattern": "Lateral knee tension from TFL transmitted through IT band and vastus lateralis. Knee tracks laterally.",
-      "correction": "Corrected by restoring femoral IR and addressing proximal chain (hip/pelvis)."
+      "role": "Largest quadriceps component. Extends the knee with a lateral pull vector due to its oblique fiber orientation. In L AIC, VL becomes an overactive compensatory hip stabilizer — increased demand on it is an overload response to proximal chain failure, not a strengthening target.",
+      "pattern": "IT band tension from TFL transmits to VL via their shared lateral fascial connection → VL lateral pull vector increases → VL fires as compensatory antagonistic hip stabilizer. VL overactivity is a sign of proximal failure.",
+      "correction": "No dedicated VL inhibition exercise. Addressed solely by resolving the proximal chain: the same three L AIC repositioning exercises that inhibit psoas (90-90 Supported Hip Lift with Hemibridge; Right Sidelying Respiratory Left Adductor Pull Back; Left Sidelying Right Glute Max). Restoring femoral IR via pelvic correction reduces VL demand. VL is not facilitated.",
+      "context": "VL's lateral pull is a function of fiber orientation, not femoral rotation position. Even with the femur in FA IR, VL's oblique fibers still create a lateral patellar force vector. The primary issue is VL firing as a compensatory hip stabilizer — it is doing work that glute med and IO/TAs should be doing. Treatment inhibits VL by restoring those proximal muscles, not by addressing VL directly.",
+      "hierarchyRole": "Inhibited as a compensator. Not facilitated."
     },
     "biceps_femoris": {
-      "role": "Long head: hip extension and knee flexion. Terminal muscle in L AIC chain.",
-      "pattern": "L biceps femoris (long head) = terminal link. Compensatory ER of tibia on femur.",
-      "correction": "Inhibited as compensator. Corrective hamstring work uses medial hamstrings (semimembranosus/semitendinosus)."
+      "role": "Long head: hip extension and knee flexion with tibial external rotation. Terminal muscle in the L AIC chain. Fires as a compensator because the pelvis is anteriorly rotated over the left femur (L AF ER) — BF uses hip extension from below to resist forward pelvic collapse.",
+      "pattern": "L AF ER (pelvis forward over femur) → BF fires to resist forward collapse via hip extension → tibial ER is a secondary consequence of that compensation strategy, not an independent finding. Note: femur is in FA IR at the hip; tibial ER from BF is at the knee — different joints, different observations. Students who conflate these will misread the clinical presentation (foot turned out on left = tibial ER from BF, not femoral ER at the hip).",
+      "correction": "BF is inhibited as a compensator. The corrective hamstring target is medial hamstrings (semimembranosus and semitendinosus) — they produce knee flexion with tibial IR, directly countering BF's tibial ER bias. The 90-90 Supported Hip Lift with Hemibridge engages the hamstring group for repositioning; in PRI, 'corrective hamstring work' always refers to medial hamstrings, never BF itself. No dedicated medial hamstring isolation exercise is named separately in the L AIC program.",
+      "context": "BF's tibial ER is a consequence of the compensation strategy, not the primary problem. The medial hamstrings are the corrective target because semimembranosus and semitendinosus produce tibial IR during knee flexion, directly opposing BF's pattern. This distinction is tested: 'corrective hamstring work' in PRI means medial hamstrings.",
+      "hierarchyRole": "Inhibited as a compensator. Corrective target is medial hamstrings (semimembranosus / semitendinosus), not BF itself."
     }
   }
 }
