@@ -99,7 +99,6 @@
   border:1px solid var(--border);
   border-radius:6px;
   padding:1.25rem;
-  margin-top:1rem;
 }
 
 .detail-panel h3 {
@@ -960,7 +959,7 @@
   max-width:60%;
 }
 
-.anatomize-resize-handle {
+.resize-handle {
   position: relative;
   top: calc(50% - 22px);
   display: none;
@@ -972,35 +971,34 @@
   border-color: var(--border);
   border-style: solid;
   border-width: 0.08rem;
-  border-color: var(--border);
   border-radius: calc(0.1vw + 0.1rem);
 }
 
-.anatomize-body.two-col .anatomize-resize-handle {
+.anatomize-body.two-col .resize-handle {
   display: flex;
 }
 
-.anatomize-resize-grip {
-  width:calc(.17vw + .175rem);
-  height:calc(1vw + 1.2rem);
-  background:var(--border);
-  background-image:repeating-linear-gradient(
+.resize-grip {
+  width: calc(.17vw + .175rem);
+  height: calc(1vw + 1.2rem);
+  background: var(--border);
+  background-image: repeating-linear-gradient(
       to bottom,
       var(--text-dim) 0,
       var(--text-dim) 1px,
       transparent 1px,
       transparent 4px);
-  border-radius:1px;
-  transition:background .12s;
+  border-radius: 1px;
+  transition: background .12s;
 }
 
-.anatomize-resize-handle:hover {
-  background:var(--surface2);
+.resize-handle:hover {
+  background: var(--surface2);
 }
 
-.anatomize-resize-handle:hover .anatomize-resize-grip {
-  background:var(--text-dim);
-  background-image:repeating-linear-gradient(
+.resize-handle:hover .resize-grip {
+  background: var(--text-dim);
+  background-image: repeating-linear-gradient(
       to bottom,
       var(--text) 0,
       var(--text) 1px,
@@ -1008,13 +1006,13 @@
       transparent 4px);
 }
 
-.anatomize-resize-handle.dragging {
-  background:var(--surface2);
+.resize-handle.dragging {
+  background: var(--surface2);
 }
 
-.anatomize-resize-handle.dragging .anatomize-resize-grip {
-  background:var(--accent);
-  background-image:repeating-linear-gradient(
+.resize-handle.dragging .resize-grip {
+  background: var(--accent);
+  background-image: repeating-linear-gradient(
       to bottom,
       rgba(255, 255, 255, .6) 0,
       rgba(255, 255, 255, .6) 1px,
@@ -1320,22 +1318,23 @@ g.correct .anatomize-arrowhead {
 }
 
 .aic-chain-container {
-  display:grid;
-  grid-template-columns:2fr 3fr;
-  gap:1rem;
-  position:relative;
+  display: grid;
+  grid-template-columns: var(--panel-w, calc(12rem + 7.5vw)) auto auto 1fr;
+  align-items: start;
+  gap: 0;
+  position: relative;
 }
 
 .aic-chain-panel {
-  overflow-y:auto;
-  max-height:600px;
+  overflow-y: auto;
+  max-height: 80vh;
 }
 
 .aic-chain-row {
   font-family:var(--mono);
   font-size:var(--text-sm);
   color:var(--text);
-  padding:.6rem .9rem;
+  padding: .4rem .9rem;
   border-left:3px solid transparent;
   border-radius:0 4px 4px 0;
   cursor:pointer;
@@ -1346,7 +1345,7 @@ g.correct .anatomize-arrowhead {
   background:var(--surface2);
 }
 
-.aic-chain-row.active {
+.aic-chain-row.activeMuscle {
   background:var(--pri-bg);
   border-left:3px solid var(--pri-fg);
   color:var(--pri-fg);
@@ -1357,16 +1356,19 @@ g.correct .anatomize-arrowhead {
   font-family:var(--mono);
   font-size:var(--text-xs);
   color:var(--text-dim);
-  padding:.2rem 0 .2rem 1.25rem;
+  padding: 0 0 .2rem 1.25rem;
 }
 
 .aic-chain-terminal {
   font-style:italic;
 }
 
+.aic-chain-image-col {
+  justify-self: start;
+}
+
 .aic-chain-image-wrap {
-  position:relative;
-  justify-self:start;
+  position: relative;
 }
 
 .aic-chain-img {
@@ -1396,29 +1398,39 @@ g.correct .anatomize-arrowhead {
   z-index:5;
 }
 
-.aic-anchor-pulse {
-  fill:var(--pri-fg);
-  fill-opacity:0.3;
-  stroke:var(--pri-fg);
-  stroke-width:0.5;
+.aic-chain-container .resize-handle {
+  display: flex;
+  top: 0;
+  align-self: center;
 }
 
 .aic-chain-detail {
-  margin-top:1rem;
+  overflow-y: auto;
+  max-height: 80vh;
+  margin-left: 0.2rem;
+  margin-right: 0.2rem;
 }
 
-@media (max-width:600px) {
+@media (max-width: 600px) {
 
   .aic-chain-container {
-    grid-template-columns:1fr;
+    grid-template-columns: 1fr;
   }
 
-  .aic-chain-image-wrap {
-    order:-1;
+  .aic-chain-container .resize-handle {
+    display: none;
+  }
+
+  .aic-chain-image-col {
+    order: -1;
   }
 
   .aic-chain-panel {
-    max-height:none;
+    max-height: none;
+  }
+
+  .aic-chain-detail {
+    max-height: none;
   }
 }
 

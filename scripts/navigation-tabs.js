@@ -1,3 +1,5 @@
+import {loadImageSet} from './anatomize.js';
+
 const TAB_MAP = {
   anatomy: 'tab-anatomy',
   nomenclature: 'tab-nomenclature',
@@ -137,9 +139,8 @@ function applyHash() {
 }
 
 function activateSubview(tab, subtab, subview) {
-  if (tab === 'anatomy' && subtab === 'anatomize' &&
-      window.AnatomizeModule) {
-    window.AnatomizeModule.loadImageSet(subview, true);
+  if (tab === 'anatomy' && subtab === 'anatomize') {
+    loadImageSet(subview, true);
     return;
   }
   const subtabContentId = subtab && SUBTAB_MAP[tab] ?

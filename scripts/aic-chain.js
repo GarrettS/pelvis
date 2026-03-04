@@ -1,8 +1,12 @@
+import {createResizeHandle} from './resize-handle.js';
+
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 let aicChain = [];
 let aicDetail = {};
 let activeId = null;
+let activeRow = null;
+let activeCircles = [];
 let containerEl = null;
 let panelEl = null;
 let overlayEl = null;
@@ -10,7 +14,7 @@ let leaderEl = null;
 let imgEl = null;
 let detailEl = null;
 
-async function init() {
+async function initLAIC() {
   containerEl = document.querySelector('.aic-chain-container');
   if (!containerEl) return;
 
@@ -23,18 +27,27 @@ async function init() {
   overlayEl = containerEl.querySelector('.aic-chain-overlay');
   imgEl = containerEl.querySelector('.aic-chain-img');
   leaderEl = containerEl.parentElement.querySelector('.aic-leader-svg');
-  detailEl = containerEl.parentElement.querySelector('.aic-chain-detail');
-  if (!detailEl) {
-    detailEl = document.createElement('div');
-    detailEl.className = 'aic-chain-detail';
-    containerEl.parentElement.appendChild(detailEl);
-  }
+  detailEl = containerEl.querySelector('.aic-chain-detail');
 
   buildPanel();
   setupOverlay();
   attachListeners();
 
+  const imageCol = containerEl.querySelector('.aic-chain-image-col');
+  createResizeHandle({
+    container: containerEl,
+    insertBefore: imageCol,
+    resizeTarget: panelEl,
+    cssProperty: '--panel-w',
+    minWidth: 100,
+    maxRatio: 0.4,
+    onResize: handleResize
+  });
+
   window.addEventListener('resize', handleResize);
+
+  containerEl.closest('.subtab-content')
+      .addEventListener('subtab-shown', handleResize);
 }
 
 function buildPanel() {
@@ -84,6 +97,7 @@ function setupOverlay() {
       circle.setAttribute('stroke-width', '0.5');
       circle.setAttribute('data-muscle-id', muscle.id);
       circle.setAttribute('data-view', view);
+      circle.setAttribute('display', 'none');
       circle.style.cursor = 'pointer';
       circle.style.pointerEvents = 'all';
       overlayEl.appendChild(circle);
@@ -95,21 +109,13 @@ function attachListeners() {
   panelEl.addEventListener('click', function(e) {
     const row = e.target.closest('.aic-chain-row');
     if (!row) return;
-    e.stopPropagation();
     activateMuscle(row.dataset.muscleId);
   });
 
   overlayEl.addEventListener('click', function(e) {
     const circle = e.target.closest('circle[data-muscle-id]');
     if (!circle) return;
-    e.stopPropagation();
     activateMuscle(circle.dataset.muscleId);
-  });
-
-  containerEl.parentElement.addEventListener('click', function(e) {
-    if (e.target.closest('.aic-chain-row')) return;
-    if (e.target.closest('circle[data-muscle-id]')) return;
-    deactivateAll();
   });
 }
 
@@ -125,26 +131,33 @@ function activateMuscle(id) {
   const entry = aicChain.find(function(m) { return m.id === id; });
   if (!entry) return;
 
-  const row = panelEl.querySelector(
+  activeRow = panelEl.querySelector(
       '.aic-chain-row[data-muscle-id="' + id + '"]');
-  if (row) {
-    row.classList.add('active');
-    row.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+  if (activeRow) {
+    activeRow.classList.add('activeMuscle');
+    activeRow.scrollIntoView({behavior: 'smooth', block: 'nearest'});
   }
 
-  showPulseCircle(entry);
-  drawLeaderLine(row, entry);
+  activeCircles = Array.from(overlayEl.querySelectorAll(
+      'circle[data-muscle-id="' + id + '"]'));
+  activeCircles.forEach(function(c) { c.removeAttribute('display'); });
+
+  drawLeaderLine(activeRow, entry);
   showDetail(entry);
 }
 
 function deactivateAll() {
   activeId = null;
 
-  const rows = panelEl.querySelectorAll('.aic-chain-row');
-  rows.forEach(function(r) { r.classList.remove('active'); });
+  if (activeRow) {
+    activeRow.classList.remove('activeMuscle');
+    activeRow = null;
+  }
+
+  activeCircles.forEach(function(c) { c.setAttribute('display', 'none'); });
+  activeCircles = [];
 
   clearSvg(leaderEl);
-  removePulseCircle();
   if (detailEl) detailEl.textContent = '';
 }
 
@@ -181,26 +194,6 @@ function showDetail(entry) {
   });
 
   detailEl.appendChild(panel);
-}
-
-function showPulseCircle(entry) {
-  removePulseCircle();
-
-  ['anterior', 'posterior'].forEach(function(view) {
-    const coords = entry.anchor[view];
-    const circle = document.createElementNS(SVG_NS, 'circle');
-    circle.setAttribute('cx', String(coords[0]));
-    circle.setAttribute('cy', String(coords[1]));
-    circle.setAttribute('r', '2');
-    circle.setAttribute('class', 'aic-anchor-pulse ' + entry.priColor);
-    circle.style.pointerEvents = 'none';
-    overlayEl.appendChild(circle);
-  });
-}
-
-function removePulseCircle() {
-  const pulses = overlayEl.querySelectorAll('.aic-anchor-pulse');
-  pulses.forEach(function(el) { el.remove(); });
 }
 
 function resolveColor(entry) {
@@ -317,15 +310,13 @@ function clearSvg(svg) {
 }
 
 function handleResize() {
-  if (!activeId) return;
+  if (!activeId || !activeRow) return;
   const entry = aicChain.find(function(m) { return m.id === activeId; });
-  const row = panelEl.querySelector(
-      '.aic-chain-row[data-muscle-id="' + activeId + '"]');
-  if (entry && row) {
-    drawLeaderLine(row, entry);
+  if (entry) {
+    drawLeaderLine(activeRow, entry);
   }
 }
 
-export {init};
+export {initLAIC};
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', initLAIC);
