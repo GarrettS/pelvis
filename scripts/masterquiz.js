@@ -190,7 +190,7 @@ function handleOptionSelect(key) {
   dom.submitBtn.disabled = false;
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   if (submitted || !selectedKey) return;
   submitted = true;
   const q = queue[qIdx];
@@ -213,7 +213,7 @@ function handleSubmit() {
   dom.nextBtn.classList.remove('hidden');
   dom.nextBtn.textContent = qIdx + 1 < queue.length ? 'Next Question \u2192' : 'Finish Session';
 
-  dom.explanation.innerHTML = '<div class="callout">' + expandAbbr(q.explanation) + '</div>';
+  dom.explanation.innerHTML = '<div class="callout">' + await expandAbbr(q.explanation) + '</div>';
   dom.explanation.classList.remove('hidden');
 
   const alreadySaved = isAlreadySaved(q.id);
@@ -390,7 +390,7 @@ function renderResults() {
   dom.retakeMissedBtn.classList.toggle('hidden', incorrect.length === 0);
 }
 
-function renderResultsList(container, answers, showSave) {
+async function renderResultsList(container, answers, showSave) {
   container.innerHTML = '';
   for (let i = 0; i < answers.length; i++) {
     const a = answers[i];
@@ -421,7 +421,7 @@ function renderResultsList(container, answers, showSave) {
       detailHTML += '<div class="' + cls + '">' + opt.key + '. ' + opt.text + '</div>';
     }
     detailHTML += '</div>';
-    detailHTML += '<div class="callout">' + expandAbbr(q.explanation) + '</div>';
+    detailHTML += '<div class="callout">' + await expandAbbr(q.explanation) + '</div>';
 
     if (showSave) {
       const alreadySaved = isAlreadySaved(q.id);

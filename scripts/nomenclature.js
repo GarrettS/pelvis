@@ -1,7 +1,7 @@
-import JOINTS from '../data/pelvic-joints.json' with { type: 'json' };
-import DATA from '../data/study-data.json' with { type: 'json' };
 import { SI_SVG, HIP_SVG } from './study-utils.js';
 
+let JOINTS = [];
+let DATA = {};
 const KEYS = ['joint', 'type', 'motion', 'positions', 'role', 'scope'];
 
 function buildJointsView() {
@@ -89,7 +89,9 @@ function buildTranslationTable() {
   });
 }
 
-export function initNomenclature() {
+export async function initNomenclature() {
+  JOINTS = await fetch('data/pelvic-joints.json').then(r => r.json());
+  DATA = await fetch('data/study-data.json').then(r => r.json());
   buildJointsView();
   buildTranslationTable();
 }

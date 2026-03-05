@@ -612,9 +612,10 @@
 <script type="module" src="scripts/navigation-tabs.js"></script>
 
 <script type="module">
-import REGIONS from './data/regions.json' with { type: 'json' };
 import { getAllEquivalent, getMuscles } from './scripts/study-utils.js';
-function initDecoder() {
+let REGIONS;
+async function initDecoder() {
+    REGIONS = await fetch('./data/regions.json').then(r => r.json());
     let decoderState = { side: 'Left', region: 'ip', dir: 'er' };
 
     function makeControlGroup(containerId, key) {
@@ -790,13 +791,8 @@ document.addEventListener('DOMContentLoaded', () => {
 <script type="module" src="scripts/nomenclature.js"></script>
 
 <script type="module">
-import CHEAT_DATA from './data/cheat-data.json' with { type: 'json' };
-import CAUSAL_MAP from './data/causal-map.json' with { type: 'json' };
-import SYMPTOM_PATTERNS from './data/symptom-patterns.json' with { type: 'json' };
-import HALT_LEVELS from './data/halt-levels.json' with { type: 'json' };
-import SQUAT_LEVELS from './data/squat-levels.json' with { type: 'json' };
-const MAP_NODES = CAUSAL_MAP.nodes;
-const MAP_EDGES = CAUSAL_MAP.edges;
+let CHEAT_DATA, CAUSAL_MAP, SYMPTOM_PATTERNS, HALT_LEVELS, SQUAT_LEVELS;
+let MAP_NODES, MAP_EDGES;
 
 let symptomIdx = 0;
 let symptomScore = { correct: 0, total: 0 };
@@ -808,7 +804,14 @@ let squatIdx = 0;
 let squatAnswered = false;
 let squatScore = { correct: 0, total: 0 };
 
-function initPatterns() {
+async function initPatterns() {
+  CHEAT_DATA = await fetch('./data/cheat-data.json').then(r => r.json());
+  CAUSAL_MAP = await fetch('./data/causal-map.json').then(r => r.json());
+  SYMPTOM_PATTERNS = await fetch('./data/symptom-patterns.json').then(r => r.json());
+  HALT_LEVELS = await fetch('./data/halt-levels.json').then(r => r.json());
+  SQUAT_LEVELS = await fetch('./data/squat-levels.json').then(r => r.json());
+  MAP_NODES = CAUSAL_MAP.nodes;
+  MAP_EDGES = CAUSAL_MAP.edges;
   buildCheatSheet();
   buildConceptMap();
   initSymptomQuiz();

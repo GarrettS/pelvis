@@ -1,5 +1,6 @@
-import FLASHCARD_DECK from '../data/flashcard-deck.json' with { type: 'json' };
 import { expandAbbr, shuffle } from './study-utils.js';
+
+let FLASHCARD_DECK = [];
 
 function getUserCards() {
   try {
@@ -69,7 +70,7 @@ function buildCardDOM(card) {
 
     const detailEl = document.createElement('div');
     detailEl.className = 'fc-detail hidden';
-    detailEl.innerHTML = expandAbbr(card.backDetail);
+    expandAbbr(card.backDetail).then(html => { detailEl.innerHTML = html; });
     backArea.appendChild(detailEl);
 
     showMoreBtn.addEventListener('click', () => {
@@ -152,7 +153,8 @@ function renderCard() {
   wrap.appendChild(cardDiv);
 }
 
-export function initFlashcards() {
+export async function initFlashcards() {
+  FLASHCARD_DECK = await fetch('data/flashcard-deck.json').then(r => r.json());
   const userCards = getUserCards().map(c => ({
     ...c,
     category: c.category || 'user_created',

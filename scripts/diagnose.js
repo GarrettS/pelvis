@@ -1,4 +1,4 @@
-import DATA from '../data/study-data.json' with { type: 'json' };
+let DATA = {};
 let gameState = {
   scenarioIdx: 0,
   round: 1,
@@ -8,7 +8,8 @@ let gameState = {
 };
 let caseState = { active: 0, visitIdx: [0, 0] };
 
-export function initDiagnose() {
+export async function initDiagnose() {
+  DATA = await fetch('data/study-data.json').then(r => r.json());
   buildGame();
   buildCaseStudies();
   buildCausalChains();

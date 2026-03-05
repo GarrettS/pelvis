@@ -3,16 +3,22 @@
  * @module study-utils
  */
 
-import ABBREVIATIONS from '../data/abbreviations.json' with { type: 'json' };
+let abbrMap = null;
+let abbrRe = null;
 
-const abbrMap = new Map(ABBREVIATIONS);
-const abbrKeys = [...abbrMap.keys()].sort((a, b) => b.length - a.length);
-const abbrRe = new RegExp(
-  abbrKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
-  'g'
-);
+async function loadAbbreviations() {
+  if (abbrMap) return;
+  const data = await fetch('data/abbreviations.json').then(r => r.json());
+  abbrMap = new Map(data);
+  const abbrKeys = [...abbrMap.keys()].sort((a, b) => b.length - a.length);
+  abbrRe = new RegExp(
+    abbrKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
+    'g'
+  );
+}
 
-export function expandAbbr(text) {
+export async function expandAbbr(text) {
+  await loadAbbreviations();
   return text.replace(abbrRe, match => {
     const expansion = abbrMap.get(match);
     return expansion ? '<abbr title="' + expansion + '">' + match + '</abbr>' : match;
