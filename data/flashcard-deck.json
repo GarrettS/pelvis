@@ -204,7 +204,7 @@
     "front": "What does IS IR describe?",
     "frontHint": "IS names the posterior inlet bones. This describes what the sacrum does relative to the ilium.",
     "back": "Ilio-Sacral Internal Rotation — sacral nutation. The sacral base tips anterior relative to the ilium on that side.",
-    "backDetail": "IS = ilium-to-sacrum (posterior inlet). IR = the sacrum internally rotates on the ilium — sacral base tips forward, coccyx tips backward. This is nutation. Compresses the SI joint on that side. Occurs on the same side as IP ER (inlet opens). In L AIC, the left sacral base is nutated (L IS IR). Standard anatomy calls this sacral nutation, not 'internal rotation'."
+    "backDetail": "IS names the ilium as the treatment target (inlet perspective). The physical motion is sacral nutation — sacral base tips anterior relative to the ilium. Unlike AF/FA where the first letter names the moving bone, IS/SI names the bone PRI intends to reposition: IS IR = reposition the ilium at the inlet; SI IR = reposition the sacrum at the outlet. Same nutation, different clinical question."
   },
   {
     "id": "init-004",
@@ -213,7 +213,7 @@
     "front": "What does SI IR describe?",
     "frontHint": "SI names the posterior outlet bones. Same joint as IS, but reversed — different treatment target.",
     "back": "Sacro-Iliac Internal Rotation — the sacrum internally rotates on the ilium, viewed from the outlet perspective. Same motion as IS IR but names the sacrum as the moving bone.",
-    "backDetail": "PRI reverses the joint name to indicate treatment target. IS IR = target the ilium (inlet). SI IR = target the sacrum (outlet). Same physical motion — sacral nutation — but different clinical question: move the ilium on the sacrum, or the sacrum on the ilium? This naming convention is PRI-specific and does not exist in standard anatomy."
+    "backDetail": "SI names the sacrum as the treatment target (outlet perspective). Same nutation as IS IR, but the clinical question flips: instead of moving the ilium on the sacrum (inlet work), you're targeting the sacrum directly (outlet work). The naming reversal encodes that distinction — not a different motion, a different treatment approach."
   },
   {
     "id": "init-005",
@@ -222,7 +222,7 @@
     "front": "What does AF IR describe?",
     "frontHint": "AF names the acetabulum as the moving bone on a fixed femur. Think closed chain.",
     "back": "Acetabulo-Femoral Internal Rotation — the pelvis (acetabulum) internally rotates on a fixed femur. The pelvis tilts posteriorly relative to the planted leg.",
-    "backDetail": "AF describes the pelvis moving on the femur (closed chain). AF IR = posterior pelvic tilt relative to the femoral head = the corrected/restored position in L AIC. Contrast with FA IR, which describes the femur moving on the pelvis (open chain). PRI uses AF when the pelvis is the treatment target, FA when the femur is. Standard anatomy just calls both 'hip internal rotation.'"
+    "backDetail": "Acetabulo-Femoral Internal Rotation — the pelvis tilts posteriorly on a fixed foot (closed chain). In L AIC, the left pelvis is stuck in AF ER; AF IR is the corrective direction. Standard anatomy describes the joint angle; PRI's naming attempts to encode which segment moved — pelvis or femur (both typically move together)."
   },
   {
     "id": "init-006",
@@ -231,7 +231,7 @@
     "front": "What is the difference between AF and FA?",
     "frontHint": "Same joint. The first letter tells you which bone PRI considers the moving bone.",
     "back": "AF (Acetabulo-Femoral) = pelvis moves on a fixed femur (closed chain, stance leg). FA (Femoro-Acetabular) = femur moves on a fixed pelvis (open chain, swing leg).",
-    "backDetail": "Standard anatomy calls both 'hip joint motion.' PRI splits the name to encode which bone is displaced and which is the treatment target. AF IR = posterior pelvic tilt on a planted leg. FA IR = femur internally rotating in the socket. Clinically: AF exercises reposition the pelvis; FA exercises address femoral mobility. The distinction matters for exercise selection."
+    "backDetail": "Standard anatomy calls both 'hip internal rotation.' PRI splits the name to encode which bone is displaced and which is the treatment target. AF IR = posterior pelvic tilt on a planted leg. FA IR = femur internally rotating in the socket. Clinically: AF exercises reposition the pelvis; FA exercises address femoral mobility. The distinction matters for exercise selection."
   },
   {
     "id": "init-007",
