@@ -1,0 +1,555 @@
+import DATA from '../data/study-data.json' with { type: 'json' };
+let gameState = {
+  scenarioIdx: 0,
+  round: 1,
+  round2Step: 0,
+  score: { correct: 0, total: 0 },
+  isAnswered: false
+};
+let caseState = { active: 0, visitIdx: [0, 0] };
+
+export function initDiagnose() {
+  buildGame();
+  buildCaseStudies();
+  buildCausalChains();
+  buildDecisionTree();
+  buildMuscleMap();
+}
+
+function buildGame() {
+  const wrap = document.getElementById('game-wrap');
+  gameState = { scenarioIdx: 0, round: 1, round2Step: 0, score: { correct: 0, total: 0 }, isAnswered: false };
+  renderScenario(wrap);
+}
+
+function renderScenario(wrap) {
+  const s = DATA.game.scenarios[gameState.scenarioIdx];
+  wrap.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'scenario-header';
+  header.textContent = `Scenario ${gameState.scenarioIdx + 1} of ${DATA.game.scenarios.length} — Round ${gameState.round}`;
+
+  const scoreEl = document.createElement('div');
+  scoreEl.className = 'score-display';
+  scoreEl.textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+
+  wrap.appendChild(header);
+  wrap.appendChild(scoreEl);
+
+  if (gameState.round === 1) {
+    renderRound1(wrap, s);
+  } else {
+    renderRound2(wrap, s);
+  }
+}
+
+function renderRound1(wrap, s) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  // Test profile
+  let profileHTML = '<div class="card-label">Test Profile</div><div class="test-profile">';
+  Object.entries(s.testProfile).forEach(([test, val]) => {
+    const isPos = String(val).startsWith('+');
+    const isNeg = String(val).startsWith('−') || String(val).startsWith('-');
+    profileHTML += `<div class="test-item">
+      <div class="test-item-name">${test}</div>
+      <div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${val}</div>
+    </div>`;
+  });
+  profileHTML += '</div>';
+  card.innerHTML = profileHTML;
+
+  // Answer options
+  const patterns = ['Left AIC', 'Bilateral PEC', 'Bilateral Patho PEC'];
+  const optWrap = document.createElement('div');
+  optWrap.className = 'answer-opts';
+  patterns.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = p;
+    btn.addEventListener('click', () => {
+      if (gameState.isAnswered) return;
+      gameState.isAnswered = true;
+      gameState.score.total++;
+      const isCorrect = p === s.correctPattern;
+      if (isCorrect) gameState.score.correct++;
+      optWrap.querySelectorAll('.answer-btn').forEach(b => {
+        if (b.textContent === s.correctPattern) b.classList.add('correct');
+        else if (b === btn && !isCorrect) b.classList.add('incorrect');
+        b.disabled = true;
+      });
+      // Show feedback
+      const fb = document.createElement('div');
+      fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
+      fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${s.explanation}`;
+      card.appendChild(fb);
+      // Score update
+      wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+      // Next/Round2 button
+      const btnRow = document.createElement('div');
+      btnRow.className = 'btn-row';
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn primary';
+      nextBtn.textContent = 'Continue to Round 2 →';
+      nextBtn.addEventListener('click', () => {
+        gameState.round = 2;
+        gameState.round2Step = 0;
+        gameState.isAnswered = false;
+        renderScenario(wrap);
+      });
+      btnRow.appendChild(nextBtn);
+      card.appendChild(btnRow);
+    });
+    optWrap.appendChild(btn);
+  });
+  card.appendChild(optWrap);
+  wrap.appendChild(card);
+}
+
+function renderRound2(wrap, s) {
+  const r2 = s.round2;
+  const steps = ['repositioning', 'postReposition', 'facilitation'];
+  const stepLabels = ['Repositioning', 'Post-Repositioning Program', 'Facilitation'];
+  const step = steps[gameState.round2Step];
+  const q = r2[step];
+  if (!q) { advanceScenario(wrap); return; }
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const stepLabel = document.createElement('div');
+  stepLabel.className = 'card-label';
+  stepLabel.textContent = `Round 2 — Step ${gameState.round2Step + 1}/3: ${stepLabels[gameState.round2Step]}`;
+  card.appendChild(stepLabel);
+
+  const qText = document.createElement('p');
+  qText.style.fontWeight = '600';
+  qText.style.marginBottom = '.75rem';
+  qText.textContent = q.question;
+  card.appendChild(qText);
+
+  const isMultiSelect = Array.isArray(q.correct);
+  const optWrap = document.createElement('div');
+  optWrap.className = 'answer-opts';
+  const selectedOpts = new Set();
+
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = opt;
+    if (isMultiSelect) {
+      btn.addEventListener('click', () => {
+        if (gameState.isAnswered) return;
+        if (selectedOpts.has(opt)) {
+          selectedOpts.delete(opt);
+          btn.classList.remove('selected-correct');
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        } else {
+          selectedOpts.add(opt);
+          btn.style.borderColor = 'var(--accent)';
+          btn.style.color = 'var(--accent)';
+        }
+      });
+    } else {
+      btn.addEventListener('click', () => {
+        if (gameState.isAnswered) return;
+        gameState.isAnswered = true;
+        gameState.score.total++;
+        const isCorrect = opt === q.correct;
+        if (isCorrect) gameState.score.correct++;
+        optWrap.querySelectorAll('.answer-btn').forEach(b => {
+          if (b.textContent === q.correct) b.classList.add('correct');
+          else if (b === btn && !isCorrect) b.classList.add('incorrect');
+          b.disabled = true;
+        });
+        showR2Feedback(card, wrap, isCorrect, q.explanation);
+      });
+    }
+    optWrap.appendChild(btn);
+  });
+  card.appendChild(optWrap);
+
+  if (isMultiSelect) {
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'btn primary';
+    submitBtn.textContent = 'Check Answer';
+    submitBtn.style.marginTop = '.5rem';
+    submitBtn.addEventListener('click', () => {
+      if (gameState.isAnswered) return;
+      gameState.isAnswered = true;
+      gameState.score.total++;
+      const correctSet = new Set(q.correct);
+      const isCorrect = selectedOpts.size === correctSet.size &&
+        [...selectedOpts].every(o => correctSet.has(o));
+      if (isCorrect) gameState.score.correct++;
+      optWrap.querySelectorAll('.answer-btn').forEach(b => {
+        if (correctSet.has(b.textContent)) b.classList.add('correct');
+        else if (selectedOpts.has(b.textContent)) b.classList.add('incorrect');
+        b.disabled = true;
+      });
+      showR2Feedback(card, wrap, isCorrect, q.explanation);
+    });
+    card.appendChild(submitBtn);
+  }
+
+  wrap.appendChild(card);
+  // Update score display
+  const scoreEl = wrap.querySelector('.score-display');
+  if (scoreEl) scoreEl.textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+}
+
+function showR2Feedback(card, wrap, isCorrect, explanation) {
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
+  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${explanation}`;
+  card.appendChild(fb);
+  if (wrap.querySelector('.score-display')) {
+    wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+  }
+  const btnRow = document.createElement('div');
+  btnRow.className = 'btn-row';
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn primary';
+  const hasMoreSteps = gameState.round2Step < 2;
+  const hasMoreScenarios = gameState.scenarioIdx < DATA.game.scenarios.length - 1;
+  nextBtn.textContent = hasMoreSteps ? 'Next Step →' : (hasMoreScenarios ? 'Next Scenario →' : 'Finish');
+  nextBtn.addEventListener('click', () => {
+    gameState.isAnswered = false;
+    if (hasMoreSteps) {
+      gameState.round2Step++;
+      renderScenario(wrap);
+    } else if (hasMoreScenarios) {
+      gameState.scenarioIdx++;
+      gameState.round = 1;
+      gameState.round2Step = 0;
+      renderScenario(wrap);
+    } else {
+      advanceScenario(wrap);
+    }
+  });
+  btnRow.appendChild(nextBtn);
+  card.appendChild(btnRow);
+}
+
+function advanceScenario(wrap) {
+  wrap.innerHTML = `<div class="callout">
+    <strong>Game complete.</strong> Final score: ${gameState.score.correct} / ${gameState.score.total}.
+    <div class="btn-row" style="margin-top:1rem;"><button class="btn primary" id="game-restart">Restart</button></div>
+  </div>`;
+  document.getElementById('game-restart').addEventListener('click', () => buildGame());
+}
+
+function buildCaseStudies() {
+  const wrap = document.getElementById('case-study-wrap');
+  wrap.innerHTML = '';
+  DATA.caseStudies.forEach((cs, ci) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3 style="font-family:var(--mono);font-size:var(--text-sm);color:var(--accent);margin-bottom:1rem;">${cs.title}</h3>`;
+    const inner = document.createElement('div');
+    inner.id = `cs-${ci}`;
+    div.appendChild(inner);
+    wrap.appendChild(div);
+    renderCaseVisit(ci, 0, inner);
+  });
+}
+
+function renderCaseVisit(ci, vi, container) {
+  const cs = DATA.caseStudies[ci];
+  if (vi >= cs.visits.length) {
+    container.innerHTML = `<div class="callout"><strong>Case complete.</strong><div class="btn-row" style="margin-top:.75rem;"><button class="btn" id="cs-restart-${ci}">Restart Case</button></div></div>`;
+    document.getElementById(`cs-restart-${ci}`).addEventListener('click', () => renderCaseVisit(ci, 0, container));
+    return;
+  }
+  const visit = cs.visits[vi];
+  let html = `<div class="visit-badge">Visit ${visit.visit}</div>`;
+  // Test results
+  if (visit.testResults) {
+    html += `<div class="test-profile" style="margin-bottom:.75rem;">`;
+    Object.entries(visit.testResults).forEach(([k, v]) => {
+      const isPos = String(v).startsWith('+');
+      const isNeg = String(v).startsWith('−') || String(v).startsWith('-');
+      html += `<div class="test-item"><div class="test-item-name">${k}</div><div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${v}</div></div>`;
+    });
+    html += `</div>`;
+  }
+  html += `<p style="font-weight:600;font-size:var(--text-sm);margin-bottom:.75rem;">${visit.question}</p>`;
+  container.innerHTML = html;
+
+  const opts = visit.options || [];
+  const optWrap = document.createElement('div');
+  optWrap.className = 'answer-opts';
+  let answered = false;
+
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+      const isCorrect = opt === visit.correct;
+      optWrap.querySelectorAll('.answer-btn').forEach(b => {
+        if (b.textContent === visit.correct) b.classList.add('correct');
+        else if (b === btn && !isCorrect) b.classList.add('incorrect');
+        b.disabled = true;
+      });
+      const fb = document.createElement('div');
+      fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
+      fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${visit.explanation}`;
+      container.appendChild(fb);
+
+      // Handle treatment sub-question
+      if (visit.treatmentQuestion && isCorrect) {
+        const tq = document.createElement('div');
+        tq.style.marginTop = '.75rem';
+        tq.innerHTML = `<p style="font-weight:600;font-size:var(--text-sm);">${visit.treatmentQuestion}</p>`;
+        const topts = visit.treatmentOptions || [];
+        const tOptWrap = document.createElement('div');
+        tOptWrap.className = 'answer-opts';
+        const selectedT = new Set();
+        let tAnswered = false;
+        topts.forEach(topt => {
+          const tb = document.createElement('button');
+          tb.className = 'answer-btn';
+          tb.textContent = topt;
+          tb.addEventListener('click', () => {
+            if (tAnswered) return;
+            if (selectedT.has(topt)) { selectedT.delete(topt); tb.style.borderColor = ''; tb.style.color = ''; }
+            else { selectedT.add(topt); tb.style.borderColor = 'var(--accent)'; tb.style.color = 'var(--accent)'; }
+          });
+          tOptWrap.appendChild(tb);
+        });
+        tq.appendChild(tOptWrap);
+        const tSubmit = document.createElement('button');
+        tSubmit.className = 'btn primary';
+        tSubmit.textContent = 'Check';
+        tSubmit.style.marginTop = '.5rem';
+        tSubmit.addEventListener('click', () => {
+          if (tAnswered) return;
+          tAnswered = true;
+          const correctSet = new Set(visit.correctTreatment || []);
+          const isT = selectedT.size === correctSet.size && [...selectedT].every(o => correctSet.has(o));
+          tOptWrap.querySelectorAll('.answer-btn').forEach(b => {
+            if (correctSet.has(b.textContent)) b.classList.add('correct');
+            else if (selectedT.has(b.textContent)) b.classList.add('incorrect');
+            b.disabled = true;
+          });
+          const tfb = document.createElement('div');
+          tfb.className = 'feedback-box' + (isT ? '' : ' error');
+          tfb.innerHTML = `<strong>${isT ? 'Correct.' : 'Incorrect.'}</strong> ${visit.treatmentExplanation || ''}`;
+          tq.appendChild(tfb);
+          addNextVisitBtn(tq, ci, vi, container);
+        });
+        tq.appendChild(tSubmit);
+        container.appendChild(tq);
+      } else {
+        addNextVisitBtn(container, ci, vi, container);
+      }
+    });
+    optWrap.appendChild(btn);
+  });
+  container.appendChild(optWrap);
+}
+
+function addNextVisitBtn(parent, ci, vi, container) {
+  const cs = DATA.caseStudies[ci];
+  const btnRow = document.createElement('div');
+  btnRow.className = 'btn-row';
+  const nv = document.createElement('button');
+  nv.className = 'btn primary';
+  nv.textContent = vi + 1 < cs.visits.length ? `Next Visit (Visit ${vi + 2}) →` : 'Case Complete';
+  nv.addEventListener('click', () => renderCaseVisit(ci, vi + 1, container));
+  btnRow.appendChild(nv);
+  parent.appendChild(btnRow);
+}
+
+function buildCausalChains() {
+  const wrap = document.getElementById('chains-wrap');
+  wrap.innerHTML = '';
+  DATA.causalChains.forEach((chain, ci) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3 style="font-family:var(--mono);font-size:var(--text-sm);color:var(--accent);margin-bottom:.25rem;">${chain.title}</h3>
+      <div style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.75rem;">${chain.start} → ${chain.end}</div>`;
+
+    // Build shuffled list
+    const steps = [...chain.steps];
+    const shuffled = [...steps].sort(() => Math.random() - 0.5);
+    let order = [...shuffled];
+
+    const ul = document.createElement('ul');
+    ul.className = 'chain-list';
+    ul.id = `chain-${ci}`;
+
+    function buildList() {
+      ul.innerHTML = '';
+      order.forEach((step, i) => {
+        const li = document.createElement('li');
+        li.className = 'chain-item';
+        li.setAttribute('draggable', 'true');
+        li.dataset.step = step;
+        li.innerHTML = `<span class="chain-step-num">${i + 1}.</span><span>${step}</span>`;
+        // Drag events
+        li.addEventListener('dragstart', () => li.classList.add('dragging'));
+        li.addEventListener('dragend', () => li.classList.remove('dragging'));
+        ul.appendChild(li);
+      });
+
+      // Drop zone
+      ul.addEventListener('dragover', e => {
+        e.preventDefault();
+        const dragging = ul.querySelector('.dragging');
+        const siblings = [...ul.querySelectorAll('.chain-item:not(.dragging)')];
+        const after = siblings.find(s => {
+          const box = s.getBoundingClientRect();
+          return e.clientY <= box.top + box.height / 2;
+        });
+        if (after) ul.insertBefore(dragging, after);
+        else ul.appendChild(dragging);
+        // Update order
+        order = [...ul.querySelectorAll('.chain-item')].map(li => li.dataset.step);
+      });
+    }
+    buildList();
+
+    div.appendChild(ul);
+
+    const btnRow = document.createElement('div');
+    btnRow.className = 'btn-row';
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'btn primary';
+    checkBtn.textContent = 'Check Order';
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'btn';
+    resetBtn.textContent = 'Reset';
+    const feedbackEl = document.createElement('div');
+    feedbackEl.style.marginTop = '.5rem';
+
+    checkBtn.addEventListener('click', () => {
+      const currentOrder = [...ul.querySelectorAll('.chain-item')].map(li => li.dataset.step);
+      let allCorrect = true;
+      ul.querySelectorAll('.chain-item').forEach((li, i) => {
+        const isCorrect = li.dataset.step === steps[i];
+        li.classList.toggle('correct', isCorrect);
+        li.classList.toggle('incorrect', !isCorrect);
+        if (!isCorrect) allCorrect = false;
+      });
+      feedbackEl.innerHTML = allCorrect
+        ? `<div class="feedback-box">Correct order.</div>`
+        : `<div class="feedback-box error">Not quite. Correct order: <ol style="margin-left:1.25rem;list-style:decimal;font-size:var(--text-xs);margin-top:.35rem;">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>`;
+      btnRow.appendChild(feedbackEl);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      order = [...steps].sort(() => Math.random() - 0.5);
+      buildList();
+      feedbackEl.innerHTML = '';
+      ul.querySelectorAll('.chain-item').forEach(li => li.classList.remove('correct','incorrect'));
+    });
+
+    btnRow.appendChild(checkBtn);
+    btnRow.appendChild(resetBtn);
+    div.appendChild(btnRow);
+    div.appendChild(feedbackEl);
+    wrap.appendChild(div);
+  });
+}
+
+function buildDecisionTree() {
+  const wrap = document.getElementById('tree-wrap');
+  wrap.innerHTML = '';
+  renderTreeNode(DATA.decisionTree, wrap, 0);
+}
+
+function renderTreeNode(node, parent, depth) {
+  if (!node) return;
+  if (node.terminal) {
+    const el = document.createElement('div');
+    el.className = 'tree-terminal';
+    let content = node.content || '';
+    // Append out-of-scope note for references to Myokinematic Restoration
+    if (content.includes('Myokinematic Restoration')) {
+      content = content.replace('Myokinematic Restoration & Postural Respiration', 'Myokinematic Restoration & Postural Respiration (out of scope for this course)');
+      content = content.replace('Myokinematic Restoration.', 'Myokinematic Restoration (out of scope for this course).');
+      content = content.replace('Myokinematic Restoration\u2014', 'Myokinematic Restoration (out of scope for this course) —');
+      content = content.replace('Myokinematic Restoration —', 'Myokinematic Restoration (out of scope for this course) —');
+    }
+    el.textContent = content;
+    parent.appendChild(el);
+    return;
+  }
+  const qEl = document.createElement('div');
+  qEl.className = 'tree-question';
+  qEl.textContent = node.question || node.id;
+  parent.appendChild(qEl);
+
+  if (node.branches) {
+    node.branches.forEach(branch => {
+      const branchWrap = document.createElement('div');
+      branchWrap.className = 'tree-branch';
+      const toggle = document.createElement('button');
+      toggle.className = 'tree-answer-toggle';
+      toggle.textContent = '▶ ' + branch.answer;
+      const children = document.createElement('div');
+      children.className = 'tree-children';
+      toggle.addEventListener('click', () => {
+        const isOpen = children.classList.contains('open');
+        children.classList.toggle('open', !isOpen);
+        toggle.classList.toggle('open', !isOpen);
+        toggle.textContent = (isOpen ? '▶ ' : '▼ ') + branch.answer;
+      });
+      branchWrap.appendChild(toggle);
+      renderTreeNode(branch.next, children, depth + 1);
+      branchWrap.appendChild(children);
+      parent.appendChild(branchWrap);
+    });
+  }
+}
+
+function buildMuscleMap() {
+  const tabs = document.querySelectorAll('#muscle-view-tabs .subview-tab');
+  let currentMView = 'byMuscle';
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentMView = tab.dataset.mview;
+      renderMuscleView(currentMView, '');
+    });
+  });
+  const search = document.getElementById('muscle-search');
+  search.addEventListener('input', () => renderMuscleView(currentMView, search.value.toLowerCase()));
+  search.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+  renderMuscleView('byMuscle', '');
+}
+
+function renderMuscleView(view, query) {
+  const wrap = document.getElementById('muscle-map-wrap');
+  const entries = DATA.muscleExerciseMap[view] || [];
+  wrap.innerHTML = '';
+  entries.forEach(entry => {
+    const nameKey = entry.muscle || entry.finding || '';
+    if (query && !JSON.stringify(entry).toLowerCase().includes(query)) return;
+    const div = document.createElement('div');
+    div.className = 'muscle-entry';
+    const exercises = (entry.exercises || []).map(e => `<span class="exercise-tag">${e}</span>`).join('');
+    div.innerHTML = `
+      <div class="muscle-name">${nameKey}</div>
+      <div class="muscle-meta">${entry.action || entry.meaning || ''}</div>
+      ${entry.pattern ? `<div class="muscle-meta">Pattern: ${entry.pattern}</div>` : ''}
+      ${entry.hierarchyStep ? `<div class="muscle-meta">Hierarchy: ${entry.hierarchyStep}</div>` : ''}
+      ${entry.muscles ? `<div class="muscle-meta">Muscles: ${entry.muscles}</div>` : ''}
+      <div style="margin-top:.35rem;">${exercises}</div>
+    `;
+    wrap.appendChild(div);
+  });
+  if (!wrap.children.length) wrap.innerHTML = '<div class="text-dim" style="font-size:var(--text-sm);">No entries match.</div>';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initDiagnose();
+});
