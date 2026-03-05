@@ -36,32 +36,32 @@ Insert a new `<section>` as the **first** child of `<main>`, before `<section id
 
     <div class="home-nav-grid">
       <a href="#anatomy/anatomize" class="home-nav-card">
-        <span class="home-nav-title">Anatomy</span>
-        <span class="home-nav-desc">Anatomize This identification game, pelvis decoder, L AIC chain diagram.</span>
+        <span>Anatomy</span>
+        <span>Anatomize This identification game, pelvis decoder, L AIC chain diagram.</span>
       </a>
       <a href="#nomenclature/joints" class="home-nav-card">
-        <span class="home-nav-title">Nomenclature</span>
-        <span class="home-nav-desc">Pelvic joints, PRI-to-standard translation table.</span>
+        <span>Nomenclature</span>
+        <span>Pelvic joints, PRI-to-standard translation table.</span>
       </a>
       <a href="#patterns/cheatsheet" class="home-nav-card">
-        <span class="home-nav-title">Patterns</span>
-        <span class="home-nav-desc">L AIC, B PEC, Patho PEC comparison. Test profiles. Concept map.</span>
+        <span>Patterns</span>
+        <span>L AIC, B PEC, Patho PEC comparison. Test profiles. Concept map.</span>
       </a>
       <a href="#diagnose/tree" class="home-nav-card">
-        <span class="home-nav-title">Diagnose This</span>
-        <span class="home-nav-desc">Decision tree, causal chains, case studies, exercise map.</span>
+        <span>Diagnose This</span>
+        <span>Decision tree, causal chains, case studies, exercise map.</span>
       </a>
       <a href="#flashcards" class="home-nav-card">
-        <span class="home-nav-title">Flashcards</span>
-        <span class="home-nav-desc">Pre-loaded deck. Tests, concepts, initialisms, muscles, treatment.</span>
+        <span>Flashcards</span>
+        <span>Pre-loaded deck. Tests, concepts, initialisms, muscles, treatment.</span>
       </a>
       <a href="#equivalence" class="home-nav-card">
-        <span class="home-nav-title">Equivalence</span>
-        <span class="home-nav-desc">Interactive quiz mapping inlet, outlet, and femoral positions.</span>
+        <span>Equivalence</span>
+        <span>Interactive quiz mapping inlet, outlet, and femoral positions.</span>
       </a>
       <a href="#masterquiz" class="home-nav-card">
-        <span class="home-nav-title">Master Quiz</span>
-        <span class="home-nav-desc">175 questions across all domains. Missed-question prioritization.</span>
+        <span>Master Quiz</span>
+        <span>175 questions across all domains. Missed-question prioritization.</span>
       </a>
     </div>
 
@@ -108,14 +108,14 @@ Add to the existing stylesheet (inside `components.css` or inline `<style>`, whi
   background: var(--surface2);
 }
 
-.home-nav-title {
+.home-nav-card > span:first-child {
   font-family: var(--mono);
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--accent);
 }
 
-.home-nav-desc {
+.home-nav-card > span:last-child {
   font-size: var(--text-xs);
   color: var(--text-dim);
   line-height: 1.4;

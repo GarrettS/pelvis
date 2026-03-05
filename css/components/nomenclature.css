@@ -27,6 +27,34 @@
   font-family:var(--mono);
 }
 
+.col-joint { width: 14%; }
+.col-type { width: 12%; }
+.col-motion { width: 14%; }
+.col-positions { width: 16%; }
+.col-role { width: 28%; }
+.col-scope { width: 16%; }
+
+.translation-detail {
+  font-size: var(--text-xs);
+}
+
+.joint-schematic-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.joint-schematic-row > div {
+  text-align: center;
+}
+
+.joint-schematic-caption {
+  font-size: var(--text-sm);
+  margin-top: .25rem;
+}
+
 .decoder-table {
   font-size:var(--text-sm);
   width:100%;

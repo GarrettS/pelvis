@@ -158,7 +158,6 @@ function renderQuestion() {
   for (const opt of q.options) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = 'mq-option-btn';
     btn.dataset.key = opt.key;
     btn.textContent = opt.key + '. ' + opt.text;
     dom.options.appendChild(btn);
@@ -184,7 +183,7 @@ function renderQuestion() {
 function handleOptionSelect(key) {
   if (submitted) return;
   selectedKey = key;
-  const btns = dom.options.querySelectorAll('.mq-option-btn');
+  const btns = dom.options.querySelectorAll('button');
   for (const btn of btns) {
     btn.classList.toggle('selected', btn.dataset.key === key);
   }
@@ -200,7 +199,7 @@ function handleSubmit() {
   sessionAnswers.push({ question: q, chosen: selectedKey, correct });
   updateProgress(q.id, correct);
 
-  const btns = dom.options.querySelectorAll('.mq-option-btn');
+  const btns = dom.options.querySelectorAll('button');
   for (const btn of btns) {
     btn.classList.add('locked');
     if (btn.dataset.key === q.answer) {
@@ -524,7 +523,7 @@ export function initMasterQuiz() {
     });
 
   tab.addEventListener('click', (e) => {
-    const optBtn = e.target.closest('.mq-option-btn');
+    const optBtn = e.target.closest('.mq-options button');
     if (optBtn) {
       handleOptionSelect(optBtn.dataset.key);
       return;
@@ -587,7 +586,7 @@ export function initMasterQuiz() {
   });
 
   tab.addEventListener('change', (e) => {
-    if (e.target.closest('.mq-domain-toggle input')) {
+    if (e.target.closest('.mq-domain-filters input')) {
       syncStartButton();
       renderStats();
     }

@@ -66,32 +66,32 @@
 
     <div class="home-nav-grid">
       <a href="#anatomy/anatomize" class="home-nav-card">
-        <span class="home-nav-title">Anatomy</span>
-        <span class="home-nav-desc">Anatomize This identification game, pelvis decoder, L AIC chain diagram.</span>
+        <span>Anatomy</span>
+        <span>Anatomize This identification game, pelvis decoder, L AIC chain diagram.</span>
       </a>
       <a href="#nomenclature/joints" class="home-nav-card">
-        <span class="home-nav-title">Nomenclature</span>
-        <span class="home-nav-desc">Pelvic joints, PRI-to-standard translation table.</span>
+        <span>Nomenclature</span>
+        <span>Pelvic joints, PRI-to-standard translation table.</span>
       </a>
       <a href="#patterns/cheatsheet" class="home-nav-card">
-        <span class="home-nav-title">Patterns</span>
-        <span class="home-nav-desc">L AIC, B PEC, Patho PEC comparison. Test profiles. Concept map.</span>
+        <span>Patterns</span>
+        <span>L AIC, B PEC, Patho PEC comparison. Test profiles. Concept map.</span>
       </a>
       <a href="#diagnose/tree" class="home-nav-card">
-        <span class="home-nav-title">Diagnose This</span>
-        <span class="home-nav-desc">Decision tree, causal chains, case studies, exercise map.</span>
+        <span>Diagnose This</span>
+        <span>Decision tree, causal chains, case studies, exercise map.</span>
       </a>
       <a href="#flashcards" class="home-nav-card">
-        <span class="home-nav-title">Flashcards</span>
-        <span class="home-nav-desc">Pre-loaded deck. Tests, concepts, initialisms, muscles, treatment.</span>
+        <span>Flashcards</span>
+        <span>Pre-loaded deck. Tests, concepts, initialisms, muscles, treatment.</span>
       </a>
       <a href="#equivalence" class="home-nav-card">
-        <span class="home-nav-title">Equivalence</span>
-        <span class="home-nav-desc">Interactive quiz mapping inlet, outlet, and femoral positions.</span>
+        <span>Equivalence</span>
+        <span>Interactive quiz mapping inlet, outlet, and femoral positions.</span>
       </a>
       <a href="#masterquiz" class="home-nav-card">
-        <span class="home-nav-title">Master Quiz</span>
-        <span class="home-nav-desc">175 questions across all domains. Missed-question prioritization.</span>
+        <span>Master Quiz</span>
+        <span>175 questions across all domains. Missed-question prioritization.</span>
       </a>
     </div>
 
@@ -187,7 +187,34 @@
 
 <section id="tab-nomenclature" class="tab">
   <div class="subtab-content active" id="nom-joints" role="tabpanel" aria-labelledby="nom-joints">
-    <div class="tab-section" id="joints-view"></div>
+    <div class="tab-section" id="joints-view">
+      <h2 class="section-title">Pelvic Joints</h2>
+      <p>The pelvis contains five joints. PRI's position-naming system references three of them — the sacroiliac joint, the pubic symphysis, and the hip joint. The other two (lumbosacral and sacrococcygeal) are anatomically present but excluded from PRI's framework because they do not involve innominate displacement.</p>
+      <div class="table-card-mobile joint-table-wrap">
+        <table class="joint-table">
+          <colgroup>
+            <col class="col-joint">
+            <col class="col-type">
+            <col class="col-motion">
+            <col class="col-positions">
+            <col class="col-role">
+            <col class="col-scope">
+          </colgroup>
+          <thead>
+            <tr><th>Joint</th><th>Type</th><th>Motion</th><th>PRI Positions</th><th>PRI Role</th><th>Scope</th></tr>
+          </thead>
+          <tbody id="joints-tbody"></tbody>
+        </table>
+        <div id="joints-cards"></div>
+      </div>
+      <div class="callout">
+        <p>PRI's 12 position codes reference exactly 3 joints. The naming convention encodes which bone is displaced and which to target — not the joint itself. IS and SI are the same physical joint (sacroiliac). AF and FA are the same physical joint (hip). IP and IsP reference the same landmark (pubic symphysis). Six joint names, three anatomical structures.</p>
+      </div>
+      <div class="joint-schematic-row">
+        <div id="si-svg-slot"></div>
+        <div id="hip-svg-slot"></div>
+      </div>
+    </div>
   </div>
   <div class="subtab-content" id="nom-translation" role="tabpanel" aria-labelledby="nom-translation">
   <div class="tab-section">
@@ -234,6 +261,50 @@
   </div>
   </div>
 </section>
+
+<template id="joint-row-tpl">
+  <tr>
+    <td><strong></strong></td>
+    <td></td>
+    <td></td>
+    <td class="mono"></td>
+    <td></td>
+    <td></td>
+  </tr>
+</template>
+
+<template id="joint-card-tpl">
+  <div class="table-row-card">
+    <div class="trc-field"><span class="trc-label">Joint</span><span class="trc-val bold"></span></div>
+    <div class="trc-field"><span class="trc-label">Type</span><span class="trc-val"></span></div>
+    <div class="trc-field"><span class="trc-label">Motion</span><span class="trc-val"></span></div>
+    <div class="trc-field"><span class="trc-label">PRI Positions</span><span class="trc-val mono"></span></div>
+    <div class="trc-field"><span class="trc-label">PRI Role</span><span class="trc-val"></span></div>
+    <div class="trc-field"><span class="trc-label">Scope</span><span class="trc-val"></span></div>
+  </div>
+</template>
+
+<template id="translation-row-tpl">
+  <tr>
+    <td class="mono bold text-accent"></td>
+    <td></td>
+    <td class="translation-detail"></td>
+    <td class="translation-detail"></td>
+    <td class="mono translation-detail"></td>
+    <td class="translation-detail"></td>
+  </tr>
+</template>
+
+<template id="translation-card-tpl">
+  <div class="table-row-card">
+    <div class="trc-field"><span class="trc-label">PRI Term</span><span class="trc-val mono bold text-accent"></span></div>
+    <div class="trc-field"><span class="trc-label">Real Structure</span><span class="trc-val"></span></div>
+    <div class="trc-field"><span class="trc-label">What PRI Renamed</span><span class="trc-val"></span></div>
+    <div class="trc-field"><span class="trc-label">What Actually Happened</span><span class="trc-val"></span></div>
+    <div class="trc-field"><span class="trc-label">Standard Term</span><span class="trc-val mono"></span></div>
+    <div class="trc-field"><span class="trc-label">Encoded Treatment</span><span class="trc-val"></span></div>
+  </div>
+</template>
 
 <section id="tab-patterns" class="tab">
 
@@ -455,12 +526,12 @@
 
     <h3 class="subsection-title">Domains</h3>
     <div class="mq-domain-filters">
-      <label class="mq-domain-toggle"><input type="checkbox" id="mq-domain-nomenclature" checked> Nomenclature</label>
-      <label class="mq-domain-toggle"><input type="checkbox" id="mq-domain-tests" checked> Tests</label>
-      <label class="mq-domain-toggle"><input type="checkbox" id="mq-domain-treatment" checked> Treatment</label>
-      <label class="mq-domain-toggle"><input type="checkbox" id="mq-domain-anatomy" checked> Anatomy</label>
-      <label class="mq-domain-toggle"><input type="checkbox" id="mq-domain-procedures" checked> Procedures</label>
-      <label class="mq-domain-toggle"><input type="checkbox" id="mq-domain-clinical" checked> Clinical</label>
+      <label><input type="checkbox" id="mq-domain-nomenclature" checked> Nomenclature</label>
+      <label><input type="checkbox" id="mq-domain-tests" checked> Tests</label>
+      <label><input type="checkbox" id="mq-domain-treatment" checked> Treatment</label>
+      <label><input type="checkbox" id="mq-domain-anatomy" checked> Anatomy</label>
+      <label><input type="checkbox" id="mq-domain-procedures" checked> Procedures</label>
+      <label><input type="checkbox" id="mq-domain-clinical" checked> Clinical</label>
     </div>
     <div class="btn-row">
       <button type="button" class="btn" id="mq-select-all">Select All</button>
@@ -540,15 +611,10 @@
 </main>
 <script type="module" src="scripts/navigation-tabs.js"></script>
 
-<script type="module" id="module-anatomy">
+<script type="module">
 import REGIONS from './data/regions.json' with { type: 'json' };
 import { getAllEquivalent, getMuscles } from './scripts/study-utils.js';
-const AnatomyModule = (() => {
-  function init() {
-    initDecoder();
-  }
-
-  function initDecoder() {
+function initDecoder() {
     let decoderState = { side: 'Left', region: 'ip', dir: 'er' };
 
     function makeControlGroup(containerId, key) {
@@ -715,182 +781,15 @@ const AnatomyModule = (() => {
     wrap.innerHTML = svg;
   }
 
-  return { init };
-})();
-
-
 document.addEventListener('DOMContentLoaded', () => {
-  AnatomyModule.init();
+  initDecoder();
 });
 
 </script>
 
-<script type="module" id="module-nomenclature">
-import DATA from './data/study-data.json' with { type: 'json' };
-import { SI_SVG, HIP_SVG } from './scripts/study-utils.js';
-const NomenclatureModule = (() => {
-  const JOINTS = [
-    {
-      joint: 'Sacroiliac (SI)',
-      type: 'Synovial plane / fibrocartilaginous',
-      motion: 'Nutation, counter-nutation. A few degrees of rotation.',
-      positions: 'IS IR/ER (ilium on sacrum), SI IR/ER (sacrum on ilium)',
-      role: 'Posterior inlet + posterior outlet. PRI creates two names for this single joint to encode which bone is the treatment target: IS = move the ilium, SI = move the sacrum.',
-      scope: 'Core joint. 4 of PRI\u2019s 12 position codes reference it.'
-    },
-    {
-      joint: 'Pubic symphysis',
-      type: 'Secondary cartilaginous (amphiarthrosis)',
-      motion: 'Minimal \u2014 a few mm of shear and compression during gait, pregnancy, single-leg stance.',
-      positions: 'IP IR/ER (ilium-to-pubis), IsP IR/ER (ischium-to-pubis)',
-      role: 'Anterior inlet + anterior outlet. PRI uses the pubic symphysis as a positional landmark \u2014 the midline reference for describing how the ilium (inlet) and ischium (outlet) orient. IP and IsP describe innominate motion relative to this midline, not motion of the symphysis itself.',
-      scope: 'Positional reference. 4 of PRI\u2019s 12 position codes reference it. Despite minimal independent motion, it borders both the inlet and the outlet.'
-    },
-    {
-      joint: 'Hip (acetabulofemoral)',
-      type: 'Synovial ball-and-socket',
-      motion: 'Large ROM: flexion/extension, abduction/adduction, IR/ER.',
-      positions: 'AF IR/ER (pelvis on femur), FA IR/ER (femur on pelvis)',
-      role: 'PRI splits the standard hip joint into two names. AF = closed chain (stance leg, pelvis moves on planted femur). FA = open chain (swing leg, femur moves on pelvis). Standard anatomy calls both \u201chip joint motion\u201d.',
-      scope: 'Core joint. 4 of PRI\u2019s 12 position codes reference it. AF/FA distinction encodes which bone to target.'
-    },
-    {
-      joint: 'Lumbosacral (L5\u2013S1)',
-      type: 'Intervertebral disc + zygapophyseal facets',
-      motion: 'Flexion/extension, limited rotation',
-      positions: '(none in Pelvis Restoration)',
-      role: 'Not named. The psoas and diaphragmatic crura attach here \u2014 both are mechanically relevant to the L AIC pattern \u2014 but the joint itself involves spinal motion, not innominate displacement.',
-      scope: 'Excluded. PRI\u2019s system describes innominate and sacral motion only. Covered in Myokinematic Restoration and Postural Respiration.'
-    },
-    {
-      joint: 'Sacrococcygeal',
-      type: 'Symphysis (variably fused)',
-      motion: 'Flexion/extension of coccyx',
-      positions: '(none named directly)',
-      role: 'Not named. Coccygeus muscle acts here, and coccyx position is implicit in outlet mechanics (SI IR/ER). PRI folds coccygeal motion into the sacrum-on-ilium description rather than isolating it.',
-      scope: 'Excluded from naming. Functionally present in outlet descriptions.'
-    }
-  ];
+<script type="module" src="scripts/nomenclature.js"></script>
 
-  const COLS = ['Joint', 'Type', 'Motion', 'PRI Positions', 'PRI Role', 'Scope'];
-  const KEYS = ['joint', 'type', 'motion', 'positions', 'role', 'scope'];
-
-  function init() {
-    buildJointsView();
-    buildTranslationTable();
-  }
-
-  function buildJointsView() {
-    const wrap = document.getElementById('joints-view');
-    let html = '<h2 class="section-title">Pelvic Joints</h2>';
-    html += '<p>The pelvis contains five joints. PRI\u2019s position-naming system references three of them \u2014 the sacroiliac joint, the pubic symphysis, and the hip joint. The other two (lumbosacral and sacrococcygeal) are anatomically present but excluded from PRI\u2019s framework because they do not involve innominate displacement.</p>';
-
-    // Desktop table
-    html += '<div class="table-card-mobile joint-table-wrap">';
-    html += '<table class="joint-table">';
-    html += '<colgroup><col style="width:14%"><col style="width:12%"><col style="width:14%"><col style="width:16%"><col style="width:28%"><col style="width:16%"></colgroup>';
-    html += '<thead><tr>';
-    COLS.forEach(function(c) { html += '<th>' + c + '</th>'; });
-    html += '</tr></thead><tbody>';
-    JOINTS.forEach(function(j) {
-      html += '<tr>';
-      KEYS.forEach(function(k, i) {
-        if (i === 0) {
-          html += '<td><strong>' + j[k] + '</strong></td>';
-        } else if (i === 3) {
-          html += '<td class="mono">' + j[k] + '</td>';
-        } else {
-          html += '<td>' + j[k] + '</td>';
-        }
-      });
-      html += '</tr>';
-    });
-    html += '</tbody></table>';
-
-    // Mobile cards
-    JOINTS.forEach(function(j) {
-      html += '<div class="table-row-card">';
-      COLS.forEach(function(c, i) {
-        var cls = (i === 0) ? ' bold' : (i === 3) ? ' mono' : '';
-        html += '<div class="trc-field"><span class="trc-label">' + c + '</span><span class="trc-val' + cls + '">' + j[KEYS[i]] + '</span></div>';
-      });
-      html += '</div>';
-    });
-    html += '</div>';
-
-    // Callout
-    html += '<div class="callout">';
-    html += '<p>PRI\u2019s 12 position codes reference exactly 3 joints. The naming convention encodes which bone is displaced and which to target \u2014 not the joint itself. IS and SI are the same physical joint (sacroiliac). AF and FA are the same physical joint (hip). IP and IsP reference the same landmark (pubic symphysis). Six joint names, three anatomical structures.</p>';
-    html += '</div>';
-
-    // SVG schematics
-    html += '<div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin:1rem 0;">';
-    html += '<div style="text-align:center;">' + SI_SVG + '<p class="text-dim" style="font-size:var(--text-sm);margin-top:.25rem;">Sacroiliac joint</p></div>';
-    html += '<div style="text-align:center;">' + HIP_SVG + '<p class="text-dim" style="font-size:var(--text-sm);margin-top:.25rem;">Hip joint (acetabulofemoral)</p></div>';
-    html += '</div>';
-
-    wrap.innerHTML = html;
-  }
-
-  function buildTranslationTable() {
-    const tbody = document.getElementById('translation-tbody');
-    const cards = document.getElementById('translation-cards');
-    const rows = DATA.translationMap;
-
-    function renderRows(filtered) {
-      tbody.innerHTML = '';
-      cards.innerHTML = '';
-      filtered.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="mono bold text-accent">${row.priTerm}</td>
-          <td>${row.realStructure}</td>
-          <td style="font-size:var(--text-xs)">${row.whatPriRenamed}</td>
-          <td style="font-size:var(--text-xs)">${row.whatActuallyHappened}</td>
-          <td class="mono" style="font-size:var(--text-xs)">${row.standardTerm}</td>
-          <td style="font-size:var(--text-xs)">${row.encodedTreatment}</td>
-        `;
-        tbody.appendChild(tr);
-
-        // Mobile card
-        const card = document.createElement('div');
-        card.className = 'table-row-card';
-        card.innerHTML = `
-          <div class="trc-field"><span class="trc-label">PRI Term</span><span class="trc-val mono bold text-accent">${row.priTerm}</span></div>
-          <div class="trc-field"><span class="trc-label">Real Structure</span><span class="trc-val">${row.realStructure}</span></div>
-          <div class="trc-field"><span class="trc-label">What PRI Renamed</span><span class="trc-val">${row.whatPriRenamed}</span></div>
-          <div class="trc-field"><span class="trc-label">What Actually Happened</span><span class="trc-val">${row.whatActuallyHappened}</span></div>
-          <div class="trc-field"><span class="trc-label">Standard Term</span><span class="trc-val mono">${row.standardTerm}</span></div>
-          <div class="trc-field"><span class="trc-label">Encoded Treatment</span><span class="trc-val">${row.encodedTreatment}</span></div>
-        `;
-        cards.appendChild(card);
-      });
-    }
-
-    renderRows(rows);
-
-    const searchInput = document.getElementById('translation-search');
-    searchInput.addEventListener('input', () => {
-      const q = searchInput.value.toLowerCase();
-      const filtered = q ? rows.filter(r =>
-        (r.priTerm + r.realStructure + r.whatPriRenamed + r.whatActuallyHappened + r.standardTerm + r.encodedTreatment).toLowerCase().includes(q)
-      ) : rows;
-      renderRows(filtered);
-    });
-    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
-  }
-
-  return { init };
-})();
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  NomenclatureModule.init();
-});
-
-</script>
-
-<script type="module" id="module-patterns">
+<script type="module">
 import CHEAT_DATA from './data/cheat-data.json' with { type: 'json' };
 import CAUSAL_MAP from './data/causal-map.json' with { type: 'json' };
 import SYMPTOM_PATTERNS from './data/symptom-patterns.json' with { type: 'json' };
@@ -898,987 +797,973 @@ import HALT_LEVELS from './data/halt-levels.json' with { type: 'json' };
 import SQUAT_LEVELS from './data/squat-levels.json' with { type: 'json' };
 const MAP_NODES = CAUSAL_MAP.nodes;
 const MAP_EDGES = CAUSAL_MAP.edges;
-const PatternsModule = (() => {
-  let symptomIdx = 0;
-  let symptomScore = { correct: 0, total: 0 };
-  let isSymptomAnswered = false;
-  let haltIdx = 0;
-  let haltAnswered = false;
-  let haltScore = { correct: 0, total: 0 };
-  let squatIdx = 0;
-  let squatAnswered = false;
-  let squatScore = { correct: 0, total: 0 };
 
-  function init() {
-    buildCheatSheet();
-    buildConceptMap();
-    initSymptomQuiz();
-    initHaltQuiz();
-    initSquatQuiz();
+let symptomIdx = 0;
+let symptomScore = { correct: 0, total: 0 };
+let isSymptomAnswered = false;
+let haltIdx = 0;
+let haltAnswered = false;
+let haltScore = { correct: 0, total: 0 };
+let squatIdx = 0;
+let squatAnswered = false;
+let squatScore = { correct: 0, total: 0 };
+
+function initPatterns() {
+  buildCheatSheet();
+  buildConceptMap();
+  initSymptomQuiz();
+  initHaltQuiz();
+  initSquatQuiz();
+}
+
+function buildCheatSheet() {
+  const grid = document.getElementById('cheat-sheet-grid');
+  grid.innerHTML = '';
+  CHEAT_DATA.forEach(col => {
+    const div = document.createElement('div');
+    div.className = 'cheat-col';
+    let html = `<div class="cheat-col-header">${col.name}</div>`;
+    col.rows.forEach(row => {
+      const cls = row.key ? (col.name.includes('Patho') ? 'cheat-row key-warn' : 'cheat-row key') : 'cheat-row';
+      html += `<div class="${cls}"><span>${row.l}</span><span>${row.v}</span></div>`;
+    });
+    div.innerHTML = html;
+    grid.appendChild(div);
+  });
+}
+
+function buildConceptMap() {
+  const svg = document.getElementById('concept-map-svg');
+  const W = 500, H = 340;
+  const PADDING = 20;
+
+  // Convert % coords to px
+  function px(node) {
+    return {
+      cx: PADDING + node.x / 100 * (W - 2 * PADDING),
+      cy: PADDING + node.y / 100 * (H - 2 * PADDING)
+    };
   }
 
-  function buildCheatSheet() {
-    const grid = document.getElementById('cheat-sheet-grid');
-    grid.innerHTML = '';
-    CHEAT_DATA.forEach(col => {
-      const div = document.createElement('div');
-      div.className = 'cheat-col';
-      let html = `<div class="cheat-col-header">${col.name}</div>`;
-      col.rows.forEach(row => {
-        const cls = row.key ? (col.name.includes('Patho') ? 'cheat-row key-warn' : 'cheat-row key') : 'cheat-row';
-        html += `<div class="${cls}"><span class="cheat-cell-l">${row.l}</span><span class="cheat-cell-v">${row.v}</span></div>`;
+  // Draw edges first
+  let edgeSVG = '';
+  MAP_EDGES.forEach((edge, i) => {
+    const fromNode = MAP_NODES.find(n => n.id === edge.from);
+    const toNode = MAP_NODES.find(n => n.id === edge.to);
+    if (!fromNode || !toNode) return;
+    const f = px(fromNode), t = px(toNode);
+    const mx = (f.cx + t.cx) / 2, my = (f.cy + t.cy) / 2;
+    edgeSVG += `<line class="map-edge" data-edge="${i}" x1="${f.cx}" y1="${f.cy}" x2="${t.cx}" y2="${t.cy}" marker-end="url(#arrow-map)"/>`;
+    edgeSVG += `<text class="map-edge-label" x="${mx}" y="${my - 4}" text-anchor="middle">${edge.label}</text>`;
+  });
+
+  // Draw nodes
+  let nodeSVG = '';
+  MAP_NODES.forEach(node => {
+    const p = px(node);
+    const lines = node.label.split('\n');
+    const rw = 75, rh = lines.length > 2 ? 38 : 28;
+    const rx = p.cx - rw / 2, ry = p.cy - rh / 2;
+    const fillColor = node.central ? 'var(--accent-bg)' : 'var(--surface)';
+    const strokeColor = node.central ? 'var(--accent)' : 'var(--border)';
+    nodeSVG += `<g class="map-node${node.central ? ' central' : ''}" data-id="${node.id}" transform="translate(0,0)">
+      <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" rx="4" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
+      ${lines.map((l, li) => `<text x="${p.cx}" y="${ry + 11 + li * 11}" text-anchor="middle" font-family="monospace" font-size="8.5" fill="var(--text)">${l}</text>`).join('')}
+    </g>`;
+  });
+
+  svg.innerHTML = `
+    <defs>
+      <marker id="arrow-map" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="var(--border)"/>
+      </marker>
+      <marker id="arrow-map-hl" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/>
+      </marker>
+    </defs>
+    ${edgeSVG}${nodeSVG}`;
+
+  // Click events
+  svg.querySelectorAll('.map-node').forEach(nodeEl => {
+    nodeEl.addEventListener('click', () => {
+      const nodeId = nodeEl.dataset.id;
+      // find connected edges
+      const connectedEdges = MAP_EDGES
+        .map((e, i) => ({ ...e, i }))
+        .filter(e => e.from === nodeId || e.to === nodeId)
+        .map(e => e.i);
+
+      // reset all
+      svg.querySelectorAll('.map-node').forEach(n => n.classList.remove('highlighted'));
+      svg.querySelectorAll('.map-edge').forEach(e => {
+        e.classList.remove('highlighted');
+        e.setAttribute('marker-end', 'url(#arrow-map)');
+        e.style.stroke = '';
       });
-      div.innerHTML = html;
-      grid.appendChild(div);
-    });
-  }
 
-  function buildConceptMap() {
-    const svg = document.getElementById('concept-map-svg');
-    const W = 500, H = 340;
-    const PADDING = 20;
-
-    // Convert % coords to px
-    function px(node) {
-      return {
-        cx: PADDING + node.x / 100 * (W - 2 * PADDING),
-        cy: PADDING + node.y / 100 * (H - 2 * PADDING)
-      };
-    }
-
-    // Draw edges first
-    let edgeSVG = '';
-    MAP_EDGES.forEach((edge, i) => {
-      const fromNode = MAP_NODES.find(n => n.id === edge.from);
-      const toNode = MAP_NODES.find(n => n.id === edge.to);
-      if (!fromNode || !toNode) return;
-      const f = px(fromNode), t = px(toNode);
-      const mx = (f.cx + t.cx) / 2, my = (f.cy + t.cy) / 2;
-      edgeSVG += `<line class="map-edge" data-edge="${i}" x1="${f.cx}" y1="${f.cy}" x2="${t.cx}" y2="${t.cy}" marker-end="url(#arrow-map)"/>`;
-      edgeSVG += `<text class="map-edge-label" x="${mx}" y="${my - 4}" text-anchor="middle">${edge.label}</text>`;
-    });
-
-    // Draw nodes
-    let nodeSVG = '';
-    MAP_NODES.forEach(node => {
-      const p = px(node);
-      const lines = node.label.split('\n');
-      const rw = 75, rh = lines.length > 2 ? 38 : 28;
-      const rx = p.cx - rw / 2, ry = p.cy - rh / 2;
-      const fillColor = node.central ? 'var(--accent-bg)' : 'var(--surface)';
-      const strokeColor = node.central ? 'var(--accent)' : 'var(--border)';
-      nodeSVG += `<g class="map-node${node.central ? ' central' : ''}" data-id="${node.id}" transform="translate(0,0)">
-        <rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" rx="4" fill="${fillColor}" stroke="${strokeColor}" stroke-width="1.5"/>
-        ${lines.map((l, li) => `<text x="${p.cx}" y="${ry + 11 + li * 11}" text-anchor="middle" font-family="monospace" font-size="8.5" fill="var(--text)">${l}</text>`).join('')}
-      </g>`;
-    });
-
-    svg.innerHTML = `
-      <defs>
-        <marker id="arrow-map" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-          <polygon points="0 0, 8 3, 0 6" fill="var(--border)"/>
-        </marker>
-        <marker id="arrow-map-hl" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-          <polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/>
-        </marker>
-      </defs>
-      ${edgeSVG}${nodeSVG}`;
-
-    // Click events
-    svg.querySelectorAll('.map-node').forEach(nodeEl => {
-      nodeEl.addEventListener('click', () => {
-        const nodeId = nodeEl.dataset.id;
-        // find connected edges
-        const connectedEdges = MAP_EDGES
-          .map((e, i) => ({ ...e, i }))
-          .filter(e => e.from === nodeId || e.to === nodeId)
-          .map(e => e.i);
-
-        // reset all
-        svg.querySelectorAll('.map-node').forEach(n => n.classList.remove('highlighted'));
-        svg.querySelectorAll('.map-edge').forEach(e => {
-          e.classList.remove('highlighted');
-          e.setAttribute('marker-end', 'url(#arrow-map)');
-          e.style.stroke = '';
-        });
-
-        // highlight
-        nodeEl.classList.add('highlighted');
-        connectedEdges.forEach(i => {
-          const edgeEl = svg.querySelector(`.map-edge[data-edge="${i}"]`);
-          if (edgeEl) {
-            edgeEl.classList.add('highlighted');
-            edgeEl.setAttribute('marker-end', 'url(#arrow-map-hl)');
-            edgeEl.style.stroke = 'var(--accent)';
-          }
-          // highlight connected nodes
-          const edge = MAP_EDGES[i];
-          const otherId = edge.from === nodeId ? edge.to : edge.from;
-          const otherEl = svg.querySelector(`.map-node[data-id="${otherId}"]`);
-          if (otherEl) otherEl.classList.add('highlighted');
-        });
+      // highlight
+      nodeEl.classList.add('highlighted');
+      connectedEdges.forEach(i => {
+        const edgeEl = svg.querySelector(`.map-edge[data-edge="${i}"]`);
+        if (edgeEl) {
+          edgeEl.classList.add('highlighted');
+          edgeEl.setAttribute('marker-end', 'url(#arrow-map-hl)');
+          edgeEl.style.stroke = 'var(--accent)';
+        }
+        // highlight connected nodes
+        const edge = MAP_EDGES[i];
+        const otherId = edge.from === nodeId ? edge.to : edge.from;
+        const otherEl = svg.querySelector(`.map-node[data-id="${otherId}"]`);
+        if (otherEl) otherEl.classList.add('highlighted');
       });
     });
-  }
+  });
+}
 
-  function initSymptomQuiz() {
-    symptomIdx = 0;
+function initSymptomQuiz() {
+  symptomIdx = 0;
+  renderSymptomQuestion();
+  const nextBtn = document.getElementById('symptom-next');
+  nextBtn.addEventListener('click', () => {
+    symptomIdx = (symptomIdx + 1) % SYMPTOM_PATTERNS.length;
+    isSymptomAnswered = false;
     renderSymptomQuestion();
-    const nextBtn = document.getElementById('symptom-next');
-    nextBtn.addEventListener('click', () => {
-      symptomIdx = (symptomIdx + 1) % SYMPTOM_PATTERNS.length;
-      isSymptomAnswered = false;
-      renderSymptomQuestion();
-    });
-    const answerBtns = document.querySelectorAll('#symptom-answers .answer-btn');
-    answerBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (isSymptomAnswered) return;
-        isSymptomAnswered = true;
-        const current = SYMPTOM_PATTERNS[symptomIdx];
-        const chosen = btn.dataset.ans;
-        // Check if answer matches — allow partial match for "B Patho PEC" which covers SUI and coccygodynia
-        const isCorrect = current.pattern.includes(chosen) || chosen.includes(current.pattern) ||
-          (chosen === 'B Patho PEC' && current.pattern === 'Bilateral PEC') ||
-          (chosen === 'Bilateral PEC' && current.pattern === 'B Patho PEC');
-        const strictCorrect = chosen === current.pattern;
-        symptomScore.total++;
-        if (strictCorrect) symptomScore.correct++;
-        const score = document.getElementById('symptom-score');
-        score.textContent = `Score: ${symptomScore.correct} / ${symptomScore.total}`;
-        answerBtns.forEach(b => {
-          if (b.dataset.ans === current.pattern) b.classList.add('correct');
-          else if (b === btn && !strictCorrect) b.classList.add('incorrect');
-          b.disabled = true;
-        });
-        const feedback = document.getElementById('symptom-feedback');
-        feedback.className = 'feedback-box' + (strictCorrect ? '' : ' error');
-        feedback.innerHTML = `<strong>${strictCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${current.explanation}`;
-        feedback.classList.remove('hidden');
-        document.getElementById('symptom-next').classList.remove('hidden');
+  });
+  const answerBtns = document.querySelectorAll('#symptom-answers .answer-btn');
+  answerBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (isSymptomAnswered) return;
+      isSymptomAnswered = true;
+      const current = SYMPTOM_PATTERNS[symptomIdx];
+      const chosen = btn.dataset.ans;
+      // Check if answer matches — allow partial match for "B Patho PEC" which covers SUI and coccygodynia
+      const isCorrect = current.pattern.includes(chosen) || chosen.includes(current.pattern) ||
+        (chosen === 'B Patho PEC' && current.pattern === 'Bilateral PEC') ||
+        (chosen === 'Bilateral PEC' && current.pattern === 'B Patho PEC');
+      const strictCorrect = chosen === current.pattern;
+      symptomScore.total++;
+      if (strictCorrect) symptomScore.correct++;
+      const score = document.getElementById('symptom-score');
+      score.textContent = `Score: ${symptomScore.correct} / ${symptomScore.total}`;
+      answerBtns.forEach(b => {
+        if (b.dataset.ans === current.pattern) b.classList.add('correct');
+        else if (b === btn && !strictCorrect) b.classList.add('incorrect');
+        b.disabled = true;
       });
+      const feedback = document.getElementById('symptom-feedback');
+      feedback.className = 'feedback-box' + (strictCorrect ? '' : ' error');
+      feedback.innerHTML = `<strong>${strictCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${current.explanation}`;
+      feedback.classList.remove('hidden');
+      document.getElementById('symptom-next').classList.remove('hidden');
     });
-  }
+  });
+}
 
-  function renderSymptomQuestion() {
-    const current = SYMPTOM_PATTERNS[symptomIdx];
-    document.getElementById('symptom-condition').textContent = current.condition;
-    document.getElementById('symptom-feedback').classList.add('hidden');
-    document.getElementById('symptom-next').classList.add('hidden');
-    document.querySelectorAll('#symptom-answers .answer-btn').forEach(b => {
-      b.classList.remove('correct', 'incorrect');
-      b.disabled = false;
-    });
-  }
+function renderSymptomQuestion() {
+  const current = SYMPTOM_PATTERNS[symptomIdx];
+  document.getElementById('symptom-condition').textContent = current.condition;
+  document.getElementById('symptom-feedback').classList.add('hidden');
+  document.getElementById('symptom-next').classList.add('hidden');
+  document.querySelectorAll('#symptom-answers .answer-btn').forEach(b => {
+    b.classList.remove('correct', 'incorrect');
+    b.disabled = false;
+  });
+}
 
-  function initHaltQuiz() {
-    haltIdx = 0;
-    haltAnswered = false;
-    renderHaltQuestion();
-    document.getElementById('halt-reveal').addEventListener('click', () => {
-      if (haltAnswered) return;
-      haltAnswered = true;
-      const level = HALT_LEVELS[haltIdx];
-      const q = document.getElementById('halt-question');
-      q.innerHTML += `<div class="feedback-box" style="margin-top:.75rem;">
-        <strong>Answer:</strong> ${level.failure}<br>
-        <strong>Facilitate:</strong> ${level.facilitate}
-      </div>`;
-    });
-    document.getElementById('halt-next').addEventListener('click', () => {
-      haltIdx = (haltIdx + 1) % HALT_LEVELS.length;
-      haltAnswered = false;
-      renderHaltQuestion();
-    });
-  }
-
-  function renderHaltQuestion() {
+function initHaltQuiz() {
+  haltIdx = 0;
+  haltAnswered = false;
+  renderHaltQuestion();
+  document.getElementById('halt-reveal').addEventListener('click', () => {
+    if (haltAnswered) return;
+    haltAnswered = true;
     const level = HALT_LEVELS[haltIdx];
     const q = document.getElementById('halt-question');
-    q.innerHTML = `
-      <div style="margin-bottom:.5rem;"><span class="quiz-level-badge">HALT Level ${level.level}</span></div>
-      <div style="font-size:var(--text-sm);color:var(--text-dim);">(${haltIdx + 1} of ${HALT_LEVELS.length})</div>
-      <p style="margin-top:.5rem;font-size:var(--text-sm);">What does failure at HALT Level ${level.level} indicate, and what should you facilitate?</p>
-    `;
-  }
+    q.innerHTML += `<div class="feedback-box" style="margin-top:.75rem;">
+      <strong>Answer:</strong> ${level.failure}<br>
+      <strong>Facilitate:</strong> ${level.facilitate}
+    </div>`;
+  });
+  document.getElementById('halt-next').addEventListener('click', () => {
+    haltIdx = (haltIdx + 1) % HALT_LEVELS.length;
+    haltAnswered = false;
+    renderHaltQuestion();
+  });
+}
 
-  function initSquatQuiz() {
-    squatIdx = 0;
-    squatAnswered = false;
-    renderSquatQuestion();
-    document.getElementById('squat-reveal').addEventListener('click', () => {
-      if (squatAnswered) return;
-      squatAnswered = true;
-      const level = SQUAT_LEVELS[squatIdx];
-      const q = document.getElementById('squat-question');
-      q.innerHTML += `<div class="feedback-box" style="margin-top:.75rem;">
-        <strong>Failure:</strong> ${level.failure}<br>
-        <strong>Hyperactive muscles:</strong> ${level.hyperactive}
-      </div>`;
-    });
-    document.getElementById('squat-next').addEventListener('click', () => {
-      squatIdx = (squatIdx + 1) % SQUAT_LEVELS.length;
-      squatAnswered = false;
-      renderSquatQuestion();
-    });
-  }
+function renderHaltQuestion() {
+  const level = HALT_LEVELS[haltIdx];
+  const q = document.getElementById('halt-question');
+  q.innerHTML = `
+    <div style="margin-bottom:.5rem;"><span class="quiz-level-badge">HALT Level ${level.level}</span></div>
+    <div style="font-size:var(--text-sm);color:var(--text-dim);">(${haltIdx + 1} of ${HALT_LEVELS.length})</div>
+    <p style="margin-top:.5rem;font-size:var(--text-sm);">What does failure at HALT Level ${level.level} indicate, and what should you facilitate?</p>
+  `;
+}
 
-  function renderSquatQuestion() {
+function initSquatQuiz() {
+  squatIdx = 0;
+  squatAnswered = false;
+  renderSquatQuestion();
+  document.getElementById('squat-reveal').addEventListener('click', () => {
+    if (squatAnswered) return;
+    squatAnswered = true;
     const level = SQUAT_LEVELS[squatIdx];
     const q = document.getElementById('squat-question');
-    q.innerHTML = `
-      <div style="margin-bottom:.5rem;"><span class="quiz-level-badge">Squat Level ${level.level}</span></div>
-      <div style="font-size:var(--text-sm);color:var(--text-dim);">(${squatIdx + 1} of ${SQUAT_LEVELS.length})</div>
-      <p style="margin-top:.5rem;font-size:var(--text-sm);">What failure pattern and which muscles are hyperactive at Squat Level ${level.level}?</p>
-    `;
-  }
+    q.innerHTML += `<div class="feedback-box" style="margin-top:.75rem;">
+      <strong>Failure:</strong> ${level.failure}<br>
+      <strong>Hyperactive muscles:</strong> ${level.hyperactive}
+    </div>`;
+  });
+  document.getElementById('squat-next').addEventListener('click', () => {
+    squatIdx = (squatIdx + 1) % SQUAT_LEVELS.length;
+    squatAnswered = false;
+    renderSquatQuestion();
+  });
+}
 
-  return { init };
-})();
-
+function renderSquatQuestion() {
+  const level = SQUAT_LEVELS[squatIdx];
+  const q = document.getElementById('squat-question');
+  q.innerHTML = `
+    <div style="margin-bottom:.5rem;"><span class="quiz-level-badge">Squat Level ${level.level}</span></div>
+    <div style="font-size:var(--text-sm);color:var(--text-dim);">(${squatIdx + 1} of ${SQUAT_LEVELS.length})</div>
+    <p style="margin-top:.5rem;font-size:var(--text-sm);">What failure pattern and which muscles are hyperactive at Squat Level ${level.level}?</p>
+  `;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  PatternsModule.init();
+  initPatterns();
 });
 
 </script>
 
-<script type="module" id="module-diagnose">
+<script type="module">
 import DATA from './data/study-data.json' with { type: 'json' };
-const DiagnoseModule = (() => {
-  let gameState = {
-    scenarioIdx: 0,
-    round: 1,
-    round2Step: 0,
-    score: { correct: 0, total: 0 },
-    isAnswered: false
-  };
-  let caseState = { active: 0, visitIdx: [0, 0] };
+let gameState = {
+  scenarioIdx: 0,
+  round: 1,
+  round2Step: 0,
+  score: { correct: 0, total: 0 },
+  isAnswered: false
+};
+let caseState = { active: 0, visitIdx: [0, 0] };
 
-  function init() {
-    buildGame();
-    buildCaseStudies();
-    buildCausalChains();
-    buildDecisionTree();
-    buildMuscleMap();
+function initDiagnose() {
+  buildGame();
+  buildCaseStudies();
+  buildCausalChains();
+  buildDecisionTree();
+  buildMuscleMap();
+}
+
+function buildGame() {
+  const wrap = document.getElementById('game-wrap');
+  gameState = { scenarioIdx: 0, round: 1, round2Step: 0, score: { correct: 0, total: 0 }, isAnswered: false };
+  renderScenario(wrap);
+}
+
+function renderScenario(wrap) {
+  const s = DATA.game.scenarios[gameState.scenarioIdx];
+  wrap.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'scenario-header';
+  header.textContent = `Scenario ${gameState.scenarioIdx + 1} of ${DATA.game.scenarios.length} — Round ${gameState.round}`;
+
+  const scoreEl = document.createElement('div');
+  scoreEl.className = 'score-display';
+  scoreEl.textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+
+  wrap.appendChild(header);
+  wrap.appendChild(scoreEl);
+
+  if (gameState.round === 1) {
+    renderRound1(wrap, s);
+  } else {
+    renderRound2(wrap, s);
   }
+}
 
-  function buildGame() {
-    const wrap = document.getElementById('game-wrap');
-    gameState = { scenarioIdx: 0, round: 1, round2Step: 0, score: { correct: 0, total: 0 }, isAnswered: false };
-    renderScenario(wrap);
-  }
+function renderRound1(wrap, s) {
+  const card = document.createElement('div');
+  card.className = 'card';
 
-  function renderScenario(wrap) {
-    const s = DATA.game.scenarios[gameState.scenarioIdx];
-    wrap.innerHTML = '';
+  // Test profile
+  let profileHTML = '<div class="card-label">Test Profile</div><div class="test-profile">';
+  Object.entries(s.testProfile).forEach(([test, val]) => {
+    const isPos = String(val).startsWith('+');
+    const isNeg = String(val).startsWith('−') || String(val).startsWith('-');
+    profileHTML += `<div class="test-item">
+      <div class="test-item-name">${test}</div>
+      <div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${val}</div>
+    </div>`;
+  });
+  profileHTML += '</div>';
+  card.innerHTML = profileHTML;
 
-    const header = document.createElement('div');
-    header.className = 'scenario-header';
-    header.textContent = `Scenario ${gameState.scenarioIdx + 1} of ${DATA.game.scenarios.length} — Round ${gameState.round}`;
-
-    const scoreEl = document.createElement('div');
-    scoreEl.className = 'score-display';
-    scoreEl.textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
-
-    wrap.appendChild(header);
-    wrap.appendChild(scoreEl);
-
-    if (gameState.round === 1) {
-      renderRound1(wrap, s);
-    } else {
-      renderRound2(wrap, s);
-    }
-  }
-
-  function renderRound1(wrap, s) {
-    const card = document.createElement('div');
-    card.className = 'card';
-
-    // Test profile
-    let profileHTML = '<div class="card-label">Test Profile</div><div class="test-profile">';
-    Object.entries(s.testProfile).forEach(([test, val]) => {
-      const isPos = String(val).startsWith('+');
-      const isNeg = String(val).startsWith('−') || String(val).startsWith('-');
-      profileHTML += `<div class="test-item">
-        <div class="test-item-name">${test}</div>
-        <div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${val}</div>
-      </div>`;
+  // Answer options
+  const patterns = ['Left AIC', 'Bilateral PEC', 'Bilateral Patho PEC'];
+  const optWrap = document.createElement('div');
+  optWrap.className = 'answer-opts';
+  patterns.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = p;
+    btn.addEventListener('click', () => {
+      if (gameState.isAnswered) return;
+      gameState.isAnswered = true;
+      gameState.score.total++;
+      const isCorrect = p === s.correctPattern;
+      if (isCorrect) gameState.score.correct++;
+      optWrap.querySelectorAll('.answer-btn').forEach(b => {
+        if (b.textContent === s.correctPattern) b.classList.add('correct');
+        else if (b === btn && !isCorrect) b.classList.add('incorrect');
+        b.disabled = true;
+      });
+      // Show feedback
+      const fb = document.createElement('div');
+      fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
+      fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${s.explanation}`;
+      card.appendChild(fb);
+      // Score update
+      wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+      // Next/Round2 button
+      const btnRow = document.createElement('div');
+      btnRow.className = 'btn-row';
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn primary';
+      nextBtn.textContent = 'Continue to Round 2 →';
+      nextBtn.addEventListener('click', () => {
+        gameState.round = 2;
+        gameState.round2Step = 0;
+        gameState.isAnswered = false;
+        renderScenario(wrap);
+      });
+      btnRow.appendChild(nextBtn);
+      card.appendChild(btnRow);
     });
-    profileHTML += '</div>';
-    card.innerHTML = profileHTML;
+    optWrap.appendChild(btn);
+  });
+  card.appendChild(optWrap);
+  wrap.appendChild(card);
+}
 
-    // Answer options
-    const patterns = ['Left AIC', 'Bilateral PEC', 'Bilateral Patho PEC'];
-    const optWrap = document.createElement('div');
-    optWrap.className = 'answer-opts';
-    patterns.forEach(p => {
-      const btn = document.createElement('button');
-      btn.className = 'answer-btn';
-      btn.textContent = p;
+function renderRound2(wrap, s) {
+  const r2 = s.round2;
+  const steps = ['repositioning', 'postReposition', 'facilitation'];
+  const stepLabels = ['Repositioning', 'Post-Repositioning Program', 'Facilitation'];
+  const step = steps[gameState.round2Step];
+  const q = r2[step];
+  if (!q) { advanceScenario(wrap); return; }
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const stepLabel = document.createElement('div');
+  stepLabel.className = 'card-label';
+  stepLabel.textContent = `Round 2 — Step ${gameState.round2Step + 1}/3: ${stepLabels[gameState.round2Step]}`;
+  card.appendChild(stepLabel);
+
+  const qText = document.createElement('p');
+  qText.style.fontWeight = '600';
+  qText.style.marginBottom = '.75rem';
+  qText.textContent = q.question;
+  card.appendChild(qText);
+
+  const isMultiSelect = Array.isArray(q.correct);
+  const optWrap = document.createElement('div');
+  optWrap.className = 'answer-opts';
+  const selectedOpts = new Set();
+
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = opt;
+    if (isMultiSelect) {
+      btn.addEventListener('click', () => {
+        if (gameState.isAnswered) return;
+        if (selectedOpts.has(opt)) {
+          selectedOpts.delete(opt);
+          btn.classList.remove('selected-correct');
+          btn.style.borderColor = '';
+          btn.style.color = '';
+        } else {
+          selectedOpts.add(opt);
+          btn.style.borderColor = 'var(--accent)';
+          btn.style.color = 'var(--accent)';
+        }
+      });
+    } else {
       btn.addEventListener('click', () => {
         if (gameState.isAnswered) return;
         gameState.isAnswered = true;
         gameState.score.total++;
-        const isCorrect = p === s.correctPattern;
+        const isCorrect = opt === q.correct;
         if (isCorrect) gameState.score.correct++;
         optWrap.querySelectorAll('.answer-btn').forEach(b => {
-          if (b.textContent === s.correctPattern) b.classList.add('correct');
+          if (b.textContent === q.correct) b.classList.add('correct');
           else if (b === btn && !isCorrect) b.classList.add('incorrect');
-          b.disabled = true;
-        });
-        // Show feedback
-        const fb = document.createElement('div');
-        fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-        fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${s.explanation}`;
-        card.appendChild(fb);
-        // Score update
-        wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
-        // Next/Round2 button
-        const btnRow = document.createElement('div');
-        btnRow.className = 'btn-row';
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'btn primary';
-        nextBtn.textContent = 'Continue to Round 2 →';
-        nextBtn.addEventListener('click', () => {
-          gameState.round = 2;
-          gameState.round2Step = 0;
-          gameState.isAnswered = false;
-          renderScenario(wrap);
-        });
-        btnRow.appendChild(nextBtn);
-        card.appendChild(btnRow);
-      });
-      optWrap.appendChild(btn);
-    });
-    card.appendChild(optWrap);
-    wrap.appendChild(card);
-  }
-
-  function renderRound2(wrap, s) {
-    const r2 = s.round2;
-    const steps = ['repositioning', 'postReposition', 'facilitation'];
-    const stepLabels = ['Repositioning', 'Post-Repositioning Program', 'Facilitation'];
-    const step = steps[gameState.round2Step];
-    const q = r2[step];
-    if (!q) { advanceScenario(wrap); return; }
-
-    const card = document.createElement('div');
-    card.className = 'card';
-
-    const stepLabel = document.createElement('div');
-    stepLabel.className = 'card-label';
-    stepLabel.textContent = `Round 2 — Step ${gameState.round2Step + 1}/3: ${stepLabels[gameState.round2Step]}`;
-    card.appendChild(stepLabel);
-
-    const qText = document.createElement('p');
-    qText.style.fontWeight = '600';
-    qText.style.marginBottom = '.75rem';
-    qText.textContent = q.question;
-    card.appendChild(qText);
-
-    const isMultiSelect = Array.isArray(q.correct);
-    const optWrap = document.createElement('div');
-    optWrap.className = 'answer-opts';
-    const selectedOpts = new Set();
-
-    q.options.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'answer-btn';
-      btn.textContent = opt;
-      if (isMultiSelect) {
-        btn.addEventListener('click', () => {
-          if (gameState.isAnswered) return;
-          if (selectedOpts.has(opt)) {
-            selectedOpts.delete(opt);
-            btn.classList.remove('selected-correct');
-            btn.style.borderColor = '';
-            btn.style.color = '';
-          } else {
-            selectedOpts.add(opt);
-            btn.style.borderColor = 'var(--accent)';
-            btn.style.color = 'var(--accent)';
-          }
-        });
-      } else {
-        btn.addEventListener('click', () => {
-          if (gameState.isAnswered) return;
-          gameState.isAnswered = true;
-          gameState.score.total++;
-          const isCorrect = opt === q.correct;
-          if (isCorrect) gameState.score.correct++;
-          optWrap.querySelectorAll('.answer-btn').forEach(b => {
-            if (b.textContent === q.correct) b.classList.add('correct');
-            else if (b === btn && !isCorrect) b.classList.add('incorrect');
-            b.disabled = true;
-          });
-          showR2Feedback(card, wrap, isCorrect, q.explanation);
-        });
-      }
-      optWrap.appendChild(btn);
-    });
-    card.appendChild(optWrap);
-
-    if (isMultiSelect) {
-      const submitBtn = document.createElement('button');
-      submitBtn.className = 'btn primary';
-      submitBtn.textContent = 'Check Answer';
-      submitBtn.style.marginTop = '.5rem';
-      submitBtn.addEventListener('click', () => {
-        if (gameState.isAnswered) return;
-        gameState.isAnswered = true;
-        gameState.score.total++;
-        const correctSet = new Set(q.correct);
-        const isCorrect = selectedOpts.size === correctSet.size &&
-          [...selectedOpts].every(o => correctSet.has(o));
-        if (isCorrect) gameState.score.correct++;
-        optWrap.querySelectorAll('.answer-btn').forEach(b => {
-          if (correctSet.has(b.textContent)) b.classList.add('correct');
-          else if (selectedOpts.has(b.textContent)) b.classList.add('incorrect');
           b.disabled = true;
         });
         showR2Feedback(card, wrap, isCorrect, q.explanation);
       });
-      card.appendChild(submitBtn);
     }
+    optWrap.appendChild(btn);
+  });
+  card.appendChild(optWrap);
 
-    wrap.appendChild(card);
-    // Update score display
-    const scoreEl = wrap.querySelector('.score-display');
-    if (scoreEl) scoreEl.textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
-  }
-
-  function showR2Feedback(card, wrap, isCorrect, explanation) {
-    const fb = document.createElement('div');
-    fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-    fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${explanation}`;
-    card.appendChild(fb);
-    if (wrap.querySelector('.score-display')) {
-      wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
-    }
-    const btnRow = document.createElement('div');
-    btnRow.className = 'btn-row';
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'btn primary';
-    const hasMoreSteps = gameState.round2Step < 2;
-    const hasMoreScenarios = gameState.scenarioIdx < DATA.game.scenarios.length - 1;
-    nextBtn.textContent = hasMoreSteps ? 'Next Step →' : (hasMoreScenarios ? 'Next Scenario →' : 'Finish');
-    nextBtn.addEventListener('click', () => {
-      gameState.isAnswered = false;
-      if (hasMoreSteps) {
-        gameState.round2Step++;
-        renderScenario(wrap);
-      } else if (hasMoreScenarios) {
-        gameState.scenarioIdx++;
-        gameState.round = 1;
-        gameState.round2Step = 0;
-        renderScenario(wrap);
-      } else {
-        advanceScenario(wrap);
-      }
-    });
-    btnRow.appendChild(nextBtn);
-    card.appendChild(btnRow);
-  }
-
-  function advanceScenario(wrap) {
-    wrap.innerHTML = `<div class="callout">
-      <strong>Game complete.</strong> Final score: ${gameState.score.correct} / ${gameState.score.total}.
-      <div class="btn-row" style="margin-top:1rem;"><button class="btn primary" id="game-restart">Restart</button></div>
-    </div>`;
-    document.getElementById('game-restart').addEventListener('click', () => buildGame());
-  }
-
-  function buildCaseStudies() {
-    const wrap = document.getElementById('case-study-wrap');
-    wrap.innerHTML = '';
-    DATA.caseStudies.forEach((cs, ci) => {
-      const div = document.createElement('div');
-      div.className = 'card';
-      div.innerHTML = `<h3 style="font-family:var(--mono);font-size:var(--text-sm);color:var(--accent);margin-bottom:1rem;">${cs.title}</h3>`;
-      const inner = document.createElement('div');
-      inner.id = `cs-${ci}`;
-      div.appendChild(inner);
-      wrap.appendChild(div);
-      renderCaseVisit(ci, 0, inner);
-    });
-  }
-
-  function renderCaseVisit(ci, vi, container) {
-    const cs = DATA.caseStudies[ci];
-    if (vi >= cs.visits.length) {
-      container.innerHTML = `<div class="callout"><strong>Case complete.</strong><div class="btn-row" style="margin-top:.75rem;"><button class="btn" id="cs-restart-${ci}">Restart Case</button></div></div>`;
-      document.getElementById(`cs-restart-${ci}`).addEventListener('click', () => renderCaseVisit(ci, 0, container));
-      return;
-    }
-    const visit = cs.visits[vi];
-    let html = `<div class="visit-badge">Visit ${visit.visit}</div>`;
-    // Test results
-    if (visit.testResults) {
-      html += `<div class="test-profile" style="margin-bottom:.75rem;">`;
-      Object.entries(visit.testResults).forEach(([k, v]) => {
-        const isPos = String(v).startsWith('+');
-        const isNeg = String(v).startsWith('−') || String(v).startsWith('-');
-        html += `<div class="test-item"><div class="test-item-name">${k}</div><div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${v}</div></div>`;
+  if (isMultiSelect) {
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'btn primary';
+    submitBtn.textContent = 'Check Answer';
+    submitBtn.style.marginTop = '.5rem';
+    submitBtn.addEventListener('click', () => {
+      if (gameState.isAnswered) return;
+      gameState.isAnswered = true;
+      gameState.score.total++;
+      const correctSet = new Set(q.correct);
+      const isCorrect = selectedOpts.size === correctSet.size &&
+        [...selectedOpts].every(o => correctSet.has(o));
+      if (isCorrect) gameState.score.correct++;
+      optWrap.querySelectorAll('.answer-btn').forEach(b => {
+        if (correctSet.has(b.textContent)) b.classList.add('correct');
+        else if (selectedOpts.has(b.textContent)) b.classList.add('incorrect');
+        b.disabled = true;
       });
-      html += `</div>`;
+      showR2Feedback(card, wrap, isCorrect, q.explanation);
+    });
+    card.appendChild(submitBtn);
+  }
+
+  wrap.appendChild(card);
+  // Update score display
+  const scoreEl = wrap.querySelector('.score-display');
+  if (scoreEl) scoreEl.textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+}
+
+function showR2Feedback(card, wrap, isCorrect, explanation) {
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
+  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${explanation}`;
+  card.appendChild(fb);
+  if (wrap.querySelector('.score-display')) {
+    wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+  }
+  const btnRow = document.createElement('div');
+  btnRow.className = 'btn-row';
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn primary';
+  const hasMoreSteps = gameState.round2Step < 2;
+  const hasMoreScenarios = gameState.scenarioIdx < DATA.game.scenarios.length - 1;
+  nextBtn.textContent = hasMoreSteps ? 'Next Step →' : (hasMoreScenarios ? 'Next Scenario →' : 'Finish');
+  nextBtn.addEventListener('click', () => {
+    gameState.isAnswered = false;
+    if (hasMoreSteps) {
+      gameState.round2Step++;
+      renderScenario(wrap);
+    } else if (hasMoreScenarios) {
+      gameState.scenarioIdx++;
+      gameState.round = 1;
+      gameState.round2Step = 0;
+      renderScenario(wrap);
+    } else {
+      advanceScenario(wrap);
     }
-    html += `<p style="font-weight:600;font-size:var(--text-sm);margin-bottom:.75rem;">${visit.question}</p>`;
-    container.innerHTML = html;
+  });
+  btnRow.appendChild(nextBtn);
+  card.appendChild(btnRow);
+}
 
-    const opts = visit.options || [];
-    const optWrap = document.createElement('div');
-    optWrap.className = 'answer-opts';
-    let answered = false;
+function advanceScenario(wrap) {
+  wrap.innerHTML = `<div class="callout">
+    <strong>Game complete.</strong> Final score: ${gameState.score.correct} / ${gameState.score.total}.
+    <div class="btn-row" style="margin-top:1rem;"><button class="btn primary" id="game-restart">Restart</button></div>
+  </div>`;
+  document.getElementById('game-restart').addEventListener('click', () => buildGame());
+}
 
-    opts.forEach(opt => {
-      const btn = document.createElement('button');
-      btn.className = 'answer-btn';
-      btn.textContent = opt;
-      btn.addEventListener('click', () => {
-        if (answered) return;
-        answered = true;
-        const isCorrect = opt === visit.correct;
-        optWrap.querySelectorAll('.answer-btn').forEach(b => {
-          if (b.textContent === visit.correct) b.classList.add('correct');
-          else if (b === btn && !isCorrect) b.classList.add('incorrect');
-          b.disabled = true;
-        });
-        const fb = document.createElement('div');
-        fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-        fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${visit.explanation}`;
-        container.appendChild(fb);
+function buildCaseStudies() {
+  const wrap = document.getElementById('case-study-wrap');
+  wrap.innerHTML = '';
+  DATA.caseStudies.forEach((cs, ci) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3 style="font-family:var(--mono);font-size:var(--text-sm);color:var(--accent);margin-bottom:1rem;">${cs.title}</h3>`;
+    const inner = document.createElement('div');
+    inner.id = `cs-${ci}`;
+    div.appendChild(inner);
+    wrap.appendChild(div);
+    renderCaseVisit(ci, 0, inner);
+  });
+}
 
-        // Handle treatment sub-question
-        if (visit.treatmentQuestion && isCorrect) {
-          const tq = document.createElement('div');
-          tq.style.marginTop = '.75rem';
-          tq.innerHTML = `<p style="font-weight:600;font-size:var(--text-sm);">${visit.treatmentQuestion}</p>`;
-          const topts = visit.treatmentOptions || [];
-          const tOptWrap = document.createElement('div');
-          tOptWrap.className = 'answer-opts';
-          const selectedT = new Set();
-          let tAnswered = false;
-          topts.forEach(topt => {
-            const tb = document.createElement('button');
-            tb.className = 'answer-btn';
-            tb.textContent = topt;
-            tb.addEventListener('click', () => {
-              if (tAnswered) return;
-              if (selectedT.has(topt)) { selectedT.delete(topt); tb.style.borderColor = ''; tb.style.color = ''; }
-              else { selectedT.add(topt); tb.style.borderColor = 'var(--accent)'; tb.style.color = 'var(--accent)'; }
-            });
-            tOptWrap.appendChild(tb);
-          });
-          tq.appendChild(tOptWrap);
-          const tSubmit = document.createElement('button');
-          tSubmit.className = 'btn primary';
-          tSubmit.textContent = 'Check';
-          tSubmit.style.marginTop = '.5rem';
-          tSubmit.addEventListener('click', () => {
+function renderCaseVisit(ci, vi, container) {
+  const cs = DATA.caseStudies[ci];
+  if (vi >= cs.visits.length) {
+    container.innerHTML = `<div class="callout"><strong>Case complete.</strong><div class="btn-row" style="margin-top:.75rem;"><button class="btn" id="cs-restart-${ci}">Restart Case</button></div></div>`;
+    document.getElementById(`cs-restart-${ci}`).addEventListener('click', () => renderCaseVisit(ci, 0, container));
+    return;
+  }
+  const visit = cs.visits[vi];
+  let html = `<div class="visit-badge">Visit ${visit.visit}</div>`;
+  // Test results
+  if (visit.testResults) {
+    html += `<div class="test-profile" style="margin-bottom:.75rem;">`;
+    Object.entries(visit.testResults).forEach(([k, v]) => {
+      const isPos = String(v).startsWith('+');
+      const isNeg = String(v).startsWith('−') || String(v).startsWith('-');
+      html += `<div class="test-item"><div class="test-item-name">${k}</div><div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${v}</div></div>`;
+    });
+    html += `</div>`;
+  }
+  html += `<p style="font-weight:600;font-size:var(--text-sm);margin-bottom:.75rem;">${visit.question}</p>`;
+  container.innerHTML = html;
+
+  const opts = visit.options || [];
+  const optWrap = document.createElement('div');
+  optWrap.className = 'answer-opts';
+  let answered = false;
+
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      if (answered) return;
+      answered = true;
+      const isCorrect = opt === visit.correct;
+      optWrap.querySelectorAll('.answer-btn').forEach(b => {
+        if (b.textContent === visit.correct) b.classList.add('correct');
+        else if (b === btn && !isCorrect) b.classList.add('incorrect');
+        b.disabled = true;
+      });
+      const fb = document.createElement('div');
+      fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
+      fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${visit.explanation}`;
+      container.appendChild(fb);
+
+      // Handle treatment sub-question
+      if (visit.treatmentQuestion && isCorrect) {
+        const tq = document.createElement('div');
+        tq.style.marginTop = '.75rem';
+        tq.innerHTML = `<p style="font-weight:600;font-size:var(--text-sm);">${visit.treatmentQuestion}</p>`;
+        const topts = visit.treatmentOptions || [];
+        const tOptWrap = document.createElement('div');
+        tOptWrap.className = 'answer-opts';
+        const selectedT = new Set();
+        let tAnswered = false;
+        topts.forEach(topt => {
+          const tb = document.createElement('button');
+          tb.className = 'answer-btn';
+          tb.textContent = topt;
+          tb.addEventListener('click', () => {
             if (tAnswered) return;
-            tAnswered = true;
-            const correctSet = new Set(visit.correctTreatment || []);
-            const isT = selectedT.size === correctSet.size && [...selectedT].every(o => correctSet.has(o));
-            tOptWrap.querySelectorAll('.answer-btn').forEach(b => {
-              if (correctSet.has(b.textContent)) b.classList.add('correct');
-              else if (selectedT.has(b.textContent)) b.classList.add('incorrect');
-              b.disabled = true;
-            });
-            const tfb = document.createElement('div');
-            tfb.className = 'feedback-box' + (isT ? '' : ' error');
-            tfb.innerHTML = `<strong>${isT ? 'Correct.' : 'Incorrect.'}</strong> ${visit.treatmentExplanation || ''}`;
-            tq.appendChild(tfb);
-            addNextVisitBtn(tq, ci, vi, container);
+            if (selectedT.has(topt)) { selectedT.delete(topt); tb.style.borderColor = ''; tb.style.color = ''; }
+            else { selectedT.add(topt); tb.style.borderColor = 'var(--accent)'; tb.style.color = 'var(--accent)'; }
           });
-          tq.appendChild(tSubmit);
-          container.appendChild(tq);
-        } else {
-          addNextVisitBtn(container, ci, vi, container);
-        }
-      });
-      optWrap.appendChild(btn);
+          tOptWrap.appendChild(tb);
+        });
+        tq.appendChild(tOptWrap);
+        const tSubmit = document.createElement('button');
+        tSubmit.className = 'btn primary';
+        tSubmit.textContent = 'Check';
+        tSubmit.style.marginTop = '.5rem';
+        tSubmit.addEventListener('click', () => {
+          if (tAnswered) return;
+          tAnswered = true;
+          const correctSet = new Set(visit.correctTreatment || []);
+          const isT = selectedT.size === correctSet.size && [...selectedT].every(o => correctSet.has(o));
+          tOptWrap.querySelectorAll('.answer-btn').forEach(b => {
+            if (correctSet.has(b.textContent)) b.classList.add('correct');
+            else if (selectedT.has(b.textContent)) b.classList.add('incorrect');
+            b.disabled = true;
+          });
+          const tfb = document.createElement('div');
+          tfb.className = 'feedback-box' + (isT ? '' : ' error');
+          tfb.innerHTML = `<strong>${isT ? 'Correct.' : 'Incorrect.'}</strong> ${visit.treatmentExplanation || ''}`;
+          tq.appendChild(tfb);
+          addNextVisitBtn(tq, ci, vi, container);
+        });
+        tq.appendChild(tSubmit);
+        container.appendChild(tq);
+      } else {
+        addNextVisitBtn(container, ci, vi, container);
+      }
     });
-    container.appendChild(optWrap);
-  }
+    optWrap.appendChild(btn);
+  });
+  container.appendChild(optWrap);
+}
 
-  function addNextVisitBtn(parent, ci, vi, container) {
-    const cs = DATA.caseStudies[ci];
+function addNextVisitBtn(parent, ci, vi, container) {
+  const cs = DATA.caseStudies[ci];
+  const btnRow = document.createElement('div');
+  btnRow.className = 'btn-row';
+  const nv = document.createElement('button');
+  nv.className = 'btn primary';
+  nv.textContent = vi + 1 < cs.visits.length ? `Next Visit (Visit ${vi + 2}) →` : 'Case Complete';
+  nv.addEventListener('click', () => renderCaseVisit(ci, vi + 1, container));
+  btnRow.appendChild(nv);
+  parent.appendChild(btnRow);
+}
+
+function buildCausalChains() {
+  const wrap = document.getElementById('chains-wrap');
+  wrap.innerHTML = '';
+  DATA.causalChains.forEach((chain, ci) => {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.innerHTML = `<h3 style="font-family:var(--mono);font-size:var(--text-sm);color:var(--accent);margin-bottom:.25rem;">${chain.title}</h3>
+      <div style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.75rem;">${chain.start} → ${chain.end}</div>`;
+
+    // Build shuffled list
+    const steps = [...chain.steps];
+    const shuffled = [...steps].sort(() => Math.random() - 0.5);
+    let order = [...shuffled];
+
+    const ul = document.createElement('ul');
+    ul.className = 'chain-list';
+    ul.id = `chain-${ci}`;
+
+    function buildList() {
+      ul.innerHTML = '';
+      order.forEach((step, i) => {
+        const li = document.createElement('li');
+        li.className = 'chain-item';
+        li.setAttribute('draggable', 'true');
+        li.dataset.step = step;
+        li.innerHTML = `<span class="chain-step-num">${i + 1}.</span><span>${step}</span>`;
+        // Drag events
+        li.addEventListener('dragstart', () => li.classList.add('dragging'));
+        li.addEventListener('dragend', () => li.classList.remove('dragging'));
+        ul.appendChild(li);
+      });
+
+      // Drop zone
+      ul.addEventListener('dragover', e => {
+        e.preventDefault();
+        const dragging = ul.querySelector('.dragging');
+        const siblings = [...ul.querySelectorAll('.chain-item:not(.dragging)')];
+        const after = siblings.find(s => {
+          const box = s.getBoundingClientRect();
+          return e.clientY <= box.top + box.height / 2;
+        });
+        if (after) ul.insertBefore(dragging, after);
+        else ul.appendChild(dragging);
+        // Update order
+        order = [...ul.querySelectorAll('.chain-item')].map(li => li.dataset.step);
+      });
+    }
+    buildList();
+
+    div.appendChild(ul);
+
     const btnRow = document.createElement('div');
     btnRow.className = 'btn-row';
-    const nv = document.createElement('button');
-    nv.className = 'btn primary';
-    nv.textContent = vi + 1 < cs.visits.length ? `Next Visit (Visit ${vi + 2}) →` : 'Case Complete';
-    nv.addEventListener('click', () => renderCaseVisit(ci, vi + 1, container));
-    btnRow.appendChild(nv);
-    parent.appendChild(btnRow);
-  }
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'btn primary';
+    checkBtn.textContent = 'Check Order';
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'btn';
+    resetBtn.textContent = 'Reset';
+    const feedbackEl = document.createElement('div');
+    feedbackEl.style.marginTop = '.5rem';
 
-  function buildCausalChains() {
-    const wrap = document.getElementById('chains-wrap');
-    wrap.innerHTML = '';
-    DATA.causalChains.forEach((chain, ci) => {
-      const div = document.createElement('div');
-      div.className = 'card';
-      div.innerHTML = `<h3 style="font-family:var(--mono);font-size:var(--text-sm);color:var(--accent);margin-bottom:.25rem;">${chain.title}</h3>
-        <div style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.75rem;">${chain.start} → ${chain.end}</div>`;
+    checkBtn.addEventListener('click', () => {
+      const currentOrder = [...ul.querySelectorAll('.chain-item')].map(li => li.dataset.step);
+      let allCorrect = true;
+      ul.querySelectorAll('.chain-item').forEach((li, i) => {
+        const isCorrect = li.dataset.step === steps[i];
+        li.classList.toggle('correct', isCorrect);
+        li.classList.toggle('incorrect', !isCorrect);
+        if (!isCorrect) allCorrect = false;
+      });
+      feedbackEl.innerHTML = allCorrect
+        ? `<div class="feedback-box">Correct order.</div>`
+        : `<div class="feedback-box error">Not quite. Correct order: <ol style="margin-left:1.25rem;list-style:decimal;font-size:var(--text-xs);margin-top:.35rem;">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>`;
+      btnRow.appendChild(feedbackEl);
+    });
 
-      // Build shuffled list
-      const steps = [...chain.steps];
-      const shuffled = [...steps].sort(() => Math.random() - 0.5);
-      let order = [...shuffled];
-
-      const ul = document.createElement('ul');
-      ul.className = 'chain-list';
-      ul.id = `chain-${ci}`;
-
-      function buildList() {
-        ul.innerHTML = '';
-        order.forEach((step, i) => {
-          const li = document.createElement('li');
-          li.className = 'chain-item';
-          li.setAttribute('draggable', 'true');
-          li.dataset.step = step;
-          li.innerHTML = `<span class="chain-step-num">${i + 1}.</span><span>${step}</span>`;
-          // Drag events
-          li.addEventListener('dragstart', () => li.classList.add('dragging'));
-          li.addEventListener('dragend', () => li.classList.remove('dragging'));
-          ul.appendChild(li);
-        });
-
-        // Drop zone
-        ul.addEventListener('dragover', e => {
-          e.preventDefault();
-          const dragging = ul.querySelector('.dragging');
-          const siblings = [...ul.querySelectorAll('.chain-item:not(.dragging)')];
-          const after = siblings.find(s => {
-            const box = s.getBoundingClientRect();
-            return e.clientY <= box.top + box.height / 2;
-          });
-          if (after) ul.insertBefore(dragging, after);
-          else ul.appendChild(dragging);
-          // Update order
-          order = [...ul.querySelectorAll('.chain-item')].map(li => li.dataset.step);
-        });
-      }
+    resetBtn.addEventListener('click', () => {
+      order = [...steps].sort(() => Math.random() - 0.5);
       buildList();
-
-      div.appendChild(ul);
-
-      const btnRow = document.createElement('div');
-      btnRow.className = 'btn-row';
-      const checkBtn = document.createElement('button');
-      checkBtn.className = 'btn primary';
-      checkBtn.textContent = 'Check Order';
-      const resetBtn = document.createElement('button');
-      resetBtn.className = 'btn';
-      resetBtn.textContent = 'Reset';
-      const feedbackEl = document.createElement('div');
-      feedbackEl.style.marginTop = '.5rem';
-
-      checkBtn.addEventListener('click', () => {
-        const currentOrder = [...ul.querySelectorAll('.chain-item')].map(li => li.dataset.step);
-        let allCorrect = true;
-        ul.querySelectorAll('.chain-item').forEach((li, i) => {
-          const isCorrect = li.dataset.step === steps[i];
-          li.classList.toggle('correct', isCorrect);
-          li.classList.toggle('incorrect', !isCorrect);
-          if (!isCorrect) allCorrect = false;
-        });
-        feedbackEl.innerHTML = allCorrect
-          ? `<div class="feedback-box">Correct order.</div>`
-          : `<div class="feedback-box error">Not quite. Correct order: <ol style="margin-left:1.25rem;list-style:decimal;font-size:var(--text-xs);margin-top:.35rem;">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>`;
-        btnRow.appendChild(feedbackEl);
-      });
-
-      resetBtn.addEventListener('click', () => {
-        order = [...steps].sort(() => Math.random() - 0.5);
-        buildList();
-        feedbackEl.innerHTML = '';
-        ul.querySelectorAll('.chain-item').forEach(li => li.classList.remove('correct','incorrect'));
-      });
-
-      btnRow.appendChild(checkBtn);
-      btnRow.appendChild(resetBtn);
-      div.appendChild(btnRow);
-      div.appendChild(feedbackEl);
-      wrap.appendChild(div);
+      feedbackEl.innerHTML = '';
+      ul.querySelectorAll('.chain-item').forEach(li => li.classList.remove('correct','incorrect'));
     });
-  }
 
-  function buildDecisionTree() {
-    const wrap = document.getElementById('tree-wrap');
-    wrap.innerHTML = '';
-    renderTreeNode(DATA.decisionTree, wrap, 0);
-  }
+    btnRow.appendChild(checkBtn);
+    btnRow.appendChild(resetBtn);
+    div.appendChild(btnRow);
+    div.appendChild(feedbackEl);
+    wrap.appendChild(div);
+  });
+}
 
-  function renderTreeNode(node, parent, depth) {
-    if (!node) return;
-    if (node.terminal) {
-      const el = document.createElement('div');
-      el.className = 'tree-terminal';
-      let content = node.content || '';
-      // Append out-of-scope note for references to Myokinematic Restoration
-      if (content.includes('Myokinematic Restoration')) {
-        content = content.replace('Myokinematic Restoration & Postural Respiration', 'Myokinematic Restoration & Postural Respiration (out of scope for this course)');
-        content = content.replace('Myokinematic Restoration.', 'Myokinematic Restoration (out of scope for this course).');
-        content = content.replace('Myokinematic Restoration\u2014', 'Myokinematic Restoration (out of scope for this course) —');
-        content = content.replace('Myokinematic Restoration —', 'Myokinematic Restoration (out of scope for this course) —');
-      }
-      el.textContent = content;
-      parent.appendChild(el);
-      return;
+function buildDecisionTree() {
+  const wrap = document.getElementById('tree-wrap');
+  wrap.innerHTML = '';
+  renderTreeNode(DATA.decisionTree, wrap, 0);
+}
+
+function renderTreeNode(node, parent, depth) {
+  if (!node) return;
+  if (node.terminal) {
+    const el = document.createElement('div');
+    el.className = 'tree-terminal';
+    let content = node.content || '';
+    // Append out-of-scope note for references to Myokinematic Restoration
+    if (content.includes('Myokinematic Restoration')) {
+      content = content.replace('Myokinematic Restoration & Postural Respiration', 'Myokinematic Restoration & Postural Respiration (out of scope for this course)');
+      content = content.replace('Myokinematic Restoration.', 'Myokinematic Restoration (out of scope for this course).');
+      content = content.replace('Myokinematic Restoration\u2014', 'Myokinematic Restoration (out of scope for this course) —');
+      content = content.replace('Myokinematic Restoration —', 'Myokinematic Restoration (out of scope for this course) —');
     }
-    const qEl = document.createElement('div');
-    qEl.className = 'tree-question';
-    qEl.textContent = node.question || node.id;
-    parent.appendChild(qEl);
+    el.textContent = content;
+    parent.appendChild(el);
+    return;
+  }
+  const qEl = document.createElement('div');
+  qEl.className = 'tree-question';
+  qEl.textContent = node.question || node.id;
+  parent.appendChild(qEl);
 
-    if (node.branches) {
-      node.branches.forEach(branch => {
-        const branchWrap = document.createElement('div');
-        branchWrap.className = 'tree-branch';
-        const toggle = document.createElement('button');
-        toggle.className = 'tree-answer-toggle';
-        toggle.textContent = '▶ ' + branch.answer;
-        const children = document.createElement('div');
-        children.className = 'tree-children';
-        toggle.addEventListener('click', () => {
-          const isOpen = children.classList.contains('open');
-          children.classList.toggle('open', !isOpen);
-          toggle.classList.toggle('open', !isOpen);
-          toggle.textContent = (isOpen ? '▶ ' : '▼ ') + branch.answer;
-        });
-        branchWrap.appendChild(toggle);
-        renderTreeNode(branch.next, children, depth + 1);
-        branchWrap.appendChild(children);
-        parent.appendChild(branchWrap);
+  if (node.branches) {
+    node.branches.forEach(branch => {
+      const branchWrap = document.createElement('div');
+      branchWrap.className = 'tree-branch';
+      const toggle = document.createElement('button');
+      toggle.className = 'tree-answer-toggle';
+      toggle.textContent = '▶ ' + branch.answer;
+      const children = document.createElement('div');
+      children.className = 'tree-children';
+      toggle.addEventListener('click', () => {
+        const isOpen = children.classList.contains('open');
+        children.classList.toggle('open', !isOpen);
+        toggle.classList.toggle('open', !isOpen);
+        toggle.textContent = (isOpen ? '▶ ' : '▼ ') + branch.answer;
       });
-    }
-  }
-
-  function buildMuscleMap() {
-    const tabs = document.querySelectorAll('#muscle-view-tabs .subview-tab');
-    let currentMView = 'byMuscle';
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentMView = tab.dataset.mview;
-        renderMuscleView(currentMView, '');
-      });
+      branchWrap.appendChild(toggle);
+      renderTreeNode(branch.next, children, depth + 1);
+      branchWrap.appendChild(children);
+      parent.appendChild(branchWrap);
     });
-    const search = document.getElementById('muscle-search');
-    search.addEventListener('input', () => renderMuscleView(currentMView, search.value.toLowerCase()));
-    search.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
-    renderMuscleView('byMuscle', '');
   }
+}
 
-  function renderMuscleView(view, query) {
-    const wrap = document.getElementById('muscle-map-wrap');
-    const entries = DATA.muscleExerciseMap[view] || [];
-    wrap.innerHTML = '';
-    entries.forEach(entry => {
-      const nameKey = entry.muscle || entry.finding || '';
-      if (query && !JSON.stringify(entry).toLowerCase().includes(query)) return;
-      const div = document.createElement('div');
-      div.className = 'muscle-entry';
-      const exercises = (entry.exercises || []).map(e => `<span class="exercise-tag">${e}</span>`).join('');
-      div.innerHTML = `
-        <div class="muscle-name">${nameKey}</div>
-        <div class="muscle-meta">${entry.action || entry.meaning || ''}</div>
-        ${entry.pattern ? `<div class="muscle-meta">Pattern: ${entry.pattern}</div>` : ''}
-        ${entry.hierarchyStep ? `<div class="muscle-meta">Hierarchy: ${entry.hierarchyStep}</div>` : ''}
-        ${entry.muscles ? `<div class="muscle-meta">Muscles: ${entry.muscles}</div>` : ''}
-        <div style="margin-top:.35rem;">${exercises}</div>
-      `;
-      wrap.appendChild(div);
+function buildMuscleMap() {
+  const tabs = document.querySelectorAll('#muscle-view-tabs .subview-tab');
+  let currentMView = 'byMuscle';
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentMView = tab.dataset.mview;
+      renderMuscleView(currentMView, '');
     });
-    if (!wrap.children.length) wrap.innerHTML = '<div class="text-dim" style="font-size:var(--text-sm);">No entries match.</div>';
-  }
+  });
+  const search = document.getElementById('muscle-search');
+  search.addEventListener('input', () => renderMuscleView(currentMView, search.value.toLowerCase()));
+  search.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+  renderMuscleView('byMuscle', '');
+}
 
-  return { init };
-})();
-
+function renderMuscleView(view, query) {
+  const wrap = document.getElementById('muscle-map-wrap');
+  const entries = DATA.muscleExerciseMap[view] || [];
+  wrap.innerHTML = '';
+  entries.forEach(entry => {
+    const nameKey = entry.muscle || entry.finding || '';
+    if (query && !JSON.stringify(entry).toLowerCase().includes(query)) return;
+    const div = document.createElement('div');
+    div.className = 'muscle-entry';
+    const exercises = (entry.exercises || []).map(e => `<span class="exercise-tag">${e}</span>`).join('');
+    div.innerHTML = `
+      <div class="muscle-name">${nameKey}</div>
+      <div class="muscle-meta">${entry.action || entry.meaning || ''}</div>
+      ${entry.pattern ? `<div class="muscle-meta">Pattern: ${entry.pattern}</div>` : ''}
+      ${entry.hierarchyStep ? `<div class="muscle-meta">Hierarchy: ${entry.hierarchyStep}</div>` : ''}
+      ${entry.muscles ? `<div class="muscle-meta">Muscles: ${entry.muscles}</div>` : ''}
+      <div style="margin-top:.35rem;">${exercises}</div>
+    `;
+    wrap.appendChild(div);
+  });
+  if (!wrap.children.length) wrap.innerHTML = '<div class="text-dim" style="font-size:var(--text-sm);">No entries match.</div>';
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  DiagnoseModule.init();
+  initDiagnose();
 });
 
 </script>
 
 <script type="module" src="scripts/flashcards.js"></script>
 
-<script type="module" id="module-equivalence">
+<script type="module">
 import { getAllEquivalent } from './scripts/study-utils.js';
-const EquivalenceModule = (() => {
-  const REGION_LABELS = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF' };
-  const REGIONS_LIST = ['IP','IS','IsP','SI','AF'];
-  const SIDES = ['L','R'];
-  const DIRS = ['ER','IR'];
+const REGION_LABELS = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF' };
+const REGIONS_LIST = ['IP','IS','IsP','SI','AF'];
+const SIDES = ['L','R'];
+const DIRS = ['ER','IR'];
 
-  let questions = [];
-  let qIdx = 0;
-  let score = { correct: 0, total: 0 };
-  let isAnswered = false;
+let questions = [];
+let qIdx = 0;
+let score = { correct: 0, total: 0 };
+let isAnswered = false;
 
-  function generateQuestions() {
-    const qs = [];
-    SIDES.forEach(side => {
-      REGIONS_LIST.forEach(region => {
-        DIRS.forEach(dir => {
-          const regionLower = region.toLowerCase().replace('isp','isp');
-          const dirLower = dir.toLowerCase();
-          const equiv = getAllEquivalent(regionLower, dirLower);
-          // Generate all-equivalent positions
-          const allEquiv = Object.entries(equiv)
-            .filter(([rid]) => rid !== regionLower)
-            .map(([rid, d]) => `${side} ${REGION_LABELS[rid] || rid.toUpperCase()} ${d}`);
+function generateQuestions() {
+  const qs = [];
+  SIDES.forEach(side => {
+    REGIONS_LIST.forEach(region => {
+      DIRS.forEach(dir => {
+        const regionLower = region.toLowerCase().replace('isp','isp');
+        const dirLower = dir.toLowerCase();
+        const equiv = getAllEquivalent(regionLower, dirLower);
+        // Generate all-equivalent positions
+        const allEquiv = Object.entries(equiv)
+          .filter(([rid]) => rid !== regionLower)
+          .map(([rid, d]) => `${side} ${REGION_LABELS[rid] || rid.toUpperCase()} ${d}`);
 
-          // Distractors: same region different side, same side wrong direction, different side different region
-          const distractors = [];
-          const otherSide = side === 'L' ? 'R' : 'L';
-          // wrong side
-          distractors.push(`${otherSide} ${region} ${dir}`);
-          // wrong dir
-          const wrongDir = dir === 'ER' ? 'IR' : 'ER';
-          distractors.push(`${side} ${region} ${wrongDir}`);
-          // outlet when showing inlet (or vice versa)
-          const outletRegion = ['IP','IS'].includes(region) ? 'IsP' : 'IP';
-          const wrongEquivDir = ['IP','IS','AF'].includes(outletRegion) ? dir : wrongDir;
-          distractors.push(`${side} ${outletRegion} ${wrongEquivDir}`);
-          // other side wrong region
-          distractors.push(`${otherSide} ${REGIONS_LIST.find(r => r !== region) || 'SI'} ${dir}`);
+        // Distractors: same region different side, same side wrong direction, different side different region
+        const distractors = [];
+        const otherSide = side === 'L' ? 'R' : 'L';
+        // wrong side
+        distractors.push(`${otherSide} ${region} ${dir}`);
+        // wrong dir
+        const wrongDir = dir === 'ER' ? 'IR' : 'ER';
+        distractors.push(`${side} ${region} ${wrongDir}`);
+        // outlet when showing inlet (or vice versa)
+        const outletRegion = ['IP','IS'].includes(region) ? 'IsP' : 'IP';
+        const wrongEquivDir = ['IP','IS','AF'].includes(outletRegion) ? dir : wrongDir;
+        distractors.push(`${side} ${outletRegion} ${wrongEquivDir}`);
+        // other side wrong region
+        distractors.push(`${otherSide} ${REGIONS_LIST.find(r => r !== region) || 'SI'} ${dir}`);
 
-          // Pick 2 correct (from allEquiv) + 2 distractors
-          const correctPick = allEquiv.slice(0, 3);
-          const distPick = distractors.filter(d => !correctPick.includes(d)).slice(0, 2);
-          const allOpts = [...correctPick.slice(0, 2), ...distPick].sort(() => Math.random() - 0.5);
+        // Pick 2 correct (from allEquiv) + 2 distractors
+        const correctPick = allEquiv.slice(0, 3);
+        const distPick = distractors.filter(d => !correctPick.includes(d)).slice(0, 2);
+        const allOpts = [...correctPick.slice(0, 2), ...distPick].sort(() => Math.random() - 0.5);
 
-          qs.push({
-            given: `${side} ${region} ${dir}`,
-            correctAnswers: new Set(correctPick.slice(0, 2)),
-            options: allOpts,
-            equiv
-          });
+        qs.push({
+          given: `${side} ${region} ${dir}`,
+          correctAnswers: new Set(correctPick.slice(0, 2)),
+          options: allOpts,
+          equiv
         });
       });
     });
-    // Shuffle and take at least 12
-    return qs.sort(() => Math.random() - 0.5);
+  });
+  // Shuffle and take at least 12
+  return qs.sort(() => Math.random() - 0.5);
+}
+
+function initEquivalence() {
+  questions = generateQuestions();
+  qIdx = 0;
+  score = { correct: 0, total: 0 };
+  isAnswered = false;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const wrap = document.getElementById('equiv-quiz-wrap');
+  const scoreEl = document.getElementById('equiv-score');
+  scoreEl.textContent = `Score: ${score.correct} / ${score.total}`;
+
+  if (qIdx >= questions.length) {
+    wrap.innerHTML = `<div class="callout"><strong>Session complete.</strong> Score: ${score.correct} / ${score.total}.<div class="btn-row" style="margin-top:1rem;"><button class="btn primary" id="equiv-restart">New Session</button></div></div>`;
+    document.getElementById('equiv-restart').addEventListener('click', () => initEquivalence());
+    return;
   }
 
-  function init() {
-    questions = generateQuestions();
-    qIdx = 0;
-    score = { correct: 0, total: 0 };
-    isAnswered = false;
-    renderQuestion();
-  }
+  const q = questions[qIdx];
+  const selected = new Set();
+  isAnswered = false;
 
-  function renderQuestion() {
-    const wrap = document.getElementById('equiv-quiz-wrap');
-    const scoreEl = document.getElementById('equiv-score');
+  let html = `<div class="card">`;
+  html += `<div class="card-label">Question ${qIdx + 1} of ${questions.length}</div>`;
+  html += `<div style="font-family:var(--mono);font-size:var(--text-xl);color:var(--accent);font-weight:700;margin:.5rem 0 .25rem;">${q.given}</div>`;
+  html += `<p style="font-size:var(--text-sm);color:var(--text-dim);margin-bottom:1rem;">Select ALL equivalent positions (may be zero or more):</p>`;
+  html += `<div class="equiv-opts" id="equiv-options">`;
+  q.options.forEach((opt, i) => {
+    html += `<div class="equiv-opt" data-opt="${opt}" role="checkbox" aria-checked="false" tabindex="0">${opt}</div>`;
+  });
+  html += `</div>`;
+  html += `<div class="btn-row"><button class="btn primary" id="equiv-submit">Submit</button></div>`;
+  html += `<div id="equiv-feedback" class="hidden"></div>`;
+  html += `</div>`;
+  wrap.innerHTML = html;
+
+  const opts = wrap.querySelectorAll('.equiv-opt');
+  opts.forEach(opt => {
+    opt.addEventListener('click', () => {
+      if (isAnswered) return;
+      const val = opt.dataset.opt;
+      if (selected.has(val)) {
+        selected.delete(val);
+        opt.classList.remove('selected');
+        opt.setAttribute('aria-checked', 'false');
+      } else {
+        selected.add(val);
+        opt.classList.add('selected');
+        opt.setAttribute('aria-checked', 'true');
+      }
+    });
+    opt.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opt.click(); }
+    });
+  });
+
+  document.getElementById('equiv-submit').addEventListener('click', () => {
+    if (isAnswered) return;
+    isAnswered = true;
+    score.total++;
+    const isCorrect = selected.size === q.correctAnswers.size &&
+      [...selected].every(s => q.correctAnswers.has(s));
+    if (isCorrect) score.correct++;
     scoreEl.textContent = `Score: ${score.correct} / ${score.total}`;
 
-    if (qIdx >= questions.length) {
-      wrap.innerHTML = `<div class="callout"><strong>Session complete.</strong> Score: ${score.correct} / ${score.total}.<div class="btn-row" style="margin-top:1rem;"><button class="btn primary" id="equiv-restart">New Session</button></div></div>`;
-      document.getElementById('equiv-restart').addEventListener('click', () => init());
-      return;
-    }
-
-    const q = questions[qIdx];
-    const selected = new Set();
-    isAnswered = false;
-
-    let html = `<div class="card">`;
-    html += `<div class="card-label">Question ${qIdx + 1} of ${questions.length}</div>`;
-    html += `<div style="font-family:var(--mono);font-size:var(--text-xl);color:var(--accent);font-weight:700;margin:.5rem 0 .25rem;">${q.given}</div>`;
-    html += `<p style="font-size:var(--text-sm);color:var(--text-dim);margin-bottom:1rem;">Select ALL equivalent positions (may be zero or more):</p>`;
-    html += `<div class="equiv-opts" id="equiv-options">`;
-    q.options.forEach((opt, i) => {
-      html += `<div class="equiv-opt" data-opt="${opt}" role="checkbox" aria-checked="false" tabindex="0">${opt}</div>`;
-    });
-    html += `</div>`;
-    html += `<div class="btn-row"><button class="btn primary" id="equiv-submit">Submit</button></div>`;
-    html += `<div id="equiv-feedback" class="hidden"></div>`;
-    html += `</div>`;
-    wrap.innerHTML = html;
-
-    const opts = wrap.querySelectorAll('.equiv-opt');
     opts.forEach(opt => {
-      opt.addEventListener('click', () => {
-        if (isAnswered) return;
-        const val = opt.dataset.opt;
-        if (selected.has(val)) {
-          selected.delete(val);
-          opt.classList.remove('selected');
-          opt.setAttribute('aria-checked', 'false');
-        } else {
-          selected.add(val);
-          opt.classList.add('selected');
-          opt.setAttribute('aria-checked', 'true');
-        }
-      });
-      opt.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opt.click(); }
-      });
+      const val = opt.dataset.opt;
+      const isCorr = q.correctAnswers.has(val);
+      const isSel = selected.has(val);
+      if (isCorr && isSel) opt.classList.add('correct-reveal');
+      else if (isCorr && !isSel) opt.classList.add('missed');
+      else if (!isCorr && isSel) opt.classList.add('wrong-reveal');
+      opt.classList.remove('selected');
     });
 
-    document.getElementById('equiv-submit').addEventListener('click', () => {
-      if (isAnswered) return;
-      isAnswered = true;
-      score.total++;
-      const isCorrect = selected.size === q.correctAnswers.size &&
-        [...selected].every(s => q.correctAnswers.has(s));
-      if (isCorrect) score.correct++;
-      scoreEl.textContent = `Score: ${score.correct} / ${score.total}`;
-
-      opts.forEach(opt => {
-        const val = opt.dataset.opt;
-        const isCorr = q.correctAnswers.has(val);
-        const isSel = selected.has(val);
-        if (isCorr && isSel) opt.classList.add('correct-reveal');
-        else if (isCorr && !isSel) opt.classList.add('missed');
-        else if (!isCorr && isSel) opt.classList.add('wrong-reveal');
-        opt.classList.remove('selected');
-      });
-
-      // Build equivalence chain explanation
-      const feedback = document.getElementById('equiv-feedback');
-      const [qs, qr, qd] = q.given.split(' ');
-      const equiv = getAllEquivalent(qr.toLowerCase(), qd.toLowerCase());
-      let chainHTML = `<div class="equiv-chain" style="margin:1rem 0;">
-        <div style="font-family:var(--mono);font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.35rem;">FULL EQUIVALENCE CHAIN:</div>`;
-      const labels = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF', fa:'FA' };
-      let f = true;
-      Object.entries(equiv).forEach(([rid, d]) => {
-        const label = labels[rid] || rid.toUpperCase();
-        chainHTML += `<div class="equiv-line${rid === qr.toLowerCase() ? ' main' : ''}" style="${['isp','si'].includes(rid) ? 'color:var(--outlet)' : ''}">${f ? '' : '= '}${qs} ${label} ${d}</div>`;
-        f = false;
-      });
-      chainHTML += `</div>`;
-
-      feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
-      feedback.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong>${chainHTML}`;
-      feedback.classList.remove('hidden');
-
-      // Next button
-      const nextBtn = document.createElement('button');
-      nextBtn.className = 'btn primary';
-      nextBtn.style.marginTop = '.75rem';
-      nextBtn.textContent = qIdx + 1 < questions.length ? 'Next Question →' : 'Finish Session';
-      nextBtn.addEventListener('click', () => { qIdx++; renderQuestion(); });
-      feedback.appendChild(nextBtn);
+    // Build equivalence chain explanation
+    const feedback = document.getElementById('equiv-feedback');
+    const [qs, qr, qd] = q.given.split(' ');
+    const equiv = getAllEquivalent(qr.toLowerCase(), qd.toLowerCase());
+    let chainHTML = `<div class="equiv-chain" style="margin:1rem 0;">
+      <div style="font-family:var(--mono);font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.35rem;">FULL EQUIVALENCE CHAIN:</div>`;
+    const labels = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF', fa:'FA' };
+    let f = true;
+    Object.entries(equiv).forEach(([rid, d]) => {
+      const label = labels[rid] || rid.toUpperCase();
+      chainHTML += `<div class="equiv-line${rid === qr.toLowerCase() ? ' main' : ''}" style="${['isp','si'].includes(rid) ? 'color:var(--outlet)' : ''}">${f ? '' : '= '}${qs} ${label} ${d}</div>`;
+      f = false;
     });
-  }
+    chainHTML += `</div>`;
 
-  return { init };
-})();
+    feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
+    feedback.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong>${chainHTML}`;
+    feedback.classList.remove('hidden');
 
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn primary';
+    nextBtn.style.marginTop = '.75rem';
+    nextBtn.textContent = qIdx + 1 < questions.length ? 'Next Question →' : 'Finish Session';
+    nextBtn.addEventListener('click', () => { qIdx++; renderQuestion(); });
+    feedback.appendChild(nextBtn);
+  });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  EquivalenceModule.init();
+  initEquivalence();
 });
 
 </script>
