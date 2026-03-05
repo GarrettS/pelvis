@@ -1,6 +1,7 @@
 .joint-schematic {
   display:block;
-  max-width:240px;
+  width:100%;
+  max-width:340px;
   margin:.5rem auto;
 }
 
@@ -43,7 +44,7 @@
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
-  margin: 1rem 0;
+  margin: 0 0 1rem;
 }
 
 .joint-schematic-row > div {

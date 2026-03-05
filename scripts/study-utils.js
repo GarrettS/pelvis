@@ -61,7 +61,7 @@ export function getMuscles(side, regionId, directionId) {
   return map[regionId + '_' + directionId] || [];
 }
 
-export const SI_SVG = '<svg class="joint-schematic" viewBox="0 0 240 185">' +
+export const SI_SVG = '<svg class="joint-schematic" viewBox="0 0 240 190">' +
   '<polygon points="120,38 152,44 156,132 120,148 84,132 88,44" fill="var(--surface2)" stroke="var(--accent)" stroke-width="1.5"/>' +
   '<text x="120" y="100" text-anchor="middle" fill="var(--accent)" font-family="monospace" font-size="11" font-weight="700">SACRUM</text>' +
   '<path d="M88,44 Q58,18 28,32 L18,122 Q34,138 64,132 L84,132 Z" fill="var(--surface2)" stroke="var(--inlet)" stroke-width="1.5"/>' +
@@ -70,17 +70,17 @@ export const SI_SVG = '<svg class="joint-schematic" viewBox="0 0 240 185">' +
   '<text x="196" y="88" text-anchor="middle" fill="var(--inlet)" font-family="monospace" font-size="10">R ILIUM</text>' +
   '<line x1="88" y1="44" x2="84" y2="132" stroke="var(--warn)" stroke-width="3" stroke-linecap="round"/>' +
   '<line x1="152" y1="44" x2="156" y2="132" stroke="var(--warn)" stroke-width="3" stroke-linecap="round"/>' +
-  '<text x="120" y="162" text-anchor="middle" fill="var(--text-dim)" font-family="monospace" font-size="8">SI joint surfaces shown in amber</text>' +
-  '<text x="120" y="174" text-anchor="middle" fill="var(--text-dim)" font-family="monospace" font-size="7">Schematic \u2014 not anatomically proportional</text>' +
+  '<text x="120" y="162" text-anchor="middle" fill="var(--text-dim)" font-family="monospace" font-size="10">SI joint surfaces shown in amber</text>' +
+  '<text x="120" y="176" text-anchor="middle" fill="var(--text-dim)" font-family="monospace" font-size="9">Schematic \u2014 not anatomically proportional</text>' +
   '</svg>';
 
 export const HIP_SVG = '<svg class="joint-schematic" viewBox="0 0 200 210">' +
   '<path d="M20,18 Q100,8 180,18 L176,82 Q155,105 100,110 Q45,105 24,82 Z" fill="var(--surface2)" stroke="var(--inlet)" stroke-width="1.5"/>' +
   '<text x="100" y="60" text-anchor="middle" fill="var(--inlet)" font-family="monospace" font-size="10">PELVIS</text>' +
   '<path d="M64,98 Q100,138 136,98" fill="var(--surface)" stroke="var(--warn)" stroke-width="2.5"/>' +
-  '<text x="100" y="125" text-anchor="middle" fill="var(--warn)" font-family="monospace" font-size="8">acetabulum</text>' +
+  '<text x="100" y="125" text-anchor="middle" fill="var(--warn)" font-family="monospace" font-size="10">acetabulum</text>' +
   '<circle cx="100" cy="118" r="21" fill="var(--surface2)" stroke="var(--accent)" stroke-width="1.8"/>' +
-  '<text x="100" y="122" text-anchor="middle" fill="var(--accent)" font-family="monospace" font-size="8">fem. head</text>' +
+  '<text x="100" y="122" text-anchor="middle" fill="var(--accent)" font-family="monospace" font-size="10">fem. head</text>' +
   '<rect x="88" y="139" width="24" height="50" rx="6" fill="var(--surface2)" stroke="var(--accent)" stroke-width="1.5"/>' +
   '<text x="100" y="174" text-anchor="middle" fill="var(--accent)" font-family="monospace" font-size="10">FEMUR</text>' +
   '</svg>';
