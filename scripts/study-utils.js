@@ -3,6 +3,31 @@
  * @module study-utils
  */
 
+import ABBREVIATIONS from '../data/abbreviations.json' with { type: 'json' };
+
+const abbrMap = new Map(ABBREVIATIONS);
+const abbrKeys = [...abbrMap.keys()].sort((a, b) => b.length - a.length);
+const abbrRe = new RegExp(
+  abbrKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
+  'g'
+);
+
+export function expandAbbr(text) {
+  return text.replace(abbrRe, match => {
+    const expansion = abbrMap.get(match);
+    return expansion ? '<abbr title="' + expansion + '">' + match + '</abbr>' : match;
+  });
+}
+
+export function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export function getAllEquivalent(regionId, directionId) {
   const ipIsER = (() => {
     switch (regionId) {
