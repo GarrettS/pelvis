@@ -1,4 +1,5 @@
 import {showFetchError} from './fetch-feedback.js';
+import {getStudyData} from './study-data-cache.js';
 
 let DATA = {};
 let gameState = {
@@ -11,14 +12,8 @@ let gameState = {
 let caseState = { active: 0, visitIdx: [0, 0] };
 
 export async function initDiagnose() {
-  try {
-    const resp = await fetch('data/study-data.json');
-    if (!resp.ok) {
-      showFetchError('#tab-diagnose', 'study data');
-      return;
-    }
-    DATA = await resp.json();
-  } catch (_) {
+  DATA = await getStudyData();
+  if (!DATA) {
     showFetchError('#tab-diagnose', 'study data');
     return;
   }
@@ -562,7 +557,3 @@ function renderMuscleView(view, query) {
   });
   if (!wrap.children.length) wrap.innerHTML = '<div class="text-dim" style="font-size:var(--text-sm);">No entries match.</div>';
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  initDiagnose();
-});

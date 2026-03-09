@@ -617,5 +617,3 @@ export async function initMasterQuiz() {
     }
   });
 }
-
-document.addEventListener('DOMContentLoaded', initMasterQuiz);

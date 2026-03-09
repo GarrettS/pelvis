@@ -290,5 +290,3 @@ export async function initFlashcards() {
     renderCard();
   });
 }
-
-document.addEventListener('DOMContentLoaded', initFlashcards);

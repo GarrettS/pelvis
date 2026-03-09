@@ -1,4 +1,5 @@
-import {loadImageSet} from './anatomize.js';
+import {initAnatomize, loadImageSet} from './anatomize.js';
+import {showFetchError} from './fetch-feedback.js';
 
 const TAB_MAP = {
   home: 'tab-home',
@@ -50,6 +51,83 @@ let activeNavTab = document.querySelector('.nav-tab.active');
 let activeSection = document.querySelector('section.tab.active');
 let activeSubtabRow = document.querySelector('.subtab-row.active');
 
+/* ── Lazy-init infrastructure ── */
+
+const initialized = new Set();
+
+const LAZY_INIT = {
+  'tab-nomenclature': {
+    label: 'Nomenclature',
+    load: function() { return import('./nomenclature.js').then(function(m) { return m.initNomenclature; }); }
+  },
+  'tab-patterns': {
+    label: 'Patterns',
+    load: function() { return import('./patterns.js').then(function(m) { return m.initPatterns; }); }
+  },
+  'tab-diagnose': {
+    label: 'Diagnose',
+    load: function() { return import('./diagnose.js').then(function(m) { return m.initDiagnose; }); }
+  },
+  'tab-flashcards': {
+    label: 'Flashcards',
+    load: function() { return import('./flashcards.js').then(function(m) { return m.initFlashcards; }); }
+  },
+  'tab-equivalence': {
+    label: 'Equivalence',
+    load: function() { return import('./equivalence-quiz.js').then(function(m) { return m.initEquivalence; }); }
+  },
+  'tab-masterquiz': {
+    label: 'Master Quiz',
+    load: function() { return import('./masterquiz.js').then(function(m) { return m.initMasterQuiz; }); }
+  },
+  'anatomy-anatomize': {
+    label: 'Anatomize',
+    load: function() { return Promise.resolve(initAnatomize); }
+  },
+  'anatomy-decoder': {
+    label: 'Decoder',
+    load: function() { return import('./decoder.js').then(function(m) { return m.initDecoder; }); }
+  },
+  'anatomy-aic': {
+    label: 'L AIC Chain',
+    load: function() { return import('./aic-chain.js').then(function(m) { return m.initLAIC; }); }
+  }
+};
+
+function showTabLoading(container, label) {
+  const div = document.createElement('div');
+  div.className = 'tab-loading callout';
+  div.textContent = 'Loading ' + label + '\u2026';
+  container.appendChild(div);
+}
+
+function clearTabLoading(container) {
+  const el = container.querySelector('.tab-loading');
+  if (el) el.remove();
+}
+
+function lazyInit(key) {
+  if (initialized.has(key)) return;
+  const entry = LAZY_INIT[key];
+  if (!entry) return;
+  initialized.add(key);
+  const container = document.getElementById(key);
+  if (!container) return;
+  showTabLoading(container, entry.label);
+  entry.load()
+    .then(function(initFn) {
+      clearTabLoading(container);
+      return initFn();
+    })
+    .catch(function() {
+      clearTabLoading(container);
+      initialized.delete(key);
+      showFetchError(container, entry.label);
+    });
+}
+
+/* ── Navigation ── */
+
 function getSubtabRow(sectionId) {
   return document.querySelector('.subtab-row[data-for-tab="' + sectionId + '"]');
 }
@@ -66,6 +144,8 @@ function activateTab(sectionId) {
   if (activeNavTab) activeNavTab.classList.add('active');
   if (activeSection) activeSection.classList.add('active');
   if (activeSubtabRow) activeSubtabRow.classList.add('active');
+
+  lazyInit(sectionId);
 }
 
 function activateSubtab(sectionId, subtabContentId) {
@@ -89,6 +169,8 @@ function activateSubtab(sectionId, subtabContentId) {
   }
   const tabName = REV_TAB[sectionId];
   if (tabName) lastSubtab[tabName] = subtabContentId;
+
+  lazyInit(subtabContentId);
 }
 
 function activateFirstSubtab(sectionId) {

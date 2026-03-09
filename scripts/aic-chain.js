@@ -329,5 +329,3 @@ function handleResize() {
 }
 
 export {initLAIC};
-
-document.addEventListener('DOMContentLoaded', initLAIC);

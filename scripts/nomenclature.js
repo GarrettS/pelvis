@@ -1,5 +1,6 @@
 import { SI_SVG, HIP_SVG } from './equivalence.js';
 import { showFetchError } from './fetch-feedback.js';
+import { getStudyData } from './study-data-cache.js';
 
 let JOINTS = [];
 let DATA = {};
@@ -93,21 +94,20 @@ function buildTranslationTable() {
 export async function initNomenclature() {
   try {
     const jointsResp = await fetch('data/pelvic-joints.json');
-    const dataResp = await fetch('data/study-data.json');
-    if (!jointsResp.ok || !dataResp.ok) {
+    if (!jointsResp.ok) {
       showFetchError('#tab-nomenclature', 'nomenclature data');
       return;
     }
     JOINTS = await jointsResp.json();
-    DATA = await dataResp.json();
   } catch (_) {
     showFetchError('#tab-nomenclature', 'nomenclature data');
+    return;
+  }
+  DATA = await getStudyData();
+  if (!DATA) {
+    showFetchError('#tab-nomenclature', 'study data');
     return;
   }
   buildJointsView();
   buildTranslationTable();
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  initNomenclature();
-});

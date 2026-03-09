@@ -1058,5 +1058,3 @@ function hookImageLoad() {
 }
 
 export {initAnatomize, resetAnatomize, loadImageSet};
-
-document.addEventListener('DOMContentLoaded', initAnatomize);
