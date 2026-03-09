@@ -1,4 +1,4 @@
-import { SI_SVG, HIP_SVG } from './study-utils.js';
+import { SI_SVG, HIP_SVG, showFetchError } from './study-utils.js';
 
 let JOINTS = [];
 let DATA = {};
@@ -90,8 +90,19 @@ function buildTranslationTable() {
 }
 
 export async function initNomenclature() {
-  JOINTS = await fetch('data/pelvic-joints.json').then(r => r.json());
-  DATA = await fetch('data/study-data.json').then(r => r.json());
+  try {
+    const jointsResp = await fetch('data/pelvic-joints.json');
+    const dataResp = await fetch('data/study-data.json');
+    if (!jointsResp.ok || !dataResp.ok) {
+      showFetchError('#tab-nomenclature', 'nomenclature data');
+      return;
+    }
+    JOINTS = await jointsResp.json();
+    DATA = await dataResp.json();
+  } catch (_) {
+    showFetchError('#tab-nomenclature', 'nomenclature data');
+    return;
+  }
   buildJointsView();
   buildTranslationTable();
 }

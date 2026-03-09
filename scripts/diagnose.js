@@ -1,3 +1,5 @@
+import {showFetchError} from './study-utils.js';
+
 let DATA = {};
 let gameState = {
   scenarioIdx: 0,
@@ -9,7 +11,17 @@ let gameState = {
 let caseState = { active: 0, visitIdx: [0, 0] };
 
 export async function initDiagnose() {
-  DATA = await fetch('data/study-data.json').then(r => r.json());
+  try {
+    const resp = await fetch('data/study-data.json');
+    if (!resp.ok) {
+      showFetchError('#tab-diagnose', 'study data');
+      return;
+    }
+    DATA = await resp.json();
+  } catch (_) {
+    showFetchError('#tab-diagnose', 'study data');
+    return;
+  }
   buildGame();
   buildCaseStudies();
   buildCausalChains();

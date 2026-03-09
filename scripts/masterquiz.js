@@ -1,4 +1,4 @@
-import { getAllEquivalent, expandAbbr, shuffle } from './study-utils.js';
+import { getAllEquivalent, expandAbbr, shuffle, showFetchError } from './study-utils.js';
 
 const DOMAINS = ['nomenclature', 'tests', 'treatment', 'anatomy', 'procedures', 'clinical'];
 const STORAGE_KEY = 'masterQuiz_progress';
@@ -213,7 +213,8 @@ async function handleSubmit() {
   dom.nextBtn.classList.remove('hidden');
   dom.nextBtn.textContent = qIdx + 1 < queue.length ? 'Next Question \u2192' : 'Finish Session';
 
-  dom.explanation.innerHTML = '<div class="callout">' + await expandAbbr(q.explanation) + '</div>';
+  const abbrText = await expandAbbr(q.explanation).catch(() => q.explanation);
+  dom.explanation.innerHTML = '<div class="callout">' + abbrText + '</div>';
   dom.explanation.classList.remove('hidden');
 
   const alreadySaved = isAlreadySaved(q.id);
@@ -374,8 +375,8 @@ function renderResults() {
   const incorrect = sessionAnswers.filter(a => !a.correct);
   const correct = sessionAnswers.filter(a => a.correct);
 
-  renderResultsList(dom.incorrectList, incorrect, true);
-  renderResultsList(dom.correctList, correct, false);
+  renderResultsList(dom.incorrectList, incorrect, true).catch(() => {});
+  renderResultsList(dom.correctList, correct, false).catch(() => {});
 
   dom.incorrectSection.classList.toggle('hidden', incorrect.length === 0);
   dom.correctSection.classList.toggle('hidden', correct.length === 0);
@@ -421,7 +422,8 @@ async function renderResultsList(container, answers, showSave) {
       detailHTML += '<div class="' + cls + '">' + opt.key + '. ' + opt.text + '</div>';
     }
     detailHTML += '</div>';
-    detailHTML += '<div class="callout">' + await expandAbbr(q.explanation) + '</div>';
+    const abbrExpl = await expandAbbr(q.explanation).catch(() => q.explanation);
+    detailHTML += '<div class="callout">' + abbrExpl + '</div>';
 
     if (showSave) {
       const alreadySaved = isAlreadySaved(q.id);
@@ -484,7 +486,7 @@ function handleEndSession() {
   renderResults();
 }
 
-export function initMasterQuiz() {
+export async function initMasterQuiz() {
   const tab = document.getElementById('tab-masterquiz');
   if (!tab) return;
   dom.tab = tab;
@@ -514,13 +516,19 @@ export function initMasterQuiz() {
   dom.correctList = tab.querySelector('#mq-correct-list');
   dom.retakeMissedBtn = tab.querySelector('#mq-retake-missed');
 
-  fetch('data/master-quiz.json')
-    .then(r => r.json())
-    .then(data => {
-      QUESTIONS = data;
-      renderStats();
-      syncStartButton();
-    });
+  try {
+    const resp = await fetch('data/master-quiz.json');
+    if (!resp.ok) {
+      showFetchError(tab, 'master quiz questions');
+      return;
+    }
+    QUESTIONS = await resp.json();
+  } catch (_) {
+    showFetchError(tab, 'master quiz questions');
+    return;
+  }
+  renderStats();
+  syncStartButton();
 
   tab.addEventListener('click', (e) => {
     const optBtn = e.target.closest('.mq-options button');
@@ -529,7 +537,7 @@ export function initMasterQuiz() {
       return;
     }
     if (e.target.closest('#mq-submit')) {
-      handleSubmit();
+      handleSubmit().catch(() => {});
       return;
     }
     if (e.target.closest('#mq-next')) {

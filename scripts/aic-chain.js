@@ -1,4 +1,5 @@
 import {createResizeHandle} from './resize-handle.js';
+import {showFetchError} from './study-utils.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -18,8 +19,18 @@ async function initLAIC() {
   containerEl = document.querySelector('.aic-chain-container');
   if (!containerEl) return;
 
-  const resp = await fetch('data/aic-chain.json');
-  const data = await resp.json();
+  let data;
+  try {
+    const resp = await fetch('data/aic-chain.json');
+    if (!resp.ok) {
+      showFetchError(containerEl, 'L AIC chain');
+      return;
+    }
+    data = await resp.json();
+  } catch (_) {
+    showFetchError(containerEl, 'L AIC chain');
+    return;
+  }
   aicChain = data.chain;
   aicDetail = data.detail;
 

@@ -1,4 +1,4 @@
-import { expandAbbr, shuffle } from './study-utils.js';
+import { expandAbbr, shuffle, showFetchError } from './study-utils.js';
 
 let FLASHCARD_DECK = [];
 
@@ -70,7 +70,9 @@ function buildCardDOM(card) {
 
     const detailEl = document.createElement('div');
     detailEl.className = 'fc-detail hidden';
-    expandAbbr(card.backDetail).then(html => { detailEl.innerHTML = html; });
+    expandAbbr(card.backDetail)
+      .then(html => { detailEl.innerHTML = html; })
+      .catch(() => { detailEl.textContent = card.backDetail; });
     backArea.appendChild(detailEl);
 
     showMoreBtn.addEventListener('click', () => {
@@ -154,7 +156,17 @@ function renderCard() {
 }
 
 export async function initFlashcards() {
-  FLASHCARD_DECK = await fetch('data/flashcard-deck.json').then(r => r.json());
+  try {
+    const resp = await fetch('data/flashcard-deck.json');
+    if (!resp.ok) {
+      showFetchError('#fc-card-wrap', 'flashcard deck');
+      return;
+    }
+    FLASHCARD_DECK = await resp.json();
+  } catch (_) {
+    showFetchError('#fc-card-wrap', 'flashcard deck');
+    return;
+  }
   const userCards = getUserCards().map(c => ({
     ...c,
     category: c.category || 'user_created',

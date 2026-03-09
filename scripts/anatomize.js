@@ -1,4 +1,5 @@
 import {createResizeHandle} from './resize-handle.js';
+import {showFetchError} from './study-utils.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -24,11 +25,20 @@ let reviewMode = false;
 
 let anatomizeData = null;
 
-async function loadAnatomizeData() {
-  if (anatomizeData) return anatomizeData;
-  const resp = await fetch('data/anatomize-data.json');
-  anatomizeData = await resp.json();
-  return anatomizeData;
+async function loadAnatomizeData(errorContainer) {
+  if (anatomizeData) return true;
+  try {
+    const resp = await fetch('data/anatomize-data.json');
+    if (!resp.ok) {
+      showFetchError(errorContainer, 'anatomy images');
+      return false;
+    }
+    anatomizeData = await resp.json();
+    return true;
+  } catch (_) {
+    showFetchError(errorContainer, 'anatomy images');
+    return false;
+  }
 }
 
 function priColorClass(priColor) {
@@ -66,7 +76,8 @@ async function initAnatomize() {
       '#anatomy-anatomize .tab-section');
   if (!container) return;
 
-  await loadAnatomizeData();
+  const loaded = await loadAnatomizeData('#anatomy-anatomize');
+  if (!loaded) return;
 
   dom.container = container;
   dom.imageSelector = container.querySelector('.anatomize-image-selector');
