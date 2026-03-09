@@ -1,60 +1,57 @@
-# Project Conventions
-Clean Code, Modular Code. Apply continuous, disciplined improvement of code quality through small, incremental refactoring.  
+# Claude Code — Project Contract
 
-## Code Style
-- Follow Google JavaScript Style Guide.
-- Follow Google CSS Style Guide: one declaration per line, opening brace on selector line, one blank line between rules.
-- Follow Google HTML Style Guide: semantic elements, lowercase, quoted attributes.
-- Vanilla JS only. No frameworks, no jQuery, no build tools.
-- No landmark/banner comments (═══, ───). Use code structure (classes, functions, named objects) instead.
-- use ubiquitous language: variables, PRD, and code should remain consistent.
-- Variables: Declare variables in the narrowest possible scope; avoid global variables and undeclared identifiers (always use var, let, or const). 
-- Methods: Keep functions simple and focused (single responsibility), avoid long parameter lists, and ensure consistent return types. Test both success ("happy path") and failure ("sad path") scenarios. 
-- DOM & Events: Avoid looping through DOM elements to apply styles or add event listeners. Instead, use event delegation (attach event handlers to a common ancestor) and CSS classes to manage visual states. Use the Active Object pattern for exclusive-active state (tabs, selections): hold a reference to the currently active element, deactivate it directly on switch, then activate the new one. Never querySelectorAll to scan and remove a class from every sibling.
-- Strings & Loops: Use efficient string concatenation (e.g., String.prototype.concat() or array push()), and avoid unnecessary loops or chained identifiers. 
+Read this file first on every task.
 
-## HTML
-- Semantic elements: headings not divs, nav lists not buttons, appropriate ARIA roles.
-- Keep DOM light. Do not add div/span unless they are necessary.
-- No inline styles except those set dynamically by JS at runtime.
-- don't add "self-closing syntax" slash where end tag is forbidden.
+## References
+- **`code-guidelines.md`** — Code standards. Read it, follow it, check against it before every commit.
+- **`prd/project.md`** — Project definition, design decisions, content authority. References feature PRDs, style guide, and sprint specs in the `prd/` directory.
 
-## CSS
-- External stylesheets only. No inline <style> blocks.
-- layout.css for structure, components.css for UI components.
-- put css files in css directory
-- For CSS functions, like rgb(), include a single space after each comma for readability. 
-- Using ubiquitous language, use unambiguous classNames, like activeTab, activeSubtab, etc, not "active", etc. https://www.w3.org/QA/Tips/goodclassnames
+## Ubiquitous Language
+Every project defines its own terminology. Variables, class names, CSS selectors, function names, and documentation must use that terminology consistently. If the PRD says "outlet", the code says `outlet` — not `bottom`, `lower`, or `ring2`.
 
-## JS
-- Hash-based navigation with location.hash and hashchange listener. No History API (pushState/popstate).
-- Delegated event listeners. No inline event handlers.
-- ES modules with type="module" on script tags.
-- When using modules, don't use the module pattern IIFE, use exports.
-- Favor HTML in source code over strings of HTML.
-- when making functions that use createElement and friends, especially in loops, consider creating one as a sort of prototype, then cloneNode.
-- external js files go in scripts directory
-- Using ubiquitous language, use unambiguous identifier names, like initLAIC, not "init".
+## Workflow
 
-## JSON 
-- goes in data directory
-- extension .json
+Apply `code-guidelines.md` to every line you write and every line you touch. If existing code near your change violates the guidelines, fix it. Refactor continuously — small, incremental improvements on every commit. The codebase gets cleaner with each checkin, never dirtier.
 
-## images
-- go in img directory
+### Before Writing Code
+- Read `code-guidelines.md`.
+- Read the relevant PRD section for the task at hand.
+- If requirements are ambiguous, ask. Do not invent requirements.
+- Do not write implementation when the user asked for a spec. Do not write a spec when the user asked for code.
 
-## After Every Change
-- Remove dead code: orphaned selectors, unreferenced IDs, stale variable references.
+### While Writing Code
+- Follow `code-guidelines.md` without exception.
+- Do not use heredocs with template literals — the tool parser chokes on `${…}` substitutions.
+- Do not batch-edit files with transformation scripts. Make direct edits, one at a time, verifying each.
+- For coordinate or positioning work, measure each element individually. Never batch-adjust.
+
+### After Every Change
+- Remove dead code: orphaned CSS selectors, unreferenced IDs, stale variable references.
 - Update all selectors and references affected by structural changes.
-- Run verification commands to confirm no regressions. Do not finish with failing checks.
-- Do not write transformation scripts to batch-edit files. Make direct edits, one change at a time, verifying each.
-- if SimpleHttpServer was run for local user testing, restart it, to reflect changes.
-- prompt the user towards cohesive commits and discreet chunks of work.
-## Committing
-- Review code again to re-check it against the standards defined herein and notify user.
+- Run verification to confirm no regressions. Do not mark a task done with failing checks.
 
-## Building
-- Do not use heredocs with template literals — the tool parser chokes on ${} substitutions. See CC-BUILD-SPEC.md
-- Do not restart the server. this is a front-end project.    
+### Before Every Commit
+Follow this sequence. Do not skip steps.
 
-                                    
+**Step 1 — Re-read `code-guidelines.md`.** Open the file and read it. By the time you are ready to commit, you have been working for a while and the guidelines have drifted out of active context. Re-reading forces a refresh. This step catches problems that would otherwise be missed.
+
+**Step 2 — Run `bin/pre-commit-check.sh`.** Fix every violation it reports.
+
+**Step 3 — Review the diff against `code-guidelines.md`.** The script catches mechanical violations. This step catches structural ones it cannot:
+- Active Object pattern (no `querySelectorAll` scans for state removal).
+- Event delegation (no loops attaching listeners to individual elements).
+- Ancestor-class pattern (no loops applying inline styles to descendants).
+- Null guards on `querySelector` results used as references.
+- Fire-and-forget async calls missing `.catch()`.
+- `fetch` response status checks (`if (!response.ok)`).
+
+Fix anything found in steps 2 or 3 before proceeding. Do not commit until all three steps pass clean.
+
+### Committing
+- Prompt the user toward cohesive commits and discrete chunks of work.
+- Commit messages: imperative mood, concise, scoped.
+
+## Verification Standards
+- Never report a task as done without evidence: console output, test results, or a before/after comparison.
+- Never assert findings from project knowledge or memory without verifying against the current codebase.
+- If the same fix has failed twice, stop and reassess the approach before trying a third time.
