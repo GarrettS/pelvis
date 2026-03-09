@@ -109,22 +109,22 @@ check "var declaration  [prefer const/let]" \
   '(^|[^a-zA-Z])\bvar\b\s' \
   '*.js'
 
-# ---- JS file names ----
+# ---- File names (JS and CSS) ----
 # This list is not exhaustive. Any module name that describes a role instead of
 # a domain concept violates the Module Cohesion principle in code-guidelines.md.
 
-JUNK_DRAWER=$(find . -name '*.js' \
+JUNK_DRAWER=$(find . \( -name '*.js' -o -name '*.css' \) \
   | grep -Ev "$EXCLUDES" \
-  | grep -iE '(util|helper|tool|misc|common|shared|lib)[s]?\.' \
+  | grep -iE '(util|helper|tool|misc|common|shared|lib|component)[s]?\.' \
   || true)
 
 if [ -n "$JUNK_DRAWER" ]; then
-  echo -e "${RED}FAIL${NC}  Junk-drawer module name  [name modules after domain concept, not role]"
+  echo -e "${RED}FAIL${NC}  Junk-drawer file name  [name after domain concept, not role]"
   echo "$JUNK_DRAWER"
   echo ""
   FAIL=1
 else
-  echo -e "${GREEN}PASS${NC}  No junk-drawer module names (spot-check only — see Module Cohesion principle)"
+  echo -e "${GREEN}PASS${NC}  No junk-drawer file names (spot-check only — see Module Cohesion principle)"
 fi
 
 # ---- CSS ----
