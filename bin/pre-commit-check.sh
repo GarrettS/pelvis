@@ -2,8 +2,8 @@
 # pre-commit-check.sh
 # Catches mechanical code-guideline violations that are greppable.
 # This is a tripwire, not a review. Structural rules (Active Object pattern,
-# event delegation, null guards, async .catch, fetch status checks) require
-# manual inspection per claude.md.
+# event delegation, async .catch, fetch status checks) require manual
+# inspection per claude.md.
 #
 # Usage: bash bin/pre-commit-check.sh
 # Exit code 0 = clean, 1 = violations found.
@@ -59,19 +59,47 @@ check "Self-closing slash on void elements" \
   '<(img|br|hr|input|meta|link|area|base|col|embed|source|track|wbr)\b[^>]*/>' \
   '*.html'
 
-# ---- JS ----
+# ---- JS (scripts and inline <script> in HTML) ----
 
-check "fetch() call  [verify guarded by try/catch or .catch]" \
+check "fetch() in .js  [verify: caught and handled, not re-thrown]" \
   '\bfetch\(' \
   '*.js'
 
-check "JSON.parse()  [verify inside try/catch]" \
+check "fetch() in .html  [verify: caught and handled, not re-thrown]" \
+  '\bfetch\(' \
+  '*.html'
+
+check "JSON.parse() in .js  [verify: caught and handled, not re-thrown]" \
   'JSON\.parse\(' \
   '*.js'
 
-check "innerHTML assignment  [verify justified — inserting HTML tags]" \
+check "JSON.parse() in .html  [verify: caught and handled, not re-thrown]" \
+  'JSON\.parse\(' \
+  '*.html'
+
+check "throw in .js  [verify: not in production code path]" \
+  '\bthrow\b' \
+  '*.js'
+
+check "throw in .html  [verify: not in production code path]" \
+  '\bthrow\b' \
+  '*.html'
+
+check "return null/undefined in .js  [verify: not a silent failure — user must see feedback]" \
+  'return\s+(null|undefined)\s*;' \
+  '*.js'
+
+check "return null/undefined in .html  [verify: not a silent failure — user must see feedback]" \
+  'return\s+(null|undefined)\s*;' \
+  '*.html'
+
+check "innerHTML in .js  [verify justified — inserting HTML tags]" \
   '\.innerHTML\s*=' \
   '*.js'
+
+check "innerHTML in .html  [verify justified — inserting HTML tags]" \
+  '\.innerHTML\s*=' \
+  '*.html'
 
 check "Banner/landmark comments in JS" \
   '[═─━]{3,}|[*]{4,}' \
@@ -80,6 +108,24 @@ check "Banner/landmark comments in JS" \
 check "var declaration  [prefer const/let]" \
   '(^|[^a-zA-Z])\bvar\b\s' \
   '*.js'
+
+# ---- JS file names ----
+# This list is not exhaustive. Any module name that describes a role instead of
+# a domain concept violates the Module Cohesion principle in code-guidelines.md.
+
+JUNK_DRAWER=$(find . -name '*.js' \
+  | grep -Ev "$EXCLUDES" \
+  | grep -iE '(util|helper|tool|misc|common|shared|lib)[s]?\.' \
+  || true)
+
+if [ -n "$JUNK_DRAWER" ]; then
+  echo -e "${RED}FAIL${NC}  Junk-drawer module name  [name modules after domain concept, not role]"
+  echo "$JUNK_DRAWER"
+  echo ""
+  FAIL=1
+else
+  echo -e "${GREEN}PASS${NC}  No junk-drawer module names (spot-check only — see Module Cohesion principle)"
+fi
 
 # ---- CSS ----
 

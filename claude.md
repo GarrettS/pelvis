@@ -21,6 +21,9 @@ Apply `code-guidelines.md` to every line you write and every line you touch. If 
 
 ### While Writing Code
 - Follow `code-guidelines.md` without exception.
+- **Failure paths require approval.** Every time you write code that can fail at runtime (fetch, JSON.parse, storage, any async operation), stop and present the failure scenario to the user before writing the handler. State what operation can fail, what the consequence is, and list contextual handling options. Example:
+  > "This fetch loads quiz data. If it fails, the quiz cannot render. Options: (1) show an error message with a retry button, (2) fall back to a cached copy of the data if available, (3) disable the quiz tab and show a status message. Which approach?"
+  Do not write `console.error` and move on. Do not re-throw. Do not pick a handling strategy without presenting it.
 - Do not use heredocs with template literals — the tool parser chokes on `${…}` substitutions.
 - Do not batch-edit files with transformation scripts. Make direct edits, one at a time, verifying each.
 - For coordinate or positioning work, measure each element individually. Never batch-adjust.
@@ -41,7 +44,7 @@ Follow this sequence. Do not skip steps.
 - Active Object pattern (no `querySelectorAll` scans for state removal).
 - Event delegation (no loops attaching listeners to individual elements).
 - Ancestor-class pattern (no loops applying inline styles to descendants).
-- Null guards on `querySelector` results used as references.
+- Fail-safe: upstream failures (fetch, parse) caught at the source, not papered over downstream.
 - Fire-and-forget async calls missing `.catch()`.
 - `fetch` response status checks (`if (!response.ok)`).
 
@@ -55,3 +58,4 @@ Fix anything found in steps 2 or 3 before proceeding. Do not commit until all th
 - Never report a task as done without evidence: console output, test results, or a before/after comparison.
 - Never assert findings from project knowledge or memory without verifying against the current codebase.
 - If the same fix has failed twice, stop and reassess the approach before trying a third time.
+- **Fail-safe self-review**: for every `catch` block and error path in the diff, answer: *what does the user see?* If the answer is "nothing" — the code returns null, logs to console, or swallows the error — it is not handled. Passing the letter of the rule while violating the principle is not passing.
