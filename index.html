@@ -5,8 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PRI Pelvis Restoration — Study Tool</title>
 <link rel="stylesheet" href="layout.css">
-<link rel="stylesheet" href="components.css">
-<link rel="stylesheet" href="css/components/nomenclature.css">
+<link rel="stylesheet" href="css/landing.css">
+<link rel="stylesheet" href="css/flashcards.css">
+<link rel="stylesheet" href="css/masterquiz.css">
+<link rel="stylesheet" href="css/anatomize.css">
+<link rel="stylesheet" href="css/aic-chain.css">
+<link rel="stylesheet" href="css/diagnose.css">
+<link rel="stylesheet" href="css/patterns.css">
+<link rel="stylesheet" href="css/decoder.css">
+<link rel="stylesheet" href="css/nomenclature.css">
 </head>
 <body>
 <nav>
@@ -612,7 +619,8 @@
 <script type="module" src="scripts/navigation-tabs.js"></script>
 
 <script type="module">
-import { getAllEquivalent, getMuscles, showFetchError } from './scripts/study-utils.js';
+import { getAllEquivalent, getMuscles } from './scripts/equivalence.js';
+import { showFetchError } from './scripts/fetch-feedback.js';
 let REGIONS;
 async function initDecoder() {
     try {
@@ -801,7 +809,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script type="module" src="scripts/nomenclature.js"></script>
 
 <script type="module">
-import { showFetchError } from './scripts/study-utils.js';
+import { showFetchError } from './scripts/fetch-feedback.js';
 
 let CHEAT_DATA, CAUSAL_MAP, SYMPTOM_PATTERNS, HALT_LEVELS, SQUAT_LEVELS;
 let MAP_NODES, MAP_EDGES;
@@ -1075,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script type="module" src="scripts/flashcards.js"></script>
 
 <script type="module">
-import { getAllEquivalent } from './scripts/study-utils.js';
+import { getAllEquivalent } from './scripts/equivalence.js';
 const REGION_LABELS = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF' };
 const REGIONS_LIST = ['IP','IS','IsP','SI','AF'];
 const SIDES = ['L','R'];

@@ -1,4 +1,5 @@
-import { SI_SVG, HIP_SVG, showFetchError } from './study-utils.js';
+import { SI_SVG, HIP_SVG } from './equivalence.js';
+import { showFetchError } from './fetch-feedback.js';
 
 let JOINTS = [];
 let DATA = {};

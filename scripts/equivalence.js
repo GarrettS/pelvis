@@ -1,56 +1,8 @@
 /**
- * Shared utilities for PRI study tool modules.
- * @module study-utils
+ * PRI equivalence logic — region/direction mappings, muscle lookups,
+ * and joint schematic SVGs.
+ * @module equivalence
  */
-
-export function showFetchError(container, label) {
-  const el = typeof container === 'string'
-    ? document.querySelector(container)
-    : container;
-  if (!el) return;
-  const callout = document.createElement('div');
-  callout.className = 'callout error';
-  callout.textContent = 'Network error: fetch ' + label + ' failed.';
-  el.appendChild(callout);
-}
-
-let abbrMap = null;
-let abbrRe = null;
-
-async function loadAbbreviations() {
-  if (abbrMap) return;
-  try {
-    const resp = await fetch('data/abbreviations.json');
-    if (!resp.ok) return;
-    const data = await resp.json();
-    abbrMap = new Map(data);
-    const abbrKeys = [...abbrMap.keys()].sort((a, b) => b.length - a.length);
-    abbrRe = new RegExp(
-      abbrKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
-      'g'
-    );
-  } catch (_) {
-    // Abbreviation expansion unavailable — callers degrade to plain text.
-  }
-}
-
-export async function expandAbbr(text) {
-  await loadAbbreviations();
-  if (!abbrMap) return text;
-  return text.replace(abbrRe, match => {
-    const expansion = abbrMap.get(match);
-    return expansion ? '<abbr title="' + expansion + '">' + match + '</abbr>' : match;
-  });
-}
-
-export function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 export function getAllEquivalent(regionId, directionId) {
   const ipIsER = (() => {

@@ -1,0 +1,110 @@
+.cheat-col {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+}
+
+.cheat-col-header {
+  font-family:var(--mono);
+  font-size:var(--text-sm);
+  font-weight:700;
+  padding:.75rem 1rem;
+  background:var(--accent-bg);
+  color:var(--accent);
+  border-bottom:1px solid var(--border);
+}
+
+.cheat-row {
+  display:flex;
+  border-bottom:1px solid var(--border);
+}
+
+.cheat-row:last-child {
+  border-bottom:none;
+}
+
+.cheat-row.key {
+  background:var(--accent-bg);
+}
+
+.cheat-row.key-warn {
+  background:var(--warn-bg);
+}
+
+.cheat-row > span:first-child {
+  font-family:var(--mono);
+  font-size:var(--text-xs);
+  color:var(--text-dim);
+  padding:.4rem .75rem;
+  min-width:110px;
+  flex-shrink:0;
+  display:flex;
+  align-items:flex-start;
+  padding-top:.5rem;
+}
+
+.cheat-row > span:last-child {
+  font-size:var(--text-sm);
+  padding:.4rem .75rem .4rem 0;
+}
+
+#concept-map-svg {
+  width:100%;
+  height:min(65vh, 600px);
+}
+
+.map-node {
+  cursor:pointer;
+}
+
+.map-node rect {
+  transition:fill .15s,stroke .15s;
+}
+
+.map-node.highlighted rect {
+  stroke:var(--accent);
+  stroke-width:2;
+}
+
+.map-edge {
+  stroke:var(--border);
+  stroke-width:1.5;
+  fill:none;
+}
+
+.map-edge.highlighted {
+  stroke:var(--accent);
+  stroke-width:2;
+}
+
+.map-edge-label {
+  font-size:var(--text-xs);
+  fill:var(--text-dim);
+  font-family:var(--mono);
+}
+
+.quiz-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:1.25rem;
+}
+
+.quiz-level-badge {
+  font-family:var(--mono);
+  font-weight:700;
+  font-size:var(--text-xl);
+  color:var(--accent);
+}
+
+.symptom-condition {
+  font-family:var(--serif);
+  font-size:var(--text-lg);
+  text-align:center;
+  padding:1.5rem;
+  background:var(--surface2);
+  border-radius:6px;
+  margin-bottom:1rem;
+  font-weight:600;
+}

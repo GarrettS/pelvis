@@ -1,0 +1,149 @@
+#anatomy-decoder .tab-section {
+  margin-bottom: 0;
+}
+
+.decoder-controls {
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  align-items:flex-start;
+}
+
+.decoder-body {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.decoder-svg-col {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+#pelvis-svg-wrap {
+  width: 100%;
+  max-height: calc(100vh - 14rem);
+}
+
+#pelvis-svg-wrap svg {
+  width: 100%;
+  height: auto;
+  max-height: calc(100vh - 14rem);
+}
+
+.decoder-muscles {
+  font-family:var(--mono);
+  font-size:var(--text-sm);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:1rem;
+}
+
+.decoder-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-right: 0.2rem;
+}
+
+.decoder-rule {
+  background:var(--accent-bg);
+  border:1px solid var(--accent-dim);
+  border-radius:6px;
+  padding:.75rem 1rem;
+  font-family:var(--mono);
+  font-size:var(--text-sm);
+  color:var(--accent);
+}
+
+.decoder-rule-intro {
+  margin-bottom:1.25rem;
+  font-size:var(--text-base);
+}
+
+.decoder-table {
+  font-size:var(--text-sm);
+  width:100%;
+  margin:.5rem 0;
+}
+
+.equiv-chain {
+  font-family:var(--mono);
+  font-size:var(--text-sm);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:1rem;
+  margin:1rem 0;
+}
+
+.decoder-info .equiv-chain {
+  margin:0;
+}
+
+.equiv-line {
+  padding:.15rem 0;
+}
+
+.equiv-line.main {
+  color:var(--accent);
+  font-weight:700;
+}
+
+.equiv-chain-intro {
+  margin-bottom:1.25rem;
+}
+
+.equiv-opts {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:.5rem;
+  margin:1rem 0;
+}
+
+.equiv-opt {
+  font-family:var(--mono);
+  font-size:var(--text-sm);
+  background:var(--surface2);
+  border:2px solid var(--border);
+  border-radius:4px;
+  padding:.5rem .75rem;
+  cursor:pointer;
+  transition:all .12s;
+  text-align:center;
+}
+
+.equiv-opt:hover {
+  border-color:var(--accent-dim);
+}
+
+.equiv-opt.selected {
+  border-color:var(--accent);
+  background:var(--accent-bg);
+}
+
+.equiv-opt.correct-reveal {
+  border-color:var(--green);
+  background:var(--accent-bg);
+}
+
+.equiv-opt.wrong-reveal {
+  border-color:var(--error);
+  background:var(--error-bg);
+}
+
+.equiv-opt.missed {
+  border-color:var(--warn);
+  background:var(--warn-bg);
+}
+
+@media (max-width: 600px) {
+
+  .decoder-body {
+    grid-template-columns: 1fr;
+  }
+
+}

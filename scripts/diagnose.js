@@ -1,4 +1,4 @@
-import {showFetchError} from './study-utils.js';
+import {showFetchError} from './fetch-feedback.js';
 
 let DATA = {};
 let gameState = {

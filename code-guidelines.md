@@ -85,7 +85,7 @@ Each module owns one domain concept. Name the module after what it does: `quiz.j
 ## CSS
 
 - External stylesheets only. No inline `<style>` blocks.
-- Separate structure from components (e.g., `layout.css` and `components.css`).
+- Separate structure from domain styles (e.g., `layout.css` for shared primitives; `css/<domain>.css` for each module).
 - One declaration per line, opening brace on selector line, one blank line between rules.
 - Class and id selectors must have semantic meaning. `.redButton` is meaningless; `.errorAction` represents a state. See: [Use class with semantics in mind](https://www.w3.org/QA/Tips/goodclassnames). Use unambiguous names from the project's ubiquitous language: `activeTab`, `activeSubtab` — not `.active`.
 - All colors via CSS custom properties. Never hardcode hex or rgb in rules. Define the palette on `:root`; override in `@media (prefers-color-scheme: dark)`.
