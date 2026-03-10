@@ -269,6 +269,10 @@ function initNavigationTabs() {
   document.addEventListener('click', handleSubviewTabClick);
   window.addEventListener('hashchange', applyHash);
   applyHash();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(function() {});
+  }
 }
 
 export {initNavigationTabs};

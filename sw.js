@@ -1,0 +1,84 @@
+const CACHE_VERSION = 'v1';
+
+const PRECACHE_URLS = [
+  './',
+  './index.html',
+  './layout.css',
+  './css/aic-chain.css',
+  './css/anatomize.css',
+  './css/decoder.css',
+  './css/diagnose.css',
+  './css/flashcards.css',
+  './css/landing.css',
+  './css/masterquiz.css',
+  './css/nomenclature.css',
+  './css/patterns.css',
+  './scripts/abbreviations.js',
+  './scripts/aic-chain.js',
+  './scripts/anatomize.js',
+  './scripts/decoder.js',
+  './scripts/diagnose.js',
+  './scripts/equivalence.js',
+  './scripts/equivalence-quiz.js',
+  './scripts/fetch-feedback.js',
+  './scripts/flashcards.js',
+  './scripts/masterquiz.js',
+  './scripts/navigation-tabs.js',
+  './scripts/nomenclature.js',
+  './scripts/patterns.js',
+  './scripts/resize-handle.js',
+  './scripts/study-data-cache.js',
+  './data/abbreviations.json',
+  './data/aic-chain.json',
+  './data/anatomize-data.json',
+  './data/causal-map.json',
+  './data/cheat-data.json',
+  './data/flashcard-deck.json',
+  './data/flashcards-batch1.json',
+  './data/halt-levels.json',
+  './data/master-quiz.json',
+  './data/pelvic-joints.json',
+  './data/regions.json',
+  './data/squat-levels.json',
+  './data/study-data.json',
+  './data/symptom-patterns.json',
+  './img/PRI-1-glute-med--glute-max.png',
+  './img/PRI-1-Pelvic-Inlet.png',
+  './img/PRI-1-Pelvic-Outlet.jpg',
+  './img/PRI-1-Pelvic-Outlet2.jpg',
+  './img/PRI-1-Pelvic-Outlet-flipped.jpg',
+  './img/hip-r.png',
+  './img/left-aic.png',
+  './img/pelvis-angle-r-side.png',
+  './img/pelvis-m-front.png'
+];
+
+self.addEventListener('install', function(e) {
+  e.waitUntil(
+    caches.open(CACHE_VERSION)
+      .then(function(cache) { return cache.addAll(PRECACHE_URLS); })
+      .then(function() { return self.skipWaiting(); })
+  );
+});
+
+self.addEventListener('activate', function(e) {
+  e.waitUntil(
+    caches.keys()
+      .then(function(keys) {
+        return Promise.all(
+          keys
+            .filter(function(k) { return k !== CACHE_VERSION; })
+            .map(function(k) { return caches.delete(k); })
+        );
+      })
+      .then(function() { return self.clients.claim(); })
+  );
+});
+
+self.addEventListener('fetch', function(e) {
+  e.respondWith(
+    caches.match(e.request).then(function(cached) {
+      return cached || fetch(e.request);
+    })
+  );
+});
