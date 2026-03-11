@@ -16,7 +16,7 @@ function getUserCards() {
   try {
     const raw = localStorage.getItem('userFlashcards');
     return raw ? JSON.parse(raw) : [];
-  } catch (_) { return []; }
+  } catch (err) { return []; }
 }
 
 function saveUserCard(card) {
@@ -173,7 +173,7 @@ export async function initFlashcards() {
       return;
     }
     FLASHCARD_DECK = await resp.json();
-  } catch (_) {
+  } catch (err) {
     showFetchError('#fc-card-wrap', 'flashcard deck');
     return;
   }

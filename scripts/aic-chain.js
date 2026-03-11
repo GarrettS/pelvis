@@ -27,7 +27,7 @@ async function initLAIC() {
       return;
     }
     data = await resp.json();
-  } catch (_) {
+  } catch (err) {
     showFetchError(containerEl, 'L AIC chain');
     return;
   }

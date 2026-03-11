@@ -108,48 +108,55 @@ function renderQuestion() {
 
   document.getElementById('equiv-submit').addEventListener('click', function() {
     if (isAnswered) return;
-    isAnswered = true;
-    score.total++;
-    const isCorrect = selected.size === q.correctAnswers.size &&
-      [...selected].every(function(s) { return q.correctAnswers.has(s); });
-    if (isCorrect) score.correct++;
-    scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
-
-    const opts = wrap.querySelectorAll('.equiv-opt');
-    opts.forEach(function(optEl) {
-      const val = optEl.dataset.opt;
-      const isCorr = q.correctAnswers.has(val);
-      const isSel = selected.has(val);
-      if (isCorr && isSel) optEl.classList.add('correct-reveal');
-      else if (isCorr && !isSel) optEl.classList.add('missed');
-      else if (!isCorr && isSel) optEl.classList.add('wrong-reveal');
-      optEl.classList.remove('selected');
-    });
-
-    const [qs, qr, qd] = q.given.split(' ');
-    const equiv = getAllEquivalent(qr.toLowerCase(), qd.toLowerCase());
-    const labels = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF', fa:'FA' };
-    let chainHTML = '<div class="equiv-chain" style="margin:1rem 0;">'
-      + '<div style="font-family:var(--mono);font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.35rem;">FULL EQUIVALENCE CHAIN:</div>';
-    let f = true;
-    Object.entries(equiv).forEach(function([rid, d]) {
-      const label = labels[rid] || rid.toUpperCase();
-      const outletStyle = ['isp','si'].includes(rid) ? 'color:var(--outlet)' : '';
-      chainHTML += '<div class="equiv-line' + (rid === qr.toLowerCase() ? ' main' : '') + '" style="' + outletStyle + '">' + (f ? '' : '= ') + qs + ' ' + label + ' ' + d + '</div>';
-      f = false;
-    });
-    chainHTML += '</div>';
-
-    const feedback = document.getElementById('equiv-feedback');
-    feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
-    feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</strong>' + chainHTML;
-    feedback.classList.remove('hidden');
-
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'btn primary';
-    nextBtn.style.marginTop = '.75rem';
-    nextBtn.textContent = qIdx + 1 < questions.length ? 'Next Question \u2192' : 'Finish Session';
-    nextBtn.addEventListener('click', function() { qIdx++; renderQuestion(); });
-    feedback.appendChild(nextBtn);
+    handleEquivSubmit(wrap, q, selected, scoreEl);
   });
+}
+
+function handleEquivSubmit(wrap, q, selected, scoreEl) {
+  isAnswered = true;
+  score.total++;
+  const isCorrect = selected.size === q.correctAnswers.size &&
+    [...selected].every(function(s) { return q.correctAnswers.has(s); });
+  if (isCorrect) score.correct++;
+  scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
+
+  wrap.querySelectorAll('.equiv-opt').forEach(function(optEl) {
+    const val = optEl.dataset.opt;
+    const isCorr = q.correctAnswers.has(val);
+    const isSel = selected.has(val);
+    if (isCorr && isSel) optEl.classList.add('correct-reveal');
+    else if (isCorr && !isSel) optEl.classList.add('missed');
+    else if (!isCorr && isSel) optEl.classList.add('wrong-reveal');
+    optEl.classList.remove('selected');
+  });
+
+  const chainHTML = buildEquivChainHTML(q);
+  const feedback = document.getElementById('equiv-feedback');
+  feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
+  feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</strong>' + chainHTML;
+  feedback.classList.remove('hidden');
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'btn primary';
+  nextBtn.style.marginTop = '.75rem';
+  nextBtn.textContent = qIdx + 1 < questions.length ? 'Next Question \u2192' : 'Finish Session';
+  nextBtn.addEventListener('click', function() { qIdx++; renderQuestion(); });
+  feedback.appendChild(nextBtn);
+}
+
+function buildEquivChainHTML(q) {
+  const [qs, qr, qd] = q.given.split(' ');
+  const equiv = getAllEquivalent(qr.toLowerCase(), qd.toLowerCase());
+  const labels = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF', fa:'FA' };
+  let html = '<div class="equiv-chain" style="margin:1rem 0;">'
+    + '<div style="font-family:var(--mono);font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.35rem;">FULL EQUIVALENCE CHAIN:</div>';
+  let first = true;
+  Object.entries(equiv).forEach(function([rid, d]) {
+    const label = labels[rid] || rid.toUpperCase();
+    const outletStyle = ['isp','si'].includes(rid) ? 'color:var(--outlet)' : '';
+    html += '<div class="equiv-line' + (rid === qr.toLowerCase() ? ' main' : '') + '" style="' + outletStyle + '">' + (first ? '' : '= ') + qs + ' ' + label + ' ' + d + '</div>';
+    first = false;
+  });
+  html += '</div>';
+  return html;
 }

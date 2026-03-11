@@ -35,7 +35,7 @@ async function loadAnatomizeData(errorContainer) {
     }
     anatomizeData = await resp.json();
     return true;
-  } catch (_) {
+  } catch (err) {
     showFetchError(errorContainer, 'anatomy images');
     return false;
   }
