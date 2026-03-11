@@ -93,6 +93,17 @@
   font-weight:700;
 }
 
+.equiv-line.outlet {
+  color:var(--outlet);
+}
+
+.equiv-chain-label {
+  font-family:var(--mono);
+  font-size:var(--text-xs);
+  color:var(--text-dim);
+  margin-bottom:.35rem;
+}
+
 .equiv-chain-intro {
   margin-bottom:1.25rem;
 }
@@ -138,6 +149,24 @@
 .equiv-opt.missed {
   border-color:var(--warn);
   background:var(--warn-bg);
+}
+
+.equiv-given {
+  font-family:var(--mono);
+  font-size:var(--text-xl);
+  color:var(--accent);
+  font-weight:700;
+  margin:.5rem 0 .25rem;
+}
+
+.equiv-instruction {
+  font-size:var(--text-sm);
+  color:var(--text-dim);
+  margin-bottom:1rem;
+}
+
+.feedback-next {
+  margin-top:.75rem;
 }
 
 @media (max-width: 600px) {

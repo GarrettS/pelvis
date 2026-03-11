@@ -25,7 +25,7 @@ async function loadAbbreviations() {
       abbrKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'),
       'g'
     );
-  } catch (err) {
+  } catch (fetchErr) {
     // Abbreviation expansion unavailable — callers degrade to plain text.
   }
 }

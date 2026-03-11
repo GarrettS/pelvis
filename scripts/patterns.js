@@ -32,7 +32,7 @@ export async function initPatterns() {
     SYMPTOM_PATTERNS = results[2];
     HALT_LEVELS = results[3];
     SQUAT_LEVELS = results[4];
-  } catch (err) {
+  } catch (fetchErr) {
     showFetchError('#tab-patterns', 'pattern data');
     return;
   }

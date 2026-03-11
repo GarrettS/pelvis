@@ -28,7 +28,7 @@ function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : {};
-  } catch (err) { return {}; }
+  } catch (storageErr) { return {}; }
 }
 
 function saveProgress(progress) {
@@ -328,7 +328,7 @@ function getUserCards() {
   try {
     const raw = localStorage.getItem(USER_FC_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (err) { return []; }
+  } catch (storageErr) { return []; }
 }
 
 function isAlreadySaved(qId) {
@@ -534,7 +534,7 @@ export async function initMasterQuiz() {
       return;
     }
     QUESTIONS = await resp.json();
-  } catch (err) {
+  } catch (fetchErr) {
     showFetchError(tab, 'master quiz questions');
     return;
   }

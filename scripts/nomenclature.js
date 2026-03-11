@@ -99,7 +99,7 @@ export async function initNomenclature() {
       return;
     }
     JOINTS = await jointsResp.json();
-  } catch (err) {
+  } catch (fetchErr) {
     showFetchError('#tab-nomenclature', 'nomenclature data');
     return;
   }

@@ -65,7 +65,11 @@ Favor source HTML over JS-generated markup. Keep the DOM to the simplest semanti
 
 ### Single Responsibility
 
-Functions do one thing. Short parameter lists. Consistent return types. Test the happy path and the sad path. Consider refactoring conditionals to dynamic dispatch or function redefinition.
+Functions do one thing. Consistent return types. Test the happy path and the sad path. Consider refactoring conditionals to dynamic dispatch or function redefinition.
+
+### Short Parameter Lists
+
+Three or fewer parameters per function. When a function needs more context, pass a single options object with named properties. This eliminates ordering bugs and makes call sites self-documenting.
 
 ### Module Cohesion
 

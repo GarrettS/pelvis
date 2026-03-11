@@ -79,7 +79,7 @@ function renderRound1(wrap, s) {
     btn.textContent = p;
     btn.addEventListener('click', () => {
       if (gameState.isAnswered) return;
-      handleRound1Answer(wrap, card, optWrap, s, btn, p);
+      handleRound1Answer({wrap, card, optWrap, scenario: s, btn, chosen: p});
     });
     optWrap.appendChild(btn);
   });
@@ -87,19 +87,19 @@ function renderRound1(wrap, s) {
   wrap.appendChild(card);
 }
 
-function handleRound1Answer(wrap, card, optWrap, s, btn, chosen) {
+function handleRound1Answer({wrap, card, optWrap, scenario, btn, chosen}) {
   gameState.isAnswered = true;
   gameState.score.total++;
-  const isCorrect = chosen === s.correctPattern;
+  const isCorrect = chosen === scenario.correctPattern;
   if (isCorrect) gameState.score.correct++;
   optWrap.querySelectorAll('.answer-btn').forEach(b => {
-    if (b.textContent === s.correctPattern) b.classList.add('correct');
+    if (b.textContent === scenario.correctPattern) b.classList.add('correct');
     else if (b === btn && !isCorrect) b.classList.add('incorrect');
     b.disabled = true;
   });
   const fb = document.createElement('div');
   fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${s.explanation}`;
+  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${scenario.explanation}`;
   card.appendChild(fb);
   wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
   const btnRow = document.createElement('div');
@@ -134,8 +134,7 @@ function renderRound2(wrap, s) {
   card.appendChild(stepLabel);
 
   const qText = document.createElement('p');
-  qText.style.fontWeight = '600';
-  qText.style.marginBottom = '.75rem';
+  qText.className = 'question-stem';
   qText.textContent = q.question;
   card.appendChild(qText);
 
@@ -153,13 +152,10 @@ function renderRound2(wrap, s) {
         if (gameState.isAnswered) return;
         if (selectedOpts.has(opt)) {
           selectedOpts.delete(opt);
-          btn.classList.remove('selected-correct');
-          btn.style.borderColor = '';
-          btn.style.color = '';
+          btn.classList.remove('selectedOpt');
         } else {
           selectedOpts.add(opt);
-          btn.style.borderColor = 'var(--accent)';
-          btn.style.color = 'var(--accent)';
+          btn.classList.add('selectedOpt');
         }
       });
     } else {
@@ -185,10 +181,10 @@ function renderRound2(wrap, s) {
     const submitBtn = document.createElement('button');
     submitBtn.className = 'btn primary';
     submitBtn.textContent = 'Check Answer';
-    submitBtn.style.marginTop = '.5rem';
+    submitBtn.classList.add('submit-gap');
     submitBtn.addEventListener('click', () => {
       if (gameState.isAnswered) return;
-      handleMultiSelectSubmit(card, wrap, optWrap, q, selectedOpts);
+      handleMultiSelectSubmit({card, wrap, optWrap, question: q, selectedOpts});
     });
     card.appendChild(submitBtn);
   }
@@ -199,10 +195,10 @@ function renderRound2(wrap, s) {
   if (scoreEl) scoreEl.textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
 }
 
-function handleMultiSelectSubmit(card, wrap, optWrap, q, selectedOpts) {
+function handleMultiSelectSubmit({card, wrap, optWrap, question, selectedOpts}) {
   gameState.isAnswered = true;
   gameState.score.total++;
-  const correctSet = new Set(q.correct);
+  const correctSet = new Set(question.correct);
   const isCorrect = selectedOpts.size === correctSet.size &&
     [...selectedOpts].every(o => correctSet.has(o));
   if (isCorrect) gameState.score.correct++;
@@ -211,7 +207,7 @@ function handleMultiSelectSubmit(card, wrap, optWrap, q, selectedOpts) {
     else if (selectedOpts.has(b.textContent)) b.classList.add('incorrect');
     b.disabled = true;
   });
-  showR2Feedback(card, wrap, isCorrect, q.explanation);
+  showR2Feedback(card, wrap, isCorrect, question.explanation);
 }
 
 function showR2Feedback(card, wrap, isCorrect, explanation) {
@@ -250,7 +246,7 @@ function showR2Feedback(card, wrap, isCorrect, explanation) {
 function advanceScenario(wrap) {
   wrap.innerHTML = `<div class="callout">
     <strong>Game complete.</strong> Final score: ${gameState.score.correct} / ${gameState.score.total}.
-    <div class="btn-row" style="margin-top:1rem;"><button class="btn primary" id="game-restart">Restart</button></div>
+    <div class="btn-row"><button class="btn primary" id="game-restart">Restart</button></div>
   </div>`;
   document.getElementById('game-restart').addEventListener('click', () => buildGame());
 }
@@ -261,7 +257,7 @@ function buildCaseStudies() {
   DATA.caseStudies.forEach((cs, ci) => {
     const div = document.createElement('div');
     div.className = 'card';
-    div.innerHTML = `<h3 style="font-family:var(--mono);font-size:var(--text-sm);color:var(--accent);margin-bottom:1rem;">${cs.title}</h3>`;
+    div.innerHTML = `<h3 class="case-title">${cs.title}</h3>`;
     const inner = document.createElement('div');
     inner.id = `cs-${ci}`;
     div.appendChild(inner);
@@ -273,7 +269,7 @@ function buildCaseStudies() {
 function renderCaseVisit(ci, vi, container) {
   const cs = DATA.caseStudies[ci];
   if (vi >= cs.visits.length) {
-    container.innerHTML = `<div class="callout"><strong>Case complete.</strong><div class="btn-row" style="margin-top:.75rem;"><button class="btn" id="cs-restart-${ci}">Restart Case</button></div></div>`;
+    container.innerHTML = `<div class="callout"><strong>Case complete.</strong><div class="btn-row"><button class="btn" id="cs-restart-${ci}">Restart Case</button></div></div>`;
     document.getElementById(`cs-restart-${ci}`).addEventListener('click', () => renderCaseVisit(ci, 0, container));
     return;
   }
@@ -281,7 +277,7 @@ function renderCaseVisit(ci, vi, container) {
   let html = `<div class="visit-badge">Visit ${visit.visit}</div>`;
   // Test results
   if (visit.testResults) {
-    html += `<div class="test-profile" style="margin-bottom:.75rem;">`;
+    html += `<div class="test-profile">`;
     Object.entries(visit.testResults).forEach(([k, v]) => {
       const isPos = String(v).startsWith('+');
       const isNeg = String(v).startsWith('−') || String(v).startsWith('-');
@@ -289,7 +285,7 @@ function renderCaseVisit(ci, vi, container) {
     });
     html += `</div>`;
   }
-  html += `<p style="font-weight:600;font-size:var(--text-sm);margin-bottom:.75rem;">${visit.question}</p>`;
+  html += `<p class="question-stem">${visit.question}</p>`;
   container.innerHTML = html;
 
   const opts = visit.options || [];
@@ -316,7 +312,7 @@ function renderCaseVisit(ci, vi, container) {
       container.appendChild(fb);
 
       if (visit.treatmentQuestion && isCorrect) {
-        renderTreatmentSubQuestion(visit, container, ci, vi);
+        renderTreatmentSubQuestion({visit, container, caseIdx: ci, visitIdx: vi});
       } else {
         addNextVisitBtn(container, ci, vi, container);
       }
@@ -326,10 +322,10 @@ function renderCaseVisit(ci, vi, container) {
   container.appendChild(optWrap);
 }
 
-function renderTreatmentSubQuestion(visit, container, ci, vi) {
+function renderTreatmentSubQuestion({visit, container, caseIdx, visitIdx}) {
   const tq = document.createElement('div');
-  tq.style.marginTop = '.75rem';
-  tq.innerHTML = `<p style="font-weight:600;font-size:var(--text-sm);">${visit.treatmentQuestion}</p>`;
+  tq.classList.add('treatment-subquestion');
+  tq.innerHTML = `<p class="question-stem">${visit.treatmentQuestion}</p>`;
   const topts = visit.treatmentOptions || [];
   const tOptWrap = document.createElement('div');
   tOptWrap.className = 'answer-opts';
@@ -341,8 +337,8 @@ function renderTreatmentSubQuestion(visit, container, ci, vi) {
     tb.textContent = topt;
     tb.addEventListener('click', () => {
       if (tAnswered) return;
-      if (selectedT.has(topt)) { selectedT.delete(topt); tb.style.borderColor = ''; tb.style.color = ''; }
-      else { selectedT.add(topt); tb.style.borderColor = 'var(--accent)'; tb.style.color = 'var(--accent)'; }
+      if (selectedT.has(topt)) { selectedT.delete(topt); tb.classList.remove('selectedOpt'); }
+      else { selectedT.add(topt); tb.classList.add('selectedOpt'); }
     });
     tOptWrap.appendChild(tb);
   });
@@ -350,7 +346,7 @@ function renderTreatmentSubQuestion(visit, container, ci, vi) {
   const tSubmit = document.createElement('button');
   tSubmit.className = 'btn primary';
   tSubmit.textContent = 'Check';
-  tSubmit.style.marginTop = '.5rem';
+  tSubmit.classList.add('submit-gap');
   tSubmit.addEventListener('click', () => {
     if (tAnswered) return;
     tAnswered = true;
@@ -365,7 +361,7 @@ function renderTreatmentSubQuestion(visit, container, ci, vi) {
     tfb.className = 'feedback-box' + (isT ? '' : ' error');
     tfb.innerHTML = `<strong>${isT ? 'Correct.' : 'Incorrect.'}</strong> ${visit.treatmentExplanation || ''}`;
     tq.appendChild(tfb);
-    addNextVisitBtn(tq, ci, vi, container);
+    addNextVisitBtn(tq, caseIdx, visitIdx, container);
   });
   tq.appendChild(tSubmit);
   container.appendChild(tq);
@@ -394,8 +390,8 @@ function buildCausalChains() {
 function buildChainCard(chain, ci) {
   const div = document.createElement('div');
   div.className = 'card';
-  div.innerHTML = `<h3 style="font-family:var(--mono);font-size:var(--text-sm);color:var(--accent);margin-bottom:.25rem;">${chain.title}</h3>
-    <div style="font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.75rem;">${chain.start} → ${chain.end}</div>`;
+  div.innerHTML = `<h3 class="chain-title">${chain.title}</h3>
+    <div class="chain-subtitle">${chain.start} → ${chain.end}</div>`;
 
   const steps = [...chain.steps];
   let order = [...steps].sort(() => Math.random() - 0.5);
@@ -432,7 +428,7 @@ function buildChainCard(chain, ci) {
   div.appendChild(ul);
 
   const feedbackEl = document.createElement('div');
-  feedbackEl.style.marginTop = '.5rem';
+  feedbackEl.classList.add('feedback-gap');
 
   const btnRow = document.createElement('div');
   btnRow.className = 'btn-row';
@@ -470,7 +466,7 @@ function checkChainOrder(ul, steps, feedbackEl) {
   });
   feedbackEl.innerHTML = allCorrect
     ? `<div class="feedback-box">Correct order.</div>`
-    : `<div class="feedback-box error">Not quite. Correct order: <ol style="margin-left:1.25rem;list-style:decimal;font-size:var(--text-xs);margin-top:.35rem;">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>`;
+    : `<div class="feedback-box error">Not quite. Correct order: <ol class="chain-correct-list">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>`;
 }
 
 function buildDecisionTree() {
@@ -557,9 +553,9 @@ function renderMuscleView(view, query) {
       ${entry.pattern ? `<div class="muscle-meta">Pattern: ${entry.pattern}</div>` : ''}
       ${entry.hierarchyStep ? `<div class="muscle-meta">Hierarchy: ${entry.hierarchyStep}</div>` : ''}
       ${entry.muscles ? `<div class="muscle-meta">Muscles: ${entry.muscles}</div>` : ''}
-      <div style="margin-top:.35rem;">${exercises}</div>
+      <div class="exercise-tags">${exercises}</div>
     `;
     wrap.appendChild(div);
   });
-  if (!wrap.children.length) wrap.innerHTML = '<div class="text-dim" style="font-size:var(--text-sm);">No entries match.</div>';
+  if (!wrap.children.length) wrap.innerHTML = '<div class="empty-message">No entries match.</div>';
 }

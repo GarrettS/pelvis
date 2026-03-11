@@ -11,7 +11,7 @@ export async function initDecoder() {
       return;
     }
     REGIONS = await resp.json();
-  } catch (err) {
+  } catch (fetchErr) {
     showFetchError('#anatomy-decoder', 'pelvis decoder regions');
     return;
   }

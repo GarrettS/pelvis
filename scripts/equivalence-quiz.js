@@ -62,7 +62,7 @@ function renderQuestion() {
   scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
 
   if (qIdx >= questions.length) {
-    wrap.innerHTML = '<div class="callout"><strong>Session complete.</strong> Score: ' + score.correct + ' / ' + score.total + '.<div class="btn-row" style="margin-top:1rem;"><button class="btn primary" id="equiv-restart">New Session</button></div></div>';
+    wrap.innerHTML = '<div class="callout"><strong>Session complete.</strong> Score: ' + score.correct + ' / ' + score.total + '.<div class="btn-row"><button class="btn primary" id="equiv-restart">New Session</button></div></div>';
     document.getElementById('equiv-restart').addEventListener('click', function() { initEquivalence(); });
     return;
   }
@@ -73,8 +73,8 @@ function renderQuestion() {
 
   let html = '<div class="card">';
   html += '<div class="card-label">Question ' + (qIdx + 1) + ' of ' + questions.length + '</div>';
-  html += '<div style="font-family:var(--mono);font-size:var(--text-xl);color:var(--accent);font-weight:700;margin:.5rem 0 .25rem;">' + q.given + '</div>';
-  html += '<p style="font-size:var(--text-sm);color:var(--text-dim);margin-bottom:1rem;">Select ALL equivalent positions (may be zero or more):</p>';
+  html += '<div class="equiv-given">' + q.given + '</div>';
+  html += '<p class="equiv-instruction">Select ALL equivalent positions (may be zero or more):</p>';
   html += '<div class="equiv-opts" id="equiv-options">';
   q.options.forEach(function(opt) {
     html += '<div class="equiv-opt" data-opt="' + opt + '" role="checkbox" aria-checked="false" tabindex="0">' + opt + '</div>';
@@ -108,21 +108,21 @@ function renderQuestion() {
 
   document.getElementById('equiv-submit').addEventListener('click', function() {
     if (isAnswered) return;
-    handleEquivSubmit(wrap, q, selected, scoreEl);
+    handleEquivSubmit({wrap, question: q, selected, scoreEl});
   });
 }
 
-function handleEquivSubmit(wrap, q, selected, scoreEl) {
+function handleEquivSubmit({wrap, question, selected, scoreEl}) {
   isAnswered = true;
   score.total++;
-  const isCorrect = selected.size === q.correctAnswers.size &&
-    [...selected].every(function(s) { return q.correctAnswers.has(s); });
+  const isCorrect = selected.size === question.correctAnswers.size &&
+    [...selected].every(function(s) { return question.correctAnswers.has(s); });
   if (isCorrect) score.correct++;
   scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
 
   wrap.querySelectorAll('.equiv-opt').forEach(function(optEl) {
     const val = optEl.dataset.opt;
-    const isCorr = q.correctAnswers.has(val);
+    const isCorr = question.correctAnswers.has(val);
     const isSel = selected.has(val);
     if (isCorr && isSel) optEl.classList.add('correct-reveal');
     else if (isCorr && !isSel) optEl.classList.add('missed');
@@ -130,7 +130,7 @@ function handleEquivSubmit(wrap, q, selected, scoreEl) {
     optEl.classList.remove('selected');
   });
 
-  const chainHTML = buildEquivChainHTML(q);
+  const chainHTML = buildEquivChainHTML(question);
   const feedback = document.getElementById('equiv-feedback');
   feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
   feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</strong>' + chainHTML;
@@ -138,7 +138,7 @@ function handleEquivSubmit(wrap, q, selected, scoreEl) {
 
   const nextBtn = document.createElement('button');
   nextBtn.className = 'btn primary';
-  nextBtn.style.marginTop = '.75rem';
+  nextBtn.classList.add('feedback-next');
   nextBtn.textContent = qIdx + 1 < questions.length ? 'Next Question \u2192' : 'Finish Session';
   nextBtn.addEventListener('click', function() { qIdx++; renderQuestion(); });
   feedback.appendChild(nextBtn);
@@ -148,13 +148,13 @@ function buildEquivChainHTML(q) {
   const [qs, qr, qd] = q.given.split(' ');
   const equiv = getAllEquivalent(qr.toLowerCase(), qd.toLowerCase());
   const labels = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF', fa:'FA' };
-  let html = '<div class="equiv-chain" style="margin:1rem 0;">'
-    + '<div style="font-family:var(--mono);font-size:var(--text-xs);color:var(--text-dim);margin-bottom:.35rem;">FULL EQUIVALENCE CHAIN:</div>';
+  let html = '<div class="equiv-chain">'
+    + '<div class="equiv-chain-label">FULL EQUIVALENCE CHAIN:</div>';
   let first = true;
   Object.entries(equiv).forEach(function([rid, d]) {
     const label = labels[rid] || rid.toUpperCase();
-    const outletStyle = ['isp','si'].includes(rid) ? 'color:var(--outlet)' : '';
-    html += '<div class="equiv-line' + (rid === qr.toLowerCase() ? ' main' : '') + '" style="' + outletStyle + '">' + (first ? '' : '= ') + qs + ' ' + label + ' ' + d + '</div>';
+    const outletClass = ['isp','si'].includes(rid) ? ' outlet' : '';
+    html += '<div class="equiv-line' + (rid === qr.toLowerCase() ? ' main' : '') + outletClass + '">' + (first ? '' : '= ') + qs + ' ' + label + ' ' + d + '</div>';
     first = false;
   });
   html += '</div>';
