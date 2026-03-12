@@ -99,7 +99,7 @@ input,select,textarea {
   font-size:var(--text-sm);
 }
 
-ul,ol {
+ul,ol,menu {
   list-style:none;
 }
 
