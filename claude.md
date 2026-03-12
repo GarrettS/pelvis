@@ -48,7 +48,9 @@ Follow this sequence. Do not skip steps.
 - Fire-and-forget async calls missing `.catch()`.
 - `fetch` response status checks (`if (!response.ok)`).
 
-Fix anything found in steps 2 or 3 before proceeding. Do not commit until all three steps pass clean.
+**Step 4 — Stale asset check.** The pre-commit script flags unreferenced files in `img/` and `data/`, and verifies `sw.js` precache entries. For any flagged asset, determine whether it is used by a declared process (e.g., coord-picker tool, PRD reference) or is genuinely stale. If stale, delete the file and update any asset lists (sw.js, PRD manifests) in the same commit. If the diff adds or removes files, also update `sw.js` precache in the same commit.
+
+Fix anything found in steps 2–4 before proceeding. Do not commit until all steps pass clean.
 
 ### Committing
 - Prompt the user toward cohesive commits and discrete chunks of work.
