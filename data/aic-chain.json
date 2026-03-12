@@ -17,7 +17,7 @@
     {
       "id": "iliacus",
       "label": "Iliacus",
-      "connection": "L innominate tilts forward (L IP ER); acetabulum rotates, orienting femur inward",
+      "connection": "L innominate tilts forward (L IP ER = L AF ER); femur is in relative ER, adductor relatively lengthened, TFL loaded as compensatory IR stabilizer",
       "priColor": "pri-red",
       "anchor": {"anterior": [35.1, 50.9], "posterior": [64.0, 43.7]}
     },
