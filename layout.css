@@ -207,6 +207,7 @@ section.tab {
 
 section.tab.active {
   display:block;
+  animation:fadeIn 150ms ease-out;
 }
 
 .tab-section {
@@ -413,6 +414,12 @@ p:last-child {
 
 .subtab-content.active {
   display:block;
+  animation:fadeIn 150ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity:0; }
+  to { opacity:1; }
 }
 
 .card {
