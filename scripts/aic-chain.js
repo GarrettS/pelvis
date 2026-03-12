@@ -2,8 +2,9 @@ import {createResizeHandle} from './resize-handle.js';
 import {showFetchError} from './fetch-feedback.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
+const VIEWS = ['anterior', 'posterior'];
 
-let aicChain = [];
+let aicChain = {};
 let aicDetail = {};
 let activeId = null;
 let activeRow = null;
@@ -63,22 +64,25 @@ async function initLAIC() {
 
 function buildPanel() {
   const frag = document.createDocumentFragment();
+  const ids = Object.keys(aicChain);
+  const lastIdx = ids.length - 1;
 
-  aicChain.forEach(function(muscle, i) {
+  ids.forEach((id, i) => {
+    const muscle = aicChain[id];
     const row = document.createElement('div');
     row.className = 'aic-chain-row ' + muscle.priColor;
-    row.dataset.muscleId = muscle.id;
+    row.id = id;
     row.textContent = muscle.label;
     frag.appendChild(row);
 
-    if (i < aicChain.length - 1 && muscle.connection) {
+    if (i < lastIdx && muscle.connection) {
       const conn = document.createElement('div');
       conn.className = 'aic-chain-connection';
       conn.textContent = '\u2193 ' + muscle.connection;
       frag.appendChild(conn);
     }
 
-    if (i === aicChain.length - 1) {
+    if (i === lastIdx) {
       const terminal = document.createElement('div');
       terminal.className = 'aic-chain-connection aic-chain-terminal';
       terminal.textContent = '(long head \u2014 terminal)';
@@ -93,9 +97,9 @@ function setupOverlay() {
   overlayEl.setAttribute('viewBox', '0 0 100 100');
   overlayEl.setAttribute('preserveAspectRatio', 'none');
 
-  const views = ['anterior', 'posterior'];
-  aicChain.forEach(function(muscle) {
-    views.forEach(function(view) {
+  Object.keys(aicChain).forEach(id => {
+    const muscle = aicChain[id];
+    VIEWS.forEach(view => {
       const coords = muscle.anchor[view];
       const circle = document.createElementNS(SVG_NS, 'circle');
       circle.setAttribute('cx', String(coords[0]));
@@ -106,8 +110,7 @@ function setupOverlay() {
       circle.setAttribute('fill-opacity', '0.4');
       circle.setAttribute('stroke', 'var(--pri-fg)');
       circle.setAttribute('stroke-width', '0.5');
-      circle.setAttribute('data-muscle-id', muscle.id);
-      circle.setAttribute('data-view', view);
+      circle.id = id + '-' + view;
       circle.setAttribute('display', 'none');
       circle.style.cursor = 'pointer';
       circle.style.pointerEvents = 'all';
@@ -117,16 +120,17 @@ function setupOverlay() {
 }
 
 function attachListeners() {
-  panelEl.addEventListener('click', function(e) {
+  panelEl.addEventListener('click', (e) => {
     const row = e.target.closest('.aic-chain-row');
     if (!row) return;
-    activateMuscle(row.dataset.muscleId);
+    activateMuscle(row.id);
   });
 
-  overlayEl.addEventListener('click', function(e) {
-    const circle = e.target.closest('circle[data-muscle-id]');
-    if (!circle) return;
-    activateMuscle(circle.dataset.muscleId);
+  overlayEl.addEventListener('click', (e) => {
+    const circle = e.target.closest('circle');
+    if (!circle || !circle.id) return;
+    const muscleId = circle.id.replace(/-(?:anterior|posterior)$/, '');
+    activateMuscle(muscleId);
   });
 }
 
@@ -139,19 +143,18 @@ function activateMuscle(id) {
   deactivateAll();
   activeId = id;
 
-  const entry = aicChain.find(function(m) { return m.id === id; });
+  const entry = aicChain[id];
   if (!entry) return;
 
-  activeRow = panelEl.querySelector(
-      '.aic-chain-row[data-muscle-id="' + id + '"]');
+  activeRow = document.getElementById(id);
   if (activeRow) {
     activeRow.classList.add('activeMuscle');
     activeRow.scrollIntoView({behavior: 'smooth', block: 'nearest'});
   }
 
-  activeCircles = Array.from(overlayEl.querySelectorAll(
-      'circle[data-muscle-id="' + id + '"]'));
-  activeCircles.forEach(function(c) { c.removeAttribute('display'); });
+  activeCircles = VIEWS.map(view => document.getElementById(id + '-' + view))
+      .filter(Boolean);
+  activeCircles.forEach(c => { c.removeAttribute('display'); });
 
   drawLeaderLine(activeRow, entry);
   showDetail(entry);
@@ -165,7 +168,7 @@ function deactivateAll() {
     activeRow = null;
   }
 
-  activeCircles.forEach(function(c) { c.setAttribute('display', 'none'); });
+  activeCircles.forEach(c => { c.setAttribute('display', 'none'); });
   activeCircles = [];
 
   clearSvg(leaderEl);
@@ -175,7 +178,7 @@ function deactivateAll() {
 function showDetail(entry) {
   if (!detailEl) return;
   detailEl.textContent = '';
-  const info = aicDetail[entry.id];
+  const info = aicDetail[activeId];
   if (!info) return;
 
   const panel = document.createElement('div');
@@ -190,7 +193,7 @@ function showDetail(entry) {
     {label: 'L AIC Pattern', value: info.pattern},
     {label: 'Correction', value: info.correction}
   ];
-  fields.forEach(function(f) {
+  fields.forEach(f => {
     const row = document.createElement('div');
     row.className = 'detail-row';
     const labelEl = document.createElement('span');
@@ -239,7 +242,7 @@ function drawLeaderLine(rowEl, entry) {
 
   const imgRect = imgEl.getBoundingClientRect();
 
-  const markerId = 'aic-arrowhead-' + entry.id;
+  const markerId = 'aic-arrowhead-' + activeId;
   const defs = document.createElementNS(SVG_NS, 'defs');
   const marker = document.createElementNS(SVG_NS, 'marker');
   marker.setAttribute('id', markerId);
@@ -258,7 +261,7 @@ function drawLeaderLine(rowEl, entry) {
   leaderEl.appendChild(defs);
 
   const paths = [];
-  ['anterior', 'posterior'].forEach(function(view) {
+  VIEWS.forEach(view => {
     const coords = entry.anchor[view];
     const endX = imgRect.left + (coords[0] / 100) * imgRect.width -
         sectionRect.left;
@@ -287,8 +290,8 @@ function drawLeaderLine(rowEl, entry) {
     paths.push(path);
   });
 
-  requestAnimationFrame(function() {
-    paths.forEach(function(p) {
+  requestAnimationFrame(() => {
+    paths.forEach(p => {
       p.style.transition = 'stroke-dashoffset 200ms ease-out';
       p.style.strokeDashoffset = '0';
     });
@@ -322,7 +325,7 @@ function clearSvg(svg) {
 
 function handleResize() {
   if (!activeId || !activeRow) return;
-  const entry = aicChain.find(function(m) { return m.id === activeId; });
+  const entry = aicChain[activeId];
   if (entry) {
     drawLeaderLine(activeRow, entry);
   }

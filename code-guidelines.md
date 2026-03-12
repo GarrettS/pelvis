@@ -55,6 +55,17 @@ Do not loop through elements to attach event listeners. Attach one handler to a 
 
 For exclusive-active state (tabs, selections, panels): hold a reference to the currently active element. On switch, deactivate it directly, then activate the new one. Never `querySelectorAll` to scan siblings and remove a class.
 
+### Shared Key
+
+When a data record and a DOM element represent the same entity, give them the same `id`. This single key indexes both — data by object property, DOM by `getElementById`. Do not search either collection for a known key.
+
+- **Data format**: structure JSON as a keyed object (`{"aic-iliacus": {...}}`) instead of an array of objects with `id` fields (`[{"id": "iliacus", ...}]`). When data is looked up by key, the source format should be keyed — no runtime indexing step needed.
+- **Namespaced keys**: prefix keys with the module name (e.g. `aic-`). This makes the key unique across the DOM, self-documenting (which module owns it), and greppable across all layers without false matches.
+- **DOM side**: use the namespaced key as the element's `id` attribute. Lookup is `getElementById(id)`. Related elements use convention-based suffixes (e.g. `id + "-anterior"`), each directly addressable.
+- **One key across all layers**: the same string appears in JSON keys, element `id` attributes, SVG element `id` attributes, and JS lookups. No translation between layers.
+- **Access pattern (getById)**: event delegation derives the key from the target element's `id`, then addresses both data (`map[id]`) and DOM (`getElementById(id)`) directly. When construction is expensive, use create-on-first-access: `pool[id] || (pool[id] = create(id))`.
+- **Antipattern**: `.find(item => item.id === id)`, `querySelector('[data-id="' + id + '"]')` — linear scans for a known key.
+
 ### Ancestor Class for Batch Styles
 
 To style a group of descendants, add a class to the nearest common ancestor. Define the CSS rule as `.state-class .descendant-class`. Never loop through descendants to set `element.style`.
@@ -109,6 +120,7 @@ Each module owns one domain concept. Name the module after what it does: `quiz.j
 ## JavaScript
 
 - `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not use the IIFE module pattern inside ES modules.
+- Function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when context (`this`) doesn't matter, for brevity.
 - Constants: `UPPER_SNAKE_CASE`. Functions/variables: `camelCase`. Classes: `PascalCase`. Booleans prefixed: `is`/`has`/`does`/`can`.
 - Declare variables in the narrowest possible scope. Always use `const` or `let`. No assignment to undeclared identifiers. Give each identifier a meaningful name from the project's ubiquitous language.
 - `textContent` over `innerHTML`. Use `innerHTML` only when inserting HTML structure.
