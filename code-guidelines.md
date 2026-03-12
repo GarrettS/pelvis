@@ -73,7 +73,7 @@ Three or fewer parameters per function. When a function needs more context, pass
 
 ### Explicit Asset Lists
 
-When code enumerates project assets — service worker precache manifests, build tool file lists, resource loaders — each entry must be individually justified by a code reference or declared process. Never glob-include a directory or add files carte blanche. An asset list is a contract: every entry is used, every used asset is listed. When files are added or removed from the project, update asset lists in the same commit.
+When code enumerates project assets — service worker precache manifests, build tool file lists, resource loaders — each entry must be individually justified by an *app* code reference: `index.html`, a JS module in `scripts/`, or a JSON data file in `data/`. Dev tools (`tools/`, `coord-picker.html`) and PRD documents are not app code; a reference from a dev tool does not justify inclusion in an asset list. Never glob-include a directory or add files carte blanche. An asset list is a contract: every entry is used by the running app, every app-used asset is listed. When files are added or removed from the project, update asset lists in the same commit.
 
 ### Module Cohesion
 

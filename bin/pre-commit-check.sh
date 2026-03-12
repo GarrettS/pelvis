@@ -171,17 +171,20 @@ if [ -f sw.js ]; then
   fi
 fi
 
-# Flag files in img/ and data/ not referenced by any HTML, JS, or JSON
+# Flag files in img/ and data/ not referenced by app code.
+# Only app files count as valid references — dev tools (coord-picker, tools/)
+# do not justify an asset's inclusion in the deployed app.
+APP_EXCLUDES="$EXCLUDES|sw\.js|coord-picker|tools/"
 ORPHAN_ASSETS=""
 for asset in img/* data/*; do
   [ -f "$asset" ] || continue
   basename=$(basename "$asset")
   refs=$(grep -rl --include='*.html' --include='*.js' --include='*.json' \
     "$basename" . 2>/dev/null \
-    | grep -Ev "$EXCLUDES|sw\.js" \
+    | grep -Ev "$APP_EXCLUDES" \
     || true)
   if [ -z "$refs" ]; then
-    ORPHAN_ASSETS="${ORPHAN_ASSETS}  ${asset} — not referenced by HTML, JS, or JSON\n"
+    ORPHAN_ASSETS="${ORPHAN_ASSETS}  ${asset} — not referenced by app code\n"
   fi
 done
 

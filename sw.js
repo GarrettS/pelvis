@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 
 const PRECACHE_URLS = [
   './',
@@ -46,8 +46,7 @@ const PRECACHE_URLS = [
   './img/PRI-1-Pelvic-Outlet.jpg',
   './img/PRI-1-Pelvic-Outlet2.jpg',
   './img/PRI-1-Pelvic-Outlet-flipped.jpg',
-  './img/left-aic.png',
-  './img/pelvis-angle-r-side.png'
+  './img/left-aic.png'
 ];
 
 self.addEventListener('install', function(e) {

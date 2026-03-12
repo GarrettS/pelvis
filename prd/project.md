@@ -25,7 +25,10 @@ data/         JSON data files
 img/          image assets
 prd/          PRDs, style guide, sprint specs
 tools/        dev tools (coord-picker)
+sw.js         service worker (root — browser scope constraint)
 ```
+
+`sw.js` lives at project root because browsers restrict a service worker's scope to its own directory and below. A SW at `scripts/sw.js` could only intercept fetches under `scripts/`. GitHub Pages does not support the `Service-Worker-Allowed` header that would widen the scope, so the file must be at root.
 
 ## Key Decisions
 - Hash-based SPA navigation (`location.hash` + `hashchange`). No History API.
