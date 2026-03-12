@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 
 const PRECACHE_URLS = [
   './',
@@ -34,7 +34,6 @@ const PRECACHE_URLS = [
   './data/causal-map.json',
   './data/cheat-data.json',
   './data/flashcard-deck.json',
-  './data/flashcards-batch1.json',
   './data/halt-levels.json',
   './data/master-quiz.json',
   './data/pelvic-joints.json',

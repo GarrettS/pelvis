@@ -14,15 +14,17 @@ An interactive study tool for the PRI Pelvis Restoration certification exam. Sin
 ## Feature PRDs
 - `prd/CC-BUILD-SPEC.md` — build spec (feature inventory, navigation, data strategy, build order)
 - `prd/anatomize-this.md` — Anatomize This interactive anatomy feature
+- `prd/coord-picker-workflow.md` — coordinate picker tools and image data workflow
 
 ## Directory Structure
 ```
 bin/          dev tooling (pre-commit-check.sh)
-css/          layout.css, components.css
+css/          domain stylesheets
 scripts/      JS modules
 data/         JSON data files
 img/          image assets
 prd/          PRDs, style guide, sprint specs
+tools/        dev tools (coord-picker)
 ```
 
 ## Key Decisions
