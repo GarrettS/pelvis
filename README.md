@@ -41,8 +41,8 @@ The commit history tells this story. Rules emerged from failures, not from upfro
 ```
 index.html
 sw.js                     — service worker (cache-first, offline support)
-layout.css                — structure, grid, responsive (root: loaded by all tabs)
 css/
+  layout.css              — structure, grid, responsive breakpoints
   landing.css             — home tab
   anatomize.css           — anatomy ID game
   aic-chain.css           — L AIC chain diagram

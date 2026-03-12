@@ -3,7 +3,7 @@ const CACHE_VERSION = 'v3';
 const PRECACHE_URLS = [
   './',
   './index.html',
-  './layout.css',
+  './css/layout.css',
   './css/aic-chain.css',
   './css/anatomize.css',
   './css/decoder.css',

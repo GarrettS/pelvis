@@ -73,7 +73,7 @@ Three or fewer parameters per function. When a function needs more context, pass
 
 ### Directory Structure
 
-App code lives in designated directories: `scripts/` for JS modules, `css/` for domain stylesheets, `data/` for JSON data files, `img/` for image assets. Dev tools — coordinate pickers, data generators, debug utilities — belong in `tools/`, not in the project root. The project root contains only files that must be there: `index.html`, `sw.js` (browser scope constraint), `layout.css` (shared across all tabs), and project documentation.
+App code lives in designated directories: `scripts/` for JS modules, `css/` for domain stylesheets, `data/` for JSON data files, `img/` for image assets. Dev tools — coordinate pickers, data generators, debug utilities — belong in `tools/`, not in the project root. The project root contains only files that must be there: `index.html`, `sw.js` (browser scope constraint), and project documentation.
 
 ### Explicit Asset Lists
 
