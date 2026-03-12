@@ -71,9 +71,13 @@ Functions do one thing. Consistent return types. Test the happy path and the sad
 
 Three or fewer parameters per function. When a function needs more context, pass a single options object with named properties. This eliminates ordering bugs and makes call sites self-documenting.
 
+### Directory Structure
+
+App code lives in designated directories: `scripts/` for JS modules, `css/` for domain stylesheets, `data/` for JSON data files, `img/` for image assets. Dev tools — coordinate pickers, data generators, debug utilities — belong in `tools/`, not in the project root. The project root contains only files that must be there: `index.html`, `sw.js` (browser scope constraint), `layout.css` (shared across all tabs), and project documentation.
+
 ### Explicit Asset Lists
 
-When code enumerates project assets — service worker precache manifests, build tool file lists, resource loaders — each entry must be individually justified by an *app* code reference: `index.html`, a JS module in `scripts/`, or a JSON data file in `data/`. Dev tools (`tools/`, `coord-picker.html`) and PRD documents are not app code; a reference from a dev tool does not justify inclusion in an asset list. Never glob-include a directory or add files carte blanche. An asset list is a contract: every entry is used by the running app, every app-used asset is listed. When files are added or removed from the project, update asset lists in the same commit.
+When code enumerates project assets — service worker precache manifests, build tool file lists, resource loaders — each entry must be individually justified by an *app* code reference: `index.html`, a JS module in `scripts/`, or a JSON data file in `data/`. Dev tools (`tools/`) and PRD documents are not app code; a reference from a dev tool does not justify inclusion in an asset list. Never glob-include a directory or add files carte blanche. An asset list is a contract: every entry is used by the running app, every app-used asset is listed. When files are added or removed from the project, update asset lists in the same commit.
 
 ### Module Cohesion
 
