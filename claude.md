@@ -48,7 +48,7 @@ Follow this sequence. Do not skip steps.
 - Fire-and-forget async calls missing `.catch()`.
 - `fetch` response status checks (`if (!response.ok)`).
 
-**Step 4 — Stale asset check.** The pre-commit script flags unreferenced files in `img/` and `data/`, and verifies `sw.js` precache entries. For any flagged asset, determine whether it is used by a declared process (e.g., coord-picker tool, PRD reference) or is genuinely stale. If stale, delete the file and update any asset lists (sw.js, PRD manifests) in the same commit. If the diff adds or removes files, also update `sw.js` precache in the same commit.
+**Step 4 — Stale asset check.** The pre-commit script flags unreferenced files in `img/` and `data/`, and verifies `sw.js` precache entries. For any flagged asset, determine whether it is used by a declared process (e.g., coord-picker tool, PRD reference) or is genuinely stale. If stale, delete the file and update any asset lists (sw.js, PRD manifests) in the same commit. If the diff adds or removes app-referenced files, also update `sw.js` precache in the same commit. A new file in `img/` or `data/` does not automatically belong in precache — before adding any entry to `sw.js`, identify the app code reference (HTML, JS, or JSON in the running app) that fetches it. Files referenced only by README.md, PRDs, or dev tools are not app assets and must not be precached.
 
 Fix anything found in steps 2–4 before proceeding. Do not commit until all steps pass clean.
 
