@@ -149,6 +149,49 @@ check "Banner/landmark comments in CSS" \
   '[═─━]{3,}|[*]{4,}' \
   '*.css'
 
+# ---- Asset integrity ----
+
+# Verify every sw.js precache entry exists as a file
+if [ -f sw.js ]; then
+  MISSING_PRECACHE=""
+  while IFS= read -r url; do
+    # Strip leading ./ to get relative path
+    filepath="${url#./}"
+    if [ ! -f "$filepath" ]; then
+      MISSING_PRECACHE="${MISSING_PRECACHE}  ${url} — file not found\n"
+    fi
+  done < <(grep -oE "'\.\/[^']+'" sw.js | tr -d "'")
+
+  if [ -n "$MISSING_PRECACHE" ]; then
+    echo -e "${RED}FAIL${NC}  sw.js precache entries reference missing files"
+    echo -e "$MISSING_PRECACHE"
+    FAIL=1
+  else
+    echo -e "${GREEN}PASS${NC}  All sw.js precache entries exist"
+  fi
+fi
+
+# Flag files in img/ and data/ not referenced by any HTML, JS, or JSON
+ORPHAN_ASSETS=""
+for asset in img/* data/*; do
+  [ -f "$asset" ] || continue
+  basename=$(basename "$asset")
+  refs=$(grep -rl --include='*.html' --include='*.js' --include='*.json' \
+    "$basename" . 2>/dev/null \
+    | grep -Ev "$EXCLUDES|sw\.js" \
+    || true)
+  if [ -z "$refs" ]; then
+    ORPHAN_ASSETS="${ORPHAN_ASSETS}  ${asset} — not referenced by HTML, JS, or JSON\n"
+  fi
+done
+
+if [ -n "$ORPHAN_ASSETS" ]; then
+  echo -e "${YELLOW}WARN${NC}  Unreferenced assets in img/ or data/  [verify: used by declared process or delete]"
+  echo -e "$ORPHAN_ASSETS"
+else
+  echo -e "${GREEN}PASS${NC}  All img/ and data/ assets referenced"
+fi
+
 # ---- Summary ----
 
 echo ""

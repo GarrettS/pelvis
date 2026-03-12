@@ -46,10 +46,8 @@ const PRECACHE_URLS = [
   './img/PRI-1-Pelvic-Outlet.jpg',
   './img/PRI-1-Pelvic-Outlet2.jpg',
   './img/PRI-1-Pelvic-Outlet-flipped.jpg',
-  './img/hip-r.png',
   './img/left-aic.png',
-  './img/pelvis-angle-r-side.png',
-  './img/pelvis-m-front.png'
+  './img/pelvis-angle-r-side.png'
 ];
 
 self.addEventListener('install', function(e) {

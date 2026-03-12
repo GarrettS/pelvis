@@ -71,6 +71,10 @@ Functions do one thing. Consistent return types. Test the happy path and the sad
 
 Three or fewer parameters per function. When a function needs more context, pass a single options object with named properties. This eliminates ordering bugs and makes call sites self-documenting.
 
+### Explicit Asset Lists
+
+When code enumerates project assets — service worker precache manifests, build tool file lists, resource loaders — each entry must be individually justified by a code reference or declared process. Never glob-include a directory or add files carte blanche. An asset list is a contract: every entry is used, every used asset is listed. When files are added or removed from the project, update asset lists in the same commit.
+
 ### Module Cohesion
 
 Each module owns one domain concept. Name the module after what it does: `quiz.js`, `flashcards.js`, `navigation.js`. If the name describes a role instead of a domain concept, it is a junk drawer — `utils.js`, `helpers.js`, `tools.js`, `misc.js`, `common.js` are common examples, but any name that could apply to any project instead of *this* project violates the principle. If a function does not belong in an existing module, create a new module with a specific name. When a module grows to cover multiple concerns, split it.
