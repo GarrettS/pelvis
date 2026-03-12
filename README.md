@@ -8,8 +8,9 @@ Seven interactive modules covering the Pelvis Restoration curriculum: anatomy id
 
 The app treats PRI's manual as a primary source — not a catechism. Where PRI terminology departs from standard anatomy, the app flags the departure and explains the underlying mechanics. Where the manual's claims are idiosyncratic, the data says so and cites the source. The `aic-chain.json` separates anatomical fact from PRI interpretation at the field level.
 
-<!-- Screenshots: img/screenshot-anatomize.png, img/screenshot-equivalence.png -->
-<!-- TODO: capture from running app — CC cannot take browser screenshots -->
+![Anatomize This! — clickable hotspot overlays](img/anatomize-this.png)
+
+![L AIC Chain — interactive muscle chain diagram](img/l-aic.png)
 
 ## Why no framework
 
