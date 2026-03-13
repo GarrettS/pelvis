@@ -162,7 +162,57 @@
             </div>
           </div>
         </div>
-        <div id="pelvis-svg-wrap"></div>
+        <div id="pelvis-svg-wrap">
+          <svg id="pelvis-svg" viewBox="0 0 420 380" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arr-sv" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0, 7 2.5, 0 5" class="pelvis-arrow-dim"/></marker>
+              <marker id="arr-in" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0, 7 2.5, 0 5" class="pelvis-arrow-inlet"/></marker>
+              <marker id="arr-out" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><polygon points="0 0, 7 2.5, 0 5" class="pelvis-arrow-outlet"/></marker>
+            </defs>
+            <g class="pelvis-ghost" opacity="0.1">
+              <path d="M200,80 Q260,70 290,110 Q310,135 295,175 Q280,200 200,200 Q140,200 130,175 Q118,140 140,110 Q165,75 200,80 Z" class="pelvis-bone"/>
+              <path d="M200,200 Q240,220 250,260 Q255,285 230,295 Q200,305 175,295 Q152,285 155,260 Q160,220 200,200 Z" class="pelvis-bone"/>
+            </g>
+            <g id="pelvis-tilt-group">
+              <path d="M200,80 Q265,68 295,112 Q318,138 300,178 Q283,204 200,204 Q138,204 126,178 Q112,138 140,110 Q165,73 200,80 Z" class="pelvis-ilium"/>
+              <path d="M200,204 Q244,224 254,265 Q260,290 232,300 Q200,310 172,300 Q147,290 150,265 Q158,224 200,204 Z" class="pelvis-ischium"/>
+              <ellipse cx="200" cy="290" rx="28" ry="18" class="pelvis-pubis"/>
+              <circle cx="200" cy="200" r="28" class="pelvis-acetabulum"/>
+              <circle cx="200" cy="200" r="4" class="pelvis-acetabulum-dot"/>
+              <path d="M148,118 Q170,90 200,82 Q230,90 252,118" class="pelvis-inlet-arc"/>
+              <path d="M165,280 Q200,310 235,280" class="pelvis-outlet-arc"/>
+              <circle cx="148" cy="118" r="5" class="pelvis-inlet-dot"/>
+              <circle cx="262" cy="125" r="5" class="pelvis-inlet-dot" opacity="0.7"/>
+              <circle cx="200" cy="295" r="5" class="pelvis-outlet-dot" opacity="0.9"/>
+              <circle cx="165" cy="280" r="5" class="pelvis-outlet-dot" opacity="0.8"/>
+              <circle cx="235" cy="280" r="5" class="pelvis-outlet-dot" opacity="0.8"/>
+              <circle cx="265" cy="275" r="4" class="pelvis-outlet-dot" opacity="0.6"/>
+            </g>
+            <text id="pelvis-asis-label" class="pelvis-label-inlet" x="118" text-anchor="end">ASIS</text>
+            <text id="pelvis-sacral-label" class="pelvis-label-inlet" x="330">Sacral base</text>
+            <text class="pelvis-label-outlet" x="210" y="320">Pubic symphysis</text>
+            <text class="pelvis-label-warn" x="344" y="200" text-anchor="middle">Acetabulum</text>
+            <text class="pelvis-label-outlet" x="118" y="285" text-anchor="end">Ischial tub.</text>
+            <text class="pelvis-label-outlet" x="330" y="278">Coccyx</text>
+            <g id="pelvis-motion-ant" class="pelvis-motion">
+              <path d="M148,125 Q130,145 120,170" class="pelvis-motion-path-inlet" marker-end="url(#arr-in)"/>
+              <text x="88" y="165" class="pelvis-label-inlet" text-anchor="middle">ASIS drops</text>
+              <text x="88" y="175" class="pelvis-label-inlet" text-anchor="middle">forward</text>
+            </g>
+            <g id="pelvis-motion-post" class="pelvis-motion" display="none">
+              <path d="M148,125 Q130,105 125,85" class="pelvis-motion-path-inlet" marker-end="url(#arr-in)"/>
+              <text x="90" y="82" class="pelvis-label-inlet" text-anchor="middle">ASIS rises</text>
+              <text x="90" y="92" class="pelvis-label-inlet" text-anchor="middle">backward</text>
+            </g>
+            <rect x="10" y="10" width="115" height="36" rx="4" class="pelvis-status-box-inlet"/>
+            <text id="pelvis-inlet-status" x="67" y="26" text-anchor="middle" class="pelvis-status-inlet"></text>
+            <text x="67" y="38" text-anchor="middle" class="pelvis-status-sublabel">(inlet ring)</text>
+            <rect x="10" y="52" width="115" height="36" rx="4" class="pelvis-status-box-outlet"/>
+            <text id="pelvis-outlet-status" x="67" y="68" text-anchor="middle" class="pelvis-status-outlet"></text>
+            <text x="67" y="80" text-anchor="middle" class="pelvis-status-sublabel">(outlet ring)</text>
+            <text id="pelvis-floor-status" x="210" y="350" text-anchor="middle" class="pelvis-status-floor"></text>
+          </svg>
+        </div>
       </div>
       <div class="decoder-info">
         <div id="decoder-equiv" class="equiv-chain"></div>
