@@ -122,6 +122,7 @@ Each module owns one domain concept. Name the module after what it does: `quiz.j
 - `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not use the IIFE module pattern inside ES modules.
 - Function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when context (`this`) doesn't matter, for brevity.
 - Constants: `UPPER_SNAKE_CASE`. Functions/variables: `camelCase`. Classes: `PascalCase`. Booleans prefixed: `is`/`has`/`does`/`can`.
+- Event handler functions: `[object][EventName]Handler` (e.g. `itemClickHandler`, `formSubmitHandler`). Functions that process results but do not receive an event object are not handlers — name them by what they do (e.g. `validateInput`, `saveRecord`).
 - Declare variables in the narrowest possible scope. Always use `const` or `let`. No assignment to undeclared identifiers. Give each identifier a meaningful name from the project's ubiquitous language.
 - `textContent` over `innerHTML`. Use `innerHTML` only when inserting HTML structure.
 - No form submission on Enter unless that is the intended UX. Prevent default on `keydown` where needed.

@@ -25,6 +25,8 @@ let attemptedOnCurrent = false;
 let reviewMode = false;
 
 let anatomizeData = null;
+let activeImageBtn = null;
+let activeFilterBtn = null;
 
 async function loadAnatomizeData(errorContainer) {
   if (anatomizeData) return true;
@@ -41,6 +43,10 @@ async function loadAnatomizeData(errorContainer) {
     return false;
   }
 }
+
+const RE_LABEL_ID = /^anat-(.+)-label$/;
+const RE_HITBOX_ID = /^anat-(.+)-hitbox$/;
+const RE_BTN_ID = /^anat-(.+)-btn$/;
 
 function priColorClass(priColor) {
   return priColor ? priColor.replace('--', '') : 'pri-neutral';
@@ -72,14 +78,20 @@ function edgePoint(box, target) {
   return {x: cx + dx * s, y: cy + dy * s};
 }
 
-async function initAnatomize() {
-  const container = document.querySelector(
-      '#anatomy-anatomize .tab-section');
-  if (!container) return;
+function startImageFromHash() {
+  const imageIds = anatomizeData ? Object.keys(anatomizeData.images) : [];
+  if (imageIds.length === 0) return false;
+  const hashParts = location.hash.replace(/^#/, '').split('/');
+  const hashImageId = (hashParts[0] === 'anatomy' &&
+      hashParts[1] === 'anatomize' && hashParts[2]) ?
+      hashParts[2] : null;
+  const startId = (hashImageId && getImageSet(hashImageId)) ?
+      hashImageId : imageIds[0];
+  loadImageSet(startId, true);
+  return true;
+}
 
-  const loaded = await loadAnatomizeData('#anatomy-anatomize');
-  if (!loaded) return;
-
+function initDom(container) {
   dom.container = container;
   dom.imageSelector = container.querySelector('.anatomize-image-selector');
   dom.filterRow = container.querySelector('.anatomize-filter');
@@ -88,7 +100,9 @@ async function initAnatomize() {
   dom.arena = container.querySelector('.anatomize-arena');
   dom.scoreDisplay = container.querySelector('.anatomize-score');
   dom.detail = container.querySelector('.anatomize-detail');
+}
 
+function initListeners() {
   isMobile = window.matchMedia('(max-width: 600px)').matches;
   window.matchMedia('(max-width: 600px)').addEventListener(
       'change', (e) => {
@@ -97,9 +111,6 @@ async function initAnatomize() {
           resetSession();
         }
       });
-
-  renderImageSelector();
-  renderControls();
 
   dom.resetBtn.addEventListener('click', () => {
     resetSession();
@@ -124,33 +135,30 @@ async function initAnatomize() {
   const anatomizePanel = document.getElementById('anatomy-anatomize');
   if (anatomizePanel) {
     anatomizePanel.addEventListener('subtab-shown', () => {
-      const imageIds = anatomizeData ? Object.keys(anatomizeData.images) : [];
-      if (!initialized && imageIds.length > 0) {
-        const hashParts = location.hash.replace(/^#/, '').split('/');
-        const hashImageId = (hashParts[0] === 'anatomy' &&
-            hashParts[1] === 'anatomize' && hashParts[2]) ?
-            hashParts[2] : null;
-        const startId = (hashImageId && getImageSet(hashImageId)) ?
-            hashImageId : imageIds[0];
-        loadImageSet(startId, true);
+      if (!initialized && startImageFromHash()) {
         initialized = true;
       } else if (initialized) {
         drawArrows();
       }
     });
   }
+}
 
+async function initAnatomize() {
+  const container = document.querySelector(
+      '#anatomy-anatomize .tab-section');
+  if (!container) return;
+
+  const loaded = await loadAnatomizeData('#anatomy-anatomize');
+  if (!loaded) return;
+
+  initDom(container);
+  renderImageSelector();
+  renderControls();
+  initListeners();
   initResizeHandle();
 
-  const imageIds = anatomizeData ? Object.keys(anatomizeData.images) : [];
-  if (imageIds.length > 0) {
-    const hashParts = location.hash.replace(/^#/, '').split('/');
-    const hashImageId = (hashParts[0] === 'anatomy' &&
-        hashParts[1] === 'anatomize' && hashParts[2]) ?
-        hashParts[2] : null;
-    const startId = (hashImageId && getImageSet(hashImageId)) ?
-        hashImageId : imageIds[0];
-    loadImageSet(startId, true);
+  if (startImageFromHash()) {
     initialized = true;
   }
 }
@@ -181,8 +189,6 @@ function resetState() {
   attemptedOnCurrent = false;
 }
 
-let activeImageBtn = null;
-
 function renderImageSelector() {
   dom.imageSelector.textContent = '';
   if (!anatomizeData) return;
@@ -201,8 +207,6 @@ function renderImageSelector() {
     loadImageSet(btn.dataset.imageId);
   });
 }
-
-let activeFilterBtn = null;
 
 function renderControls() {
   dom.filterRow.textContent = '';
@@ -410,7 +414,7 @@ function createStructureOverlays(svg, wrap, imgSet) {
   for (const id in state.structures) {
     const s = state.structures[id];
     const group = document.createElementNS(SVG_NS, 'g');
-    group.dataset.structureId = id;
+    group.id = 'anat-' + id;
     group.classList.add(priColorClass(s.priColor));
 
     const marker = markerTpl.cloneNode(false);
@@ -423,7 +427,7 @@ function createStructureOverlays(svg, wrap, imgSet) {
       const labelDiv = document.createElement('div');
       labelDiv.className = 'anatomize-label';
       labelDiv.classList.add(priColorClass(s.priColor));
-      labelDiv.dataset.structureId = id;
+      labelDiv.id = 'anat-' + id + '-label';
       labelDiv.style.cssText = 'left:' + pb.x + '%;top:' + pb.y
           + '%;width:' + pb.w + '%;height:' + pb.h + '%'
           + (imgSet.flipped ? ';transform:scaleX(-1)' : '');
@@ -455,8 +459,8 @@ function renderBlankPanels(imgSet) {
   wrap.addEventListener('click', (e) => {
     const label = e.target.closest('.anatomize-label');
     if (!label) return;
-    const structureId = label.dataset.structureId;
-    if (structureId) handleClick(structureId);
+    const m = label.id.match(RE_LABEL_ID);
+    if (m) structureClickHandler(m[1]);
   });
 
   hookImageLoad();
@@ -472,11 +476,10 @@ function drawArrows() {
   for (const id in state.structures) {
     const s = state.structures[id];
     if (!s.panelBox) continue;
-    const group = svg.querySelector('g[data-structure-id="' + id + '"]');
-    const labelDiv = wrap.querySelector(
-        '.anatomize-label[data-structure-id="' + id + '"]');
+    const group = document.getElementById('anat-' + id);
+    const labelDiv = document.getElementById('anat-' + id + '-label');
     if (!group || !labelDiv) continue;
-    if (group.querySelector('.anatomize-arrow-line')) return;
+    if (group.querySelector('.anatomize-arrow-line')) continue;
 
     const labelRect = labelDiv.getBoundingClientRect();
     const box = {
@@ -536,7 +539,7 @@ function renderLabelHunt(imgSet) {
     if (!s.hitbox) continue;
     const hitbox = document.createElement('div');
     hitbox.className = 'anatomize-hitbox';
-    hitbox.dataset.structureId = id;
+    hitbox.id = 'anat-' + id + '-hitbox';
     hitbox.style.cssText = 'left:' + s.hitbox.x + '%;top:' + s.hitbox.y
         + '%;width:' + s.hitbox.w + '%;height:' + s.hitbox.h + '%';
     hitbox.setAttribute('role', 'button');
@@ -548,10 +551,8 @@ function renderLabelHunt(imgSet) {
   wrap.addEventListener('click', (e) => {
     const hitbox = e.target.closest('.anatomize-hitbox');
     if (!hitbox) return;
-    const structureId = hitbox.dataset.structureId;
-    if (structureId) {
-      handleClick(structureId);
-    }
+    const m = hitbox.id.match(RE_HITBOX_ID);
+    if (m) structureClickHandler(m[1]);
   });
 
   dom.arena.appendChild(wrap);
@@ -572,7 +573,7 @@ function renderMobile(imgSet) {
     const s = state.structures[id];
     const btn = document.createElement('button');
     btn.className = 'btn anatomize-mobile-btn';
-    btn.dataset.structureId = id;
+    btn.id = 'anat-' + id + '-btn';
     if (state.mechanic === 'label_hunt') {
       btn.textContent = s.label;
     } else {
@@ -584,10 +585,8 @@ function renderMobile(imgSet) {
   list.addEventListener('click', (e) => {
     const btn = e.target.closest('.anatomize-mobile-btn');
     if (!btn) return;
-    const structureId = btn.dataset.structureId;
-    if (structureId) {
-      handleClick(structureId);
-    }
+    const m = btn.id.match(RE_BTN_ID);
+    if (m) structureClickHandler(m[1]);
   });
 
   dom.arena.appendChild(list);
@@ -635,7 +634,7 @@ function renderPromptPanel(structure) {
   dom.detail.appendChild(panel);
 }
 
-function handleClick(structureId) {
+function structureClickHandler(structureId) {
   if (reviewMode) {
     const structure = state.structures[structureId];
     if (structure) {
@@ -647,10 +646,10 @@ function handleClick(structureId) {
   if (state.identified.has(structureId)) return;
 
   const correct = structureId === state.current;
-  handleStandardClick(structureId, correct);
+  scoreAttempt(structureId, correct);
 }
 
-function handleStandardClick(structureId, correct) {
+function scoreAttempt(structureId, correct) {
   state.attempts++;
   if (correct) {
     state.score++;
@@ -693,16 +692,12 @@ function renderVisualFeedback(structureId, correct) {
 }
 
 function renderBlankPanelsFeedback(structureId, correct) {
-  const svg = dom.arena.querySelector('.anatomize-svg-overlay');
-  if (!svg) return;
-  const group = svg.querySelector(`g[data-structure-id="${structureId}"]`);
+  const group = document.getElementById('anat-' + structureId);
   if (!group) return;
   const structure = state.structures[structureId];
   if (!structure) return;
 
-  const targetCircle = group.querySelector('.anatomize-target-circle');
-  const htmlLabel = dom.arena.querySelector(
-      `.anatomize-label[data-structure-id="${structureId}"]`);
+  const htmlLabel = document.getElementById('anat-' + structureId + '-label');
   if (!htmlLabel) return;
 
   if (correct) {
@@ -728,15 +723,14 @@ function renderBlankPanelsFeedback(structureId, correct) {
 }
 
 function renderLabelHuntFeedback(structureId, correct) {
-  const hitbox = dom.arena.querySelector(
-      `.anatomize-hitbox[data-structure-id="${structureId}"]`);
+  const hitbox = document.getElementById('anat-' + structureId + '-hitbox');
   if (!hitbox) return;
   const structure = state.structures[structureId];
   if (!structure) return;
 
   if (correct) {
     hitbox.classList.add(priColorClass(structure.priColor));
-    hitbox.dataset.answered = 'true';
+    hitbox.classList.add('correct');
 
     const check = document.createElement('span');
     check.className = 'anatomize-check';
@@ -752,7 +746,7 @@ function renderLabelHuntFeedback(structureId, correct) {
 
     setTimeout(() => {
       xMark.remove();
-      if (!hitbox.dataset.answered) {
+      if (!hitbox.classList.contains('correct')) {
         hitbox.classList.remove('anatomize-hitbox-wrong');
       }
     }, 1000);
@@ -760,8 +754,7 @@ function renderLabelHuntFeedback(structureId, correct) {
 }
 
 function renderMobileFeedback(structureId, correct) {
-  const btn = dom.arena.querySelector(
-      `.anatomize-mobile-btn[data-structure-id="${structureId}"]`);
+  const btn = document.getElementById('anat-' + structureId + '-btn');
   if (!btn) return;
   const structure = state.structures[structureId];
   if (!structure) return;

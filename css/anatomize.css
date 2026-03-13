@@ -263,7 +263,7 @@ g.correct .anatomize-target-circle {
   transition:border-color .12s, background .12s;
 }
 
-.anatomize-hitbox:hover:not([data-answered]) {
+.anatomize-hitbox:hover:not(.correct) {
   border-bottom-color:var(--text-dim);
 }
 
@@ -271,7 +271,7 @@ g.correct .anatomize-target-circle {
   border-bottom-color:var(--red);
 }
 
-.anatomize-hitbox[data-answered] {
+.anatomize-hitbox.correct {
   border-bottom-color: var(--pri-fg);
   background-color: var(--pri-bg);
 }
