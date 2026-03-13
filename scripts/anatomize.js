@@ -7,7 +7,8 @@ let state = {
   imageId: null,
   mechanic: null,
   flipped: false,
-  structures: [],
+  structures: null,
+  structureCount: 0,
   queue: [],
   current: null,
   score: 0,
@@ -50,7 +51,7 @@ function resolveStructures(imgEntry, shared) {
   if (imgEntry.structuresRef && shared[imgEntry.structuresRef]) {
     return shared[imgEntry.structuresRef];
   }
-  return [];
+  return null;
 }
 
 /**
@@ -123,14 +124,14 @@ async function initAnatomize() {
   const anatomizePanel = document.getElementById('anatomy-anatomize');
   if (anatomizePanel) {
     anatomizePanel.addEventListener('subtab-shown', () => {
-      if (!initialized && anatomizeData &&
-          anatomizeData.images.length > 0) {
+      const imageIds = anatomizeData ? Object.keys(anatomizeData.images) : [];
+      if (!initialized && imageIds.length > 0) {
         const hashParts = location.hash.replace(/^#/, '').split('/');
         const hashImageId = (hashParts[0] === 'anatomy' &&
             hashParts[1] === 'anatomize' && hashParts[2]) ?
             hashParts[2] : null;
         const startId = (hashImageId && getImageSet(hashImageId)) ?
-            hashImageId : anatomizeData.images[0].id;
+            hashImageId : imageIds[0];
         loadImageSet(startId, true);
         initialized = true;
       } else if (initialized) {
@@ -141,13 +142,14 @@ async function initAnatomize() {
 
   initResizeHandle();
 
-  if (anatomizeData && anatomizeData.images.length > 0) {
+  const imageIds = anatomizeData ? Object.keys(anatomizeData.images) : [];
+  if (imageIds.length > 0) {
     const hashParts = location.hash.replace(/^#/, '').split('/');
     const hashImageId = (hashParts[0] === 'anatomy' &&
         hashParts[1] === 'anatomize' && hashParts[2]) ?
         hashParts[2] : null;
     const startId = (hashImageId && getImageSet(hashImageId)) ?
-        hashImageId : anatomizeData.images[0].id;
+        hashImageId : imageIds[0];
     loadImageSet(startId, true);
     initialized = true;
   }
@@ -168,7 +170,8 @@ function resetState() {
   state.imageId = null;
   state.mechanic = null;
   state.flipped = false;
-  state.structures = [];
+  state.structures = null;
+  state.structureCount = 0;
   state.queue = [];
   state.current = null;
   state.score = 0;
@@ -178,15 +181,17 @@ function resetState() {
   attemptedOnCurrent = false;
 }
 
+let activeImageBtn = null;
+
 function renderImageSelector() {
   dom.imageSelector.textContent = '';
   if (!anatomizeData) return;
 
-  anatomizeData.images.forEach((imgSet) => {
+  Object.entries(anatomizeData.images).forEach(([id, imgSet]) => {
     const btn = document.createElement('button');
     btn.className = 'btn';
     btn.textContent = imgSet.label;
-    btn.dataset.imageId = imgSet.id;
+    btn.dataset.imageId = id;
     dom.imageSelector.appendChild(btn);
   });
 
@@ -196,6 +201,8 @@ function renderImageSelector() {
     loadImageSet(btn.dataset.imageId);
   });
 }
+
+let activeFilterBtn = null;
 
 function renderControls() {
   dom.filterRow.textContent = '';
@@ -211,23 +218,19 @@ function renderControls() {
     btn.dataset.filter = f.key;
     if (f.key === state.filter) {
       btn.classList.add('active');
+      activeFilterBtn = btn;
     }
     dom.filterRow.appendChild(btn);
   });
   dom.filterRow.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-filter]');
     if (!btn || btn.disabled) return;
+    if (activeFilterBtn) activeFilterBtn.classList.remove('active');
+    btn.classList.add('active');
+    activeFilterBtn = btn;
     state.filter = btn.dataset.filter;
-    updateFilterButtons();
     resetSession();
   });
-}
-
-function updateFilterButtons() {
-  dom.filterRow.querySelectorAll('button').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.filter === state.filter);
-  });
-  updateFilterDisabled();
 }
 
 function updateFilterDisabled() {
@@ -239,8 +242,8 @@ function updateFilterDisabled() {
       btn.disabled = false;
       return;
     }
-    const count = imgSet.structures.filter(
-        (s) => matchesFilter(s, filter)).length;
+    const count = Object.values(imgSet.structures)
+        .filter((s) => matchesFilter(s, filter)).length;
     btn.disabled = count < 4;
   });
 }
@@ -257,7 +260,7 @@ function matchesFilter(structure, filter) {
 
 function getImageSet(imageId) {
   if (!anatomizeData) return null;
-  const entry = anatomizeData.images.find((img) => img.id === imageId);
+  const entry = anatomizeData.images[imageId];
   if (!entry) return null;
   return Object.assign({}, entry, {
     structures: resolveStructures(entry, anatomizeData.sharedStructures)
@@ -282,17 +285,19 @@ function loadImageSet(imageId, skipHash) {
     }
   }
 
-  dom.imageSelector.querySelectorAll('button').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.imageId === imageId);
-  });
+  if (activeImageBtn) activeImageBtn.classList.remove('active');
+  activeImageBtn = dom.imageSelector.querySelector(
+      'button[data-image-id="' + imageId + '"]');
+  if (activeImageBtn) activeImageBtn.classList.add('active');
 
-  const hasMuscles = imgSet.structures.some(
+  const vals = Object.values(imgSet.structures);
+  const hasMuscles = vals.some(
       (s) => s.type === 'muscle' || s.type === 'ligament');
-  const hasLandmarks = imgSet.structures.some(
+  const hasLandmarks = vals.some(
       (s) => s.type === 'landmark');
   const showFilter = hasMuscles && hasLandmarks;
-  dom.filterRow.style.display = showFilter ? '' : 'none';
-  dom.resetBtn.style.display = showFilter ? '' : 'none';
+  dom.filterRow.hidden = !showFilter;
+  dom.resetBtn.hidden = !showFilter;
 
   if (!showFilter) {
     state.filter = 'all';
@@ -315,9 +320,15 @@ function resetSession() {
   dom.nextBtn.textContent = 'Next \u2192';
   delete dom.nextBtn.dataset.action;
 
-  state.structures = imgSet.structures.filter(
-      (s) => matchesFilter(s, state.filter));
-  state.queue = shuffle(state.structures.map((s) => s.id));
+  state.structures = Object.create(null);
+  state.structureCount = 0;
+  for (const id in imgSet.structures) {
+    if (matchesFilter(imgSet.structures[id], state.filter)) {
+      state.structures[id] = imgSet.structures[id];
+      state.structureCount++;
+    }
+  }
+  state.queue = shuffle(Object.keys(state.structures));
 
   dom.detail.textContent = '';
   dom.nextBtn.classList.add('disabled');
@@ -343,80 +354,68 @@ function shuffle(arr) {
   return a;
 }
 
-function renderBlankPanels(imgSet) {
+function createArenaWrap(imgSet) {
   dom.arena.textContent = '';
   const wrap = document.createElement('div');
   wrap.className = 'anatomize-arena-wrap';
   if (imgSet.flipped) {
     wrap.classList.add('anatomize-flipped');
   }
-
   const img = document.createElement('img');
   img.src = imgSet.imageSrc;
   img.alt = imgSet.label;
   img.draggable = false;
-
   wrap.appendChild(img);
+  return wrap;
+}
 
-  const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('viewBox', '0 0 100 100');
-  svg.setAttribute('preserveAspectRatio', 'none');
-  svg.classList.add('anatomize-svg-overlay');
+function createSideLabels(svg, imgSet) {
+  if (!imgSet.sideLabels) return;
+  const sl = imgSet.sideLabels;
+  const labelFontSize = 3;
+  [
+    {text: sl.left, x: 8, anchor: 'start'},
+    {text: sl.right, x: 92, anchor: 'end'}
+  ].forEach((cfg) => {
+    const flip = imgSet.flipped
+        ? 'translate(' + cfg.x + ',5) scale(-1,1) translate(' + -cfg.x + ',-5)'
+        : null;
+    const shadow = document.createElementNS(SVG_NS, 'text');
+    shadow.setAttribute('x', cfg.x);
+    shadow.setAttribute('y', 5);
+    shadow.setAttribute('text-anchor', cfg.anchor);
+    shadow.setAttribute('font-size', labelFontSize);
+    shadow.classList.add('anatomize-side-label-shadow');
+    shadow.textContent = cfg.text;
+    if (flip) shadow.setAttribute('transform', flip);
+    svg.appendChild(shadow);
 
-  if (imgSet.sideLabels) {
-    const sl = imgSet.sideLabels;
-    const labelFontSize = 3;
-    [
-      {text: sl.left, x: 8, anchor: 'start'},
-      {text: sl.right, x: 92, anchor: 'end'}
-    ].forEach((cfg) => {
-      const shadow = document.createElementNS(SVG_NS, 'text');
-      shadow.setAttribute('x', cfg.x);
-      shadow.setAttribute('y', 5);
-      shadow.setAttribute('text-anchor', cfg.anchor);
-      shadow.classList.add('anatomize-side-label');
-      shadow.style.fontSize = labelFontSize;
-      shadow.style.fontFamily = 'var(--mono)';
-      shadow.style.fill = 'rgba(0,0,0,0.6)';
-      shadow.style.stroke = 'rgba(0,0,0,0.6)';
-      shadow.style.strokeWidth = '0.6';
-      shadow.style.pointerEvents = 'none';
-      shadow.textContent = cfg.text;
-      if (imgSet.flipped) {
-        shadow.setAttribute('transform',
-            `translate(${cfg.x},5) scale(-1,1) translate(${-cfg.x},-5)`);
-      }
-      svg.appendChild(shadow);
+    const label = document.createElementNS(SVG_NS, 'text');
+    label.setAttribute('x', cfg.x);
+    label.setAttribute('y', 5);
+    label.setAttribute('text-anchor', cfg.anchor);
+    label.setAttribute('font-size', labelFontSize);
+    label.classList.add('anatomize-side-label');
+    label.textContent = cfg.text;
+    if (flip) label.setAttribute('transform', flip);
+    svg.appendChild(label);
+  });
+}
 
-      const label = document.createElementNS(SVG_NS, 'text');
-      label.setAttribute('x', cfg.x);
-      label.setAttribute('y', 5);
-      label.setAttribute('text-anchor', cfg.anchor);
-      label.classList.add('anatomize-side-label');
-      label.style.fontSize = labelFontSize;
-      label.style.fontFamily = 'var(--mono)';
-      label.style.fill = 'rgba(255,255,255,0.9)';
-      label.style.pointerEvents = 'none';
-      label.textContent = cfg.text;
-      if (imgSet.flipped) {
-        label.setAttribute('transform',
-            `translate(${cfg.x},5) scale(-1,1) translate(${-cfg.x},-5)`);
-      }
-      svg.appendChild(label);
-    });
-  }
+function createStructureOverlays(svg, wrap, imgSet) {
+  const markerTpl = document.createElementNS(SVG_NS, 'circle');
+  markerTpl.setAttribute('r', '1.8');
+  markerTpl.classList.add('anatomize-target-circle');
 
-  state.structures.forEach((s) => {
+  for (const id in state.structures) {
+    const s = state.structures[id];
     const group = document.createElementNS(SVG_NS, 'g');
-    group.dataset.structureId = s.id;
+    group.dataset.structureId = id;
     group.classList.add(priColorClass(s.priColor));
 
-    const marker = document.createElementNS(SVG_NS, 'circle');
+    const marker = markerTpl.cloneNode(false);
     marker.setAttribute('cx', s.arrowTo.x);
     marker.setAttribute('cy', s.arrowTo.y);
-    marker.setAttribute('r', '1.8');
-    marker.classList.add('anatomize-target-circle');
-    marker.style.opacity = '0';
     group.appendChild(marker);
 
     if (s.panelBox) {
@@ -424,14 +423,10 @@ function renderBlankPanels(imgSet) {
       const labelDiv = document.createElement('div');
       labelDiv.className = 'anatomize-label';
       labelDiv.classList.add(priColorClass(s.priColor));
-      labelDiv.dataset.structureId = s.id;
-      labelDiv.style.left = pb.x + '%';
-      labelDiv.style.top = pb.y + '%';
-      labelDiv.style.width = pb.w + '%';
-      labelDiv.style.height = pb.h + '%';
-      if (imgSet.flipped) {
-        labelDiv.style.transform = 'scaleX(-1)';
-      }
+      labelDiv.dataset.structureId = id;
+      labelDiv.style.cssText = 'left:' + pb.x + '%;top:' + pb.y
+          + '%;width:' + pb.w + '%;height:' + pb.h + '%'
+          + (imgSet.flipped ? ';transform:scaleX(-1)' : '');
       const labelText = document.createElement('span');
       labelText.className = 'anatomize-label-text';
       labelText.textContent = s.label;
@@ -440,7 +435,19 @@ function renderBlankPanels(imgSet) {
     }
 
     svg.appendChild(group);
-  });
+  }
+}
+
+function renderBlankPanels(imgSet) {
+  const wrap = createArenaWrap(imgSet);
+
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.classList.add('anatomize-svg-overlay');
+
+  createSideLabels(svg, imgSet);
+  createStructureOverlays(svg, wrap, imgSet);
 
   wrap.appendChild(svg);
   dom.arena.appendChild(wrap);
@@ -462,12 +469,13 @@ function drawArrows() {
   const wrapRect = wrap.getBoundingClientRect();
   if (wrapRect.width === 0 || wrapRect.height === 0) return;
 
-  state.structures.forEach((s) => {
-    if (!s.panelBox) return;
-    const group = svg.querySelector(`g[data-structure-id="${s.id}"]`);
+  for (const id in state.structures) {
+    const s = state.structures[id];
+    if (!s.panelBox) continue;
+    const group = svg.querySelector('g[data-structure-id="' + id + '"]');
     const labelDiv = wrap.querySelector(
-        `.anatomize-label[data-structure-id="${s.id}"]`);
-    if (!group || !labelDiv) return;
+        '.anatomize-label[data-structure-id="' + id + '"]');
+    if (!group || !labelDiv) continue;
     if (group.querySelector('.anatomize-arrow-line')) return;
 
     const labelRect = labelDiv.getBoundingClientRect();
@@ -491,7 +499,7 @@ function drawArrows() {
         ep.x, ep.y, s.arrowTo.x, s.arrowTo.y);
     arrowHead.classList.add('anatomize-arrowhead');
     group.appendChild(arrowHead);
-  });
+  }
 }
 
 function createArrowHead(x1, y1, x2, y2) {
@@ -521,51 +529,21 @@ function createArrowHead(x1, y1, x2, y2) {
 }
 
 function renderLabelHunt(imgSet) {
-  dom.arena.textContent = '';
-  const wrap = document.createElement('div');
-  wrap.className = 'anatomize-arena-wrap';
+  const wrap = createArenaWrap(imgSet);
 
-  const img = document.createElement('img');
-  img.src = imgSet.imageSrc;
-  img.alt = imgSet.label;
-  img.draggable = false;
-
-  wrap.appendChild(img);
-
-  state.structures.forEach((s) => {
-    if (!s.hitbox) return;
+  for (const id in state.structures) {
+    const s = state.structures[id];
+    if (!s.hitbox) continue;
     const hitbox = document.createElement('div');
     hitbox.className = 'anatomize-hitbox';
-    hitbox.dataset.structureId = s.id;
-    hitbox.style.position = 'absolute';
-    hitbox.style.left = s.hitbox.x + '%';
-    hitbox.style.top = s.hitbox.y + '%';
-    hitbox.style.width = s.hitbox.w + '%';
-    hitbox.style.height = s.hitbox.h + '%';
-    hitbox.style.cursor = 'pointer';
-    hitbox.style.background = 'transparent';
-    hitbox.style.borderBottom = '2px solid transparent';
-    hitbox.style.transition =
-        'border-color 0.15s, background-color 0.15s';
+    hitbox.dataset.structureId = id;
+    hitbox.style.cssText = 'left:' + s.hitbox.x + '%;top:' + s.hitbox.y
+        + '%;width:' + s.hitbox.w + '%;height:' + s.hitbox.h + '%';
     hitbox.setAttribute('role', 'button');
     hitbox.setAttribute('tabindex', '0');
     hitbox.setAttribute('aria-label', s.label);
     wrap.appendChild(hitbox);
-  });
-
-  wrap.addEventListener('mouseenter', (e) => {
-    if (e.target.classList.contains('anatomize-hitbox') &&
-        !e.target.dataset.answered) {
-      e.target.style.borderBottomColor = 'var(--text-dim)';
-    }
-  }, true);
-
-  wrap.addEventListener('mouseleave', (e) => {
-    if (e.target.classList.contains('anatomize-hitbox') &&
-        !e.target.dataset.answered) {
-      e.target.style.borderBottomColor = 'transparent';
-    }
-  }, true);
+  }
 
   wrap.addEventListener('click', (e) => {
     const hitbox = e.target.closest('.anatomize-hitbox');
@@ -582,26 +560,19 @@ function renderLabelHunt(imgSet) {
 }
 
 function renderMobile(imgSet) {
-  dom.arena.textContent = '';
-  const wrap = document.createElement('div');
-  wrap.className = 'anatomize-arena-wrap';
-
-  const img = document.createElement('img');
-  img.src = imgSet.imageSrc;
-  img.alt = imgSet.label;
-  img.draggable = false;
-  wrap.appendChild(img);
+  const wrap = createArenaWrap(imgSet);
 
   dom.arena.appendChild(wrap);
 
   const list = document.createElement('div');
   list.className = 'anatomize-mobile-list';
 
-  const shuffledStructures = shuffle(state.structures.slice());
-  shuffledStructures.forEach((s) => {
+  const shuffledIds = shuffle(Object.keys(state.structures));
+  shuffledIds.forEach((id) => {
+    const s = state.structures[id];
     const btn = document.createElement('button');
     btn.className = 'btn anatomize-mobile-btn';
-    btn.dataset.structureId = s.id;
+    btn.dataset.structureId = id;
     if (state.mechanic === 'label_hunt') {
       btn.textContent = s.label;
     } else {
@@ -631,7 +602,7 @@ function promptNext() {
   attemptedOnCurrent = false;
   dom.nextBtn.classList.add('disabled');
 
-  const structure = state.structures.find((s) => s.id === state.current);
+  const structure = state.structures[state.current];
   if (structure) {
     renderPromptPanel(structure);
   }
@@ -644,28 +615,20 @@ function renderPromptPanel(structure) {
   panel.classList.add(priColorClass(structure.priColor));
 
   const nameRow = document.createElement('div');
-  nameRow.style.display = 'flex';
-  nameRow.style.alignItems = 'center';
-  nameRow.style.gap = '0.5rem';
+  nameRow.className = 'anatomize-detail-name-row';
 
   const bullet = document.createElement('span');
   bullet.className = 'anatomize-detail-bullet';
   nameRow.appendChild(bullet);
 
   const nameText = document.createElement('span');
-  nameText.classList.add('anatomize-detail-name');
-  nameText.style.fontWeight = '700';
-  nameText.style.fontFamily = 'var(--mono)';
-  nameText.style.fontSize = 'var(--text-sm)';
+  nameText.className = 'anatomize-detail-name';
   nameText.textContent = structure.label;
   nameRow.appendChild(nameText);
   panel.appendChild(nameRow);
 
   const hint = document.createElement('p');
-  hint.style.fontSize = 'var(--text-xs)';
-  hint.style.color = 'var(--text-dim)';
-  hint.style.fontStyle = 'italic';
-  hint.style.marginTop = '0.5rem';
+  hint.className = 'anatomize-detail-hint';
   hint.textContent = 'Identify on image';
   panel.appendChild(hint);
 
@@ -674,7 +637,7 @@ function renderPromptPanel(structure) {
 
 function handleClick(structureId) {
   if (reviewMode) {
-    const structure = state.structures.find((s) => s.id === structureId);
+    const structure = state.structures[structureId];
     if (structure) {
       renderDetailPanel(structure);
     }
@@ -698,8 +661,7 @@ function handleStandardClick(structureId, correct) {
     renderVisualFeedback(structureId, true);
     updateScore();
 
-    const structure = state.structures.find(
-        (s) => s.id === structureId);
+    const structure = state.structures[structureId];
     if (structure) {
       renderDetailPanel(structure);
     }
@@ -735,7 +697,7 @@ function renderBlankPanelsFeedback(structureId, correct) {
   if (!svg) return;
   const group = svg.querySelector(`g[data-structure-id="${structureId}"]`);
   if (!group) return;
-  const structure = state.structures.find((s) => s.id === structureId);
+  const structure = state.structures[structureId];
   if (!structure) return;
 
   const targetCircle = group.querySelector('.anatomize-target-circle');
@@ -745,7 +707,6 @@ function renderBlankPanelsFeedback(structureId, correct) {
 
   if (correct) {
     group.classList.add('correct');
-    if (targetCircle) targetCircle.style.opacity = '1';
     htmlLabel.classList.add('correct');
     const check = document.createElement('span');
     check.className = 'anatomize-check';
@@ -770,7 +731,7 @@ function renderLabelHuntFeedback(structureId, correct) {
   const hitbox = dom.arena.querySelector(
       `.anatomize-hitbox[data-structure-id="${structureId}"]`);
   if (!hitbox) return;
-  const structure = state.structures.find((s) => s.id === structureId);
+  const structure = state.structures[structureId];
   if (!structure) return;
 
   if (correct) {
@@ -780,33 +741,19 @@ function renderLabelHuntFeedback(structureId, correct) {
     const check = document.createElement('span');
     check.className = 'anatomize-check';
     check.textContent = '\u2713';
-    check.style.position = 'absolute';
-    check.style.top = '0';
-    check.style.right = '0';
-    check.style.color = 'var(--green)';
-    check.style.fontSize = 'var(--text-xs)';
-    check.style.fontWeight = '700';
-    check.style.lineHeight = '1';
     hitbox.appendChild(check);
   } else {
-    hitbox.style.borderBottomColor = 'var(--red)';
+    hitbox.classList.add('anatomize-hitbox-wrong');
 
     const xMark = document.createElement('span');
     xMark.className = 'anatomize-x';
     xMark.textContent = '\u2717';
-    xMark.style.position = 'absolute';
-    xMark.style.top = '0';
-    xMark.style.right = '0';
-    xMark.style.color = 'var(--red)';
-    xMark.style.fontSize = 'var(--text-xs)';
-    xMark.style.fontWeight = '700';
-    xMark.style.lineHeight = '1';
     hitbox.appendChild(xMark);
 
     setTimeout(() => {
       xMark.remove();
       if (!hitbox.dataset.answered) {
-        hitbox.style.borderBottomColor = 'transparent';
+        hitbox.classList.remove('anatomize-hitbox-wrong');
       }
     }, 1000);
   }
@@ -816,20 +763,17 @@ function renderMobileFeedback(structureId, correct) {
   const btn = dom.arena.querySelector(
       `.anatomize-mobile-btn[data-structure-id="${structureId}"]`);
   if (!btn) return;
-  const structure = state.structures.find((s) => s.id === structureId);
+  const structure = state.structures[structureId];
   if (!structure) return;
 
   if (correct) {
     btn.classList.add(priColorClass(structure.priColor), 'correct');
     btn.textContent = structure.label + ' \u2713';
-    btn.disabled = true;
   } else {
-    btn.style.borderColor = 'var(--red)';
-    btn.style.backgroundColor = 'var(--error-bg)';
+    btn.classList.add('wrong');
     setTimeout(() => {
-      if (!btn.disabled) {
-        btn.style.borderColor = '';
-        btn.style.backgroundColor = '';
+      if (!btn.classList.contains('correct')) {
+        btn.classList.remove('wrong');
       }
     }, 1000);
   }
@@ -849,20 +793,14 @@ function renderDetailPanel(structure) {
   layer1.className = 'anatomize-detail-layer';
 
   const nameRow = document.createElement('div');
-  nameRow.style.display = 'flex';
-  nameRow.style.alignItems = 'center';
-  nameRow.style.gap = '0.5rem';
-  nameRow.style.marginBottom = '0.5rem';
+  nameRow.className = 'anatomize-detail-name-row';
 
   const bullet = document.createElement('span');
   bullet.className = 'anatomize-detail-bullet';
   nameRow.appendChild(bullet);
 
   const nameText = document.createElement('span');
-  nameText.classList.add('anatomize-detail-name');
-  nameText.style.fontWeight = '700';
-  nameText.style.fontFamily = 'var(--mono)';
-  nameText.style.fontSize = 'var(--text-sm)';
+  nameText.className = 'anatomize-detail-name';
   nameText.textContent = structure.label;
   nameRow.appendChild(nameText);
   layer1.appendChild(nameRow);
@@ -898,10 +836,7 @@ function renderDetailPanel(structure) {
   if (!hasLayers && priDetail && priDetail.layer1 &&
       !priDetail.layer1.pri) {
     const note = document.createElement('p');
-    note.style.fontSize = 'var(--text-xs)';
-    note.style.color = 'var(--text-dim)';
-    note.style.fontStyle = 'italic';
-    note.style.marginTop = '0.5rem';
+    note.className = 'anatomize-detail-hint';
     if (structure.type === 'landmark') {
       note.textContent = 'Bony landmark \u2014 no PRI color assignment.';
     } else {
@@ -915,7 +850,7 @@ function renderDetailPanel(structure) {
   if (priDetail && priDetail.layer2) {
     const layer2Wrapper = document.createElement('div');
     layer2Wrapper.className = 'anatomize-detail-layer';
-    layer2Wrapper.style.display = 'none';
+    layer2Wrapper.hidden = true;
 
     if (priDetail.layer2.laic) {
       const row = createDetailRow('Pattern Role', priDetail.layer2.laic);
@@ -931,8 +866,8 @@ function renderDetailPanel(structure) {
     l2Btn.className = 'btn anatomize-detail-btn';
     l2Btn.textContent = 'Show Pattern Role';
     l2Btn.addEventListener('click', () => {
-      layer2Wrapper.style.display = '';
-      l2Btn.style.display = 'none';
+      layer2Wrapper.hidden = false;
+      l2Btn.hidden = true;
     });
     panel.appendChild(l2Btn);
     panel.appendChild(layer2Wrapper);
@@ -941,7 +876,7 @@ function renderDetailPanel(structure) {
   if (priDetail && priDetail.layer3) {
     const layer3Wrapper = document.createElement('div');
     layer3Wrapper.className = 'anatomize-detail-layer';
-    layer3Wrapper.style.display = 'none';
+    layer3Wrapper.hidden = true;
 
     if (priDetail.layer3.treatment) {
       const row = createDetailRow(
@@ -953,8 +888,8 @@ function renderDetailPanel(structure) {
     l3Btn.className = 'btn anatomize-detail-btn';
     l3Btn.textContent = 'Show Treatment';
     l3Btn.addEventListener('click', () => {
-      layer3Wrapper.style.display = '';
-      l3Btn.style.display = 'none';
+      layer3Wrapper.hidden = false;
+      l3Btn.hidden = true;
     });
     panel.appendChild(l3Btn);
     panel.appendChild(layer3Wrapper);
@@ -983,7 +918,7 @@ function createDetailRow(label, value) {
       formatAttachments(value) : value;
 
   const valEl = document.createElement('span');
-  valEl.style.fontSize = 'var(--text-sm)';
+  valEl.className = 'detail-value';
   valEl.textContent = display;
   row.appendChild(valEl);
 
@@ -999,12 +934,11 @@ function endSession() {
   dom.nextBtn.dataset.action = 'reset';
 
   if (isMobile) {
-    dom.arena.querySelectorAll('.anatomize-mobile-btn').forEach((btn) => {
-      btn.disabled = false;
-    });
+    const list = dom.arena.querySelector('.anatomize-mobile-list');
+    if (list) list.classList.add('review');
   }
 
-  const total = state.structures.length;
+  const total = state.structureCount;
   const accuracy = total > 0 ?
       Math.round((state.firstAttempt.size / total) * 100) : 0;
 
@@ -1020,7 +954,7 @@ function updateScore() {
   const scoreText = document.createElement('span');
   scoreText.className = 'score-display';
   scoreText.textContent = `Score: ${state.score} \u00b7 ` +
-      `${state.identified.size} of ${state.structures.length}`;
+      `${state.identified.size} of ${state.structureCount}`;
   dom.scoreDisplay.appendChild(scoreText);
 }
 
@@ -1038,10 +972,8 @@ function initResizeHandle() {
     cssProperty: '--info-w',
     minWidth: 200,
     maxRatio: 0.6,
-    canDrag: function() {
-      return window.matchMedia(
-          '(min-width: 1024px) and (orientation: landscape)').matches;
-    }
+    canDrag: () => window.matchMedia(
+        '(min-width: 1024px) and (orientation: landscape)').matches
   });
 }
 

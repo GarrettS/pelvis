@@ -1,1361 +1,1322 @@
 {
-  "sharedStructures":{
-    "outletInferior":[
-      {
-        "id":"arcuate_tendon_r",
-        "label":"Arcuate Tendon (R)",
-        "type":"connective",
-        "priColor":"--pri-neutral",
-        "panelBox":{
-          "x":0,
-          "y":14,
-          "w":14.5,
-          "h":3.5
+  "sharedStructures": {
+    "outletInferior": {
+      "arcuate_tendon_r": {
+        "label": "Arcuate Tendon (R)",
+        "type": "connective",
+        "priColor": "--pri-neutral",
+        "panelBox": {
+          "x": 0,
+          "y": 14,
+          "w": 14.5,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":29.7,
-          "y":55.7
+        "arrowTo": {
+          "x": 29.7,
+          "y": 55.7
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Thickened fascia of obturator internus forming a linear origin for levator ani.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Thickened fascia of obturator internus forming a linear origin for levator ani.",
+            "attachments": {
+              "proximal": [
                 "Pubic body"
               ],
-              "distal":[
+              "distal": [
                 "Ischial spine"
               ]
             },
-            "actions":"Provides structural origin for iliococcygeus (part of levator ani).",
-            "movements":"Not contractile. Passive structural anchor for pelvic diaphragm.",
-            "pri":"R arcuate tendon is not a primary PRI corrective. Only L arcuate tendon is assigned a color family.",
-            "chain":"Structural bridge — pelvic floor"
+            "actions": "Provides structural origin for iliococcygeus (part of levator ani).",
+            "movements": "Not contractile. Passive structural anchor for pelvic diaphragm.",
+            "pri": "R arcuate tendon is not a primary PRI corrective. Only L arcuate tendon is assigned a color family.",
+            "chain": "Structural bridge — pelvic floor"
           }
         }
       },
-      {
-        "id":"obturator_internus_r",
-        "label":"Obturator Internus (R)",
-        "type":"muscle",
-        "priColor":"--pri-neutral",
-        "panelBox":{
-          "x":0,
-          "y":54,
-          "w":17,
-          "h":3.5
+      "obturator_internus_r": {
+        "label": "Obturator Internus (R)",
+        "type": "muscle",
+        "priColor": "--pri-neutral",
+        "panelBox": {
+          "x": 0,
+          "y": 54,
+          "w": 17,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":17.6,
-          "y":70.0
+        "arrowTo": {
+          "x": 17.6,
+          "y": 70
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Lateral rotation of the hip. When hip is flexed beyond 90°, assists abduction.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Lateral rotation of the hip. When hip is flexed beyond 90°, assists abduction.",
+            "attachments": {
+              "proximal": [
                 "Inner surface of obturator membrane",
                 "Surrounding bone of obturator foramen"
               ],
-              "distal":[
+              "distal": [
                 "Medial surface of greater trochanter"
               ]
             },
-            "actions":"Hip lateral rotation (open chain), hip abduction assist (flexed hip).",
-            "movements":"Femoral external rotation, hip joint stabilization.",
-            "pri":"R obturator internus is not a primary PRI corrective. Only L OI is targeted for outlet abduction (IsP ER).",
-            "chain":"Deep lateral rotator"
+            "actions": "Hip lateral rotation (open chain), hip abduction assist (flexed hip).",
+            "movements": "Femoral external rotation, hip joint stabilization.",
+            "pri": "R obturator internus is not a primary PRI corrective. Only L OI is targeted for outlet abduction (IsP ER).",
+            "chain": "Deep lateral rotator"
           }
         }
       },
-      {
-        "id":"coccygeus_r",
-        "label":"Coccygeus (R)",
-        "type":"muscle",
-        "priColor":"--pri-violet",
-        "panelBox":{
-          "x":0,
-          "y":64,
-          "w":11,
-          "h":3.5
+      "coccygeus_r": {
+        "label": "Coccygeus (R)",
+        "type": "muscle",
+        "priColor": "--pri-violet",
+        "panelBox": {
+          "x": 0,
+          "y": 64,
+          "w": 11,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":29.0,
-          "y":77.5
+        "arrowTo": {
+          "x": 29,
+          "y": 77.5
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Pulls coccyx anteriorly, supports posterior pelvic floor.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Pulls coccyx anteriorly, supports posterior pelvic floor.",
+            "attachments": {
+              "proximal": [
                 "Ischial spine"
               ],
-              "distal":[
+              "distal": [
                 "Lateral margins of coccyx",
                 "S5"
               ]
             },
-            "actions":"Coccyx flexion, posterior pelvic floor support.",
-            "movements":"Coccyx flexion, pelvic floor stabilization.",
-            "pri":"R coccygeus → R SI IR (posterior outlet closing). Corrective in L AIC.",
-            "chain":"Deep posterior — posterior outlet"
+            "actions": "Coccyx flexion, posterior pelvic floor support.",
+            "movements": "Coccyx flexion, pelvic floor stabilization.",
+            "pri": "R coccygeus → R SI IR (posterior outlet closing). Corrective in L AIC.",
+            "chain": "Deep posterior — posterior outlet"
           },
-          "layer2":{
-            "laic":"R coccygeus assists R SI IR. Facilitated alongside R glute max and R piriformis in Step 4.",
-            "pathology":"Hypertonic bilaterally in B PEC."
+          "layer2": {
+            "laic": "R coccygeus assists R SI IR. Facilitated alongside R glute max and R piriformis in Step 4.",
+            "pathology": "Hypertonic bilaterally in B PEC."
           },
-          "layer3":{
-            "treatment":"Step 4: R coccygeus + R piriformis + R glute max. HALT 4/5."
+          "layer3": {
+            "treatment": "Step 4: R coccygeus + R piriformis + R glute max. HALT 4/5."
           }
         }
       },
-      {
-        "id":"iliococcygeus_r",
-        "label":"Iliococcygeus (R)",
-        "type":"muscle",
-        "priColor":"--pri-neutral",
-        "panelBox":{
-          "x":0,
-          "y":32,
-          "w":14.5,
-          "h":3.5
+      "iliococcygeus_r": {
+        "label": "Iliococcygeus (R)",
+        "type": "muscle",
+        "priColor": "--pri-neutral",
+        "panelBox": {
+          "x": 0,
+          "y": 32,
+          "w": 14.5,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":36.6,
-          "y":76.5
+        "arrowTo": {
+          "x": 36.6,
+          "y": 76.5
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Supports pelvic viscera, elevates pelvic floor, stabilizes coccyx. Part of levator ani.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Supports pelvic viscera, elevates pelvic floor, stabilizes coccyx. Part of levator ani.",
+            "attachments": {
+              "proximal": [
                 "Arcuate tendon (tendinous arch of levator ani)"
               ],
-              "distal":[
+              "distal": [
                 "Anococcygeal body",
                 "Coccyx"
               ]
             },
-            "actions":"Pelvic floor elevation, visceral support.",
-            "movements":"Pelvic floor elevation, coccyx stabilization.",
-            "pri":"R iliococcygeus is not a primary PRI corrective. Only L iliococcygeus is targeted for outlet abduction.",
-            "chain":"Pelvic floor"
+            "actions": "Pelvic floor elevation, visceral support.",
+            "movements": "Pelvic floor elevation, coccyx stabilization.",
+            "pri": "R iliococcygeus is not a primary PRI corrective. Only L iliococcygeus is targeted for outlet abduction.",
+            "chain": "Pelvic floor"
           }
         }
       },
-      {
-        "id":"puborectalis",
-        "label":"Puborectalis (L)",
-        "type":"muscle",
-        "priColor":"--pri-brown",
-        "panelBox":{
-          "x":86,
-          "y":8,
-          "w":14,
-          "h":3.5
+      "puborectalis": {
+        "label": "Puborectalis (L)",
+        "type": "muscle",
+        "priColor": "--pri-brown",
+        "panelBox": {
+          "x": 86,
+          "y": 8,
+          "w": 14,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":60.0,
-          "y":48.0
+        "arrowTo": {
+          "x": 60,
+          "y": 48
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Maintains anorectal angle (~90°), assists fecal continence. U-shaped sling around rectum.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Maintains anorectal angle (~90°), assists fecal continence. U-shaped sling around rectum.",
+            "attachments": {
+              "proximal": [
                 "Posterior surface of pubic body"
               ],
-              "distal":[
+              "distal": [
                 "Loops posterior to rectum (U-shaped sling — no bony distal attachment)"
               ]
             },
-            "actions":"Maintains anorectal angle, assists fecal continence.",
-            "movements":"Anorectal angle maintenance, rectal support.",
-            "pri":"L puborectalis → sagittal plane outlet muscle. Assists L anterior outlet IsP ER (opening).",
-            "chain":"Pelvic floor — sagittal"
+            "actions": "Maintains anorectal angle, assists fecal continence.",
+            "movements": "Anorectal angle maintenance, rectal support.",
+            "pri": "L puborectalis → sagittal plane outlet muscle. Assists L anterior outlet IsP ER (opening).",
+            "chain": "Pelvic floor — sagittal"
           },
-          "layer2":{
-            "laic":"Part of sagittal pelvic floor restoration. Facilitated in Step 2 alongside L OI and L iliococcygeus via L adductors.",
-            "pathology":"Descended/inhibited in L AIC (left outlet in IsP IR). Bilateral inhibition in B PEC."
+          "layer2": {
+            "laic": "Part of sagittal pelvic floor restoration. Facilitated in Step 2 alongside L OI and L iliococcygeus via L adductors.",
+            "pathology": "Descended/inhibited in L AIC (left outlet in IsP IR). Bilateral inhibition in B PEC."
           },
-          "layer3":{
-            "treatment":"Step 2: L puborectalis + L pubococcygeus + L iliococcygeus + L obturator internus (via L adductors). HALT 1/5."
+          "layer3": {
+            "treatment": "Step 2: L puborectalis + L pubococcygeus + L iliococcygeus + L obturator internus (via L adductors). HALT 1/5."
           }
         }
       },
-      {
-        "id":"anococcygeal_ligament",
-        "label":"Anococcygeal Lig.",
-        "type":"connective",
-        "priColor":"--pri-yellow",
-        "panelBox":{
-          "x":36,
-          "y":92,
-          "w":14.5,
-          "h":3.5
+      "anococcygeal_ligament": {
+        "label": "Anococcygeal Lig.",
+        "type": "connective",
+        "priColor": "--pri-yellow",
+        "panelBox": {
+          "x": 36,
+          "y": 92,
+          "w": 14.5,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":50.0,
-          "y":80.8
+        "arrowTo": {
+          "x": 50,
+          "y": 80.8
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Fibrous band between anus and coccyx tip. Anchors posterior pelvic floor musculature.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Fibrous band between anus and coccyx tip. Anchors posterior pelvic floor musculature.",
+            "attachments": {
+              "proximal": [
                 "Anococcygeal body (posterior to anus)"
               ],
-              "distal":[
+              "distal": [
                 "Coccyx tip"
               ]
             },
-            "actions":"Anchors posterior pelvic floor to coccyx. Not contractile.",
-            "movements":"Structural anchor for pelvic floor musculature.",
-            "pri":"Outlet structural bridge. Midline reference for pelvic floor orientation.",
-            "chain":"Integration — midline anchor"
+            "actions": "Anchors posterior pelvic floor to coccyx. Not contractile.",
+            "movements": "Structural anchor for pelvic floor musculature.",
+            "pri": "Outlet structural bridge. Midline reference for pelvic floor orientation.",
+            "chain": "Integration — midline anchor"
           },
-          "layer2":{
-            "laic":"Midline reference for sagittal pelvic floor position."
+          "layer2": {
+            "laic": "Midline reference for sagittal pelvic floor position."
           },
-          "layer3":{
-            "treatment":"Not directly targeted. Structural landmark for pelvic floor orientation."
+          "layer3": {
+            "treatment": "Not directly targeted. Structural landmark for pelvic floor orientation."
           }
         }
       },
-      {
-        "id":"arcuate_tendon_l",
-        "label":"Arcuate Tendon (L)",
-        "type":"connective",
-        "priColor":"--pri-yellow",
-        "panelBox":{
-          "x":85.5,
-          "y":32,
-          "w":14.5,
-          "h":3.5
+      "arcuate_tendon_l": {
+        "label": "Arcuate Tendon (L)",
+        "type": "connective",
+        "priColor": "--pri-yellow",
+        "panelBox": {
+          "x": 85.5,
+          "y": 32,
+          "w": 14.5,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":72.2,
-          "y":56.5
+        "arrowTo": {
+          "x": 72.2,
+          "y": 56.5
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Thickened fascia of obturator internus forming a linear origin for levator ani.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Thickened fascia of obturator internus forming a linear origin for levator ani.",
+            "attachments": {
+              "proximal": [
                 "Pubic body"
               ],
-              "distal":[
+              "distal": [
                 "Ischial spine"
               ]
             },
-            "actions":"Provides structural origin for iliococcygeus (part of levator ani).",
-            "movements":"Not contractile. Passive structural anchor for pelvic diaphragm.",
-            "pri":"L arcuate tendon connects L obturator internus fascial plane to L pelvic floor origin. Key anatomical bridge.",
-            "chain":"Integration — structural bridge"
+            "actions": "Provides structural origin for iliococcygeus (part of levator ani).",
+            "movements": "Not contractile. Passive structural anchor for pelvic diaphragm.",
+            "pri": "L arcuate tendon connects L obturator internus fascial plane to L pelvic floor origin. Key anatomical bridge.",
+            "chain": "Integration — structural bridge"
           },
-          "layer2":{
-            "laic":"Anatomical bridge for L pelvic floor muscle activation sequences. Links L OI to L iliococcygeus."
+          "layer2": {
+            "laic": "Anatomical bridge for L pelvic floor muscle activation sequences. Links L OI to L iliococcygeus."
           },
-          "layer3":{
-            "treatment":"Not directly targeted. Awareness landmark for pelvic floor anatomy."
+          "layer3": {
+            "treatment": "Not directly targeted. Awareness landmark for pelvic floor anatomy."
           }
         }
       },
-      {
-        "id":"medial_hamstring",
-        "label":"Medial Hamstring (L)",
-        "type":"muscle",
-        "priColor":"--pri-brown",
-        "panelBox":{
-          "x":83.5,
-          "y":56,
-          "w":16.5,
-          "h":3.5
+      "medial_hamstring": {
+        "label": "Medial Hamstring (L)",
+        "type": "muscle",
+        "priColor": "--pri-brown",
+        "panelBox": {
+          "x": 83.5,
+          "y": 56,
+          "w": 16.5,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":80.5,
-          "y":57.7
+        "arrowTo": {
+          "x": 80.5,
+          "y": 57.7
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Hip extension, knee flexion, tibial internal rotation.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Hip extension, knee flexion, tibial internal rotation.",
+            "attachments": {
+              "proximal": [
                 "Ischial tuberosity"
               ],
-              "distal":[
+              "distal": [
                 "Pes anserinus (semitendinosus)",
                 "Posterior medial tibial condyle (semimembranosus)"
               ]
             },
-            "actions":"Hip extension, knee flexion, tibial internal rotation.",
-            "movements":"Posterior pelvic tilt (via hip extension), knee flexion, tibial IR.",
-            "pri":"L hamstrings assist posterior pelvic tilt. Not a primary PRI facilitation target.",
-            "chain":"Posterior chain — sagittal"
+            "actions": "Hip extension, knee flexion, tibial internal rotation.",
+            "movements": "Posterior pelvic tilt (via hip extension), knee flexion, tibial IR.",
+            "pri": "L hamstrings assist posterior pelvic tilt. Not a primary PRI facilitation target.",
+            "chain": "Posterior chain — sagittal"
           },
-          "layer2":{
-            "laic":"L hamstrings assist corrective posterior tilt in 90-90 hip lift positions but are not primary facilitation targets."
+          "layer2": {
+            "laic": "L hamstrings assist corrective posterior tilt in 90-90 hip lift positions but are not primary facilitation targets."
           },
-          "layer3":{
-            "treatment":"Indirectly trained. 90-90 hip lift activities use hamstrings for posterior tilt."
+          "layer3": {
+            "treatment": "Indirectly trained. 90-90 hip lift activities use hamstrings for posterior tilt."
           }
         }
       },
-      {
-        "id":"obturator_internus_l",
-        "label":"Obturator Internus (L)",
-        "type":"muscle",
-        "priColor":"--pri-green-family",
-        "panelBox":{
-          "x":83,
-          "y":44,
-          "w":17,
-          "h":3.5
+      "obturator_internus_l": {
+        "label": "Obturator Internus (L)",
+        "type": "muscle",
+        "priColor": "--pri-green-family",
+        "panelBox": {
+          "x": 83,
+          "y": 44,
+          "w": 17,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":76.5,
-          "y":59.1
+        "arrowTo": {
+          "x": 76.5,
+          "y": 59.1
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Lateral rotation of the hip (open chain). When hip is flexed beyond 90°, assists abduction.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Lateral rotation of the hip (open chain). When hip is flexed beyond 90°, assists abduction.",
+            "attachments": {
+              "proximal": [
                 "Inner surface of obturator membrane",
                 "Surrounding bone of obturator foramen"
               ],
-              "distal":[
+              "distal": [
                 "Medial surface of greater trochanter (exits via lesser sciatic foramen)"
               ]
             },
-            "actions":"Hip lateral rotation (open chain), hip abduction assist (flexed hip).",
-            "movements":"Femoral external rotation, hip joint stabilization.",
-            "pri":"L OI → L IsP ER (outlet abduction). In closed chain, pulls L ischial tuberosity laterally, widening the L outlet. THE key corrective muscle in L AIC.",
-            "chain":"Pelvic floor — deep interior chain"
+            "actions": "Hip lateral rotation (open chain), hip abduction assist (flexed hip).",
+            "movements": "Femoral external rotation, hip joint stabilization.",
+            "pri": "L OI → L IsP ER (outlet abduction). In closed chain, pulls L ischial tuberosity laterally, widening the L outlet. THE key corrective muscle in L AIC.",
+            "chain": "Pelvic floor — deep interior chain"
           },
-          "layer2":{
-            "laic":"L OI → L IsP ER. Opens left outlet, ascends pelvic diaphragm. Inhibited in L AIC. Facilitated via L adductors — their contraction activates L OI in closed chain.",
-            "pathology":"Inhibited in L AIC (left outlet in IsP IR). Bilateral inhibition in B PEC and Patho PEC."
+          "layer2": {
+            "laic": "L OI → L IsP ER. Opens left outlet, ascends pelvic diaphragm. Inhibited in L AIC. Facilitated via L adductors — their contraction activates L OI in closed chain.",
+            "pathology": "Inhibited in L AIC (left outlet in IsP IR). Bilateral inhibition in B PEC and Patho PEC."
           },
-          "layer3":{
-            "treatment":"Step 2: L OI + L pelvic floor (puborectalis, pubococcygeus, iliococcygeus) via L adductors. HALT 1/5. Exercise: R Sidelying Respiratory L Adductor Pull Back with Balloon."
+          "layer3": {
+            "treatment": "Step 2: L OI + L pelvic floor (puborectalis, pubococcygeus, iliococcygeus) via L adductors. HALT 1/5. Exercise: R Sidelying Respiratory L Adductor Pull Back with Balloon."
           }
         }
       },
-      {
-        "id":"glute_max_l",
-        "label":"Glute Max (L)",
-        "type":"muscle",
-        "priColor":"--pri-neutral",
-        "panelBox":{
-          "x":75,
-          "y":92,
-          "w":11,
-          "h":3.5
+      "glute_max_l": {
+        "label": "Glute Max (L)",
+        "type": "muscle",
+        "priColor": "--pri-neutral",
+        "panelBox": {
+          "x": 75,
+          "y": 92,
+          "w": 11,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":83.9,
-          "y":84.3
+        "arrowTo": {
+          "x": 83.9,
+          "y": 84.3
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Hip extension, lateral rotation, abduction (upper fibers), adduction (lower fibers).",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Hip extension, lateral rotation, abduction (upper fibers), adduction (lower fibers).",
+            "attachments": {
+              "proximal": [
                 "Posterior ilium",
                 "Sacrum",
                 "Coccyx",
                 "Thoracolumbar fascia"
               ],
-              "distal":[
+              "distal": [
                 "IT band (superficial fibers)",
                 "Gluteal tuberosity of femur (deep fibers)"
               ]
             },
-            "actions":"Hip extension, femoral lateral rotation, abduction (upper fibers), adduction (lower fibers).",
-            "movements":"Hip extension, femoral ER, pelvic stabilization in stance.",
-            "pri":"L glute max is not a primary PRI corrective. Only R glute max is targeted (inlet and outlet).",
-            "chain":"Posterior — extension and rotation"
+            "actions": "Hip extension, femoral lateral rotation, abduction (upper fibers), adduction (lower fibers).",
+            "movements": "Hip extension, femoral ER, pelvic stabilization in stance.",
+            "pri": "L glute max is not a primary PRI corrective. Only R glute max is targeted (inlet and outlet).",
+            "chain": "Posterior — extension and rotation"
           }
         }
       },
-      {
-        "id":"iliococcygeus_l",
-        "label":"Iliococcygeus (L)",
-        "type":"muscle",
-        "priColor":"--pri-green-family",
-        "panelBox":{
-          "x":85.5,
-          "y":68,
-          "w":14.5,
-          "h":3.5
+      "iliococcygeus_l": {
+        "label": "Iliococcygeus (L)",
+        "type": "muscle",
+        "priColor": "--pri-green-family",
+        "panelBox": {
+          "x": 85.5,
+          "y": 68,
+          "w": 14.5,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":64.8,
-          "y":74.8
+        "arrowTo": {
+          "x": 64.8,
+          "y": 74.8
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Supports pelvic viscera, elevates pelvic floor, stabilizes coccyx. Part of levator ani.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Supports pelvic viscera, elevates pelvic floor, stabilizes coccyx. Part of levator ani.",
+            "attachments": {
+              "proximal": [
                 "Arcuate tendon (tendinous arch of levator ani)"
               ],
-              "distal":[
+              "distal": [
                 "Anococcygeal body",
                 "Coccyx"
               ]
             },
-            "actions":"Pelvic floor elevation, visceral support, coccyx stabilization.",
-            "movements":"Pelvic floor elevation.",
-            "pri":"L iliococcygeus → L outlet abduction. Pulls L ischial tuberosity laterally, assists L OI in widening the L outlet (IsP ER) and ascending L pelvic diaphragm.",
-            "chain":"Pelvic floor — frontal plane"
+            "actions": "Pelvic floor elevation, visceral support, coccyx stabilization.",
+            "movements": "Pelvic floor elevation.",
+            "pri": "L iliococcygeus → L outlet abduction. Pulls L ischial tuberosity laterally, assists L OI in widening the L outlet (IsP ER) and ascending L pelvic diaphragm.",
+            "chain": "Pelvic floor — frontal plane"
           },
-          "layer2":{
-            "laic":"Works with L obturator internus for L pelvic diaphragm ascension. Inhibited in L AIC (L outlet in IsP IR).",
-            "pathology":"Inhibited in L AIC. Bilateral inhibition in B PEC."
+          "layer2": {
+            "laic": "Works with L obturator internus for L pelvic diaphragm ascension. Inhibited in L AIC (L outlet in IsP IR).",
+            "pathology": "Inhibited in L AIC. Bilateral inhibition in B PEC."
           },
-          "layer3":{
-            "treatment":"Step 2: Facilitated alongside L OI via L adductors. HALT 1/5."
+          "layer3": {
+            "treatment": "Step 2: Facilitated alongside L OI via L adductors. HALT 1/5."
           }
         }
       },
-      {
-        "id":"pubococcygeus_l",
-        "label":"Pubococcygeus (L)",
-        "type":"muscle",
-        "priColor":"--pri-brown",
-        "panelBox":{
-          "x":85.5,
-          "y":20,
-          "w":14.5,
-          "h":3.5
+      "pubococcygeus_l": {
+        "label": "Pubococcygeus (L)",
+        "type": "muscle",
+        "priColor": "--pri-brown",
+        "panelBox": {
+          "x": 85.5,
+          "y": 20,
+          "w": 14.5,
+          "h": 3.5
         },
-        "arrowTo":{
-          "x":67.3,
-          "y":57.9
+        "arrowTo": {
+          "x": 67.3,
+          "y": 57.9
         },
-        "priDetail":{
-          "layer1":{
-            "standard":"Supports pelvic viscera, assists urinary and fecal continence. Part of levator ani.",
-            "attachments":{
-              "proximal":[
+        "priDetail": {
+          "layer1": {
+            "standard": "Supports pelvic viscera, assists urinary and fecal continence. Part of levator ani.",
+            "attachments": {
+              "proximal": [
                 "Posterior surface of pubic body"
               ],
-              "distal":[
+              "distal": [
                 "Anococcygeal body",
                 "Coccyx"
               ]
             },
-            "actions":"Pelvic floor elevation and compression, visceral support, continence.",
-            "movements":"Pelvic floor elevation, urinary and fecal continence.",
-            "pri":"L pubococcygeus → sagittal plane outlet muscle. Assists L anterior outlet IsP ER (opening) and posterior pelvic tilt.",
-            "chain":"Pelvic floor — sagittal plane"
+            "actions": "Pelvic floor elevation and compression, visceral support, continence.",
+            "movements": "Pelvic floor elevation, urinary and fecal continence.",
+            "pri": "L pubococcygeus → sagittal plane outlet muscle. Assists L anterior outlet IsP ER (opening) and posterior pelvic tilt.",
+            "chain": "Pelvic floor — sagittal plane"
           },
-          "layer2":{
-            "laic":"Assists sagittal correction of pelvic position. Part of L outlet restoration in Step 2.",
-            "pathology":"Descended/inhibited in L AIC. Bilateral inhibition in B PEC."
+          "layer2": {
+            "laic": "Assists sagittal correction of pelvic position. Part of L outlet restoration in Step 2.",
+            "pathology": "Descended/inhibited in L AIC. Bilateral inhibition in B PEC."
           },
-          "layer3":{
-            "treatment":"Step 2: Facilitated alongside L OI, L iliococcygeus, L puborectalis via L adductors. HALT 1/5."
+          "layer3": {
+            "treatment": "Step 2: Facilitated alongside L OI, L iliococcygeus, L puborectalis via L adductors. HALT 1/5."
           }
         }
       }
-    ]
+    }
   },
-  "images":[
-    {
-      "id":"pelvic_outlet",
-      "label":"Outlet Superior",
-      "mechanic":"blank_panels",
-      "imageSrc":"img/PRI-1-Pelvic-Outlet2.jpg",
-      "sideLabels":{
-        "left":"Left",
-        "right":"Right"
+  "images": {
+    "pelvic_outlet": {
+      "label": "Outlet Superior",
+      "mechanic": "blank_panels",
+      "imageSrc": "img/PRI-1-Pelvic-Outlet2.jpg",
+      "sideLabels": {
+        "left": "Left",
+        "right": "Right"
       },
-      "structures":[
-        {
-          "id":"puborectalis",
-          "label":"Puborectalis (L)",
-          "type":"muscle",
-          "priColor":"--pri-brown",
-          "panelBox":{
-            "x":0,
-            "y":6,
-            "w":14,
-            "h":3.5
+      "structures": {
+        "puborectalis": {
+          "label": "Puborectalis (L)",
+          "type": "muscle",
+          "priColor": "--pri-brown",
+          "panelBox": {
+            "x": 0,
+            "y": 6,
+            "w": 14,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":48.9,
-            "y":36.2
+          "arrowTo": {
+            "x": 48.9,
+            "y": 36.2
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Maintains anorectal angle (~90°), assists fecal continence. U-shaped sling around rectum.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Maintains anorectal angle (~90°), assists fecal continence. U-shaped sling around rectum.",
+              "attachments": {
+                "proximal": [
                   "Posterior surface of pubic body"
                 ],
-                "distal":[
+                "distal": [
                   "Loops posterior to rectum (U-shaped sling — no bony distal attachment)"
                 ]
               },
-              "actions":"Maintains anorectal angle, assists fecal continence.",
-              "movements":"Anorectal angle maintenance, rectal support.",
-              "pri":"L puborectalis → sagittal plane outlet muscle. Assists L anterior outlet IsP ER (opening).",
-              "chain":"Pelvic floor — sagittal"
+              "actions": "Maintains anorectal angle, assists fecal continence.",
+              "movements": "Anorectal angle maintenance, rectal support.",
+              "pri": "L puborectalis → sagittal plane outlet muscle. Assists L anterior outlet IsP ER (opening).",
+              "chain": "Pelvic floor — sagittal"
             },
-            "layer2":{
-              "laic":"Part of sagittal pelvic floor restoration. Facilitated in Step 2 alongside L OI and L iliococcygeus via L adductors.",
-              "pathology":"Descended/inhibited in L AIC. Bilateral inhibition in B PEC."
+            "layer2": {
+              "laic": "Part of sagittal pelvic floor restoration. Facilitated in Step 2 alongside L OI and L iliococcygeus via L adductors.",
+              "pathology": "Descended/inhibited in L AIC. Bilateral inhibition in B PEC."
             },
-            "layer3":{
-              "treatment":"Step 2: L pelvic floor muscles via L adductors. HALT 1/5."
+            "layer3": {
+              "treatment": "Step 2: L pelvic floor muscles via L adductors. HALT 1/5."
             }
           }
         },
-        {
-          "id":"pubococcygeus",
-          "label":"Pubococcygeus (L)",
-          "type":"muscle",
-          "priColor":"--pri-brown",
-          "panelBox":{
-            "x":0,
-            "y":13,
-            "w":14.5,
-            "h":3.5
+        "pubococcygeus": {
+          "label": "Pubococcygeus (L)",
+          "type": "muscle",
+          "priColor": "--pri-brown",
+          "panelBox": {
+            "x": 0,
+            "y": 13,
+            "w": 14.5,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":42.4,
-            "y":36.2
+          "arrowTo": {
+            "x": 42.4,
+            "y": 36.2
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Supports pelvic viscera, assists urinary and fecal continence. Part of levator ani.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Supports pelvic viscera, assists urinary and fecal continence. Part of levator ani.",
+              "attachments": {
+                "proximal": [
                   "Posterior surface of pubic body"
                 ],
-                "distal":[
+                "distal": [
                   "Anococcygeal body",
                   "Coccyx"
                 ]
               },
-              "actions":"Pelvic floor elevation and compression, visceral support, continence.",
-              "movements":"Pelvic floor elevation, urinary and fecal continence.",
-              "pri":"L pubococcygeus → sagittal plane outlet muscle. Assists L anterior outlet IsP ER (opening).",
-              "chain":"Pelvic floor — sagittal plane"
+              "actions": "Pelvic floor elevation and compression, visceral support, continence.",
+              "movements": "Pelvic floor elevation, urinary and fecal continence.",
+              "pri": "L pubococcygeus → sagittal plane outlet muscle. Assists L anterior outlet IsP ER (opening).",
+              "chain": "Pelvic floor — sagittal plane"
             },
-            "layer2":{
-              "laic":"Assists sagittal correction of pelvic position. Facilitated in Step 2.",
-              "pathology":"Descended/inhibited in L AIC. Bilateral inhibition in B PEC."
+            "layer2": {
+              "laic": "Assists sagittal correction of pelvic position. Facilitated in Step 2.",
+              "pathology": "Descended/inhibited in L AIC. Bilateral inhibition in B PEC."
             },
-            "layer3":{
-              "treatment":"Step 2: L pelvic floor muscles via L adductors. HALT 1/5."
+            "layer3": {
+              "treatment": "Step 2: L pelvic floor muscles via L adductors. HALT 1/5."
             }
           }
         },
-        {
-          "id":"arcuate_tendon",
-          "label":"Arcuate Tendon (L)",
-          "type":"connective",
-          "priColor":"--pri-yellow",
-          "panelBox":{
-            "x":0,
-            "y":20,
-            "w":14.5,
-            "h":3.5
+        "arcuate_tendon": {
+          "label": "Arcuate Tendon (L)",
+          "type": "connective",
+          "priColor": "--pri-yellow",
+          "panelBox": {
+            "x": 0,
+            "y": 20,
+            "w": 14.5,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":32.0,
-            "y":33.6
+          "arrowTo": {
+            "x": 32,
+            "y": 33.6
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Thickened fascia of obturator internus forming a linear origin for levator ani.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Thickened fascia of obturator internus forming a linear origin for levator ani.",
+              "attachments": {
+                "proximal": [
                   "Pubic body"
                 ],
-                "distal":[
+                "distal": [
                   "Ischial spine"
                 ]
               },
-              "actions":"Provides structural origin for iliococcygeus (part of levator ani).",
-              "movements":"Not contractile. Passive structural anchor for pelvic diaphragm.",
-              "pri":"L arcuate tendon connects L OI fascial plane to L pelvic floor origin. Key anatomical bridge.",
-              "chain":"Integration — structural bridge"
+              "actions": "Provides structural origin for iliococcygeus (part of levator ani).",
+              "movements": "Not contractile. Passive structural anchor for pelvic diaphragm.",
+              "pri": "L arcuate tendon connects L OI fascial plane to L pelvic floor origin. Key anatomical bridge.",
+              "chain": "Integration — structural bridge"
             },
-            "layer2":{
-              "laic":"Anatomical bridge for L pelvic floor activation sequences. Links L OI to L iliococcygeus."
+            "layer2": {
+              "laic": "Anatomical bridge for L pelvic floor activation sequences. Links L OI to L iliococcygeus."
             },
-            "layer3":{
-              "treatment":"Not directly targeted. Awareness landmark for pelvic floor anatomy."
+            "layer3": {
+              "treatment": "Not directly targeted. Awareness landmark for pelvic floor anatomy."
             }
           }
         },
-        {
-          "id":"iliococcygeus",
-          "label":"Iliococcygeus (L)",
-          "type":"muscle",
-          "priColor":"--pri-green-family",
-          "panelBox":{
-            "x":0,
-            "y":40,
-            "w":14.5,
-            "h":3.5
+        "iliococcygeus": {
+          "label": "Iliococcygeus (L)",
+          "type": "muscle",
+          "priColor": "--pri-green-family",
+          "panelBox": {
+            "x": 0,
+            "y": 40,
+            "w": 14.5,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":35.2,
-            "y":44.6
+          "arrowTo": {
+            "x": 35.2,
+            "y": 44.6
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Supports pelvic viscera, elevates pelvic floor, stabilizes coccyx. Part of levator ani.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Supports pelvic viscera, elevates pelvic floor, stabilizes coccyx. Part of levator ani.",
+              "attachments": {
+                "proximal": [
                   "Arcuate tendon (tendinous arch of levator ani)"
                 ],
-                "distal":[
+                "distal": [
                   "Anococcygeal body",
                   "Coccyx"
                 ]
               },
-              "actions":"Pelvic floor elevation, visceral support, coccyx stabilization.",
-              "movements":"Pelvic floor elevation.",
-              "pri":"L iliococcygeus → L outlet abduction (IsP ER). Assists L OI in widening L outlet and ascending L pelvic diaphragm.",
-              "chain":"Pelvic floor — frontal plane"
+              "actions": "Pelvic floor elevation, visceral support, coccyx stabilization.",
+              "movements": "Pelvic floor elevation.",
+              "pri": "L iliococcygeus → L outlet abduction (IsP ER). Assists L OI in widening L outlet and ascending L pelvic diaphragm.",
+              "chain": "Pelvic floor — frontal plane"
             },
-            "layer2":{
-              "laic":"Works with L obturator internus for L pelvic diaphragm ascension. Inhibited in L AIC.",
-              "pathology":"Inhibited in L AIC. Bilateral inhibition in B PEC."
+            "layer2": {
+              "laic": "Works with L obturator internus for L pelvic diaphragm ascension. Inhibited in L AIC.",
+              "pathology": "Inhibited in L AIC. Bilateral inhibition in B PEC."
             },
-            "layer3":{
-              "treatment":"Step 2: Facilitated alongside L OI via L adductors. HALT 1/5."
+            "layer3": {
+              "treatment": "Step 2: Facilitated alongside L OI via L adductors. HALT 1/5."
             }
           }
         },
-        {
-          "id":"obturator_internus",
-          "label":"Obturator Internus (L)",
-          "type":"muscle",
-          "priColor":"--pri-green-family",
-          "panelBox":{
-            "x":0,
-            "y":30,
-            "w":17,
-            "h":3.5
+        "obturator_internus": {
+          "label": "Obturator Internus (L)",
+          "type": "muscle",
+          "priColor": "--pri-green-family",
+          "panelBox": {
+            "x": 0,
+            "y": 30,
+            "w": 17,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":26.3,
-            "y":31.7
+          "arrowTo": {
+            "x": 26.3,
+            "y": 31.7
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Lateral rotation of the hip (open chain). When hip is flexed beyond 90°, assists abduction.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Lateral rotation of the hip (open chain). When hip is flexed beyond 90°, assists abduction.",
+              "attachments": {
+                "proximal": [
                   "Inner surface of obturator membrane",
                   "Surrounding bone of obturator foramen"
                 ],
-                "distal":[
+                "distal": [
                   "Medial surface of greater trochanter (exits via lesser sciatic foramen)"
                 ]
               },
-              "actions":"Hip lateral rotation (open chain), hip abduction assist (flexed hip).",
-              "movements":"Femoral external rotation, hip joint stabilization.",
-              "pri":"L OI → L IsP ER (outlet abduction). In closed chain, pulls L ischial tuberosity laterally. THE key corrective muscle in L AIC.",
-              "chain":"Pelvic floor — deep interior chain"
+              "actions": "Hip lateral rotation (open chain), hip abduction assist (flexed hip).",
+              "movements": "Femoral external rotation, hip joint stabilization.",
+              "pri": "L OI → L IsP ER (outlet abduction). In closed chain, pulls L ischial tuberosity laterally. THE key corrective muscle in L AIC.",
+              "chain": "Pelvic floor — deep interior chain"
             },
-            "layer2":{
-              "laic":"L OI → L IsP ER. Opens left outlet, ascends pelvic diaphragm. Inhibited in L AIC. Facilitated via L adductors.",
-              "pathology":"Inhibited in L AIC (left outlet in IsP IR). Bilateral inhibition in B PEC and Patho PEC."
+            "layer2": {
+              "laic": "L OI → L IsP ER. Opens left outlet, ascends pelvic diaphragm. Inhibited in L AIC. Facilitated via L adductors.",
+              "pathology": "Inhibited in L AIC (left outlet in IsP IR). Bilateral inhibition in B PEC and Patho PEC."
             },
-            "layer3":{
-              "treatment":"Step 2: L OI + L pelvic floor via L adductors. HALT 1/5. Exercise: R Sidelying Respiratory L Adductor Pull Back with Balloon."
+            "layer3": {
+              "treatment": "Step 2: L OI + L pelvic floor via L adductors. HALT 1/5. Exercise: R Sidelying Respiratory L Adductor Pull Back with Balloon."
             }
           }
         },
-        {
-          "id":"coccygeus_l",
-          "label":"Coccygeus (L)",
-          "type":"muscle",
-          "priColor":"--pri-neutral",
-          "panelBox":{
-            "x":0,
-            "y":50,
-            "w":11,
-            "h":3.5
+        "coccygeus_l": {
+          "label": "Coccygeus (L)",
+          "type": "muscle",
+          "priColor": "--pri-neutral",
+          "panelBox": {
+            "x": 0,
+            "y": 50,
+            "w": 11,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":34.0,
-            "y":54.1
+          "arrowTo": {
+            "x": 34,
+            "y": 54.1
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Pulls coccyx anteriorly, supports posterior pelvic floor.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Pulls coccyx anteriorly, supports posterior pelvic floor.",
+              "attachments": {
+                "proximal": [
                   "Ischial spine"
                 ],
-                "distal":[
+                "distal": [
                   "Lateral margins of coccyx",
                   "S5"
                 ]
               },
-              "actions":"Coccyx flexion, posterior pelvic floor support.",
-              "movements":"Coccyx flexion, pelvic floor stabilization.",
-              "pri":"L coccygeus is not a primary PRI corrective. Only R coccygeus is targeted (R SI IR, posterior outlet closing).",
-              "chain":"Deep posterior"
+              "actions": "Coccyx flexion, posterior pelvic floor support.",
+              "movements": "Coccyx flexion, pelvic floor stabilization.",
+              "pri": "L coccygeus is not a primary PRI corrective. Only R coccygeus is targeted (R SI IR, posterior outlet closing).",
+              "chain": "Deep posterior"
             }
           }
         },
-        {
-          "id":"piriformis_l",
-          "label":"Piriformis (L)",
-          "type":"muscle",
-          "priColor":"--pri-neutral",
-          "panelBox":{
-            "x":0,
-            "y":60,
-            "w":11.5,
-            "h":3.5
+        "piriformis_l": {
+          "label": "Piriformis (L)",
+          "type": "muscle",
+          "priColor": "--pri-neutral",
+          "panelBox": {
+            "x": 0,
+            "y": 60,
+            "w": 11.5,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":34.5,
-            "y":63.8
+          "arrowTo": {
+            "x": 34.5,
+            "y": 63.8
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Lateral rotation of the hip (when extended). Hip abduction. When hip flexed >60°, may assist medial rotation.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Lateral rotation of the hip (when extended). Hip abduction. When hip flexed >60°, may assist medial rotation.",
+              "attachments": {
+                "proximal": [
                   "Anterior sacrum (S2–S4)"
                 ],
-                "distal":[
+                "distal": [
                   "Superior border of greater trochanter"
                 ]
               },
-              "actions":"Hip lateral rotation (extended), hip abduction, hip stabilization.",
-              "movements":"Femoral external rotation, hip stabilization.",
-              "pri":"L piriformis is not a primary PRI corrective. Only R piriformis is targeted (R SI IR assist).",
-              "chain":"Deep lateral rotator"
+              "actions": "Hip lateral rotation (extended), hip abduction, hip stabilization.",
+              "movements": "Femoral external rotation, hip stabilization.",
+              "pri": "L piriformis is not a primary PRI corrective. Only R piriformis is targeted (R SI IR assist).",
+              "chain": "Deep lateral rotator"
             }
           }
         },
-        {
-          "id":"anococcygeal_ligament",
-          "label":"Anococcygeal Lig.",
-          "type":"connective",
-          "priColor":"--pri-yellow",
-          "panelBox":{
-            "x":0,
-            "y":70,
-            "w":14.5,
-            "h":3.5
+        "anococcygeal_ligament": {
+          "label": "Anococcygeal Lig.",
+          "type": "connective",
+          "priColor": "--pri-yellow",
+          "panelBox": {
+            "x": 0,
+            "y": 70,
+            "w": 14.5,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":48.8,
-            "y":60.2
+          "arrowTo": {
+            "x": 48.8,
+            "y": 60.2
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Fibrous band between anus and coccyx tip. Anchors posterior pelvic floor musculature.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Fibrous band between anus and coccyx tip. Anchors posterior pelvic floor musculature.",
+              "attachments": {
+                "proximal": [
                   "Anococcygeal body (posterior to anus)"
                 ],
-                "distal":[
+                "distal": [
                   "Coccyx tip"
                 ]
               },
-              "actions":"Anchors posterior pelvic floor to coccyx. Not contractile.",
-              "movements":"Structural anchor for pelvic floor musculature.",
-              "pri":"Outlet structural bridge. Midline reference for pelvic floor orientation.",
-              "chain":"Integration — midline anchor"
+              "actions": "Anchors posterior pelvic floor to coccyx. Not contractile.",
+              "movements": "Structural anchor for pelvic floor musculature.",
+              "pri": "Outlet structural bridge. Midline reference for pelvic floor orientation.",
+              "chain": "Integration — midline anchor"
             },
-            "layer2":{
-              "laic":"Midline reference for sagittal pelvic floor position."
+            "layer2": {
+              "laic": "Midline reference for sagittal pelvic floor position."
             },
-            "layer3":{
-              "treatment":"Not directly targeted. Structural landmark for pelvic floor orientation."
+            "layer3": {
+              "treatment": "Not directly targeted. Structural landmark for pelvic floor orientation."
             }
           }
         },
-        {
-          "id":"iliococcygeus_r",
-          "label":"Iliococcygeus (R)",
-          "type":"muscle",
-          "priColor":"--pri-neutral",
-          "panelBox":{
-            "x":85.5,
-            "y":38,
-            "w":14.5,
-            "h":3.5
+        "iliococcygeus_r": {
+          "label": "Iliococcygeus (R)",
+          "type": "muscle",
+          "priColor": "--pri-neutral",
+          "panelBox": {
+            "x": 85.5,
+            "y": 38,
+            "w": 14.5,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":64.6,
-            "y":43.2
+          "arrowTo": {
+            "x": 64.6,
+            "y": 43.2
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Supports pelvic viscera, elevates pelvic floor, stabilizes coccyx. Part of levator ani.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Supports pelvic viscera, elevates pelvic floor, stabilizes coccyx. Part of levator ani.",
+              "attachments": {
+                "proximal": [
                   "Arcuate tendon (tendinous arch of levator ani)"
                 ],
-                "distal":[
+                "distal": [
                   "Anococcygeal body",
                   "Coccyx"
                 ]
               },
-              "actions":"Pelvic floor elevation, visceral support.",
-              "movements":"Pelvic floor elevation, coccyx stabilization.",
-              "pri":"R iliococcygeus is not a primary PRI corrective. Only L iliococcygeus is targeted for outlet abduction.",
-              "chain":"Pelvic floor"
+              "actions": "Pelvic floor elevation, visceral support.",
+              "movements": "Pelvic floor elevation, coccyx stabilization.",
+              "pri": "R iliococcygeus is not a primary PRI corrective. Only L iliococcygeus is targeted for outlet abduction.",
+              "chain": "Pelvic floor"
             }
           }
         },
-        {
-          "id":"obturator_internus_r",
-          "label":"Obturator Internus (R)",
-          "type":"muscle",
-          "priColor":"--pri-neutral",
-          "panelBox":{
-            "x":83,
-            "y":28,
-            "w":17,
-            "h":3.5
+        "obturator_internus_r": {
+          "label": "Obturator Internus (R)",
+          "type": "muscle",
+          "priColor": "--pri-neutral",
+          "panelBox": {
+            "x": 83,
+            "y": 28,
+            "w": 17,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":75.6,
-            "y":35.8
+          "arrowTo": {
+            "x": 75.6,
+            "y": 35.8
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Lateral rotation of the hip. When hip is flexed beyond 90°, assists abduction.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Lateral rotation of the hip. When hip is flexed beyond 90°, assists abduction.",
+              "attachments": {
+                "proximal": [
                   "Inner surface of obturator membrane",
                   "Surrounding bone of obturator foramen"
                 ],
-                "distal":[
+                "distal": [
                   "Medial surface of greater trochanter"
                 ]
               },
-              "actions":"Hip lateral rotation (open chain), hip abduction assist (flexed hip).",
-              "movements":"Femoral external rotation, hip joint stabilization.",
-              "pri":"R obturator internus is not a primary PRI corrective. Only L OI is targeted for outlet abduction (IsP ER).",
-              "chain":"Deep lateral rotator"
+              "actions": "Hip lateral rotation (open chain), hip abduction assist (flexed hip).",
+              "movements": "Femoral external rotation, hip joint stabilization.",
+              "pri": "R obturator internus is not a primary PRI corrective. Only L OI is targeted for outlet abduction (IsP ER).",
+              "chain": "Deep lateral rotator"
             }
           }
         },
-        {
-          "id":"coccygeus_r",
-          "label":"Coccygeus (R)",
-          "type":"muscle",
-          "priColor":"--pri-violet",
-          "panelBox":{
-            "x":89,
-            "y":50,
-            "w":11,
-            "h":3.5
+        "coccygeus_r": {
+          "label": "Coccygeus (R)",
+          "type": "muscle",
+          "priColor": "--pri-violet",
+          "panelBox": {
+            "x": 89,
+            "y": 50,
+            "w": 11,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":65.3,
-            "y":55.0
+          "arrowTo": {
+            "x": 65.3,
+            "y": 55
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Pulls coccyx anteriorly, supports posterior pelvic floor.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Pulls coccyx anteriorly, supports posterior pelvic floor.",
+              "attachments": {
+                "proximal": [
                   "Ischial spine"
                 ],
-                "distal":[
+                "distal": [
                   "Lateral margins of coccyx",
                   "S5"
                 ]
               },
-              "actions":"Coccyx flexion, posterior pelvic floor support.",
-              "movements":"Coccyx flexion, pelvic floor stabilization.",
-              "pri":"R coccygeus → R SI IR (posterior outlet closing). Corrective in L AIC.",
-              "chain":"Deep posterior — posterior outlet"
+              "actions": "Coccyx flexion, posterior pelvic floor support.",
+              "movements": "Coccyx flexion, pelvic floor stabilization.",
+              "pri": "R coccygeus → R SI IR (posterior outlet closing). Corrective in L AIC.",
+              "chain": "Deep posterior — posterior outlet"
             },
-            "layer2":{
-              "laic":"R coccygeus assists R SI IR. Facilitated alongside R glute max and R piriformis.",
-              "pathology":"Hypertonic bilaterally in B PEC."
+            "layer2": {
+              "laic": "R coccygeus assists R SI IR. Facilitated alongside R glute max and R piriformis.",
+              "pathology": "Hypertonic bilaterally in B PEC."
             },
-            "layer3":{
-              "treatment":"Step 4: R coccygeus + R piriformis + R glute max. HALT 4/5."
+            "layer3": {
+              "treatment": "Step 4: R coccygeus + R piriformis + R glute max. HALT 4/5."
             }
           }
         },
-        {
-          "id":"piriformis_r",
-          "label":"Piriformis (R)",
-          "type":"muscle",
-          "priColor":"--pri-violet",
-          "panelBox":{
-            "x":88.5,
-            "y":60,
-            "w":11.5,
-            "h":3.5
+        "piriformis_r": {
+          "label": "Piriformis (R)",
+          "type": "muscle",
+          "priColor": "--pri-violet",
+          "panelBox": {
+            "x": 88.5,
+            "y": 60,
+            "w": 11.5,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":66.4,
-            "y":62.6
+          "arrowTo": {
+            "x": 66.4,
+            "y": 62.6
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Lateral rotation of the hip (when extended). Hip abduction. When hip flexed >60°, may assist medial rotation.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Lateral rotation of the hip (when extended). Hip abduction. When hip flexed >60°, may assist medial rotation.",
+              "attachments": {
+                "proximal": [
                   "Anterior sacrum (S2–S4)"
                 ],
-                "distal":[
+                "distal": [
                   "Superior border of greater trochanter"
                 ]
               },
-              "actions":"Hip lateral rotation (extended), hip abduction, hip stabilization.",
-              "movements":"Femoral external rotation, hip stabilization.",
-              "pri":"R piriformis → R SI IR assist (posterior outlet closing). Corrective in L AIC.",
-              "chain":"Deep lateral rotator — posterior outlet"
+              "actions": "Hip lateral rotation (extended), hip abduction, hip stabilization.",
+              "movements": "Femoral external rotation, hip stabilization.",
+              "pri": "R piriformis → R SI IR assist (posterior outlet closing). Corrective in L AIC.",
+              "chain": "Deep lateral rotator — posterior outlet"
             },
-            "layer2":{
-              "laic":"R piriformis = corrective (closes R posterior outlet). Also restricts ADT when shortened bilaterally.",
-              "pathology":"Overactive bilaterally in compensated patterns. R side overactive in L AIC. Hypertonic bilateral in B PEC."
+            "layer2": {
+              "laic": "R piriformis = corrective (closes R posterior outlet). Also restricts ADT when shortened bilaterally.",
+              "pathology": "Overactive bilaterally in compensated patterns. R side overactive in L AIC. Hypertonic bilateral in B PEC."
             },
-            "layer3":{
-              "treatment":"Step 4: with R glute max + R coccygeus. HALT 4/5. Inhibited through positioning in early steps."
+            "layer3": {
+              "treatment": "Step 4: with R glute max + R coccygeus. HALT 4/5. Inhibited through positioning in early steps."
             }
           }
         }
-      ]
+      }
     },
-    {
-      "id":"pelvic_outlet_inferior",
-      "label":"Outlet Inferior",
-      "mechanic":"blank_panels",
-      "imageSrc":"img/PRI-1-Pelvic-Outlet.jpg",
-      "sideLabels":{
-        "left":"Right",
-        "right":"Left"
+    "pelvic_outlet_inferior": {
+      "label": "Outlet Inferior",
+      "mechanic": "blank_panels",
+      "imageSrc": "img/PRI-1-Pelvic-Outlet.jpg",
+      "sideLabels": {
+        "left": "Right",
+        "right": "Left"
       },
-      "structuresRef":"outletInferior"
+      "structuresRef": "outletInferior"
     },
-    {
-      "id":"pelvic_outlet_inferior_flipped",
-      "label":"Outlet Inferior (Flipped)",
-      "mechanic":"blank_panels",
-      "imageSrc":"img/PRI-1-Pelvic-Outlet-flipped.jpg",
-      "sideLabels":{
-        "left":"Left",
-        "right":"Right"
+    "pelvic_outlet_inferior_flipped": {
+      "label": "Outlet Inferior (Flipped)",
+      "mechanic": "blank_panels",
+      "imageSrc": "img/PRI-1-Pelvic-Outlet-flipped.jpg",
+      "sideLabels": {
+        "left": "Left",
+        "right": "Right"
       },
-      "structures":[
-        {
-          "id":"glute_max_l_flip",
-          "label":"Glute Max (L)",
-          "type":"muscle",
-          "priColor":"--pri-neutral",
-          "panelBox":{
-            "x":0,
-            "y":30,
-            "w":13,
-            "h":3.5
+      "structures": {
+        "glute_max_l_flip": {
+          "label": "Glute Max (L)",
+          "type": "muscle",
+          "priColor": "--pri-neutral",
+          "panelBox": {
+            "x": 0,
+            "y": 30,
+            "w": 13,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":18.5,
-            "y":80.7
+          "arrowTo": {
+            "x": 18.5,
+            "y": 80.7
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Hip extension, ER, abduction (upper fibers).",
-              "attachments":"Posterior ilium, sacrum, coccyx, thoracolumbar fascia → IT band and gluteal tuberosity of femur.",
-              "actions":"Hip extension, external rotation, abduction (upper fibers), adduction (lower fibers).",
-              "movements":"Hip extension, femoral ER, pelvic stabilization in stance.",
-              "pri":"L glute max is not a primary PRI corrective. Only R glute max is violet (Internal Rotation).",
-              "chain":"Posterior — extension and rotation"
+          "priDetail": {
+            "layer1": {
+              "standard": "Hip extension, ER, abduction (upper fibers).",
+              "attachments": "Posterior ilium, sacrum, coccyx, thoracolumbar fascia → IT band and gluteal tuberosity of femur.",
+              "actions": "Hip extension, external rotation, abduction (upper fibers), adduction (lower fibers).",
+              "movements": "Hip extension, femoral ER, pelvic stabilization in stance.",
+              "pri": "L glute max is not a primary PRI corrective. Only R glute max is violet (Internal Rotation).",
+              "chain": "Posterior — extension and rotation"
             }
           }
         },
-        {
-          "id":"coccygeus_r_flip",
-          "label":"Coccygeus (R)",
-          "type":"muscle",
-          "priColor":"--pri-violet",
-          "panelBox":{
-            "x":83,
-            "y":75,
-            "w":13,
-            "h":3.5
+        "coccygeus_r_flip": {
+          "label": "Coccygeus (R)",
+          "type": "muscle",
+          "priColor": "--pri-violet",
+          "panelBox": {
+            "x": 83,
+            "y": 75,
+            "w": 13,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":68.1,
-            "y":81.0
+          "arrowTo": {
+            "x": 68.1,
+            "y": 81
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Pulls coccyx forward, supports pelvic floor.",
-              "attachments":"Ischial spine → lateral margins of coccyx and S5.",
-              "actions":"Pulls coccyx anteriorly, supports posterior pelvic floor.",
-              "movements":"Coccyx flexion, pelvic floor stabilization.",
-              "pri":"R coccygeus → R SI IR (posterior outlet closing). Internal rotation family.",
-              "chain":"Deep posterior — internal rotation"
+          "priDetail": {
+            "layer1": {
+              "standard": "Pulls coccyx forward, supports pelvic floor.",
+              "attachments": "Ischial spine → lateral margins of coccyx and S5.",
+              "actions": "Pulls coccyx anteriorly, supports posterior pelvic floor.",
+              "movements": "Coccyx flexion, pelvic floor stabilization.",
+              "pri": "R coccygeus → R SI IR (posterior outlet closing). Internal rotation family.",
+              "chain": "Deep posterior — internal rotation"
             },
-            "layer2":{
-              "laic":"R coccygeus assists R SI IR. Bilateral coccygeus hypertonic in B PEC."
+            "layer2": {
+              "laic": "R coccygeus assists R SI IR. Bilateral coccygeus hypertonic in B PEC."
             },
-            "layer3":{
-              "treatment":"Release through pelvic floor relaxation. Not directly facilitated."
+            "layer3": {
+              "treatment": "Release through pelvic floor relaxation. Not directly facilitated."
             }
           }
         },
-        {
-          "id":"obturator_internus_l_flip",
-          "label":"Obturator Internus (L)",
-          "type":"muscle",
-          "priColor":"--pri-green-family",
-          "panelBox":{
-            "x":83,
-            "y":50,
-            "w":17,
-            "h":3.5
+        "obturator_internus_l_flip": {
+          "label": "Obturator Internus (L)",
+          "type": "muscle",
+          "priColor": "--pri-green-family",
+          "panelBox": {
+            "x": 83,
+            "y": 50,
+            "w": 17,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":79.9,
-            "y":69.4
+          "arrowTo": {
+            "x": 79.9,
+            "y": 69.4
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).",
-              "attachments":"Inner surface of obturator membrane and surrounding bone → medial surface of greater trochanter.",
-              "actions":"Hip ER (open chain), pelvic diaphragm ascension and IsP ER (closed chain).",
-              "movements":"Femoral external rotation, outlet abduction (ischial tuberosities apart).",
-              "pri":"L obturator internus → L IsP ER (outlet abduction). Green (Frontal Abduction). THE key corrective muscle.",
-              "chain":"Pelvic floor — deep interior chain"
+          "priDetail": {
+            "layer1": {
+              "standard": "Femoral ER (open-chain), pelvic diaphragm ascension (closed-chain).",
+              "attachments": "Inner surface of obturator membrane and surrounding bone → medial surface of greater trochanter.",
+              "actions": "Hip ER (open chain), pelvic diaphragm ascension and IsP ER (closed chain).",
+              "movements": "Femoral external rotation, outlet abduction (ischial tuberosities apart).",
+              "pri": "L obturator internus → L IsP ER (outlet abduction). Green (Frontal Abduction). THE key corrective muscle.",
+              "chain": "Pelvic floor — deep interior chain"
             },
-            "layer2":{
-              "laic":"L OI → L IsP ER. Opens left outlet, ascends pelvic diaphragm. Inhibited in L AIC. Facilitation restores outlet abduction.",
-              "pathology":"Implicated in L AIC (inhibited), B PEC (bilateral inhibition), Patho PEC."
+            "layer2": {
+              "laic": "L OI → L IsP ER. Opens left outlet, ascends pelvic diaphragm. Inhibited in L AIC. Facilitation restores outlet abduction.",
+              "pathology": "Implicated in L AIC (inhibited), B PEC (bilateral inhibition), Patho PEC."
             },
-            "layer3":{
-              "treatment":"Step 2: L obturator internus + L pelvic floor. HALT 1/5 → 2/5. Key exercise: left sidelying knee-apart with balloon."
+            "layer3": {
+              "treatment": "Step 2: L obturator internus + L pelvic floor. HALT 1/5 → 2/5. Key exercise: left sidelying knee-apart with balloon."
             }
           }
         }
-      ]
+      }
     },
-    {
-      "id":"pelvic_inlet",
-      "label":"Pelvic Inlet",
-      "mechanic":"blank_panels",
-      "imageSrc":"img/PRI-1-Pelvic-Inlet.png",
-      "sideLabels":{
-        "left":"Right",
-        "right":"Left"
+    "pelvic_inlet": {
+      "label": "Pelvic Inlet",
+      "mechanic": "blank_panels",
+      "imageSrc": "img/PRI-1-Pelvic-Inlet.png",
+      "sideLabels": {
+        "left": "Right",
+        "right": "Left"
       },
-      "structures":[
-        {
-          "id":"iliacus",
-          "label":"Iliacus (L)",
-          "type":"muscle",
-          "priColor":"--pri-red",
-          "panelBox":{
-            "x":89,
-            "y":88,
-            "w":11,
-            "h":3.5
+      "structures": {
+        "iliacus": {
+          "label": "Iliacus (L)",
+          "type": "muscle",
+          "priColor": "--pri-red",
+          "panelBox": {
+            "x": 89,
+            "y": 88,
+            "w": 11,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":74.7,
-            "y":31.2
+          "arrowTo": {
+            "x": 74.7,
+            "y": 31.2
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Hip flexion, anterior pelvic tilt, stabilizes femoral head in acetabulum.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Hip flexion, anterior pelvic tilt, stabilizes femoral head in acetabulum.",
+              "attachments": {
+                "proximal": [
                   "Iliac fossa (upper 2/3)",
                   "Ala of sacrum",
                   "Anterior sacroiliac ligaments"
                 ],
-                "distal":[
+                "distal": [
                   "Lesser trochanter of femur (shared tendon with psoas)"
                 ]
               },
-              "actions":"Hip flexion, anterior pelvic tilt, femoral head stabilization.",
-              "movements":"Hip flexion, pelvic anterior tilt, assists lateral rotation of femur.",
-              "pri":"PRI distinguishes proximal vs. distal iliacus. Distal iliacus acts on the femur (part of L AIC chain — pathological). Proximal iliacus in closed chain pulls ilium medially = inlet adduction (IP IR) — corrective. PRI calls proximal iliacus 'anterior glute med' (confusing — it is still iliacus).",
-              "chain":"Anterior chain — AIC component (distal) / inlet adduction (proximal)"
+              "actions": "Hip flexion, anterior pelvic tilt, femoral head stabilization.",
+              "movements": "Hip flexion, pelvic anterior tilt, assists lateral rotation of femur.",
+              "pri": "PRI distinguishes proximal vs. distal iliacus. Distal iliacus acts on the femur (part of L AIC chain — pathological). Proximal iliacus in closed chain pulls ilium medially = inlet adduction (IP IR) — corrective. PRI calls proximal iliacus 'anterior glute med' (confusing — it is still iliacus).",
+              "chain": "Anterior chain — AIC component (distal) / inlet adduction (proximal)"
             },
-            "layer2":{
-              "laic":"Distal L iliacus pulls L ilium into anterior tilt (L IP ER) — part of L AIC problem. Proximal L iliacus adducts L inlet (IP IR) — corrective. Facilitated in Step 3.",
-              "pathology":"Distal iliacus overactive in L AIC (drives anterior tilt). Proximal iliacus inhibited."
+            "layer2": {
+              "laic": "Distal L iliacus pulls L ilium into anterior tilt (L IP ER) — part of L AIC problem. Proximal L iliacus adducts L inlet (IP IR) — corrective. Facilitated in Step 3.",
+              "pathology": "Distal iliacus overactive in L AIC (drives anterior tilt). Proximal iliacus inhibited."
             },
-            "layer3":{
-              "treatment":"Proximal iliacus: Step 3 with L gluteus medius. L posterior inlet (IS ER / counter-nutation). HALT 2/5."
+            "layer3": {
+              "treatment": "Proximal iliacus: Step 3 with L gluteus medius. L posterior inlet (IS ER / counter-nutation). HALT 2/5."
             }
           }
         },
-        {
-          "id":"sartorius",
-          "label":"Sartorius (R)",
-          "type":"muscle",
-          "priColor":"--pri-brown",
-          "panelBox":{
-            "x":0,
-            "y":55,
-            "w":12,
-            "h":3.5
+        "sartorius": {
+          "label": "Sartorius (R)",
+          "type": "muscle",
+          "priColor": "--pri-brown",
+          "panelBox": {
+            "x": 0,
+            "y": 55,
+            "w": 12,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":8.8,
-            "y":61.1
+          "arrowTo": {
+            "x": 8.8,
+            "y": 61.1
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Hip flexion, abduction, lateral rotation. Knee flexion, medial rotation of tibia.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Hip flexion, abduction, lateral rotation. Knee flexion, medial rotation of tibia.",
+              "attachments": {
+                "proximal": [
                   "ASIS"
                 ],
-                "distal":[
+                "distal": [
                   "Proximal medial tibia (pes anserinus)"
                 ]
               },
-              "actions":"Hip flexion, abduction, lateral rotation. Knee flexion, tibial medial rotation.",
-              "movements":"Assists 'tailor's position' (hip flexion + abduction + ER). Crosses hip and knee.",
-              "pri":"R sartorius → R IP ER (R anterior inlet opening). Assists R rectus femoris in advancing R knee. Corrective in L AIC.",
-              "chain":"Anterior — sagittal plane"
+              "actions": "Hip flexion, abduction, lateral rotation. Knee flexion, tibial medial rotation.",
+              "movements": "Assists 'tailor's position' (hip flexion + abduction + ER). Crosses hip and knee.",
+              "pri": "R sartorius → R IP ER (R anterior inlet opening). Assists R rectus femoris in advancing R knee. Corrective in L AIC.",
+              "chain": "Anterior — sagittal plane"
             },
-            "layer2":{
-              "laic":"R sartorius = corrective. Assists R inlet opening (IP ER) in Step 1."
+            "layer2": {
+              "laic": "R sartorius = corrective. Assists R inlet opening (IP ER) in Step 1."
             },
-            "layer3":{
-              "treatment":"Step 1: R sartorius + R rectus femoris. HALT 0/5. Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius."
+            "layer3": {
+              "treatment": "Step 1: R sartorius + R rectus femoris. HALT 0/5. Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius."
             }
           }
         },
-        {
-          "id":"rectus_femoris_direct",
-          "label":"Direct head of rectus (R)",
-          "type":"muscle",
-          "priColor":"--pri-brown",
-          "panelBox":{
-            "x":0,
-            "y":75,
-            "w":16,
-            "h":3.5
+        "rectus_femoris_direct": {
+          "label": "Direct head of rectus (R)",
+          "type": "muscle",
+          "priColor": "--pri-brown",
+          "panelBox": {
+            "x": 0,
+            "y": 75,
+            "w": 16,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":16.5,
-            "y":71.5
+          "arrowTo": {
+            "x": 16.5,
+            "y": 71.5
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Hip flexion, knee extension. Only quadriceps head crossing the hip joint. The direct (straight) head originates from the AIIS.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Hip flexion, knee extension. Only quadriceps head crossing the hip joint. The direct (straight) head originates from the AIIS.",
+              "attachments": {
+                "proximal": [
                   "AIIS (anterior inferior iliac spine)"
                 ],
-                "distal":[
+                "distal": [
                   "Tibial tuberosity via patellar ligament"
                 ]
               },
-              "actions":"Hip flexion, knee extension. Biarticular muscle.",
-              "movements":"Hip flexion (anterior pelvic tilt), knee extension.",
-              "pri":"R rectus femoris → R IP ER (R anterior inlet opening, flex/abd/ER). R = corrective (opens R inlet, Step 1). L = pathological (L inlet already open in L AIC).",
-              "chain":"AIC — distal component (sagittal)"
+              "actions": "Hip flexion, knee extension. Biarticular muscle.",
+              "movements": "Hip flexion (anterior pelvic tilt), knee extension.",
+              "pri": "R rectus femoris → R IP ER (R anterior inlet opening, flex/abd/ER). R = corrective (opens R inlet, Step 1). L = pathological (L inlet already open in L AIC).",
+              "chain": "AIC — distal component (sagittal)"
             },
-            "layer2":{
-              "laic":"R rectus femoris = CORRECTIVE (advances R knee, opens R inlet). L rectus femoris = shortened/ON in L AIC (L inlet already in IP ER).",
-              "pathology":"L rectus femoris shortened (ON) in L AIC. In B PEC: bilateral rectus femoris lengthened (both sides OFF)."
+            "layer2": {
+              "laic": "R rectus femoris = CORRECTIVE (advances R knee, opens R inlet). L rectus femoris = shortened/ON in L AIC (L inlet already in IP ER).",
+              "pathology": "L rectus femoris shortened (ON) in L AIC. In B PEC: bilateral rectus femoris lengthened (both sides OFF)."
             },
-            "layer3":{
-              "treatment":"Step 1: R rectus femoris + R sartorius. HALT 0/5. Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius."
+            "layer3": {
+              "treatment": "Step 1: R rectus femoris + R sartorius. HALT 0/5. Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius."
             }
           }
         },
-        {
-          "id":"rectus_femoris_reflected",
-          "label":"Reflected tendon of rectus (R)",
-          "type":"muscle",
-          "priColor":"--pri-brown",
-          "panelBox":{
-            "x":0,
-            "y":65,
-            "w":18,
-            "h":3.5
+        "rectus_femoris_reflected": {
+          "label": "Reflected tendon of rectus (R)",
+          "type": "muscle",
+          "priColor": "--pri-brown",
+          "panelBox": {
+            "x": 0,
+            "y": 65,
+            "w": 18,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":25,
-            "y":60
+          "arrowTo": {
+            "x": 25,
+            "y": 60
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Hip flexion, knee extension. The reflected (indirect) head originates from the superior acetabular rim and hip joint capsule.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Hip flexion, knee extension. The reflected (indirect) head originates from the superior acetabular rim and hip joint capsule.",
+              "attachments": {
+                "proximal": [
                   "Superior acetabular rim",
                   "Hip joint capsule"
                 ],
-                "distal":[
+                "distal": [
                   "Joins direct head → tibial tuberosity via patellar ligament"
                 ]
               },
-              "actions":"Hip flexion, knee extension. Stabilizes hip joint capsule superiorly. Biarticular muscle.",
-              "movements":"Hip flexion (anterior pelvic tilt), knee extension.",
-              "pri":"R rectus femoris → R IP ER (R anterior inlet opening). R = corrective (Step 1). L = pathological (L inlet already open in L AIC). Same PRI role as direct head.",
-              "chain":"AIC — distal component (sagittal)"
+              "actions": "Hip flexion, knee extension. Stabilizes hip joint capsule superiorly. Biarticular muscle.",
+              "movements": "Hip flexion (anterior pelvic tilt), knee extension.",
+              "pri": "R rectus femoris → R IP ER (R anterior inlet opening). R = corrective (Step 1). L = pathological (L inlet already open in L AIC). Same PRI role as direct head.",
+              "chain": "AIC — distal component (sagittal)"
             },
-            "layer2":{
-              "laic":"R rectus femoris = CORRECTIVE. L rectus femoris = shortened/ON in L AIC.",
-              "pathology":"L rectus femoris shortened (ON) in L AIC. In B PEC: bilateral lengthened (both sides OFF)."
+            "layer2": {
+              "laic": "R rectus femoris = CORRECTIVE. L rectus femoris = shortened/ON in L AIC.",
+              "pathology": "L rectus femoris shortened (ON) in L AIC. In B PEC: bilateral lengthened (both sides OFF)."
             },
-            "layer3":{
-              "treatment":"Step 1: R rectus femoris + R sartorius. HALT 0/5."
+            "layer3": {
+              "treatment": "Step 1: R rectus femoris + R sartorius. HALT 0/5."
             }
           }
         },
-        {
-          "id":"internal_oblique_ta",
-          "label":"Int. Oblique / TA (L)",
-          "type":"muscle",
-          "priColor":"--pri-yellow",
-          "panelBox":{
-            "x":84,
-            "y":10,
-            "w":16,
-            "h":3.5
+        "internal_oblique_ta": {
+          "label": "Int. Oblique / TA (L)",
+          "type": "muscle",
+          "priColor": "--pri-yellow",
+          "panelBox": {
+            "x": 84,
+            "y": 10,
+            "w": 16,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":91.8,
-            "y":32.4
+          "arrowTo": {
+            "x": 91.8,
+            "y": 32.4
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"IO: ipsilateral trunk rotation, lateral flexion, abdominal compression. TA: abdominal compression, forced expiration, lumbar spine stabilization.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "IO: ipsilateral trunk rotation, lateral flexion, abdominal compression. TA: abdominal compression, forced expiration, lumbar spine stabilization.",
+              "attachments": {
+                "proximal": [
                   "IO: thoracolumbar fascia, anterior iliac crest, lateral inguinal ligament",
                   "TA: thoracolumbar fascia, iliac crest, inguinal ligament, costal cartilages 7–12"
                 ],
-                "distal":[
+                "distal": [
                   "IO: ribs 10–12, linea alba, pubic crest",
                   "TA: linea alba, pubic crest"
                 ]
               },
-              "actions":"IO: ipsilateral trunk rotation, lateral flexion, abdominal compression. TA: abdominal compression, forced expiration, lumbar stabilization.",
-              "movements":"Core stabilization, forced expiration, abdominal wall tension.",
-              "pri":"L IO/TA → conduit between respiratory diaphragm and pelvic inlet. Restore ZOA (zone of apposition). Promote inlet extension (IP IR) and posterior pelvic tilt.",
-              "chain":"Integration — abdominal wall"
+              "actions": "IO: ipsilateral trunk rotation, lateral flexion, abdominal compression. TA: abdominal compression, forced expiration, lumbar stabilization.",
+              "movements": "Core stabilization, forced expiration, abdominal wall tension.",
+              "pri": "L IO/TA → conduit between respiratory diaphragm and pelvic inlet. Restore ZOA (zone of apposition). Promote inlet extension (IP IR) and posterior pelvic tilt.",
+              "chain": "Integration — abdominal wall"
             },
-            "layer2":{
-              "laic":"L IO/TA weak in L AIC. Must restore for inlet extension and diaphragm coupling. The 'conduit' between the two diaphragms.",
-              "pathology":"L IO weak in L AIC. Bilateral IO/TA long and weak in B PEC and Patho PEC."
+            "layer2": {
+              "laic": "L IO/TA weak in L AIC. Must restore for inlet extension and diaphragm coupling. The 'conduit' between the two diaphragms.",
+              "pathology": "L IO weak in L AIC. Bilateral IO/TA long and weak in B PEC and Patho PEC."
             },
-            "layer3":{
-              "treatment":"Used throughout all hierarchies. Exercises: Standing Wall Supported Reach, Modified All Four Belly Lift, All Four Belly Lift, Wall and Chair Supported IO/TA."
+            "layer3": {
+              "treatment": "Used throughout all hierarchies. Exercises: Standing Wall Supported Reach, Modified All Four Belly Lift, All Four Belly Lift, Wall and Chair Supported IO/TA."
             }
           }
         }
-      ]
+      }
     },
-    {
-      "id":"pelvic_inlet_bone",
-      "label":"Glute Med / Max",
-      "mechanic":"blank_panels",
-      "theme":"dark",
-      "imageSrc":"img/PRI-1-glute-med--glute-max.png",
-      "structures":[
-        {
-          "id":"glute_medius",
-          "label":"Gluteus Medius (L)",
-          "type":"muscle",
-          "priColor":"--pri-orange",
-          "panelBox":{
-            "x":0,
-            "y":10,
-            "w":14.5,
-            "h":3.5
+    "pelvic_inlet_bone": {
+      "label": "Glute Med / Max",
+      "mechanic": "blank_panels",
+      "theme": "dark",
+      "imageSrc": "img/PRI-1-glute-med--glute-max.png",
+      "structures": {
+        "glute_medius": {
+          "label": "Gluteus Medius (L)",
+          "type": "muscle",
+          "priColor": "--pri-orange",
+          "panelBox": {
+            "x": 0,
+            "y": 10,
+            "w": 14.5,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":18,
-            "y":34
+          "arrowTo": {
+            "x": 18,
+            "y": 34
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Hip abduction (all fibers), medial rotation (anterior fibers), lateral rotation (posterior fibers). Key frontal plane pelvic stabilizer in single-leg stance.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Hip abduction (all fibers), medial rotation (anterior fibers), lateral rotation (posterior fibers). Key frontal plane pelvic stabilizer in single-leg stance.",
+              "attachments": {
+                "proximal": [
                   "External surface of ilium between anterior and posterior gluteal lines"
                 ],
-                "distal":[
+                "distal": [
                   "Lateral surface of greater trochanter"
                 ]
               },
-              "actions":"Hip abduction, femoral IR (anterior fibers), femoral ER (posterior fibers), pelvic stabilization in single-leg stance.",
-              "movements":"Frontal plane pelvic stability, hip abduction, femoral internal rotation (anterior fibers).",
-              "pri":"L gluteus medius → L IS ER (counter-nutation). Pulls L ilium laterally relative to sacrum, closing L posterior inlet. Not the same as PRI's 'anterior glute med' (which is proximal iliacus).",
-              "chain":"Transverse plane stabilizer"
+              "actions": "Hip abduction, femoral IR (anterior fibers), femoral ER (posterior fibers), pelvic stabilization in single-leg stance.",
+              "movements": "Frontal plane pelvic stability, hip abduction, femoral internal rotation (anterior fibers).",
+              "pri": "L gluteus medius → L IS ER (counter-nutation). Pulls L ilium laterally relative to sacrum, closing L posterior inlet. Not the same as PRI's 'anterior glute med' (which is proximal iliacus).",
+              "chain": "Transverse plane stabilizer"
             },
-            "layer2":{
-              "laic":"L glute med = corrective. Facilitates L IS ER (counter-nutation) with L proximal iliacus for inlet adduction. R PART resolves at this step.",
-              "pathology":"Inhibited in L AIC (L posterior inlet in IS IR / nutation)."
+            "layer2": {
+              "laic": "L glute med = corrective. Facilitates L IS ER (counter-nutation) with L proximal iliacus for inlet adduction. R PART resolves at this step.",
+              "pathology": "Inhibited in L AIC (L posterior inlet in IS IR / nutation)."
             },
-            "layer3":{
-              "treatment":"Step 3: L proximal iliacus + L glute med. HALT 2/5 → 3/5. R PART resolves (becomes negative). Exercises: R Sidelying Supported L Glute Med, R Sidelying Hemi 90-90 with L FA IR."
+            "layer3": {
+              "treatment": "Step 3: L proximal iliacus + L glute med. HALT 2/5 → 3/5. R PART resolves (becomes negative). Exercises: R Sidelying Supported L Glute Med, R Sidelying Hemi 90-90 with L FA IR."
             }
           }
         },
-        {
-          "id":"glute_maximus_inlet",
-          "label":"Gluteus Maximus (R)",
-          "type":"muscle",
-          "priColor":"--pri-violet",
-          "panelBox":{
-            "x":83,
-            "y":10,
-            "w":17,
-            "h":3.5
+        "glute_maximus_inlet": {
+          "label": "Gluteus Maximus (R)",
+          "type": "muscle",
+          "priColor": "--pri-violet",
+          "panelBox": {
+            "x": 83,
+            "y": 10,
+            "w": 17,
+            "h": 3.5
           },
-          "arrowTo":{
-            "x":70,
-            "y":40
+          "arrowTo": {
+            "x": 70,
+            "y": 40
           },
-          "priDetail":{
-            "layer1":{
-              "standard":"Hip extension, lateral rotation, abduction (upper fibers), adduction (lower fibers). Primary hip extensor from flexed position.",
-              "attachments":{
-                "proximal":[
+          "priDetail": {
+            "layer1": {
+              "standard": "Hip extension, lateral rotation, abduction (upper fibers), adduction (lower fibers). Primary hip extensor from flexed position.",
+              "attachments": {
+                "proximal": [
                   "Posterior gluteal line of ilium",
                   "Sacrum",
                   "Coccyx",
                   "Sacrotuberous ligament",
                   "Thoracolumbar fascia"
                 ],
-                "distal":[
+                "distal": [
                   "IT band (superficial fibers)",
                   "Gluteal tuberosity of femur (deep fibers)"
                 ]
               },
-              "actions":"Hip extension, femoral lateral rotation, hip abduction (upper fibers), hip adduction (lower fibers).",
-              "movements":"Hip extension, femoral ER, pelvic stabilization in stance.",
-              "pri":"R glute max superior fibers → R IS IR (nutation, posterior inlet closing). Inferior fibers → R SI IR (posterior outlet closing). Key corrective in L AIC — works at both inlet and outlet.",
-              "chain":"Posterior — inlet and outlet"
+              "actions": "Hip extension, femoral lateral rotation, hip abduction (upper fibers), hip adduction (lower fibers).",
+              "movements": "Hip extension, femoral ER, pelvic stabilization in stance.",
+              "pri": "R glute max superior fibers → R IS IR (nutation, posterior inlet closing). Inferior fibers → R SI IR (posterior outlet closing). Key corrective in L AIC — works at both inlet and outlet.",
+              "chain": "Posterior — inlet and outlet"
             },
-            "layer2":{
-              "laic":"R glute max = corrective target. Facilitates R IS IR (inlet) + R SI IR (outlet). L glute max is compensatory in L AIC. Used in repositioning (L Sidelying R Glute Max) AND in Step 4.",
-              "pathology":"L glute max compensatory/overactive in L AIC."
+            "layer2": {
+              "laic": "R glute max = corrective target. Facilitates R IS IR (inlet) + R SI IR (outlet). L glute max is compensatory in L AIC. Used in repositioning (L Sidelying R Glute Max) AND in Step 4.",
+              "pathology": "L glute max compensatory/overactive in L AIC."
             },
-            "layer3":{
-              "treatment":"Step 4: R glute max + R piriformis + R coccygeus. HALT 4/5. L PADT resolves (becomes negative). Exercises: All Four R Glute Max, L Sidelying Supported R Glute Max with Hip Extension."
+            "layer3": {
+              "treatment": "Step 4: R glute max + R piriformis + R coccygeus. HALT 4/5. L PADT resolves (becomes negative). Exercises: All Four R Glute Max, L Sidelying Supported R Glute Max with Hip Extension."
             }
           }
         }
-      ]
+      }
     }
-  ]
+  }
 }
