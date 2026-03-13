@@ -30,6 +30,12 @@ sw.js         service worker (root — browser scope constraint)
 
 `sw.js` lives at project root because browsers restrict a service worker's scope to its own directory and below. A SW at `scripts/sw.js` could only intercept fetches under `scripts/`. GitHub Pages does not support the `Service-Worker-Allowed` header that would widen the scope, so the file must be at root.
 
+## Asset Rules
+
+- `sw.js` precache: each entry must be justified by an app code reference (`index.html`, a JS module in `scripts/`, or a JSON data file in `data/`). Files referenced only by `tools/`, PRDs, or README are not app assets and must not be precached.
+- When files are added or removed from the app, update `sw.js` precache in the same commit.
+- `tools/` contains dev-only utilities (coord-picker, data generators). These are not app code and do not justify asset list entries.
+
 ## Key Decisions
 - Hash-based SPA navigation (`location.hash` + `hashchange`). No History API.
 - Six tabs: Anatomy, Nomenclature, Patterns, Diagnose This!, Flashcards, Equivalence.

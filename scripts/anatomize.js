@@ -376,32 +376,25 @@ function createArenaWrap(imgSet) {
 function createSideLabels(svg, imgSet) {
   if (!imgSet.sideLabels) return;
   const sl = imgSet.sideLabels;
-  const labelFontSize = 3;
   [
     {text: sl.left, x: 8, anchor: 'start'},
     {text: sl.right, x: 92, anchor: 'end'}
   ].forEach((cfg) => {
-    const flip = imgSet.flipped
-        ? 'translate(' + cfg.x + ',5) scale(-1,1) translate(' + -cfg.x + ',-5)'
-        : null;
     const shadow = document.createElementNS(SVG_NS, 'text');
     shadow.setAttribute('x', cfg.x);
     shadow.setAttribute('y', 5);
     shadow.setAttribute('text-anchor', cfg.anchor);
-    shadow.setAttribute('font-size', labelFontSize);
+    shadow.setAttribute('font-size', 3);
     shadow.classList.add('anatomize-side-label-shadow');
     shadow.textContent = cfg.text;
-    if (flip) shadow.setAttribute('transform', flip);
+    if (imgSet.flipped) {
+      shadow.setAttribute('transform',
+          'translate(' + cfg.x + ',5) scale(-1,1) translate(' + -cfg.x + ',-5)');
+    }
     svg.appendChild(shadow);
 
-    const label = document.createElementNS(SVG_NS, 'text');
-    label.setAttribute('x', cfg.x);
-    label.setAttribute('y', 5);
-    label.setAttribute('text-anchor', cfg.anchor);
-    label.setAttribute('font-size', labelFontSize);
-    label.classList.add('anatomize-side-label');
-    label.textContent = cfg.text;
-    if (flip) label.setAttribute('transform', flip);
+    const label = shadow.cloneNode(true);
+    label.classList.replace('anatomize-side-label-shadow', 'anatomize-side-label');
     svg.appendChild(label);
   });
 }
@@ -799,31 +792,17 @@ function renderDetailPanel(structure) {
   layer1.appendChild(nameRow);
 
   if (priDetail && priDetail.layer1) {
-    if (priDetail.layer1.standard) {
-      const row = createDetailRow('Standard', priDetail.layer1.standard);
-      layer1.appendChild(row);
-    }
-    if (priDetail.layer1.attachments) {
-      const row = createDetailRow(
-          'Attachments', priDetail.layer1.attachments);
-      layer1.appendChild(row);
-    }
-    if (priDetail.layer1.actions) {
-      const row = createDetailRow('Actions', priDetail.layer1.actions);
-      layer1.appendChild(row);
-    }
-    if (priDetail.layer1.movements) {
-      const row = createDetailRow('Movements', priDetail.layer1.movements);
-      layer1.appendChild(row);
-    }
-    if (priDetail.layer1.pri) {
-      const row = createDetailRow('PRI', priDetail.layer1.pri);
-      layer1.appendChild(row);
-    }
-    if (priDetail.layer1.chain) {
-      const row = createDetailRow('Chain', priDetail.layer1.chain);
-      layer1.appendChild(row);
-    }
+    const l1 = priDetail.layer1;
+    [
+      ['standard', 'Standard'],
+      ['attachments', 'Attachments'],
+      ['actions', 'Actions'],
+      ['movements', 'Movements'],
+      ['pri', 'PRI'],
+      ['chain', 'Chain']
+    ].forEach(([key, label]) => {
+      if (l1[key]) layer1.appendChild(createDetailRow(label, l1[key]));
+    });
   }
 
   if (!hasLayers && priDetail && priDetail.layer1 &&

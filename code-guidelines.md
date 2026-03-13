@@ -47,6 +47,36 @@ Specific operations that require guarded handling:
 - `localStorage` / `sessionStorage` — browsers throw in private mode or when quota is exceeded.
 - Fire-and-forget async — any `async` function called without `await` must have `.catch()` at the call site.
 
+### Single Responsibility
+
+Functions do one thing. Consistent return types. Test the happy path and the sad path. Consider refactoring conditionals to dynamic dispatch or function redefinition.
+
+### Short Parameter Lists
+
+Three or fewer parameters per function. When a function needs more context, pass a single options object with named properties. This eliminates ordering bugs and makes call sites self-documenting.
+
+### Module Cohesion
+
+Each module owns one domain concept. Name the module after what it does: `quiz.js`, `flashcards.js`, `navigation.js`. If the name describes a role instead of a domain concept, it is a junk drawer — `utils.js`, `helpers.js`, `tools.js`, `misc.js`, `common.js` are common examples, but any name that could apply to any project instead of *this* project violates the principle. If a function does not belong in an existing module, create a new module with a specific name. When a module grows to cover multiple concerns, split it.
+
+### DOM-Light
+
+Favor source HTML over JS-generated markup. Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`. In loops, create one element as a prototype, then `cloneNode`.
+
+### Directory Structure
+
+Separate app code from dev tools. App code lives in designated directories by type (scripts, styles, data, assets). Dev tools live in their own directory, not mixed with app code. The project root contains only files that must be there (entry HTML, files with browser scope constraints) and project documentation.
+
+### Explicit Asset Lists
+
+When code enumerates project assets — precache manifests, build tool file lists, resource loaders — each entry must be individually justified by an app code reference. Dev tools and documentation are not app code; a reference from a dev tool does not justify inclusion in an asset list. Never glob-include a directory. An asset list is a contract: every entry is used by the running app, every app-used asset is listed. When files are added or removed, update asset lists in the same commit.
+
+---
+
+## Patterns
+
+Implementation patterns for DOM-heavy vanilla JS applications.
+
 ### Event Delegation
 
 Do not loop through elements to attach event listeners. Attach one handler to a common ancestor and inspect `event.target`. This scales, avoids initialization loops, and works for dynamically added elements.
@@ -59,9 +89,9 @@ For exclusive-active state (tabs, selections, panels): hold a reference to the c
 
 When a data record and a DOM element represent the same entity, give them the same `id`. This single key indexes both — data by object property, DOM by `getElementById`. Do not search either collection for a known key.
 
-- **Data format**: structure JSON as a keyed object (`{"aic-iliacus": {...}}`) instead of an array of objects with `id` fields (`[{"id": "iliacus", ...}]`). When data is looked up by key, the source format should be keyed — no runtime indexing step needed.
-- **Namespaced keys**: prefix keys with the module name (e.g. `aic-`). This makes the key unique across the DOM, self-documenting (which module owns it), and greppable across all layers without false matches.
-- **DOM side**: use the namespaced key as the element's `id` attribute. Lookup is `getElementById(id)`. Related elements use convention-based suffixes (e.g. `id + "-anterior"`), each directly addressable.
+- **Data format**: structure JSON as a keyed object (`{"item-foo": {...}}`) instead of an array of objects with `id` fields (`[{"id": "foo", ...}]`). When data is looked up by key, the source format should be keyed — no runtime indexing step needed.
+- **Namespaced keys**: prefix keys with the module name (e.g. `item-`). This makes the key unique across the DOM, self-documenting (which module owns it), and greppable across all layers without false matches.
+- **DOM side**: use the namespaced key as the element's `id` attribute. Lookup is `getElementById(id)`. Related elements use convention-based suffixes (e.g. `id + "-detail"`), each directly addressable.
 - **One key across all layers**: the same string appears in JSON keys, element `id` attributes, SVG element `id` attributes, and JS lookups. No translation between layers.
 - **Access pattern (getById)**: event delegation derives the key from the target element's `id`, then addresses both data (`map[id]`) and DOM (`getElementById(id)`) directly. When construction is expensive, use create-on-first-access: `pool[id] || (pool[id] = create(id))`.
 - **Antipattern**: `.find(item => item.id === id)`, `querySelector('[data-id="' + id + '"]')` — linear scans for a known key.
@@ -70,33 +100,29 @@ When a data record and a DOM element represent the same entity, give them the sa
 
 To style a group of descendants, add a class to the nearest common ancestor. Define the CSS rule as `.state-class .descendant-class`. Never loop through descendants to set `element.style`.
 
-### DOM-Light
+### Inline Styles in Scripts
 
-Favor source HTML over JS-generated markup. Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`. In loops, create one element as a prototype, then `cloneNode`.
+Avoid inline styles — use CSS classes. When dynamic inline styles cannot be avoided (e.g. computed positions), assign multiple values via `element.style.cssText` rather than setting individual `style` properties one at a time.
 
-### Single Responsibility
+### CSS over JS for State Presentation
 
-Functions do one thing. Consistent return types. Test the happy path and the sad path. Consider refactoring conditionals to dynamic dispatch or function redefinition.
+Use CSS for visual state changes wherever possible. Prefer `:hover`, `:focus`, `:not(.class)`, and `pointer-events` over JS event handlers (`mouseenter`/`mouseleave`) and programmatic `disabled` toggling. If CSS can express the rule, JS should not be involved.
 
-### Short Parameter Lists
+### `hidden` Attribute for Visibility
 
-Three or fewer parameters per function. When a function needs more context, pass a single options object with named properties. This eliminates ordering bugs and makes call sites self-documenting.
+Use the native `hidden` attribute for show/hide toggling instead of `style.display`. It is semantic, works without knowing the element's display type, and is removable with `el.hidden = false`.
 
-### Directory Structure
+### Template and cloneNode
 
-App code lives in designated directories: `scripts/` for JS modules, `css/` for domain stylesheets, `data/` for JSON data files, `img/` for image assets. Dev tools — coordinate pickers, data generators, debug utilities — belong in `tools/`, not in the project root. The project root contains only files that must be there: `index.html`, `sw.js` (browser scope constraint), and project documentation.
-
-### Explicit Asset Lists
-
-When code enumerates project assets — service worker precache manifests, build tool file lists, resource loaders — each entry must be individually justified by an *app* code reference: `index.html`, a JS module in `scripts/`, or a JSON data file in `data/`. Dev tools (`tools/`) and PRD documents are not app code; a reference from a dev tool does not justify inclusion in an asset list. Never glob-include a directory or add files carte blanche. An asset list is a contract: every entry is used by the running app, every app-used asset is listed. When files are added or removed from the project, update asset lists in the same commit.
-
-### Module Cohesion
-
-Each module owns one domain concept. Name the module after what it does: `quiz.js`, `flashcards.js`, `navigation.js`. If the name describes a role instead of a domain concept, it is a junk drawer — `utils.js`, `helpers.js`, `tools.js`, `misc.js`, `common.js` are common examples, but any name that could apply to any project instead of *this* project violates the principle. If a function does not belong in an existing module, create a new module with a specific name. When a module grows to cover multiple concerns, split it.
+When creating multiple similar elements in a loop, build one template element outside the loop with shared attributes and classes, then `cloneNode(false)` inside the loop and set only the per-instance values. Avoids redundant `createElement` / `setAttribute` / `classList.add` calls per iteration.
 
 ---
 
-## HTML
+## Language Rules
+
+Additions and overrides to the baseline authorities listed above.
+
+### HTML
 
 - Valid markup. Code that uses malformed HTML is expecting nonstandard behavior. When a browser encounters an HTML error it performs proprietary error correction, producing a DOM that differs from what the code expects.
 - Semantic elements: headings, nav, section, article — not generic divs. Nav lists, not buttons. ARIA roles where semantics fall short. Lowercase tags, quoted attributes.
@@ -105,7 +131,7 @@ Each module owns one domain concept. Name the module after what it does: `quiz.j
 - No `javascript:` pseudo-protocol.
 - No inline event handler attributes (`onclick`, `onchange`, etc.).
 
-## CSS
+### CSS
 
 - External stylesheets only. No inline `<style>` blocks.
 - Separate structure from domain styles (e.g., `layout.css` for shared primitives; `css/<domain>.css` for each module).
@@ -117,7 +143,7 @@ Each module owns one domain concept. Name the module after what it does: `quiz.j
 - Mobile-first. Base styles target small screens; widen with `min-width` media queries. Images: `max-width: 100%; height: auto`. Overlay positioning uses percentages. No layout element should require horizontal scrolling on a 320px-wide viewport.
 - Light/dark theme via `prefers-color-scheme`. Define light as `:root` default, dark in the media query. No manual toggle unless the project spec requires one.
 
-## JavaScript
+### JavaScript
 
 - `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not use the IIFE module pattern inside ES modules.
 - Function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when context (`this`) doesn't matter, for brevity.
