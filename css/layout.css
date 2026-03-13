@@ -699,6 +699,10 @@ p:last-child {
   color:var(--error);
 }
 
+.answered .answer-btn {
+  pointer-events:none;
+}
+
 .answer-btn.selected-correct {
   background:var(--accent-bg);
   border-color:var(--accent);

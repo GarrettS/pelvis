@@ -1,105 +1,96 @@
 {
-  "nodes": [
-    {
-      "id": "diaphragm",
+  "nodes": {
+    "cmap-diaphragm": {
       "label": "L Hemidiaphragm\nWeakness",
       "x": 22,
       "y": 9
     },
-    {
-      "id": "iotas",
+    "cmap-iotas": {
       "label": "L IO/TA\nWeakness",
       "x": 7,
       "y": 44
     },
-    {
-      "id": "psoas",
+    "cmap-psoas": {
       "label": "L Psoas/Iliacus\nShortening",
       "x": 46,
       "y": 21
     },
-    {
-      "id": "aic",
+    "cmap-aic": {
       "label": "L Innominate\nAnterior Tilt\n(IP ER)",
       "x": 60,
       "y": 49,
       "central": true
     },
-    {
-      "id": "nutat",
+    "cmap-nutat": {
       "label": "L SI Joint\nNutation\n(IS IR)",
       "x": 82,
       "y": 27
     },
-    {
-      "id": "outlet",
+    "cmap-outlet": {
       "label": "L Outlet\nClosure\n(IsP IR)",
       "x": 82,
       "y": 65
     },
-    {
-      "id": "floor",
+    "cmap-floor": {
       "label": "L Pelvic Floor\nDescent",
       "x": 92,
       "y": 82
     },
-    {
-      "id": "spine",
+    "cmap-spine": {
       "label": "Spine Rightward\nOrientation",
       "x": 33,
       "y": 76
     },
-    {
-      "id": "right",
+    "cmap-right": {
       "label": "R Compensatory\nPosition",
       "x": 12,
       "y": 89
     }
-  ],
+  },
   "edges": [
     {
-      "from": "diaphragm",
-      "to": "psoas",
+      "from": "cmap-diaphragm",
+      "to": "cmap-psoas",
       "label": "crural pull / ZOA loss"
     },
     {
-      "from": "diaphragm",
-      "to": "iotas",
+      "from": "cmap-diaphragm",
+      "to": "cmap-iotas",
       "label": "no abdominal counter-pressure"
     },
     {
-      "from": "iotas",
-      "to": "aic",
+      "from": "cmap-iotas",
+      "to": "cmap-aic",
       "label": "no posterior tilt opposition"
     },
     {
-      "from": "psoas",
-      "to": "aic",
+      "from": "cmap-psoas",
+      "to": "cmap-aic",
       "label": "pulls ilium forward"
     },
     {
-      "from": "aic",
-      "to": "nutat",
+      "from": "cmap-aic",
+      "to": "cmap-nutat",
       "label": "ilium fwd → nutation"
     },
     {
-      "from": "aic",
-      "to": "outlet",
+      "from": "cmap-aic",
+      "to": "cmap-outlet",
       "label": "inlet/outlet reciprocal"
     },
     {
-      "from": "outlet",
-      "to": "floor",
+      "from": "cmap-outlet",
+      "to": "cmap-floor",
       "label": "outlet closed → floor descends"
     },
     {
-      "from": "aic",
-      "to": "spine",
+      "from": "cmap-aic",
+      "to": "cmap-spine",
       "label": "sacrum follows"
     },
     {
-      "from": "spine",
-      "to": "right",
+      "from": "cmap-spine",
+      "to": "cmap-right",
       "label": "weight shift right"
     }
   ]

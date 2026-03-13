@@ -108,3 +108,17 @@
   margin-bottom:1rem;
   font-weight:600;
 }
+
+.quiz-badge-wrap {
+  margin-bottom:.5rem;
+}
+
+.quiz-progress {
+  font-size:var(--text-sm);
+  color:var(--text-dim);
+}
+
+.quiz-prompt {
+  margin-top:.5rem;
+  font-size:var(--text-sm);
+}
