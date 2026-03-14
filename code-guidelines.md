@@ -112,6 +112,10 @@ Use CSS for visual state changes wherever possible. Prefer `:hover`, `:focus`, `
 
 Use the native `hidden` attribute for show/hide toggling instead of `style.display`. It is semantic, works without knowing the element's display type, and is removable with `el.hidden = false`.
 
+### Parameterized Builders
+
+When multiple code blocks construct similar DOM structures that differ only in data, extract the shared construction into a function parameterized by the varying parts. The function encapsulates *structure*; the caller supplies *data*. This eliminates structural duplication and makes it trivial to add new instances — pass new data, not new code.
+
 ### Template and cloneNode
 
 When creating multiple similar elements in a loop, build one template element outside the loop with shared attributes and classes, then `cloneNode(false)` inside the loop and set only the per-instance values. Avoids redundant `createElement` / `setAttribute` / `classList.add` calls per iteration.
@@ -145,11 +149,19 @@ Additions and overrides to the baseline authorities listed above.
 
 ### JavaScript
 
-- `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not use the IIFE module pattern inside ES modules.
+- `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not wrap an entire module body in an IIFE — the module already provides scope. IIFEs remain useful for creating closures within a module (e.g. binding private state to a function).
 - Function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when context (`this`) doesn't matter, for brevity.
 - Constants: `UPPER_SNAKE_CASE`. Functions/variables: `camelCase`. Classes: `PascalCase`. Booleans prefixed: `is`/`has`/`does`/`can`.
 - Event handler functions: `[object][EventName]Handler` (e.g. `itemClickHandler`, `formSubmitHandler`). Functions that process results but do not receive an event object are not handlers — name them by what they do (e.g. `validateInput`, `saveRecord`).
 - Declare variables in the narrowest possible scope. Always use `const` or `let`. No assignment to undeclared identifiers. Give each identifier a meaningful name from the project's ubiquitous language.
+- Guard clauses: use early `return` to reject invalid state at the top of a function rather than wrapping the body in a conditional. Always follow a guard clause with a blank line so the pattern stands out visually.
+  ```javascript
+  function update(id) {
+    if (!id) return;
+
+    // function body
+  }
+  ```
 - `textContent` over `innerHTML`. Use `innerHTML` only when inserting HTML structure.
 - No form submission on Enter unless that is the intended UX. Prevent default on `keydown` where needed.
 - `===` for strict equality. Always use strict equality to compare objects.
