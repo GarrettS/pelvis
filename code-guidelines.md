@@ -81,6 +81,10 @@ Implementation patterns for DOM-heavy vanilla JS applications.
 
 Do not loop through elements to attach event listeners. Attach one handler to a common ancestor and inspect `event.target`. This scales, avoids initialization loops, and works for dynamically added elements.
 
+Attach listeners once. Never place `addEventListener` in a function that can be called more than once — listeners accumulate (there is no `replaceEventListener`). Separate one-time initialization (DOM refs, listeners) from repeatable actions (reset state, re-render). `init` may call `reset`; `reset` must never call `init`.
+
+Do not eagerly cache DOM refs into a lookup object. `getElementById` is a hash lookup — effectively free. Caching adds a sync burden (HTML changes require updating the cache) and initialization cost for elements the user may never interact with. Look up elements at point of use.
+
 ### Active Object
 
 For exclusive-active state (tabs, selections, panels): hold a reference to the currently active element. On switch, deactivate it directly, then activate the new one. Never `querySelectorAll` to scan siblings and remove a class.
