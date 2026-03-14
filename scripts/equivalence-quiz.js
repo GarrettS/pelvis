@@ -10,8 +10,6 @@ let score = { correct: 0, total: 0 };
 let isAnswered = false;
 let selected = new Set();
 
-const dom = Object.create(null);
-
 function generateQuestions() {
   const qs = [];
   SIDES.forEach((side) => {
@@ -63,10 +61,9 @@ const CLICK_DISPATCH = {
 };
 
 export function initEquivalence() {
-  dom.wrap = document.getElementById('equiv-quiz-wrap');
-  dom.scoreEl = document.getElementById('equiv-score');
+  const wrap = document.getElementById('equiv-quiz-wrap');
 
-  dom.wrap.addEventListener('click', (e) => {
+  wrap.addEventListener('click', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (opt) {
       handleOptionToggle(opt);
@@ -83,7 +80,7 @@ export function initEquivalence() {
     }
   });
 
-  dom.wrap.addEventListener('keydown', (e) => {
+  wrap.addEventListener('keydown', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (!opt) return;
 
@@ -109,10 +106,10 @@ function handleOptionToggle(opt) {
 }
 
 function renderQuestion() {
-  dom.scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
+  document.getElementById('equiv-score').textContent = 'Score: ' + score.correct + ' / ' + score.total;
 
   if (qIdx >= questions.length) {
-    dom.wrap.innerHTML = '<div class="callout"><strong>Session complete.</strong> Score: '
+    document.getElementById('equiv-quiz-wrap').innerHTML = '<div class="callout"><strong>Session complete.</strong> Score: '
       + score.correct + ' / ' + score.total
       + '.<div class="btn-row"><button class="btn primary" id="equiv-restart">New Session</button></div></div>';
     return;
@@ -125,7 +122,7 @@ function renderQuestion() {
   const optItems = q.options.map((opt) =>
     '<div class="equiv-opt" data-opt="' + opt + '" role="checkbox" aria-checked="false" tabindex="0">' + opt + '</div>'
   );
-  dom.wrap.innerHTML = '<div class="card">'
+  document.getElementById('equiv-quiz-wrap').innerHTML = '<div class="card">'
     + '<div class="card-label">Question ' + (qIdx + 1) + ' of ' + questions.length + '</div>'
     + '<div class="equiv-given">' + q.given + '</div>'
     + '<p class="equiv-instruction">Select ALL equivalent positions (may be zero or more):</p>'
@@ -144,9 +141,9 @@ function handleSubmit() {
   const isCorrect = selected.size === q.correctAnswers.size &&
     [...selected].every((s) => q.correctAnswers.has(s));
   if (isCorrect) score.correct++;
-  dom.scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
+  document.getElementById('equiv-score').textContent = 'Score: ' + score.correct + ' / ' + score.total;
 
-  const optEls = dom.wrap.querySelectorAll('.equiv-opt');
+  const optEls = document.getElementById('equiv-quiz-wrap').querySelectorAll('.equiv-opt');
   for (const optEl of optEls) {
     const val = optEl.dataset.opt;
     const isCorr = q.correctAnswers.has(val);

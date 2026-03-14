@@ -16,7 +16,6 @@ const STORAGE_KEY = 'masterQuiz_progress';
 const USER_FC_KEY = 'userFlashcards';
 
 let QUESTIONS = [];
-const dom = Object.create(null);
 let queue = [];
 let qIdx = 0;
 let sessionAnswers = [];
@@ -32,7 +31,10 @@ function loadProgress() {
 }
 
 function saveProgress(progress) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  // TODO: show user-visible feedback on storage failure
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  } catch (storageErr) { /* silent: quiz continues without persisted progress */ }
 }
 
 function updateProgress(qId, correct) {
@@ -97,33 +99,33 @@ function buildQueue(domains, count, priorityMode) {
 }
 
 function showScreen(screenId) {
-  dom.config.classList.toggle('hidden', screenId !== 'config');
-  dom.quiz.classList.toggle('hidden', screenId !== 'quiz');
-  dom.results.classList.toggle('hidden', screenId !== 'results');
+  document.getElementById('mq-config').classList.toggle('hidden', screenId !== 'config');
+  document.getElementById('mq-quiz').classList.toggle('hidden', screenId !== 'quiz');
+  document.getElementById('mq-results').classList.toggle('hidden', screenId !== 'results');
 }
 
 function getSelectedDomains() {
   return DOMAINS.filter(d => {
-    const cb = dom.tab.querySelector('#mq-domain-' + d);
+    const cb = document.getElementById('mq-domain-' + d);
     return cb && cb.checked;
   });
 }
 
 function getQuestionCount() {
-  return dom.countSelect.value === 'all'
-    ? 9999
-    : parseInt(dom.countSelect.value, 10);
+  const val = document.getElementById('mq-count').value;
+  return val === 'all' ? 9999 : parseInt(val, 10);
 }
 
 function renderStats() {
   const domains = getSelectedDomains();
   const filtered = QUESTIONS.filter(q => domains.includes(q.domain));
   const stats = getStats(filtered);
+  const statsEl = document.getElementById('mq-stats');
   if (stats.attempted === 0) {
-    dom.statsDiv.textContent = '';
+    statsEl.textContent = '';
     return;
   }
-  dom.statsDiv.textContent =
+  statsEl.textContent =
     stats.attempted + ' of ' + stats.total + ' questions attempted \u00b7 ' +
     stats.missed + ' missed \u00b7 ' +
     stats.mastered + ' mastered (excluded)';
@@ -131,7 +133,7 @@ function renderStats() {
 
 function syncStartButton() {
   const domains = getSelectedDomains();
-  dom.startBtn.disabled = domains.length === 0;
+  document.getElementById('mq-start').disabled = domains.length === 0;
 }
 
 function handleStart() {
@@ -139,10 +141,10 @@ function handleStart() {
   if (domains.length === 0) return;
 
   const count = getQuestionCount();
-  const priority = dom.priorityCheck.checked;
+  const priority = document.getElementById('mq-priority').checked;
   queue = buildQueue(domains, count, priority);
   if (queue.length === 0) {
-    dom.statsDiv.textContent = 'No questions available for selected domains.';
+    document.getElementById('mq-stats').textContent = 'No questions available for selected domains.';
     return;
   }
   qIdx = 0;
@@ -161,32 +163,37 @@ function renderQuestion() {
   selectedKey = null;
   submitted = false;
 
-  dom.progressFill.style.width = ((qIdx / queue.length) * 100) + '%';
-  dom.progressText.textContent = 'Question ' + (qIdx + 1) + ' of ' + queue.length;
-  dom.domainBadge.textContent = q.domain;
-  dom.stem.textContent = q.stem;
+  document.getElementById('mq-progress-fill').style.width = ((qIdx / queue.length) * 100) + '%';
+  document.getElementById('mq-progress-text').textContent = 'Question ' + (qIdx + 1) + ' of ' + queue.length;
+  document.getElementById('mq-domain-badge').textContent = q.domain;
+  document.getElementById('mq-stem').textContent = q.stem;
 
-  dom.options.innerHTML = '';
+  const optionsEl = document.getElementById('mq-options');
+  optionsEl.innerHTML = '';
   for (const opt of q.options) {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.dataset.key = opt.key;
     btn.textContent = opt.key + '. ' + opt.text;
-    dom.options.appendChild(btn);
+    optionsEl.appendChild(btn);
   }
 
-  dom.submitBtn.disabled = true;
-  dom.submitBtn.classList.remove('hidden');
-  dom.nextBtn.classList.add('hidden');
-  dom.explanation.classList.add('hidden');
-  dom.explanation.innerHTML = '';
-  dom.saveBtn.classList.add('hidden');
-  dom.saveBtn.disabled = false;
-  dom.saveBtn.textContent = 'Save as Flashcard';
+  const submitBtn = document.getElementById('mq-submit');
+  submitBtn.disabled = true;
+  submitBtn.classList.remove('hidden');
+  document.getElementById('mq-next').classList.add('hidden');
+  const explanationEl = document.getElementById('mq-explanation');
+  explanationEl.classList.add('hidden');
+  explanationEl.innerHTML = '';
+  const saveBtn = document.getElementById('mq-save-flashcard');
+  saveBtn.classList.add('hidden');
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Save as Flashcard';
 
   if (!equivPinned) {
-    dom.equivWrap.classList.add('hidden');
-    dom.equivWrap.innerHTML = '';
+    const equivWrap = document.getElementById('mq-equiv-wrap');
+    equivWrap.classList.add('hidden');
+    equivWrap.innerHTML = '';
   } else {
     clearEquivHighlights();
   }
@@ -196,11 +203,11 @@ function handleOptionSelect(key) {
   if (submitted) return;
 
   selectedKey = key;
-  const btns = dom.options.querySelectorAll('button');
+  const btns = document.getElementById('mq-options').querySelectorAll('button');
   for (const btn of btns) {
     btn.classList.toggle('selected', btn.dataset.key === key);
   }
-  dom.submitBtn.disabled = false;
+  document.getElementById('mq-submit').disabled = false;
 }
 
 async function handleSubmit() {
@@ -213,7 +220,7 @@ async function handleSubmit() {
   sessionAnswers.push({ question: q, chosen: selectedKey, correct });
   updateProgress(q.id, correct);
 
-  const btns = dom.options.querySelectorAll('button');
+  const btns = document.getElementById('mq-options').querySelectorAll('button');
   for (const btn of btns) {
     btn.classList.add('locked');
     if (btn.dataset.key === q.answer) {
@@ -223,19 +230,22 @@ async function handleSubmit() {
     }
   }
 
-  dom.submitBtn.classList.add('hidden');
-  dom.nextBtn.classList.remove('hidden');
-  dom.nextBtn.textContent = qIdx + 1 < queue.length ? 'Next Question \u2192' : 'Finish Session';
+  document.getElementById('mq-submit').classList.add('hidden');
+  const nextBtn = document.getElementById('mq-next');
+  nextBtn.classList.remove('hidden');
+  nextBtn.textContent = qIdx + 1 < queue.length ? 'Next Question \u2192' : 'Finish Session';
 
   const abbrText = await expandAbbr(q.explanation).catch(() => q.explanation);
-  dom.explanation.innerHTML = '<div class="callout">' + abbrText + '</div>';
-  dom.explanation.classList.remove('hidden');
+  const explanationEl = document.getElementById('mq-explanation');
+  explanationEl.innerHTML = '<div class="callout">' + abbrText + '</div>';
+  explanationEl.classList.remove('hidden');
 
   const alreadySaved = isAlreadySaved(q.id);
-  dom.saveBtn.classList.remove('hidden');
+  const saveBtn = document.getElementById('mq-save-flashcard');
+  saveBtn.classList.remove('hidden');
   if (alreadySaved) {
-    dom.saveBtn.textContent = 'Already saved';
-    dom.saveBtn.disabled = true;
+    saveBtn.textContent = 'Already saved';
+    saveBtn.disabled = true;
   }
 
   renderEquivChain(q);
@@ -266,9 +276,10 @@ function buildChainLine(equiv, formatEntry) {
 
 function renderEquivChain(q) {
   const matches = detectEquivalence(q);
+  const equivWrap = document.getElementById('mq-equiv-wrap');
   if (!matches) {
     if (!equivPinned) {
-      dom.equivWrap.classList.add('hidden');
+      equivWrap.classList.add('hidden');
     }
     return;
   }
@@ -291,15 +302,15 @@ function renderEquivChain(q) {
     rid + ' ' + (d === 'ER' ? 'IR' : 'ER')
   );
 
-  dom.equivWrap.innerHTML =
+  equivWrap.innerHTML =
     '<div class="mono-label">EQUIVALENCE CHAIN</div>' +
     '<div class="equiv-line main">' + mainLine + '</div>' +
     '<div class="equiv-line"><span class="text-dim">Inverse: ' + inverseLine + '</span></div>' +
     '<label class="mq-pin-label"><input type="checkbox" id="mq-pin-equiv"' +
     (equivPinned ? ' checked' : '') + '> Keep Pinned</label>';
-  dom.equivWrap.classList.remove('hidden');
+  equivWrap.classList.remove('hidden');
 
-  const pinCb = dom.equivWrap.querySelector('#mq-pin-equiv');
+  const pinCb = document.getElementById('mq-pin-equiv');
   if (pinCb) {
     pinCb.addEventListener('change', () => {
       equivPinned = pinCb.checked;
@@ -308,7 +319,7 @@ function renderEquivChain(q) {
 }
 
 function clearEquivHighlights() {
-  const highlights = dom.equivWrap.querySelectorAll('.mq-equiv-highlight');
+  const highlights = document.getElementById('mq-equiv-wrap').querySelectorAll('.mq-equiv-highlight');
   for (const el of highlights) {
     el.className = '';
   }
@@ -354,12 +365,9 @@ function handleSaveFlashcard() {
 
   const q = queue[qIdx];
   const saved = saveAsFlashcard(q);
-  if (saved) {
-    dom.saveBtn.textContent = '\u2713 Saved';
-  } else {
-    dom.saveBtn.textContent = 'Already saved';
-  }
-  dom.saveBtn.disabled = true;
+  const saveBtn = document.getElementById('mq-save-flashcard');
+  saveBtn.textContent = saved ? '\u2713 Saved' : 'Already saved';
+  saveBtn.disabled = true;
 }
 
 function renderResults() {
@@ -372,26 +380,27 @@ function renderResults() {
   if (pct < 60) scoreClass = 'mq-score-red';
   else if (pct < 80) scoreClass = 'mq-score-yellow';
 
-  dom.resultScore.className = 'mq-results-score ' + scoreClass;
-  dom.resultScore.textContent = 'Session Complete: ' + correctCount + ' / ' + total + ' correct (' + pct + '%)';
+  const resultScore = document.getElementById('mq-result-score');
+  resultScore.className = 'mq-results-score ' + scoreClass;
+  resultScore.textContent = 'Session Complete: ' + correctCount + ' / ' + total + ' correct (' + pct + '%)';
 
   const incorrect = sessionAnswers.filter(a => !a.correct);
   const correct = sessionAnswers.filter(a => a.correct);
 
-  renderResultsList(dom.incorrectList, incorrect, true).catch(() => {});
-  renderResultsList(dom.correctList, correct, false).catch(() => {});
+  renderResultsList(document.getElementById('mq-incorrect-list'), incorrect, true).catch(() => {});
+  renderResultsList(document.getElementById('mq-correct-list'), correct, false).catch(() => {});
 
-  dom.incorrectSection.classList.toggle('hidden', incorrect.length === 0);
-  dom.correctSection.classList.toggle('hidden', correct.length === 0);
+  document.getElementById('mq-incorrect-section').classList.toggle('hidden', incorrect.length === 0);
+  document.getElementById('mq-correct-section').classList.toggle('hidden', correct.length === 0);
 
   if (incorrect.length > 0) {
-    dom.incorrectDetails.open = true;
+    document.getElementById('mq-incorrect-details').open = true;
   }
   if (correct.length > 0) {
-    dom.correctDetails.open = false;
+    document.getElementById('mq-correct-details').open = false;
   }
 
-  dom.retakeMissedBtn.classList.toggle('hidden', incorrect.length === 0);
+  document.getElementById('mq-retake-missed').classList.toggle('hidden', incorrect.length === 0);
 }
 
 async function renderResultsList(container, answers, showSave) {
@@ -430,7 +439,7 @@ async function renderResultsList(container, answers, showSave) {
 
     if (showSave) {
       const alreadySaved = isAlreadySaved(q.id);
-      detailHTML += '<button type="button" class="btn mq-result-save" data-qid="' + q.id + '"' +
+      detailHTML += '<button type="button" class="btn mq-result-save" id="mq-result-save-' + q.id + '"' +
         (alreadySaved ? ' disabled' : '') + '>' +
         (alreadySaved ? 'Already saved' : 'Save as Flashcard') + '</button>';
     }
@@ -452,7 +461,7 @@ function handleResultSave(qId) {
   if (!q) return;
 
   const saved = saveAsFlashcard(q);
-  const btn = dom.tab.querySelector('.mq-result-save[data-qid="' + qId + '"]');
+  const btn = document.getElementById('mq-result-save-' + qId);
   if (btn) {
     btn.textContent = saved ? '\u2713 Saved' : 'Already saved';
     btn.disabled = true;
@@ -493,7 +502,7 @@ function handleEndSession() {
 
 function selectAllDomains() {
   DOMAINS.forEach(d => {
-    const cb = dom.tab.querySelector('#mq-domain-' + d);
+    const cb = document.getElementById('mq-domain-' + d);
     if (cb) cb.checked = true;
   });
   syncStartButton();
@@ -502,7 +511,7 @@ function selectAllDomains() {
 
 function deselectAllDomains() {
   DOMAINS.forEach(d => {
-    const cb = dom.tab.querySelector('#mq-domain-' + d);
+    const cb = document.getElementById('mq-domain-' + d);
     if (cb) cb.checked = false;
   });
   syncStartButton();
@@ -510,7 +519,12 @@ function deselectAllDomains() {
 }
 
 const CLICK_DISPATCH = {
-  'mq-submit': () => handleSubmit().catch(() => {}),
+  // TODO: pre-expand abbreviations in master-quiz.json, then handleSubmit becomes sync
+  'mq-submit': () => handleSubmit().catch(() => {
+    document.getElementById('mq-explanation').innerHTML =
+      '<div class="callout">Something went wrong. Try submitting again.</div>';
+    document.getElementById('mq-explanation').classList.remove('hidden');
+  }),
   'mq-next': handleNext,
   'mq-save-flashcard': handleSaveFlashcard,
   'mq-start': handleStart,
@@ -522,34 +536,6 @@ const CLICK_DISPATCH = {
   'mq-deselect-all': deselectAllDomains
 };
 
-function initDom(tab) {
-  dom.tab = tab;
-  dom.config = tab.querySelector('#mq-config');
-  dom.quiz = tab.querySelector('#mq-quiz');
-  dom.results = tab.querySelector('#mq-results');
-  dom.countSelect = tab.querySelector('#mq-count');
-  dom.priorityCheck = tab.querySelector('#mq-priority');
-  dom.statsDiv = tab.querySelector('#mq-stats');
-  dom.startBtn = tab.querySelector('#mq-start');
-  dom.progressFill = tab.querySelector('#mq-progress-fill');
-  dom.progressText = tab.querySelector('#mq-progress-text');
-  dom.domainBadge = tab.querySelector('#mq-domain-badge');
-  dom.stem = tab.querySelector('#mq-stem');
-  dom.options = tab.querySelector('#mq-options');
-  dom.submitBtn = tab.querySelector('#mq-submit');
-  dom.nextBtn = tab.querySelector('#mq-next');
-  dom.explanation = tab.querySelector('#mq-explanation');
-  dom.equivWrap = tab.querySelector('#mq-equiv-wrap');
-  dom.saveBtn = tab.querySelector('#mq-save-flashcard');
-  dom.resultScore = tab.querySelector('#mq-result-score');
-  dom.incorrectSection = tab.querySelector('#mq-incorrect-section');
-  dom.correctSection = tab.querySelector('#mq-correct-section');
-  dom.incorrectDetails = tab.querySelector('#mq-incorrect-details');
-  dom.correctDetails = tab.querySelector('#mq-correct-details');
-  dom.incorrectList = tab.querySelector('#mq-incorrect-list');
-  dom.correctList = tab.querySelector('#mq-correct-list');
-  dom.retakeMissedBtn = tab.querySelector('#mq-retake-missed');
-}
 
 function initListeners(tab) {
   tab.addEventListener('click', (e) => {
@@ -560,7 +546,7 @@ function initListeners(tab) {
     }
     const resultSave = e.target.closest('.mq-result-save');
     if (resultSave) {
-      handleResultSave(resultSave.dataset.qid);
+      handleResultSave(resultSave.id.replace('mq-result-save-', ''));
       return;
     }
     const target = e.target.closest('[id]');
@@ -586,8 +572,6 @@ function initListeners(tab) {
 export async function initMasterQuiz() {
   const tab = document.getElementById('tab-masterquiz');
   if (!tab) return;
-
-  initDom(tab);
 
   try {
     const resp = await fetch('data/master-quiz.json');
