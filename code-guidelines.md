@@ -153,7 +153,8 @@ Additions and overrides to the baseline authorities listed above.
 - Separate structure from domain styles (e.g., `layout.css` for shared primitives; `css/<domain>.css` for each module).
 - One declaration per line, opening brace on selector line, one blank line between rules.
 - Class and id selectors must have semantic meaning. `.redButton` is meaningless; `.errorAction` represents a state. See: [Use class with semantics in mind](https://www.w3.org/QA/Tips/goodclassnames). Use unambiguous names from the project's ubiquitous language: `activeTab`, `activeSubtab` — not `.active`.
-- All colors via CSS custom properties. Never hardcode hex or rgb in rules. Define the palette on `:root`; override in `@media (prefers-color-scheme: dark)`.
+- Modular CSS: each file groups conceptually-related functionality, does one thing, and minimizes dependence on other CSS files.
+- All colors via CSS custom properties. Never hardcode hex or rgb in rules. Define custom properties on `:root` in the CSS file that owns the concept. If a dark mode override is needed, define it in `@media (prefers-color-scheme: dark)` in the same file.
 - System font stacks. No CDN fonts, no Google Fonts. Scalable font sizes using `clamp()` — define a font scale as custom properties on `:root` and use those for all `font-size` declarations. No fixed `px` or bare `rem` font sizes in rules.
 - In CSS functions like `rgb()`, include a single space after each comma.
 - Mobile-first. Base styles target small screens; widen with `min-width` media queries. Images: `max-width: 100%; height: auto`. Overlay positioning uses percentages. No layout element should require horizontal scrolling on a 320px-wide viewport.
@@ -189,3 +190,7 @@ Comments are a failure of the code to explain itself. When one is necessary, it 
 - Avoid comments likely to become obsolete. A comment that drifts from the code it describes is worse than no comment.
 - No decorative banner or landmark comments (`═══`, `───`, `****`, `/* ── Section ── */`). Use code structure — function names, module boundaries, blank lines — to communicate organization.
 - A comment *is* warranted when code intentionally violates a project convention. State the violation, why it exists, and how it is handled instead. Without this, a future reader will "fix" the code back to the convention and break the design.
+
+### Version Control
+
+- Atomic commits: one logical, cohesive change per commit. A commit should do one thing and do it completely — all files affected by that change, nothing unrelated.

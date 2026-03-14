@@ -1,4 +1,3 @@
-import { SI_SVG, HIP_SVG } from './equivalence.js';
 import { showFetchError } from './fetch-feedback.js';
 import { getStudyData } from './study-data-cache.js';
 
@@ -32,12 +31,6 @@ function buildJointsView() {
     }
     cards.appendChild(card);
   }
-
-  const siSlot = document.getElementById('si-svg-slot');
-  siSlot.innerHTML = SI_SVG + '<p class="text-dim joint-schematic-caption">Sacroiliac joint</p>';
-
-  const hipSlot = document.getElementById('hip-svg-slot');
-  hipSlot.innerHTML = HIP_SVG + '<p class="text-dim joint-schematic-caption">Hip joint (acetabulofemoral)</p>';
 }
 
 function buildTranslationTable() {

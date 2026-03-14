@@ -15,7 +15,7 @@ export async function initDecoder() {
     showFetchError('#anatomy-decoder', 'pelvis decoder regions');
     return;
   }
-  const decoderState = { side: 'Left', region: 'ip', dir: 'er' };
+  const decoderState = { side: 'Left', region: 'IP', dir: 'ER' };
 
   function makeControlGroup(containerId, key) {
     const container = document.getElementById(containerId);
@@ -45,9 +45,9 @@ export async function initDecoder() {
   const floorStatus = document.getElementById('pelvis-floor-status');
 
   function updatePelvisSVG(equiv) {
-    const isAnteriorTilt = (equiv.ip === 'ER');
+    const isAnteriorTilt = (equiv.IP === 'ER');
     const tiltDeg = isAnteriorTilt ? 14 : -14;
-    const outletOpen = (equiv.isp === 'ER');
+    const outletOpen = (equiv.IsP === 'ER');
 
     tiltGroup.setAttribute('transform', 'rotate(' + tiltDeg + ', 200, 200)');
     asisLabel.setAttribute('y', isAnteriorTilt ? '105' : '130');
@@ -73,18 +73,13 @@ export async function initDecoder() {
 }
 
 function renderEquivChain(side, region, dir, equiv) {
-  const regionInfo = REGIONS[region];
-  const dirLabel = dir.toUpperCase();
   const el = document.getElementById('decoder-equiv');
-  let html = '<div class="equiv-chain-label">EQUIVALENCE CHAIN for ' + side + ' ' + (regionInfo ? regionInfo.label : region.toUpperCase()) + ' ' + dirLabel + '</div>';
-  let first = true;
+  let html = '<div class="equiv-chain-label">EQUIVALENCE CHAIN for ' + side + ' ' + region + ' ' + dir + '</div>';
+  let isFirst = true;
   Object.entries(equiv).forEach(([rid, d]) => {
-    const label = REGIONS[rid] ? REGIONS[rid].label : rid.toUpperCase();
-    const isCurrentRegion = rid === region;
-    const prefix = first ? '' : '= ';
-    const outletClass = ['isp', 'si'].includes(rid) ? ' outlet' : '';
-    html += '<div class="equiv-line' + (isCurrentRegion ? ' main' : '') + outletClass + '">' + prefix + side + ' ' + label + ' ' + d + '</div>';
-    first = false;
+    const outletClass = ['IsP', 'SI'].includes(rid) ? ' outlet' : '';
+    html += '<div class="equiv-line' + (rid === region ? ' main' : '') + outletClass + '">' + (isFirst ? '' : '= ') + side + ' ' + rid + ' ' + d + '</div>';
+    isFirst = false;
   });
   el.innerHTML = html;
 }

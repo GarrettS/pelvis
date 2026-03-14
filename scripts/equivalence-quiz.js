@@ -1,7 +1,6 @@
-import { getAllEquivalent } from './equivalence.js';
+import { getAllEquivalent, REGION_LABELS } from './equivalence.js';
 
-const REGION_LABELS = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF' };
-const REGIONS_LIST = ['IP','IS','IsP','SI','AF'];
+const REGIONS = Object.keys(REGION_LABELS).filter((r) => r !== 'FA');
 const SIDES = ['L','R'];
 const DIRS = ['ER','IR'];
 
@@ -13,14 +12,12 @@ let isAnswered = false;
 function generateQuestions() {
   const qs = [];
   SIDES.forEach((side) => {
-    REGIONS_LIST.forEach((region) => {
+    REGIONS.forEach((region) => {
       DIRS.forEach((dir) => {
-        const regionLower = region.toLowerCase().replace('isp','isp');
-        const dirLower = dir.toLowerCase();
-        const equiv = getAllEquivalent(regionLower, dirLower);
+        const equiv = getAllEquivalent(region, dir);
         const allEquiv = Object.entries(equiv)
-          .filter(([rid]) => rid !== regionLower)
-          .map(([rid, d]) => side + ' ' + (REGION_LABELS[rid] || rid.toUpperCase()) + ' ' + d);
+          .filter(([rid]) => rid !== region)
+          .map(([rid, d]) => side + ' ' + rid + ' ' + d);
 
         const distractors = [];
         const otherSide = side === 'L' ? 'R' : 'L';
@@ -30,7 +27,7 @@ function generateQuestions() {
         const outletRegion = ['IP','IS'].includes(region) ? 'IsP' : 'IP';
         const wrongEquivDir = ['IP','IS','AF'].includes(outletRegion) ? dir : wrongDir;
         distractors.push(side + ' ' + outletRegion + ' ' + wrongEquivDir);
-        distractors.push(otherSide + ' ' + (REGIONS_LIST.find((r) => r !== region) || 'SI') + ' ' + dir);
+        distractors.push(otherSide + ' ' + (REGIONS.find((r) => r !== region) || 'SI') + ' ' + dir);
 
         const correctPick = allEquiv.slice(0, 3);
         const distPick = distractors.filter((d) => !correctPick.includes(d)).slice(0, 2);
@@ -88,6 +85,7 @@ function renderQuestion() {
   wrap.querySelector('#equiv-options').addEventListener('click', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (!opt || isAnswered) return;
+
     const val = opt.dataset.opt;
     if (selected.has(val)) {
       selected.delete(val);
@@ -103,11 +101,13 @@ function renderQuestion() {
   wrap.querySelector('#equiv-options').addEventListener('keydown', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (!opt) return;
+
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opt.click(); }
   });
 
   document.getElementById('equiv-submit').addEventListener('click', () => {
     if (isAnswered) return;
+
     handleEquivSubmit({wrap, question: q, selected, scoreEl});
   });
 }
@@ -137,25 +137,22 @@ function handleEquivSubmit({wrap, question, selected, scoreEl}) {
   feedback.classList.remove('hidden');
 
   const nextBtn = document.createElement('button');
-  nextBtn.className = 'btn primary';
-  nextBtn.classList.add('feedback-next');
+  nextBtn.className = 'btn primary feedback-next';
   nextBtn.textContent = qIdx + 1 < questions.length ? 'Next Question \u2192' : 'Finish Session';
   nextBtn.addEventListener('click', () => { qIdx++; renderQuestion(); });
   feedback.appendChild(nextBtn);
 }
 
 function buildEquivChainHTML(q) {
-  const [qs, qr, qd] = q.given.split(' ');
-  const equiv = getAllEquivalent(qr.toLowerCase(), qd.toLowerCase());
-  const labels = { ip:'IP', is:'IS', isp:'IsP', si:'SI', af:'AF', fa:'FA' };
+  const [qs, qr] = q.given.split(' ');
+  const equiv = q.equiv;
   let html = '<div class="equiv-chain">'
     + '<div class="equiv-chain-label">FULL EQUIVALENCE CHAIN:</div>';
-  let first = true;
+  let isFirst = true;
   Object.entries(equiv).forEach(([rid, d]) => {
-    const label = labels[rid] || rid.toUpperCase();
-    const outletClass = ['isp','si'].includes(rid) ? ' outlet' : '';
-    html += '<div class="equiv-line' + (rid === qr.toLowerCase() ? ' main' : '') + outletClass + '">' + (first ? '' : '= ') + qs + ' ' + label + ' ' + d + '</div>';
-    first = false;
+    const outletClass = ['IsP','SI'].includes(rid) ? ' outlet' : '';
+    html += '<div class="equiv-line' + (rid === qr ? ' main' : '') + outletClass + '">' + (isFirst ? '' : '= ') + qs + ' ' + rid + ' ' + d + '</div>';
+    isFirst = false;
   });
   html += '</div>';
   return html;

@@ -1,36 +1,30 @@
 {
-  "ip": {
-    "label": "IP",
+  "IP": {
     "full": "Ilio-Pubo",
     "zone": "Anterior Inlet",
     "ring": "inlet"
   },
-  "is": {
-    "label": "IS",
+  "IS": {
     "full": "Ilio-Sacral",
     "zone": "Posterior Inlet",
     "ring": "inlet"
   },
-  "isp": {
-    "label": "IsP",
+  "IsP": {
     "full": "Ischio-Pubo",
     "zone": "Anterior Outlet",
     "ring": "outlet"
   },
-  "si": {
-    "label": "SI",
+  "SI": {
     "full": "Sacro-Ilio",
     "zone": "Posterior Outlet",
     "ring": "outlet"
   },
-  "af": {
-    "label": "AF",
+  "AF": {
     "full": "Acetabulo-Femoral",
     "zone": "Hip (pelvis-on-femur)",
     "ring": "hip"
   },
-  "fa": {
-    "label": "FA",
+  "FA": {
     "full": "Femoro-Acetabular",
     "zone": "Hip (femur-on-pelvis)",
     "ring": "hip"

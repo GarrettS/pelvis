@@ -146,19 +146,19 @@
           <div class="control-group">
             <div class="control-label">Region</div>
             <div class="control-btns" id="decoder-region-btns">
-              <button class="btn active" data-val="ip"><abbr title="Ilio-Pubo">IP</abbr></button>
-              <button class="btn" data-val="is"><abbr title="Ilio-Sacral">IS</abbr></button>
-              <button class="btn" data-val="isp"><abbr title="Ischio-Pubo">IsP</abbr></button>
-              <button class="btn" data-val="si"><abbr title="Sacro-Ilio">SI</abbr></button>
-              <button class="btn" data-val="af"><abbr title="Acetabulo-Femoral">AF</abbr></button>
-              <button class="btn" data-val="fa"><abbr title="Femoro-Acetabular">FA</abbr></button>
+              <button class="btn active" data-val="IP"><abbr title="Ilio-Pubo">IP</abbr></button>
+              <button class="btn" data-val="IS"><abbr title="Ilio-Sacral">IS</abbr></button>
+              <button class="btn" data-val="IsP"><abbr title="Ischio-Pubo">IsP</abbr></button>
+              <button class="btn" data-val="SI"><abbr title="Sacro-Ilio">SI</abbr></button>
+              <button class="btn" data-val="AF"><abbr title="Acetabulo-Femoral">AF</abbr></button>
+              <button class="btn" data-val="FA"><abbr title="Femoro-Acetabular">FA</abbr></button>
             </div>
           </div>
           <div class="control-group">
             <div class="control-label">Direction</div>
             <div class="control-btns" id="decoder-dir-btns">
-              <button class="btn active" data-val="er"><abbr title="External Rotation">ER</abbr></button>
-              <button class="btn" data-val="ir"><abbr title="Internal Rotation">IR</abbr></button>
+              <button class="btn active" data-val="ER"><abbr title="External Rotation">ER</abbr></button>
+              <button class="btn" data-val="IR"><abbr title="Internal Rotation">IR</abbr></button>
             </div>
           </div>
         </div>
@@ -269,8 +269,34 @@
         <p>PRI's 12 position codes reference exactly 3 joints. The naming convention encodes which bone is displaced and which to target — not the joint itself. IS and SI are the same physical joint (sacroiliac). AF and FA are the same physical joint (hip). IP and IsP reference the same landmark (pubic symphysis). Six joint names, three anatomical structures.</p>
       </div>
       <div class="joint-schematic-row">
-        <div id="si-svg-slot"></div>
-        <div id="hip-svg-slot"></div>
+        <div id="si-svg-slot">
+          <svg class="joint-schematic" viewBox="0 0 240 190">
+            <polygon class="schematic-bone stroke-accent" points="120,38 152,44 156,132 120,148 84,132 88,44"/>
+            <path class="schematic-bone stroke-inlet" d="M88,44 Q58,18 28,32 L18,122 Q34,138 64,132 L84,132 Z"/>
+            <path class="schematic-bone stroke-inlet" d="M152,44 Q182,18 212,32 L222,122 Q206,138 176,132 L156,132 Z"/>
+            <line class="schematic-joint-line" x1="88" y1="44" x2="84" y2="132"/>
+            <line class="schematic-joint-line" x1="152" y1="44" x2="156" y2="132"/>
+            <text class="schematic-title" x="120" y="100">SACRUM</text>
+            <text class="fill-inlet" x="44" y="88">L ILIUM</text>
+            <text class="fill-inlet" x="196" y="88">R ILIUM</text>
+            <text class="schematic-note" x="120" y="162">SI joint surfaces highlighted</text>
+            <text class="schematic-note-sm" x="120" y="176">Schematic &#x2014; not anatomically proportional</text>
+          </svg>
+          <p class="text-dim joint-schematic-caption">Sacroiliac joint</p>
+        </div>
+        <div id="hip-svg-slot">
+          <svg class="joint-schematic" viewBox="0 0 200 220">
+            <path class="schematic-bone stroke-inlet" d="M20,18 Q100,8 180,18 L176,82 Q155,105 100,110 Q45,105 24,82 Z"/>
+            <path class="schematic-surface" d="M64,98 Q100,138 136,98"/>
+            <circle class="schematic-ball" cx="100" cy="118" r="21"/>
+            <rect class="schematic-bone stroke-accent" x="88" y="139" width="24" height="50" rx="6"/>
+            <text class="fill-inlet" x="100" y="60">PELVIS</text>
+            <text class="fill-accent" x="100" y="122">fem. head</text>
+            <text class="fill-accent" x="100" y="174">FEMUR</text>
+            <text class="fill-joint-surface" x="100" y="210">acetabulum highlighted</text>
+          </svg>
+          <p class="text-dim joint-schematic-caption">Hip joint (acetabulofemoral)</p>
+        </div>
       </div>
     </div>
   </div>

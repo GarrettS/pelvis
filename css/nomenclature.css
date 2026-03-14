@@ -1,9 +1,79 @@
+:root {
+  --joint-surface: #b87a20;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --joint-surface: #d49540;
+  }
+}
+
 .joint-schematic {
   display:block;
   width:100%;
   max-width:340px;
   margin:.5rem auto;
 }
+
+.joint-schematic text {
+  text-anchor: middle;
+  font-family: monospace;
+  font-size: 10px;
+  paint-order: stroke;
+  stroke: var(--surface2);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.schematic-title {
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+
+.schematic-note {
+  fill: var(--text-dim);
+  paint-order: normal;
+  stroke: none;
+}
+
+.schematic-note-sm {
+  fill: var(--text-dim);
+  font-size: 9px;
+  paint-order: normal;
+  stroke: none;
+}
+
+.schematic-bone {
+  fill: var(--surface2);
+  stroke-width: 1.5;
+}
+
+.schematic-surface {
+  fill: var(--joint-surface);
+  fill-opacity: 0.35;
+  stroke: var(--joint-surface);
+  stroke-width: 2.5;
+}
+
+.schematic-ball {
+  fill: var(--surface2);
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  opacity: 0.75;
+}
+
+.schematic-joint-line {
+  stroke: var(--joint-surface);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.stroke-accent { stroke: var(--accent); }
+.stroke-inlet { stroke: var(--inlet); }
+.fill-accent { fill: var(--accent); }
+.fill-inlet { fill: var(--inlet); }
+.fill-joint-surface { fill: var(--joint-surface); }
 
 .joint-table {
   width:100%;

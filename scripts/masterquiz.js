@@ -251,16 +251,15 @@ const RE_POSITION = /\b(IP|IS|IsP|SI|AF|FA)\s+(ER|IR)\b/g;
 function detectEquivalence(q) {
   const text = q.stem + ' ' + q.options.map(o => o.text).join(' ') + ' ' + q.explanation;
   const matches = [...text.matchAll(RE_POSITION)]
-      .map((m) => ({ region: m[1].toLowerCase(), dir: m[2].toLowerCase() }));
+      .map((m) => ({ region: m[1], dir: m[2] }));
   return matches.length > 0 ? matches : null;
 }
 
-function buildChainLine(equiv, labels, formatEntry) {
+function buildChainLine(equiv, formatEntry) {
   const parts = [];
   for (const [rid, d] of Object.entries(equiv)) {
-    if (rid === 'fa') continue;
-    const label = labels[rid] || rid.toUpperCase();
-    parts.push(formatEntry(label, d, rid));
+    if (rid === 'FA') continue;
+    parts.push(formatEntry(rid, d));
   }
   return parts.join(' = ');
 }
@@ -276,22 +275,20 @@ function renderEquivChain(q) {
 
   const first = matches[0];
   const equiv = getAllEquivalent(first.region, first.dir);
-  const labels = { ip: 'IP', is: 'IS', isp: 'IsP', si: 'SI', af: 'AF' };
 
   const matchedPositions = new Set();
   for (const mt of matches) {
     matchedPositions.add(mt.region + '_' + mt.dir);
   }
 
-  const mainLine = buildChainLine(equiv, labels, (label, d, rid) => {
-    const pos = rid + '_' + d.toLowerCase();
-    return matchedPositions.has(pos)
-        ? '<span class="mq-equiv-highlight">' + label + ' ' + d + '</span>'
-        : label + ' ' + d;
+  const mainLine = buildChainLine(equiv, (rid, d) => {
+    return matchedPositions.has(rid + '_' + d)
+        ? '<span class="mq-equiv-highlight">' + rid + ' ' + d + '</span>'
+        : rid + ' ' + d;
   });
 
-  const inverseLine = buildChainLine(equiv, labels, (label, d) =>
-    label + ' ' + (d === 'ER' ? 'IR' : 'ER')
+  const inverseLine = buildChainLine(equiv, (rid, d) =>
+    rid + ' ' + (d === 'ER' ? 'IR' : 'ER')
   );
 
   dom.equivWrap.innerHTML =
