@@ -1,13 +1,16 @@
 import { getAllEquivalent, REGION_LABELS } from './equivalence.js';
 
 const REGIONS = Object.keys(REGION_LABELS).filter((r) => r !== 'FA');
-const SIDES = ['L','R'];
-const DIRS = ['ER','IR'];
+const SIDES = ['L', 'R'];
+const DIRS = ['ER', 'IR'];
 
 let questions = [];
 let qIdx = 0;
 let score = { correct: 0, total: 0 };
 let isAnswered = false;
+let selected = new Set();
+
+const dom = Object.create(null);
 
 function generateQuestions() {
   const qs = [];
@@ -19,15 +22,16 @@ function generateQuestions() {
           .filter(([rid]) => rid !== region)
           .map(([rid, d]) => side + ' ' + rid + ' ' + d);
 
-        const distractors = [];
         const otherSide = side === 'L' ? 'R' : 'L';
-        distractors.push(otherSide + ' ' + region + ' ' + dir);
         const wrongDir = dir === 'ER' ? 'IR' : 'ER';
-        distractors.push(side + ' ' + region + ' ' + wrongDir);
-        const outletRegion = ['IP','IS'].includes(region) ? 'IsP' : 'IP';
-        const wrongEquivDir = ['IP','IS','AF'].includes(outletRegion) ? dir : wrongDir;
-        distractors.push(side + ' ' + outletRegion + ' ' + wrongEquivDir);
-        distractors.push(otherSide + ' ' + (REGIONS.find((r) => r !== region) || 'SI') + ' ' + dir);
+        const outletRegion = ['IP', 'IS'].includes(region) ? 'IsP' : 'IP';
+        const wrongEquivDir = ['IP', 'IS', 'AF'].includes(outletRegion) ? dir : wrongDir;
+        const distractors = [
+          otherSide + ' ' + region + ' ' + dir,
+          side + ' ' + region + ' ' + wrongDir,
+          side + ' ' + outletRegion + ' ' + wrongEquivDir,
+          otherSide + ' ' + (REGIONS.find((r) => r !== region) || 'SI') + ' ' + dir
+        ];
 
         const correctPick = allEquiv.slice(0, 3);
         const distPick = distractors.filter((d) => !correctPick.includes(d)).slice(0, 2);
@@ -45,7 +49,7 @@ function generateQuestions() {
   return qs.sort(() => Math.random() - 0.5);
 }
 
-export function initEquivalence() {
+function resetSession() {
   questions = generateQuestions();
   qIdx = 0;
   score = { correct: 0, total: 0 };
@@ -53,107 +57,125 @@ export function initEquivalence() {
   renderQuestion();
 }
 
-function renderQuestion() {
-  const wrap = document.getElementById('equiv-quiz-wrap');
-  const scoreEl = document.getElementById('equiv-score');
-  scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
+const CLICK_DISPATCH = {
+  'equiv-submit': handleSubmit,
+  'equiv-restart': resetSession
+};
 
-  if (qIdx >= questions.length) {
-    wrap.innerHTML = '<div class="callout"><strong>Session complete.</strong> Score: ' + score.correct + ' / ' + score.total + '.<div class="btn-row"><button class="btn primary" id="equiv-restart">New Session</button></div></div>';
-    document.getElementById('equiv-restart').addEventListener('click', initEquivalence);
-    return;
-  }
+export function initEquivalence() {
+  dom.wrap = document.getElementById('equiv-quiz-wrap');
+  dom.scoreEl = document.getElementById('equiv-score');
 
-  const q = questions[qIdx];
-  const selected = new Set();
-  isAnswered = false;
-
-  let html = '<div class="card">';
-  html += '<div class="card-label">Question ' + (qIdx + 1) + ' of ' + questions.length + '</div>';
-  html += '<div class="equiv-given">' + q.given + '</div>';
-  html += '<p class="equiv-instruction">Select ALL equivalent positions (may be zero or more):</p>';
-  html += '<div class="equiv-opts" id="equiv-options">';
-  q.options.forEach((opt) => {
-    html += '<div class="equiv-opt" data-opt="' + opt + '" role="checkbox" aria-checked="false" tabindex="0">' + opt + '</div>';
-  });
-  html += '</div>';
-  html += '<div class="btn-row"><button class="btn primary" id="equiv-submit">Submit</button></div>';
-  html += '<div id="equiv-feedback" class="hidden"></div>';
-  html += '</div>';
-  wrap.innerHTML = html;
-
-  wrap.querySelector('#equiv-options').addEventListener('click', (e) => {
+  dom.wrap.addEventListener('click', (e) => {
     const opt = e.target.closest('.equiv-opt');
-    if (!opt || isAnswered) return;
-
-    const val = opt.dataset.opt;
-    if (selected.has(val)) {
-      selected.delete(val);
-      opt.classList.remove('selected');
-      opt.setAttribute('aria-checked', 'false');
-    } else {
-      selected.add(val);
-      opt.classList.add('selected');
-      opt.setAttribute('aria-checked', 'true');
+    if (opt) {
+      handleOptionToggle(opt);
+      return;
+    }
+    if (e.target.closest('.feedback-next')) {
+      qIdx++;
+      renderQuestion();
+      return;
+    }
+    const target = e.target.closest('[id]');
+    if (target && CLICK_DISPATCH[target.id]) {
+      CLICK_DISPATCH[target.id]();
     }
   });
 
-  wrap.querySelector('#equiv-options').addEventListener('keydown', (e) => {
+  dom.wrap.addEventListener('keydown', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (!opt) return;
 
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opt.click(); }
   });
 
-  document.getElementById('equiv-submit').addEventListener('click', () => {
-    if (isAnswered) return;
-
-    handleEquivSubmit({wrap, question: q, selected, scoreEl});
-  });
+  resetSession();
 }
 
-function handleEquivSubmit({wrap, question, selected, scoreEl}) {
+function handleOptionToggle(opt) {
+  if (isAnswered) return;
+
+  const val = opt.dataset.opt;
+  if (selected.has(val)) {
+    selected.delete(val);
+    opt.classList.remove('selected');
+    opt.setAttribute('aria-checked', 'false');
+  } else {
+    selected.add(val);
+    opt.classList.add('selected');
+    opt.setAttribute('aria-checked', 'true');
+  }
+}
+
+function renderQuestion() {
+  dom.scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
+
+  if (qIdx >= questions.length) {
+    dom.wrap.innerHTML = '<div class="callout"><strong>Session complete.</strong> Score: '
+      + score.correct + ' / ' + score.total
+      + '.<div class="btn-row"><button class="btn primary" id="equiv-restart">New Session</button></div></div>';
+    return;
+  }
+
+  const q = questions[qIdx];
+  selected = new Set();
+  isAnswered = false;
+
+  const optItems = q.options.map((opt) =>
+    '<div class="equiv-opt" data-opt="' + opt + '" role="checkbox" aria-checked="false" tabindex="0">' + opt + '</div>'
+  );
+  dom.wrap.innerHTML = '<div class="card">'
+    + '<div class="card-label">Question ' + (qIdx + 1) + ' of ' + questions.length + '</div>'
+    + '<div class="equiv-given">' + q.given + '</div>'
+    + '<p class="equiv-instruction">Select ALL equivalent positions (may be zero or more):</p>'
+    + '<div class="equiv-opts" id="equiv-options">' + optItems.join('') + '</div>'
+    + '<div class="btn-row"><button class="btn primary" id="equiv-submit">Submit</button></div>'
+    + '<div id="equiv-feedback" class="hidden"></div>'
+    + '</div>';
+}
+
+function handleSubmit() {
+  if (isAnswered) return;
+
   isAnswered = true;
   score.total++;
-  const isCorrect = selected.size === question.correctAnswers.size &&
-    [...selected].every((s) => question.correctAnswers.has(s));
+  const q = questions[qIdx];
+  const isCorrect = selected.size === q.correctAnswers.size &&
+    [...selected].every((s) => q.correctAnswers.has(s));
   if (isCorrect) score.correct++;
-  scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
+  dom.scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
 
-  wrap.querySelectorAll('.equiv-opt').forEach((optEl) => {
+  const optEls = dom.wrap.querySelectorAll('.equiv-opt');
+  for (const optEl of optEls) {
     const val = optEl.dataset.opt;
-    const isCorr = question.correctAnswers.has(val);
+    const isCorr = q.correctAnswers.has(val);
     const isSel = selected.has(val);
     if (isCorr && isSel) optEl.classList.add('correct-reveal');
     else if (isCorr && !isSel) optEl.classList.add('missed');
     else if (!isCorr && isSel) optEl.classList.add('wrong-reveal');
     optEl.classList.remove('selected');
-  });
+  }
 
-  const chainHTML = buildEquivChainHTML(question);
+  const chainHTML = buildEquivChainHTML(q);
   const feedback = document.getElementById('equiv-feedback');
   feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
-  feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</strong>' + chainHTML;
-  feedback.classList.remove('hidden');
-
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'btn primary feedback-next';
-  nextBtn.textContent = qIdx + 1 < questions.length ? 'Next Question \u2192' : 'Finish Session';
-  nextBtn.addEventListener('click', () => { qIdx++; renderQuestion(); });
-  feedback.appendChild(nextBtn);
+  feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</strong>'
+    + chainHTML
+    + '<button class="btn primary feedback-next">'
+    + (qIdx + 1 < questions.length ? 'Next Question \u2192' : 'Finish Session')
+    + '</button>';
 }
 
 function buildEquivChainHTML(q) {
   const [qs, qr] = q.given.split(' ');
-  const equiv = q.equiv;
-  let html = '<div class="equiv-chain">'
-    + '<div class="equiv-chain-label">FULL EQUIVALENCE CHAIN:</div>';
-  let isFirst = true;
-  Object.entries(equiv).forEach(([rid, d]) => {
-    const outletClass = ['IsP','SI'].includes(rid) ? ' outlet' : '';
-    html += '<div class="equiv-line' + (rid === qr ? ' main' : '') + outletClass + '">' + (isFirst ? '' : '= ') + qs + ' ' + rid + ' ' + d + '</div>';
-    isFirst = false;
+  const lines = Object.entries(q.equiv).map(([rid, d], i) => {
+    const outletClass = ['IsP', 'SI'].includes(rid) ? ' outlet' : '';
+    return '<div class="equiv-line' + (rid === qr ? ' main' : '') + outletClass + '">'
+      + (i ? '= ' : '') + qs + ' ' + rid + ' ' + d + '</div>';
   });
-  html += '</div>';
-  return html;
+  return '<div class="equiv-chain">'
+    + '<div class="equiv-chain-label">FULL EQUIVALENCE CHAIN:</div>'
+    + lines.join('')
+    + '</div>';
 }

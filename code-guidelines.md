@@ -180,7 +180,28 @@ Additions and overrides to the baseline authorities listed above.
 - `===` for strict equality. Always use strict equality to compare objects.
 - Do not use Boolean coercion on values that may be acceptably falsy (e.g., `if (e.pageX)`). Use `typeof`: `if (typeof e.pageX === 'number')`.
 - Semicolons explicit. Do not rely on ASI. Restricted productions (`return`, `throw`, `break`, `continue`, postfix `++`/`--`): the expression must start on the same line as the keyword. Do not add a semicolon after a function declaration, block, switch, or try/catch — a semicolon there is an empty statement.
-- Efficient string concatenation. Do not repeatedly create and discard temporary strings. In loops, avoid long chains of identifiers — assign to a variable.
+- Efficient string concatenation. Do not repeatedly create and discard temporary strings. Do not `+=` in a loop — each iteration creates and discards an intermediate string. Use `.join()` to build repeated markup; use `.map()` + `.join('')` when each item needs distinct attributes.
+
+  ❌ WRONG — `+=` in a loop creates n intermediate strings:
+  ```javascript
+  let html = '<ul>';
+  items.forEach((item) => { html += '<li>' + item + '</li>'; });
+  html += '</ul>';
+  ```
+
+  ✅ RIGHT — uniform items: join with delimiter (guard empty case):
+  ```javascript
+  if (items.length) {
+    el.innerHTML = '<ul><li>' + items.join('</li><li>') + '</li></ul>';
+  }
+  ```
+
+  ✅ RIGHT — per-item attributes: map + join:
+  ```javascript
+  el.innerHTML = items.map((item) =>
+    '<div data-id="' + item.id + '">' + item.name + '</div>'
+  ).join('');
+  ```
 - Prefer simple regular expressions. Anchor where needed to avoid false matches. Test success and failure cases.
 ### Comments
 
