@@ -8,6 +8,7 @@ let questions = [];
 let qIdx = 0;
 let score = { correct: 0, total: 0 };
 let isAnswered = false;
+let isCorrect = false;
 let selected = new Set();
 
 function generateQuestions() {
@@ -70,6 +71,8 @@ export function initEquivalence() {
       return;
     }
     if (e.target.closest('.feedback-next')) {
+      score.total++;
+      score.correct += +isCorrect;
       qIdx++;
       renderQuestion();
       return;
@@ -136,12 +139,9 @@ function handleSubmit() {
   if (isAnswered) return;
 
   isAnswered = true;
-  score.total++;
   const q = questions[qIdx];
-  const isCorrect = selected.size === q.correctAnswers.size &&
+  isCorrect = selected.size === q.correctAnswers.size &&
     [...selected].every((s) => q.correctAnswers.has(s));
-  if (isCorrect) score.correct++;
-  document.getElementById('equiv-score').textContent = 'Score: ' + score.correct + ' / ' + score.total;
 
   const optEls = document.getElementById('equiv-quiz-wrap').querySelectorAll('.equiv-opt');
   for (const optEl of optEls) {
