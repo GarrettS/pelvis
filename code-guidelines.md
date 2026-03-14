@@ -112,9 +112,21 @@ Use CSS for visual state changes wherever possible. Prefer `:hover`, `:focus`, `
 
 Use the native `hidden` attribute for show/hide toggling instead of `style.display`. It is semantic, works without knowing the element's display type, and is removable with `el.hidden = false`.
 
-### Parameterized Builders
+### Extract Shared Logic
 
-When multiple code blocks construct similar DOM structures that differ only in data, extract the shared construction into a function parameterized by the varying parts. The function encapsulates *structure*; the caller supplies *data*. This eliminates structural duplication and makes it trivial to add new instances — pass new data, not new code.
+When two or more code blocks follow the same structure but differ in specific values or operations, extract the shared structure into a function parameterized by the varying parts. Pass data for values that differ; pass a function for operations that differ. This applies to DOM construction, string building, iteration — any structural duplication. The extracted function encapsulates *structure*; the caller supplies *what varies*.
+
+### Dispatch Table
+
+When a chain of conditionals maps a value to an action, replace it with a keyed object. The table makes the mapping visible at a glance, is trivial to extend, and separates routing from logic.
+
+### Compose Method
+
+A long function should read as a sequence of named steps at the same level of abstraction. Extract each step into a function whose name describes *what* it does. The original function becomes a table of contents — readable top-down without scrolling into implementation.
+
+### Decompose Conditional
+
+When a boolean expression is complex, extract it into a named variable or function that reads as intent. The name replaces the logic, making the condition's purpose obvious at the call site.
 
 ### Template and cloneNode
 

@@ -16,7 +16,7 @@ const STORAGE_KEY = 'masterQuiz_progress';
 const USER_FC_KEY = 'userFlashcards';
 
 let QUESTIONS = [];
-let dom = {};
+const dom = Object.create(null);
 let queue = [];
 let qIdx = 0;
 let sessionAnswers = [];
@@ -72,7 +72,7 @@ function buildQueue(domains, count, priorityMode) {
     return shuffled.slice(0, count);
   }
   const progress = loadProgress();
-  const missed = [];
+  const missedQs = [];
   const unseen = [];
   const inProgress = [];
   for (const q of eligible) {
@@ -82,14 +82,14 @@ function buildQueue(domains, count, priorityMode) {
     } else if (p.correctStreak >= 3) {
       continue;
     } else if (p.correctStreak === 0) {
-      missed.push(q);
+      missedQs.push(q);
     } else {
       inProgress.push({ q, totalCorrect: p.totalCorrect });
     }
   }
   inProgress.sort((a, b) => a.totalCorrect - b.totalCorrect);
   const ordered = [
-    ...shuffle(missed),
+    ...shuffle(missedQs),
     ...shuffle(unseen),
     ...inProgress.map(x => x.q)
   ];
@@ -137,6 +137,7 @@ function syncStartButton() {
 function handleStart() {
   const domains = getSelectedDomains();
   if (domains.length === 0) return;
+
   const count = getQuestionCount();
   const priority = dom.priorityCheck.checked;
   queue = buildQueue(domains, count, priority);
@@ -193,6 +194,7 @@ function renderQuestion() {
 
 function handleOptionSelect(key) {
   if (submitted) return;
+
   selectedKey = key;
   const btns = dom.options.querySelectorAll('button');
   for (const btn of btns) {
@@ -203,6 +205,7 @@ function handleOptionSelect(key) {
 
 async function handleSubmit() {
   if (submitted || !selectedKey) return;
+
   submitted = true;
   const q = queue[qIdx];
   const correct = selectedKey === q.answer;
@@ -243,15 +246,23 @@ function handleNext() {
   renderQuestion();
 }
 
+const RE_POSITION = /\b(IP|IS|IsP|SI|AF|FA)\s+(ER|IR)\b/g;
+
 function detectEquivalence(q) {
-  const pat = /\b(IP|IS|IsP|SI|AF|FA)\s+(ER|IR)\b/g;
   const text = q.stem + ' ' + q.options.map(o => o.text).join(' ') + ' ' + q.explanation;
-  const matches = [];
-  let m;
-  while ((m = pat.exec(text)) !== null) {
-    matches.push({ region: m[1].toLowerCase(), dir: m[2].toLowerCase() });
-  }
+  const matches = [...text.matchAll(RE_POSITION)]
+      .map((m) => ({ region: m[1].toLowerCase(), dir: m[2].toLowerCase() }));
   return matches.length > 0 ? matches : null;
+}
+
+function buildChainLine(equiv, labels, formatEntry) {
+  const parts = [];
+  for (const [rid, d] of Object.entries(equiv)) {
+    if (rid === 'fa') continue;
+    const label = labels[rid] || rid.toUpperCase();
+    parts.push(formatEntry(label, d, rid));
+  }
+  return parts.join(' = ');
 }
 
 function renderEquivChain(q) {
@@ -272,41 +283,23 @@ function renderEquivChain(q) {
     matchedPositions.add(mt.region + '_' + mt.dir);
   }
 
-  let chainHTML = '<div class="mono-label">EQUIVALENCE CHAIN</div>';
-  chainHTML += '<div class="equiv-line main">';
-  let first2 = true;
-  for (const [rid, d] of Object.entries(equiv)) {
-    if (rid === 'fa') continue;
-    const label = labels[rid] || rid.toUpperCase();
+  const mainLine = buildChainLine(equiv, labels, (label, d, rid) => {
     const pos = rid + '_' + d.toLowerCase();
-    const highlighted = matchedPositions.has(pos);
-    if (!first2) chainHTML += ' = ';
-    if (highlighted) {
-      chainHTML += '<span class="mq-equiv-highlight">' + label + ' ' + d + '</span>';
-    } else {
-      chainHTML += label + ' ' + d;
-    }
-    first2 = false;
-  }
-  chainHTML += '</div>';
+    return matchedPositions.has(pos)
+        ? '<span class="mq-equiv-highlight">' + label + ' ' + d + '</span>'
+        : label + ' ' + d;
+  });
 
-  chainHTML += '<div class="equiv-line">';
-  chainHTML += '<span class="text-dim">Inverse: ';
-  let first3 = true;
-  for (const [rid, d] of Object.entries(equiv)) {
-    if (rid === 'fa') continue;
-    const label = labels[rid] || rid.toUpperCase();
-    const inv = d === 'ER' ? 'IR' : 'ER';
-    if (!first3) chainHTML += ' = ';
-    chainHTML += label + ' ' + inv;
-    first3 = false;
-  }
-  chainHTML += '</span></div>';
+  const inverseLine = buildChainLine(equiv, labels, (label, d) =>
+    label + ' ' + (d === 'ER' ? 'IR' : 'ER')
+  );
 
-  chainHTML += '<label class="mq-pin-label"><input type="checkbox" id="mq-pin-equiv"' +
+  dom.equivWrap.innerHTML =
+    '<div class="mono-label">EQUIVALENCE CHAIN</div>' +
+    '<div class="equiv-line main">' + mainLine + '</div>' +
+    '<div class="equiv-line"><span class="text-dim">Inverse: ' + inverseLine + '</span></div>' +
+    '<label class="mq-pin-label"><input type="checkbox" id="mq-pin-equiv"' +
     (equivPinned ? ' checked' : '') + '> Keep Pinned</label>';
-
-  dom.equivWrap.innerHTML = chainHTML;
   dom.equivWrap.classList.remove('hidden');
 
   const pinCb = dom.equivWrap.querySelector('#mq-pin-equiv');
@@ -338,6 +331,7 @@ function isAlreadySaved(qId) {
 
 function saveAsFlashcard(q) {
   if (isAlreadySaved(q.id)) return false;
+
   const front = q.stem.length > 200 ? q.stem.slice(0, 200) + '\u2026' : q.stem;
   const correctOpt = q.options.find(o => o.key === q.answer);
   const back = q.answer + '. ' + (correctOpt ? correctOpt.text : '');
@@ -360,6 +354,7 @@ function saveAsFlashcard(q) {
 
 function handleSaveFlashcard() {
   if (!submitted) return;
+
   const q = queue[qIdx];
   const saved = saveAsFlashcard(q);
   if (saved) {
@@ -458,6 +453,7 @@ async function renderResultsList(container, answers, showSave) {
 function handleResultSave(qId) {
   const q = QUESTIONS.find(qu => qu.id === qId);
   if (!q) return;
+
   const saved = saveAsFlashcard(q);
   const btn = dom.tab.querySelector('.mq-result-save[data-qid="' + qId + '"]');
   if (btn) {
@@ -484,6 +480,7 @@ function handleNewSession() {
 
 function handleResetProgress() {
   if (!confirm('Reset all Master Quiz progress? This cannot be undone.')) return;
+
   localStorage.removeItem(STORAGE_KEY);
   renderStats();
 }
@@ -497,9 +494,38 @@ function handleEndSession() {
   renderResults();
 }
 
-export async function initMasterQuiz() {
-  const tab = document.getElementById('tab-masterquiz');
-  if (!tab) return;
+function selectAllDomains() {
+  DOMAINS.forEach(d => {
+    const cb = dom.tab.querySelector('#mq-domain-' + d);
+    if (cb) cb.checked = true;
+  });
+  syncStartButton();
+  renderStats();
+}
+
+function deselectAllDomains() {
+  DOMAINS.forEach(d => {
+    const cb = dom.tab.querySelector('#mq-domain-' + d);
+    if (cb) cb.checked = false;
+  });
+  syncStartButton();
+  renderStats();
+}
+
+const CLICK_DISPATCH = {
+  'mq-submit': () => handleSubmit().catch(() => {}),
+  'mq-next': handleNext,
+  'mq-save-flashcard': handleSaveFlashcard,
+  'mq-start': handleStart,
+  'mq-end-session': handleEndSession,
+  'mq-retake-missed': handleRetakeMissed,
+  'mq-new-session': handleNewSession,
+  'mq-reset-progress': handleResetProgress,
+  'mq-select-all': selectAllDomains,
+  'mq-deselect-all': deselectAllDomains
+};
+
+function initDom(tab) {
   dom.tab = tab;
   dom.config = tab.querySelector('#mq-config');
   dom.quiz = tab.querySelector('#mq-quiz');
@@ -526,81 +552,23 @@ export async function initMasterQuiz() {
   dom.incorrectList = tab.querySelector('#mq-incorrect-list');
   dom.correctList = tab.querySelector('#mq-correct-list');
   dom.retakeMissedBtn = tab.querySelector('#mq-retake-missed');
+}
 
-  try {
-    const resp = await fetch('data/master-quiz.json');
-    if (!resp.ok) {
-      showFetchError(tab, 'master quiz questions');
-      return;
-    }
-    QUESTIONS = await resp.json();
-  } catch (fetchErr) {
-    showFetchError(tab, 'master quiz questions');
-    return;
-  }
-  renderStats();
-  syncStartButton();
-
+function initListeners(tab) {
   tab.addEventListener('click', (e) => {
     const optBtn = e.target.closest('.mq-options button');
     if (optBtn) {
       handleOptionSelect(optBtn.dataset.key);
       return;
     }
-    if (e.target.closest('#mq-submit')) {
-      handleSubmit().catch(() => {});
-      return;
-    }
-    if (e.target.closest('#mq-next')) {
-      handleNext();
-      return;
-    }
-    if (e.target.closest('#mq-save-flashcard')) {
-      handleSaveFlashcard();
-      return;
-    }
-    if (e.target.closest('#mq-start')) {
-      handleStart();
-      return;
-    }
-    if (e.target.closest('#mq-end-session')) {
-      handleEndSession();
-      return;
-    }
-    if (e.target.closest('#mq-retake-missed')) {
-      handleRetakeMissed();
-      return;
-    }
-    if (e.target.closest('#mq-new-session')) {
-      handleNewSession();
-      return;
-    }
-    if (e.target.closest('#mq-reset-progress')) {
-      handleResetProgress();
-      return;
-    }
-    if (e.target.closest('#mq-select-all')) {
-      DOMAINS.forEach(d => {
-        const cb = tab.querySelector('#mq-domain-' + d);
-        if (cb) cb.checked = true;
-      });
-      syncStartButton();
-      renderStats();
-      return;
-    }
-    if (e.target.closest('#mq-deselect-all')) {
-      DOMAINS.forEach(d => {
-        const cb = tab.querySelector('#mq-domain-' + d);
-        if (cb) cb.checked = false;
-      });
-      syncStartButton();
-      renderStats();
-      return;
-    }
     const resultSave = e.target.closest('.mq-result-save');
     if (resultSave) {
       handleResultSave(resultSave.dataset.qid);
       return;
+    }
+    const target = e.target.closest('[id]');
+    if (target && CLICK_DISPATCH[target.id]) {
+      CLICK_DISPATCH[target.id]();
     }
   });
 
@@ -616,4 +584,27 @@ export async function initMasterQuiz() {
       e.preventDefault();
     }
   });
+}
+
+export async function initMasterQuiz() {
+  const tab = document.getElementById('tab-masterquiz');
+  if (!tab) return;
+
+  initDom(tab);
+
+  try {
+    const resp = await fetch('data/master-quiz.json');
+    if (!resp.ok) {
+      showFetchError(tab, 'master quiz questions');
+      return;
+    }
+    QUESTIONS = await resp.json();
+  } catch (fetchErr) {
+    showFetchError(tab, 'master quiz questions');
+    return;
+  }
+
+  renderStats();
+  syncStartButton();
+  initListeners(tab);
 }
