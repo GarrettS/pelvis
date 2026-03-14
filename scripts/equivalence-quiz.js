@@ -12,15 +12,15 @@ let isAnswered = false;
 
 function generateQuestions() {
   const qs = [];
-  SIDES.forEach(function(side) {
-    REGIONS_LIST.forEach(function(region) {
-      DIRS.forEach(function(dir) {
+  SIDES.forEach((side) => {
+    REGIONS_LIST.forEach((region) => {
+      DIRS.forEach((dir) => {
         const regionLower = region.toLowerCase().replace('isp','isp');
         const dirLower = dir.toLowerCase();
         const equiv = getAllEquivalent(regionLower, dirLower);
         const allEquiv = Object.entries(equiv)
-          .filter(function([rid]) { return rid !== regionLower; })
-          .map(function([rid, d]) { return side + ' ' + (REGION_LABELS[rid] || rid.toUpperCase()) + ' ' + d; });
+          .filter(([rid]) => rid !== regionLower)
+          .map(([rid, d]) => side + ' ' + (REGION_LABELS[rid] || rid.toUpperCase()) + ' ' + d);
 
         const distractors = [];
         const otherSide = side === 'L' ? 'R' : 'L';
@@ -30,11 +30,11 @@ function generateQuestions() {
         const outletRegion = ['IP','IS'].includes(region) ? 'IsP' : 'IP';
         const wrongEquivDir = ['IP','IS','AF'].includes(outletRegion) ? dir : wrongDir;
         distractors.push(side + ' ' + outletRegion + ' ' + wrongEquivDir);
-        distractors.push(otherSide + ' ' + (REGIONS_LIST.find(function(r) { return r !== region; }) || 'SI') + ' ' + dir);
+        distractors.push(otherSide + ' ' + (REGIONS_LIST.find((r) => r !== region) || 'SI') + ' ' + dir);
 
         const correctPick = allEquiv.slice(0, 3);
-        const distPick = distractors.filter(function(d) { return !correctPick.includes(d); }).slice(0, 2);
-        const allOpts = correctPick.slice(0, 2).concat(distPick).sort(function() { return Math.random() - 0.5; });
+        const distPick = distractors.filter((d) => !correctPick.includes(d)).slice(0, 2);
+        const allOpts = correctPick.slice(0, 2).concat(distPick).sort(() => Math.random() - 0.5);
 
         qs.push({
           given: side + ' ' + region + ' ' + dir,
@@ -45,7 +45,7 @@ function generateQuestions() {
       });
     });
   });
-  return qs.sort(function() { return Math.random() - 0.5; });
+  return qs.sort(() => Math.random() - 0.5);
 }
 
 export function initEquivalence() {
@@ -63,7 +63,7 @@ function renderQuestion() {
 
   if (qIdx >= questions.length) {
     wrap.innerHTML = '<div class="callout"><strong>Session complete.</strong> Score: ' + score.correct + ' / ' + score.total + '.<div class="btn-row"><button class="btn primary" id="equiv-restart">New Session</button></div></div>';
-    document.getElementById('equiv-restart').addEventListener('click', function() { initEquivalence(); });
+    document.getElementById('equiv-restart').addEventListener('click', initEquivalence);
     return;
   }
 
@@ -76,7 +76,7 @@ function renderQuestion() {
   html += '<div class="equiv-given">' + q.given + '</div>';
   html += '<p class="equiv-instruction">Select ALL equivalent positions (may be zero or more):</p>';
   html += '<div class="equiv-opts" id="equiv-options">';
-  q.options.forEach(function(opt) {
+  q.options.forEach((opt) => {
     html += '<div class="equiv-opt" data-opt="' + opt + '" role="checkbox" aria-checked="false" tabindex="0">' + opt + '</div>';
   });
   html += '</div>';
@@ -85,7 +85,7 @@ function renderQuestion() {
   html += '</div>';
   wrap.innerHTML = html;
 
-  wrap.querySelector('#equiv-options').addEventListener('click', function(e) {
+  wrap.querySelector('#equiv-options').addEventListener('click', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (!opt || isAnswered) return;
     const val = opt.dataset.opt;
@@ -100,13 +100,13 @@ function renderQuestion() {
     }
   });
 
-  wrap.querySelector('#equiv-options').addEventListener('keydown', function(e) {
+  wrap.querySelector('#equiv-options').addEventListener('keydown', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (!opt) return;
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opt.click(); }
   });
 
-  document.getElementById('equiv-submit').addEventListener('click', function() {
+  document.getElementById('equiv-submit').addEventListener('click', () => {
     if (isAnswered) return;
     handleEquivSubmit({wrap, question: q, selected, scoreEl});
   });
@@ -116,11 +116,11 @@ function handleEquivSubmit({wrap, question, selected, scoreEl}) {
   isAnswered = true;
   score.total++;
   const isCorrect = selected.size === question.correctAnswers.size &&
-    [...selected].every(function(s) { return question.correctAnswers.has(s); });
+    [...selected].every((s) => question.correctAnswers.has(s));
   if (isCorrect) score.correct++;
   scoreEl.textContent = 'Score: ' + score.correct + ' / ' + score.total;
 
-  wrap.querySelectorAll('.equiv-opt').forEach(function(optEl) {
+  wrap.querySelectorAll('.equiv-opt').forEach((optEl) => {
     const val = optEl.dataset.opt;
     const isCorr = question.correctAnswers.has(val);
     const isSel = selected.has(val);
@@ -140,7 +140,7 @@ function handleEquivSubmit({wrap, question, selected, scoreEl}) {
   nextBtn.className = 'btn primary';
   nextBtn.classList.add('feedback-next');
   nextBtn.textContent = qIdx + 1 < questions.length ? 'Next Question \u2192' : 'Finish Session';
-  nextBtn.addEventListener('click', function() { qIdx++; renderQuestion(); });
+  nextBtn.addEventListener('click', () => { qIdx++; renderQuestion(); });
   feedback.appendChild(nextBtn);
 }
 
@@ -151,7 +151,7 @@ function buildEquivChainHTML(q) {
   let html = '<div class="equiv-chain">'
     + '<div class="equiv-chain-label">FULL EQUIVALENCE CHAIN:</div>';
   let first = true;
-  Object.entries(equiv).forEach(function([rid, d]) {
+  Object.entries(equiv).forEach(([rid, d]) => {
     const label = labels[rid] || rid.toUpperCase();
     const outletClass = ['isp','si'].includes(rid) ? ' outlet' : '';
     html += '<div class="equiv-line' + (rid === qr.toLowerCase() ? ' main' : '') + outletClass + '">' + (first ? '' : '= ') + qs + ' ' + label + ' ' + d + '</div>';

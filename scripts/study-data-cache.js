@@ -1,19 +1,11 @@
 let cached = null;
 
+// Returns null on failure — each caller checks and calls showFetchError.
 export function getStudyData() {
   if (!cached) {
     cached = fetch('data/study-data.json')
-      .then(function(resp) {
-        if (!resp.ok) {
-          cached = null;
-          return null;
-        }
-        return resp.json();
-      })
-      .catch(function() {
-        cached = null;
-        return null;
-      });
+      .then((resp) => resp.ok ? resp.json() : (cached = null))
+      .catch(() => cached = null);
   }
   return cached;
 }

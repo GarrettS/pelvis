@@ -12,11 +12,11 @@ function buildJointsView() {
   const rowTpl = document.getElementById('joint-row-tpl').content;
   const cardTpl = document.getElementById('joint-card-tpl').content;
 
-  for (var i = 0; i < JOINTS.length; i++) {
-    var j = JOINTS[i];
+  for (let i = 0; i < JOINTS.length; i++) {
+    const j = JOINTS[i];
 
-    var row = rowTpl.cloneNode(true);
-    var cells = row.querySelector('tr').cells;
+    const row = rowTpl.cloneNode(true);
+    const cells = row.querySelector('tr').cells;
     cells[0].firstElementChild.textContent = j.joint;
     cells[1].textContent = j.type;
     cells[2].textContent = j.motion;
@@ -25,49 +25,49 @@ function buildJointsView() {
     cells[5].textContent = j.scope;
     tbody.appendChild(row);
 
-    var card = cardTpl.cloneNode(true);
-    var vals = card.querySelectorAll('.trc-val');
-    for (var k = 0; k < KEYS.length; k++) {
+    const card = cardTpl.cloneNode(true);
+    const vals = card.querySelectorAll('.trc-val');
+    for (let k = 0; k < KEYS.length; k++) {
       vals[k].textContent = j[KEYS[k]];
     }
     cards.appendChild(card);
   }
 
-  var siSlot = document.getElementById('si-svg-slot');
+  const siSlot = document.getElementById('si-svg-slot');
   siSlot.innerHTML = SI_SVG + '<p class="text-dim joint-schematic-caption">Sacroiliac joint</p>';
 
-  var hipSlot = document.getElementById('hip-svg-slot');
+  const hipSlot = document.getElementById('hip-svg-slot');
   hipSlot.innerHTML = HIP_SVG + '<p class="text-dim joint-schematic-caption">Hip joint (acetabulofemoral)</p>';
 }
 
 function buildTranslationTable() {
-  var tbody = document.getElementById('translation-tbody');
-  var cards = document.getElementById('translation-cards');
-  var rowTpl = document.getElementById('translation-row-tpl').content;
-  var cardTpl = document.getElementById('translation-card-tpl').content;
-  var rows = DATA.translationMap;
+  const tbody = document.getElementById('translation-tbody');
+  const cards = document.getElementById('translation-cards');
+  const rowTpl = document.getElementById('translation-row-tpl').content;
+  const cardTpl = document.getElementById('translation-card-tpl').content;
+  const rows = DATA.translationMap;
 
-  var ROW_KEYS = [
+  const ROW_KEYS = [
     'priTerm', 'realStructure', 'whatPriRenamed',
     'whatActuallyHappened', 'standardTerm', 'encodedTreatment'
   ];
 
   function renderRows(filtered) {
-    tbody.innerHTML = '';
-    cards.innerHTML = '';
-    for (var i = 0; i < filtered.length; i++) {
-      var d = filtered[i];
+    tbody.textContent = '';
+    cards.textContent = '';
+    for (let i = 0; i < filtered.length; i++) {
+      const d = filtered[i];
 
-      var row = rowTpl.cloneNode(true);
-      var cells = row.querySelector('tr').cells;
-      for (var k = 0; k < ROW_KEYS.length; k++) {
+      const row = rowTpl.cloneNode(true);
+      const cells = row.querySelector('tr').cells;
+      for (let k = 0; k < ROW_KEYS.length; k++) {
         cells[k].textContent = d[ROW_KEYS[k]];
       }
       tbody.appendChild(row);
 
-      var card = cardTpl.cloneNode(true);
-      var vals = card.querySelectorAll('.trc-val');
-      for (var k = 0; k < ROW_KEYS.length; k++) {
+      const card = cardTpl.cloneNode(true);
+      const vals = card.querySelectorAll('.trc-val');
+      for (let k = 0; k < ROW_KEYS.length; k++) {
         vals[k].textContent = d[ROW_KEYS[k]];
       }
       cards.appendChild(card);
@@ -76,17 +76,17 @@ function buildTranslationTable() {
 
   renderRows(rows);
 
-  var searchInput = document.getElementById('translation-search');
-  searchInput.addEventListener('input', function() {
-    var q = searchInput.value.toLowerCase();
-    var filtered = q ? rows.filter(function(r) {
-      return (r.priTerm + r.realStructure + r.whatPriRenamed +
+  const searchInput = document.getElementById('translation-search');
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.toLowerCase();
+    const filtered = q ? rows.filter((r) =>
+      (r.priTerm + r.realStructure + r.whatPriRenamed +
         r.whatActuallyHappened + r.standardTerm + r.encodedTreatment
-      ).toLowerCase().includes(q);
-    }) : rows;
+      ).toLowerCase().includes(q)
+    ) : rows;
     renderRows(filtered);
   });
-  searchInput.addEventListener('keydown', function(e) {
+  searchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') e.preventDefault();
   });
 }

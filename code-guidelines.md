@@ -169,4 +169,11 @@ Additions and overrides to the baseline authorities listed above.
 - Semicolons explicit. Do not rely on ASI. Restricted productions (`return`, `throw`, `break`, `continue`, postfix `++`/`--`): the expression must start on the same line as the keyword. Do not add a semicolon after a function declaration, block, switch, or try/catch — a semicolon there is an empty statement.
 - Efficient string concatenation. Do not repeatedly create and discard temporary strings. In loops, avoid long chains of identifiers — assign to a variable.
 - Prefer simple regular expressions. Anchor where needed to avoid false matches. Test success and failure cases.
-- Let the code speak for itself. Comments explain *why*, not *what*. Avoid comments likely to become obsolete. No decorative banner comments (`═══`, `───`, `****`) — use code structure instead.
+### Comments
+
+Comments are a failure of the code to explain itself. When one is necessary, it should justify its existence.
+
+- Comments explain *why*, not *what*. If the comment restates the code, delete it.
+- Avoid comments likely to become obsolete. A comment that drifts from the code it describes is worse than no comment.
+- No decorative banner or landmark comments (`═══`, `───`, `****`, `/* ── Section ── */`). Use code structure — function names, module boundaries, blank lines — to communicate organization.
+- A comment *is* warranted when code intentionally violates a project convention. State the violation, why it exists, and how it is handled instead. Without this, a future reader will "fix" the code back to the convention and break the design.

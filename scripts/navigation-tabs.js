@@ -37,12 +37,12 @@ const SUBTAB_MAP = {
 };
 
 const REV_TAB = {};
-Object.entries(TAB_MAP).forEach(function([k, v]) { REV_TAB[v] = k; });
+Object.entries(TAB_MAP).forEach(([k, v]) => { REV_TAB[v] = k; });
 
 const REV_SUBTAB = {};
-Object.entries(SUBTAB_MAP).forEach(function([tab, subs]) {
-  Object.entries(subs).forEach(function([k, v]) {
-    REV_SUBTAB[v] = {tab: tab, subtab: k};
+Object.entries(SUBTAB_MAP).forEach(([tab, subs]) => {
+  Object.entries(subs).forEach(([k, v]) => {
+    REV_SUBTAB[v] = {tab, subtab: k};
   });
 });
 
@@ -50,47 +50,47 @@ const lastSubtab = {};
 let activeNavTab = document.querySelector('.nav-tab.active');
 let activeSection = document.querySelector('section.tab.active');
 let activeSubtabRow = document.querySelector('.subtab-row.active');
-
-/* ── Lazy-init infrastructure ── */
+const activeSubtabLink = {};
+const activeSubtabContent = {};
 
 const initialized = new Set();
 
 const LAZY_INIT = {
   'tab-nomenclature': {
     label: 'Nomenclature',
-    load: function() { return import('./nomenclature.js').then(function(m) { return m.initNomenclature; }); }
+    load: () => import('./nomenclature.js').then((m) => m.initNomenclature)
   },
   'tab-patterns': {
     label: 'Patterns',
-    load: function() { return import('./patterns.js').then(function(m) { return m.initPatterns; }); }
+    load: () => import('./patterns.js').then((m) => m.initPatterns)
   },
   'tab-diagnose': {
     label: 'Diagnose',
-    load: function() { return import('./diagnose.js').then(function(m) { return m.initDiagnose; }); }
+    load: () => import('./diagnose.js').then((m) => m.initDiagnose)
   },
   'tab-flashcards': {
     label: 'Flashcards',
-    load: function() { return import('./flashcards.js').then(function(m) { return m.initFlashcards; }); }
+    load: () => import('./flashcards.js').then((m) => m.initFlashcards)
   },
   'tab-equivalence': {
     label: 'Equivalence',
-    load: function() { return import('./equivalence-quiz.js').then(function(m) { return m.initEquivalence; }); }
+    load: () => import('./equivalence-quiz.js').then((m) => m.initEquivalence)
   },
   'tab-masterquiz': {
     label: 'Master Quiz',
-    load: function() { return import('./masterquiz.js').then(function(m) { return m.initMasterQuiz; }); }
+    load: () => import('./masterquiz.js').then((m) => m.initMasterQuiz)
   },
   'anatomy-anatomize': {
     label: 'Anatomize',
-    load: function() { return Promise.resolve(initAnatomize); }
+    load: () => Promise.resolve(initAnatomize)
   },
   'anatomy-decoder': {
     label: 'Decoder',
-    load: function() { return import('./decoder.js').then(function(m) { return m.initDecoder; }); }
+    load: () => import('./decoder.js').then((m) => m.initDecoder)
   },
   'anatomy-aic': {
     label: 'L AIC Chain',
-    load: function() { return import('./aic-chain.js').then(function(m) { return m.initLAIC; }); }
+    load: () => import('./aic-chain.js').then((m) => m.initLAIC)
   }
 };
 
@@ -102,48 +102,48 @@ function showTabLoading(container, label) {
 }
 
 function clearTabLoading(container) {
-  const el = container.querySelector('.tab-loading');
-  if (el) el.remove();
+  container.querySelector('.tab-loading')?.remove();
 }
 
 function lazyInit(key) {
   if (initialized.has(key)) return;
+
   const entry = LAZY_INIT[key];
   if (!entry) return;
+
   initialized.add(key);
   const container = document.getElementById(key);
   if (!container) return;
+
   showTabLoading(container, entry.label);
   entry.load()
-    .then(function(initFn) {
+    .then((initFn) => {
       clearTabLoading(container);
       return initFn();
     })
-    .catch(function() {
+    .catch(() => {
       clearTabLoading(container);
       initialized.delete(key);
       showFetchError(container, entry.label);
     });
 }
 
-/* ── Navigation ── */
-
 function getSubtabRow(sectionId) {
   return document.querySelector('.subtab-row[data-for-tab="' + sectionId + '"]');
 }
 
 function activateTab(sectionId) {
-  if (activeNavTab) activeNavTab.classList.remove('active');
-  if (activeSection) activeSection.classList.remove('active');
-  if (activeSubtabRow) activeSubtabRow.classList.remove('active');
+  activeNavTab?.classList.remove('active');
+  activeSection?.classList.remove('active');
+  activeSubtabRow?.classList.remove('active');
 
   activeNavTab = document.querySelector('.nav-tab[data-tab="' + sectionId + '"]');
   activeSection = document.getElementById(sectionId);
   activeSubtabRow = getSubtabRow(sectionId);
 
-  if (activeNavTab) activeNavTab.classList.add('active');
-  if (activeSection) activeSection.classList.add('active');
-  if (activeSubtabRow) activeSubtabRow.classList.add('active');
+  activeNavTab?.classList.add('active');
+  activeSection?.classList.add('active');
+  activeSubtabRow?.classList.add('active');
 
   lazyInit(sectionId);
 }
@@ -151,22 +151,32 @@ function activateTab(sectionId) {
 function activateSubtab(sectionId, subtabContentId) {
   const row = getSubtabRow(sectionId);
   if (!row) return;
+
   const link = row.querySelector('.subtab[data-subtab="' + subtabContentId + '"]');
   if (!link) return;
-  row.querySelectorAll('.subtab').forEach(function(b) {
-    b.classList.remove('active');
-  });
+
+  if (!activeSubtabLink[sectionId]) {
+    activeSubtabLink[sectionId] = row.querySelector('.subtab.active');
+  }
+  activeSubtabLink[sectionId]?.classList.remove('active');
   link.classList.add('active');
+  activeSubtabLink[sectionId] = link;
+
   const section = document.getElementById(sectionId);
   if (!section) return;
-  section.querySelectorAll('.subtab-content').forEach(function(c) {
-    c.classList.remove('active');
-  });
+
+  if (!activeSubtabContent[sectionId]) {
+    activeSubtabContent[sectionId] = section.querySelector('.subtab-content.active');
+  }
+  activeSubtabContent[sectionId]?.classList.remove('active');
+
   const target = document.getElementById(subtabContentId);
   if (target) {
     target.classList.add('active');
     target.dispatchEvent(new CustomEvent('subtab-shown', {bubbles: true}));
   }
+  activeSubtabContent[sectionId] = target;
+
   const tabName = REV_TAB[sectionId];
   if (tabName) lastSubtab[tabName] = subtabContentId;
 
@@ -181,14 +191,17 @@ function activateFirstSubtab(sectionId) {
   }
   const row = getSubtabRow(sectionId);
   if (!row) return;
+
   const firstLink = row.querySelector('.subtab');
   if (!firstLink) return;
+
   activateSubtab(sectionId, firstLink.dataset.subtab);
 }
 
 function parseHash(hash) {
   const h = (hash || '').replace(/^#/, '');
   if (!h) return {tab: null, subtab: null, subview: null};
+
   const parts = h.split('/');
   return {
     tab: parts[0] || null,
@@ -227,10 +240,13 @@ function activateSubview(tab, subtab, subview) {
   const subtabContentId = subtab && SUBTAB_MAP[tab] ?
       SUBTAB_MAP[tab][subtab] : null;
   if (!subtabContentId) return;
+
   const container = document.getElementById(subtabContentId);
   if (!container) return;
+
   const svTabs = container.querySelector('.subview-tabs');
   if (!svTabs) return;
+
   const svLink = svTabs.querySelector(
       '[data-view="' + subview + '"], [data-mview="' + subview + '"]');
   if (svLink) svLink.click();
@@ -239,6 +255,7 @@ function activateSubview(tab, subtab, subview) {
 function handleNavTabClick(e) {
   const link = e.target.closest('.nav-tab');
   if (!link) return;
+
   e.preventDefault();
   location.hash = link.getAttribute('href').replace(/^#/, '');
 }
@@ -246,6 +263,7 @@ function handleNavTabClick(e) {
 function handleSubtabClick(e) {
   const link = e.target.closest('.subtab');
   if (!link) return;
+
   e.preventDefault();
   const href = link.getAttribute('href');
   if (href) location.hash = href.replace(/^#/, '');
@@ -254,9 +272,11 @@ function handleSubtabClick(e) {
 function handleSubviewTabClick(e) {
   const link = e.target.closest('.subview-tab');
   if (!link) return;
+
   e.preventDefault();
   const view = link.dataset.view || link.dataset.mview;
   if (!view) return;
+
   const parsed = parseHash(location.hash);
   if (parsed.tab && parsed.subtab) {
     location.hash = parsed.tab + '/' + parsed.subtab + '/' + view;
@@ -271,7 +291,7 @@ function initNavigationTabs() {
   applyHash();
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(function() {});
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 }
 
