@@ -1,3 +1,11 @@
+/* Fixed px: SVG text inside a viewBox can't use clamp()/rem — those
+   resolve relative to the root, not the SVG coordinate system. */
+:root {
+  --pelvis-label: 11px;
+  --pelvis-status: 11px;
+  --pelvis-sublabel: 9px;
+}
+
 #anatomy-decoder .tab-section {
   margin-bottom: 0;
 }
@@ -228,21 +236,21 @@
 }
 
 .pelvis-label-inlet {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  fill:var(--inlet);
+  font-family: var(--mono);
+  font-size: var(--pelvis-label);
+  fill: var(--inlet);
 }
 
 .pelvis-label-outlet {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  fill:var(--outlet);
+  font-family: var(--mono);
+  font-size: var(--pelvis-label);
+  fill: var(--outlet);
 }
 
 .pelvis-label-warn {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  fill:var(--warn);
+  font-family: var(--mono);
+  font-size: var(--pelvis-label);
+  fill: var(--warn);
 }
 
 .pelvis-motion-path-inlet {
@@ -264,29 +272,29 @@
 }
 
 .pelvis-status-inlet {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  fill:var(--inlet);
-  font-weight:700;
+  font-family: var(--mono);
+  font-size: var(--pelvis-status);
+  fill: var(--inlet);
+  font-weight: 700;
 }
 
 .pelvis-status-outlet {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  fill:var(--outlet);
-  font-weight:700;
+  font-family: var(--mono);
+  font-size: var(--pelvis-status);
+  fill: var(--outlet);
+  font-weight: 700;
 }
 
 .pelvis-status-sublabel {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  fill:var(--text-dim);
+  font-family: var(--mono);
+  font-size: var(--pelvis-sublabel);
+  fill: var(--text-dim);
 }
 
 .pelvis-status-floor {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  fill:var(--text-dim);
+  font-family: var(--mono);
+  font-size: var(--pelvis-sublabel);
+  fill: var(--text-dim);
 }
 
 .pelvis-arrow-dim {
