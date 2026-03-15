@@ -1,5 +1,4 @@
 import { getAllEquivalent } from './equivalence.js';
-import { expandAbbr } from './abbreviations.js';
 import { showFetchError } from './fetch-feedback.js';
 
 function shuffle(arr) {
@@ -210,7 +209,7 @@ function handleOptionSelect(key) {
   document.getElementById('mq-submit').disabled = false;
 }
 
-async function handleSubmit() {
+function handleSubmit() {
   if (submitted || !selectedKey) return;
 
   submitted = true;
@@ -235,9 +234,8 @@ async function handleSubmit() {
   nextBtn.classList.remove('hidden');
   nextBtn.textContent = qIdx + 1 < queue.length ? 'Next Question \u2192' : 'Finish Session';
 
-  const abbrText = await expandAbbr(q.explanation).catch(() => q.explanation);
   const explanationEl = document.getElementById('mq-explanation');
-  explanationEl.innerHTML = '<div class="callout">' + abbrText + '</div>';
+  explanationEl.innerHTML = '<div class="callout">' + q.explanation + '</div>';
   explanationEl.classList.remove('hidden');
 
   const alreadySaved = isAlreadySaved(q.id);
@@ -387,8 +385,8 @@ function renderResults() {
   const incorrect = sessionAnswers.filter(a => !a.correct);
   const correct = sessionAnswers.filter(a => a.correct);
 
-  renderResultsList(document.getElementById('mq-incorrect-list'), incorrect, true).catch(() => {});
-  renderResultsList(document.getElementById('mq-correct-list'), correct, false).catch(() => {});
+  renderResultsList(document.getElementById('mq-incorrect-list'), incorrect, true);
+  renderResultsList(document.getElementById('mq-correct-list'), correct, false);
 
   document.getElementById('mq-incorrect-section').classList.toggle('hidden', incorrect.length === 0);
   document.getElementById('mq-correct-section').classList.toggle('hidden', correct.length === 0);
@@ -403,7 +401,7 @@ function renderResults() {
   document.getElementById('mq-retake-missed').classList.toggle('hidden', incorrect.length === 0);
 }
 
-async function renderResultsList(container, answers, showSave) {
+function renderResultsList(container, answers, showSave) {
   container.innerHTML = '';
   for (let i = 0; i < answers.length; i++) {
     const a = answers[i];
@@ -434,8 +432,7 @@ async function renderResultsList(container, answers, showSave) {
       detailHTML += '<div class="' + cls + '">' + opt.key + '. ' + opt.text + '</div>';
     }
     detailHTML += '</div>';
-    const abbrExpl = await expandAbbr(q.explanation).catch(() => q.explanation);
-    detailHTML += '<div class="callout">' + abbrExpl + '</div>';
+    detailHTML += '<div class="callout">' + q.explanation + '</div>';
 
     if (showSave) {
       const alreadySaved = isAlreadySaved(q.id);
@@ -519,12 +516,7 @@ function deselectAllDomains() {
 }
 
 const CLICK_DISPATCH = {
-  // TODO: pre-expand abbreviations in master-quiz.json, then handleSubmit becomes sync
-  'mq-submit': () => handleSubmit().catch(() => {
-    document.getElementById('mq-explanation').innerHTML =
-      '<div class="callout">Something went wrong. Try submitting again.</div>';
-    document.getElementById('mq-explanation').classList.remove('hidden');
-  }),
+  'mq-submit': handleSubmit,
   'mq-next': handleNext,
   'mq-save-flashcard': handleSaveFlashcard,
   'mq-start': handleStart,

@@ -1,4 +1,3 @@
-import { expandAbbr } from './abbreviations.js';
 import { showFetchError } from './fetch-feedback.js';
 
 function shuffle(arr) {
@@ -80,9 +79,7 @@ function buildCardDOM(card) {
 
     const detailEl = document.createElement('div');
     detailEl.className = 'fc-detail hidden';
-    expandAbbr(card.backDetail)
-      .then(html => { detailEl.innerHTML = html; })
-      .catch(() => { detailEl.textContent = card.backDetail; });
+    detailEl.innerHTML = card.backDetail;
     backArea.appendChild(detailEl);
 
     showMoreBtn.addEventListener('click', () => {

@@ -1,623 +1,623 @@
 [
-  {
-    "id": "test-001",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "How is the Adduction Drop Test (ADT) performed?",
-    "frontHint": "Passive test. The examiner moves the top leg — the patient does nothing.",
-    "back": "Patient sidelying, bottom hip/knee flexed 90°. Examiner passively flexes, abducts, and extends the top hip to neutral with 90° knee flexion. Stabilize pelvis from falling backward. Let the top leg drop into adduction.",
-    "backDetail": "Positive = top knee cannot cross midline (femur won't adduct). Restriction comes from anterior-inferior acetabular labral rim, transverse ligament, and piriformis — secondary to an anteriorly rotated, forward hemipelvis. Usually positive on the left in L AIC. This is a positional/osseous restriction, not a muscular flexibility test."
-  },
-  {
-    "id": "test-002",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "How is the Pelvic Ascension Drop Test (PADT) performed?",
-    "frontHint": "Active test — the patient does the work. Both hips start at 90°.",
-    "back": "Patient sidelying, both hips and knees flexed 90°. Patient actively brings the top leg back to neutral (knee toward mat) while maintaining 90° knee flexion. Negative = knee touches mat.",
-    "backDetail": "Positive = top knee can't reach mat. The ipsilateral pelvic diaphragm cannot ascend because the outlet (ischium) can't abduct and the inlet (ilium) can't adduct. Usually positive on left in L AIC. Cause: overactivity of the left distal iliacus interfering with the left proximal iliacus's ability to adduct the inlet."
-  },
-  {
-    "id": "test-003",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "What does a positive left ADT indicate?",
-    "frontHint": "The left femur is blocked from adducting. What bony position causes that?",
-    "back": "The left hemipelvis is anteriorly rotated and forward. The femur cannot adduct past midline due to osseous restriction from the acetabular labral rim.",
-    "backDetail": "This is the primary indicator of L AIC pattern. The anteriorly rotated left innominate positions the acetabulum so that the labral rim, transverse ligament, and piriformis block femoral adduction. It's not a soft-tissue flexibility problem — it's a positional problem. Achieving negative bilateral ADT is the first treatment goal."
-  },
-  {
-    "id": "test-004",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "What does a positive left PADT indicate?",
-    "frontHint": "The left pelvic diaphragm can't ascend. Two things must happen for it to ascend.",
-    "back": "The left pelvic outlet cannot abduct (left ischium can't move laterally) and the left inlet cannot adduct (left ilium can't move medially). The left pelvic diaphragm is stuck descended.",
-    "backDetail": "Caused by overactivity of the left distal iliacus pulling on the femur, which interferes with the left proximal iliacus's ability to adduct the inlet and abduct the outlet. Treatment: facilitate left proximal iliacus, left iliococcygeus, and left obturator internus. (Manual p.44)"
-  },
-  {
-    "id": "test-005",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "How is the Passive Abduction Raise Test (PART) performed?",
-    "frontHint": "Passive test. The examiner lifts the top leg. Watch for trunk compensation.",
-    "back": "Patient sidelying, bottom hip/knee flexed 70–90°, top leg straight (0°). Examiner stabilizes the innominate with one hand and passively abducts the top leg. Discontinue if right thoracic abduction/sidebending occurs.",
-    "backDetail": "Positive = femoral abduction limited to less than 45°. In L AIC, expect positive R PART — the right femoral head laterally buttresses against the superior acetabulum during abduction. When ADT is negative bilaterally, a persistent positive R PART may indicate right proximal iliacus overactivity interfering with right glute max. (Manual p.46)"
-  },
-  {
-    "id": "test-006",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "What does a positive right PART indicate in a patient with positive left ADT?",
-    "frontHint": "The right femur can't abduct passively. Think about what's happening at the right acetabulum.",
-    "back": "Right femoral abduction is limited (<45°) due to lateral buttressing of the right femoral head against the superior acetabulum.",
-    "backDetail": "In L AIC: positive left ADT predicts positive right PART. The compensatory right-side position (R IP IR) causes the right acetabulum to restrict abduction. When ADT becomes negative bilaterally but R PART persists, the cause shifts to right proximal iliacus overactivity blocking right glute max — and right glute max facilitation is needed. (Manual p.46)"
-  },
-  {
-    "id": "test-007",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "How is the Standing Reach Test (SRT) performed for a Left AIC patient?",
-    "frontHint": "Different procedure than for B PEC — one involves a hip shift, one doesn't.",
-    "back": "Patient stands, knees extended, right fingers overlap left. Patient reaches toward left toes while shifting the left hip back, keeping the back rounded and exhaling. Measure distance from fingertips to floor in front of left toes. Repeat toward right side.",
-    "backDetail": "For B PEC (no hip shift): patient reaches straight down toward floor, hips move back symmetrically, measure from fingertips to floor. A B PEC patient who can touch toes despite positive bilateral ADT and PADT = Bilateral Patho PEC. SRT reflects inlet/outlet ON-OFF states. (Manual p.47)"
-  },
-  {
-    "id": "test-008",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "In PRI testing, what does 'positive' mean?",
-    "frontHint": "The opposite of most orthopedic special tests.",
-    "back": "Positive (+) means the patient CANNOT do it. Negative (−) means the patient CAN do it.",
-    "backDetail": "This is inverted from standard orthopedic testing, where a positive test means pathology was provoked. In PRI, positive ADT = the femur won't adduct; positive PADT = the knee can't reach the mat; positive PART = abduction is limited. Be careful on the exam — this reversal catches people."
-  },
-  {
-    "id": "test-009",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "What does the Hruska Abduction Lift Test (HALT) measure, and what is the patient position?",
-    "frontHint": "Graded 0–5. Each level maps to a facilitation step.",
-    "back": "Patient sidelying, top hip/knee at 90°, feet against wall. Tests progressive ability to abduct the top hip through the facilitation hierarchy. Each level = a different muscle group coming online.",
-    "backDetail": "Level 0: can't hold position (reposition first). Level 1: holds abduction at wall. Level 2: abducts with lateral trunk compensation. Level 3: abducts without trunk compensation. Level 4: raises leg fully off wall without lateral trunk. Level 5: extends the abducted top leg without back extension, knee flexion, or FA ER. (Manual p.50–51)"
-  },
-  {
-    "id": "test-010",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "What does Functional Squat Level 2 failure indicate?",
-    "frontHint": "The patient can initiate the squat (Level 1) but can't progress further. What's blocking?",
-    "back": "Inability to move the bottom back and knees forward while maintaining trunk flexion. Reflects lack of femoral adduction, hyperactive hip flexors, and overactive FA ERs, inferior glute max, coccygeus, and piriformis.",
-    "backDetail": "Level 1 failure = hyperactive back extensors, rectus femoris, and sartorius (can't even flex trunk to start). Level 2 failure adds hip flexor and external rotator dominance. Level 3 = can't get below knee level with heels down. If Squat > 3/5 with positive B ADT and B PADT = B Patho PEC. (Manual p.48)"
-  },
-  {
-    "id": "concept-001",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What is the Left AIC pattern?",
-    "frontHint": "Six muscles in a chain. The left pelvis is pulled in a specific direction.",
-    "back": "Left Anterior Interior Chain — the foundational asymmetrical pattern. The left diaphragm, left psoas, left iliacus, left TFL, left vastus lateralis, and left biceps femoris pull the left pelvis into anterior tilt and forward rotation.",
-    "backDetail": "Left diaphragm pulls dorsal spine up/forward. Left psoas + left iliacus pull lumbar spine and left pelvis down/forward. These increase left hemilordosis and left anterior pelvic tilt. The left femur orients inward via the acetabulum, overloading left vastus lateralis and left biceps femoris as compensatory stabilizers. (Manual p.2)"
-  },
-  {
-    "id": "concept-002",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "Why does the L AIC pattern exist in most people?",
-    "frontHint": "The right and left hemidiaphragms are not symmetrical. One has a structural advantage.",
-    "back": "The right hemidiaphragm is larger and sits on the liver, giving it a biomechanical platform for respiration. The left hemidiaphragm is smaller, sits above the stomach/spleen, and lacks that support — so it flattens and becomes postural rather than respiratory.",
-    "backDetail": "When the left hemidiaphragm loses its dome (ZOA), it becomes tonic/postural rather than phasic/respiratory. This engages the left AIC chain: the left psoas and iliacus pull the left pelvis anteriorly and forwardly. The body shifts rightward to compensate. This is why PRI considers L AIC the baseline pattern."
-  },
-  {
-    "id": "concept-003",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What does 'neutral' mean in PRI?",
-    "frontHint": "Hruska compares it to a gearbox. It's not a position you hold.",
-    "back": "A state of disengagement where overactive polyarticular chains are inhibited, allowing reciprocal movement through a mid-zone in all three planes.",
-    "backDetail": "Like a disengaged gear — ready to go either direction. Achieving neutral means muscles can disengage so a new movement strategy begins from an unbiased position. Neutral is a prerequisite for alternating reciprocal activity (stance shifting, gait). A patient stuck in L AIC can't access neutral until repositioning and inhibition restore mid-zone access. (Manual p.ix–x)"
-  },
-  {
-    "id": "concept-004",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What is the Zone of Apposition (ZOA)?",
-    "frontHint": "Related to diaphragm shape. When it shrinks, breathing mechanics change.",
-    "back": "The area of the diaphragm dome that apposes (lies against) the inner rib cage.",
-    "backDetail": "When the diaphragm flattens and descends excessively, ZOA shrinks. The diaphragm loses its dome and becomes a postural muscle instead of a respiratory one. PRI exercises emphasize exhalation to re-dome the diaphragm and restore ZOA. In L AIC, the left ZOA is poor because the left hemidiaphragm is flat and tonic."
-  },
-  {
-    "id": "concept-005",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What is the rule: 'Behind every B PEC pattern is a ____'?",
-    "frontHint": "B PEC is a more compensated version of a simpler pattern.",
-    "back": "Behind every Bilateral PEC pattern is a Left AIC pattern.",
-    "backDetail": "B PEC is bilateral anterior pelvic tilt — both sides now in IP ER. But the underlying L AIC asymmetry is still present underneath. Treatment for B PEC starts with bilateral repositioning, then resolves the L AIC once bilateral ADT is negative. The L AIC facilitation hierarchy (Steps 1–10) is Step 3 in both B PEC and B Patho PEC hierarchies. (Manual p.26, 70–72)"
-  },
-  {
-    "id": "concept-006",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "How do you distinguish B Patho PEC from B PEC on clinical testing?",
-    "frontHint": "Paradox: better mobility can mean worse pathology. Look for atypical findings.",
-    "back": "B Patho PEC has at least one atypical finding: positive PART (uni- or bilateral), SRT of 0 inches (touches toes), or Functional Squat > 3/5 — despite positive bilateral ADT and PADT.",
-    "backDetail": "B PEC: negative PART bilaterally, can't touch toes, Squat < 3/5. B Patho PEC: compensatory hypermobility — CAN touch toes, CAN squat deeply, and/or PART is positive. Better ROM + poor pelvic control = more decompensated. Only one atypical finding needed. If Squat > 3/5 (Patho), use straw/kazoo instead of balloon. (Manual p.52, 69)"
-  },
-  {
-    "id": "concept-007",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What does 'ON' mean in PRI? What does 'OFF' mean?",
-    "frontHint": "These aren't about neural activation. Think leverage and length-tension.",
-    "back": "'ON' = muscle is in a shortened, mechanically advantaged position. 'OFF' = muscle is lengthened and in a mechanically disadvantaged position.",
-    "backDetail": "A muscle that is 'OFF' may be firing but can't produce effective force because it's too long (actively insufficient) or eccentrically strained. PRI clarifies: 'When we say a muscle is OFF, it's not completely OFF, but it's not in its best leveraged position to provide stability.' These are relative mechanical states, not on/off switches. (Manual p.36)"
-  },
-  {
-    "id": "concept-008",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What is the pelvic inlet? What are its borders?",
-    "frontHint": "The superior opening of the pelvic ring. Four muscle groups work here.",
-    "back": "The superior pelvic aperture — the bony ring bordered by the ASIS, sacral base, and pubic symphysis.",
-    "backDetail": "Muscles governing the inlet: iliacus (frontal adduction), rectus femoris and sartorius (sagittal), gluteus medius and gluteus maximus (posterior inlet), IO/TAs (integration). When PRI says 'IP ER', they mean this ring is widening/opening on that side — the ASIS drops forward, the inlet abducts. Inlet and outlet always move in opposite directions simultaneously. (Manual p.3)"
-  },
-  {
-    "id": "concept-009",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What is the pelvic outlet? What are its borders?",
-    "frontHint": "The inferior opening — where the pelvic floor lives.",
-    "back": "The inferior pelvic aperture — bordered by the ischial tuberosities laterally, coccyx posteriorly, and pubic symphysis anteriorly.",
-    "backDetail": "Outlet muscles: obturator internus and iliococcygeus (anterior, abduction), puborectalis and pubococcygeus (anterior, sagittal), coccygeus and piriformis (posterior), arcuate tendon and anococcygeal ligament (integration). Key rule: outlet direction is always opposite inlet. When inlet opens (IP ER), outlet closes (IsP IR) on the same side. (Manual p.3)"
-  },
-  {
-    "id": "concept-010",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What is the inlet-outlet rule?",
-    "frontHint": "One opens, the other closes. Same bone movement, viewed from two different openings.",
-    "back": "Inlet and outlet always move in opposite directions on the same side. When the inlet opens (IP ER), the outlet closes (IsP IR), and vice versa.",
-    "backDetail": "This is because the pelvis is a ring with two openings. When the ASIS tips forward (anterior tilt), the inlet widens (IP ER) while the ischial tuberosities come together and the outlet narrows (IsP IR). One bone movement produces both — it just looks different depending on whether you're viewing from above (inlet) or below (outlet)."
-  },
-  {
-    "id": "init-001",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What does IP ER describe?",
-    "frontHint": "IP names the anterior inlet bones. The direction tells you the ring is doing something.",
-    "back": "Ilio-Pubo External Rotation — the anterior pelvic inlet is widening/opening on that side.",
-    "backDetail": "The ilio-pubo joint is PRI's name for the anterior inlet (ilium-to-pubis). ER = the inlet ring opens. In standard anatomy: anterior pelvic tilt — ASIS drops forward. PRI describes this as flexion, abduction, and external rotation of the innominate. This is the patterned left-side position in L AIC. Equivalent outlet on the same side: IsP IR (outlet closes)."
-  },
-  {
-    "id": "init-002",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What does IsP IR describe?",
-    "frontHint": "IsP names two bones of the anterior outlet. This is happening below the inlet.",
-    "back": "Ischio-Pubo Internal Rotation — the anterior pelvic outlet is narrowing/closing on that side.",
-    "backDetail": "IsP = ischium-to-pubis (anterior outlet). IR = the outlet ring closes — ischial tuberosities move together. In standard terms: inferior pelvic aperture narrows. Happens simultaneously with IP ER (inlet opens) on the same side. PRI tri-planar descriptors: extension, adduction, internal rotation. In L AIC, left IsP IR = left outlet stuck closed/adducted."
-  },
-  {
-    "id": "init-003",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What does IS IR describe?",
-    "frontHint": "IS names the posterior inlet bones. This describes what the sacrum does relative to the ilium.",
-    "back": "Ilio-Sacral Internal Rotation — sacral nutation. The sacral base tips anterior relative to the ilium on that side.",
-    "backDetail": "IS names the ilium as the treatment target (inlet perspective). The physical motion is sacral nutation — sacral base tips anterior relative to the ilium. Unlike AF/FA where the first letter names the moving bone, IS/SI names the bone PRI intends to reposition: IS IR = reposition the ilium at the inlet; SI IR = reposition the sacrum at the outlet. Same nutation, different clinical question."
-  },
-  {
-    "id": "init-004",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What does SI IR describe?",
-    "frontHint": "SI names the posterior outlet bones. Same joint as IS, but reversed — different treatment target.",
-    "back": "Sacro-Iliac Internal Rotation — the sacrum internally rotates on the ilium, viewed from the outlet perspective. Same motion as IS IR but names the sacrum as the moving bone.",
-    "backDetail": "SI names the sacrum as the treatment target (outlet perspective). Same nutation as IS IR, but the clinical question flips: instead of moving the ilium on the sacrum (inlet work), you're targeting the sacrum directly (outlet work). The naming reversal encodes that distinction — not a different motion, a different treatment approach."
-  },
-  {
-    "id": "init-005",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What does AF IR describe?",
-    "frontHint": "AF names the acetabulum as the moving bone on a fixed femur. Think closed chain.",
-    "back": "Acetabulo-Femoral Internal Rotation — the pelvis (acetabulum) internally rotates on a fixed femur. The pelvis tilts posteriorly relative to the planted leg.",
-    "backDetail": "Acetabulo-Femoral Internal Rotation — the pelvis tilts posteriorly on a fixed foot (closed chain). In L AIC, the left pelvis is stuck in AF ER; AF IR is the corrective direction. Standard anatomy describes the joint angle; PRI's naming attempts to encode which segment moved — pelvis or femur (both typically move together)."
-  },
-  {
-    "id": "init-006",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What is the difference between AF and FA?",
-    "frontHint": "Same joint. The first letter tells you which bone PRI considers the moving bone.",
-    "back": "AF (Acetabulo-Femoral) = pelvis moves on a fixed femur (closed chain, stance leg). FA (Femoro-Acetabular) = femur moves on a fixed pelvis (open chain, swing leg).",
-    "backDetail": "Standard anatomy calls both 'hip internal rotation.' PRI splits the name to encode which bone is displaced and which is the treatment target. AF IR = posterior pelvic tilt on a planted leg. FA IR = femur internally rotating in the socket. Clinically: AF exercises reposition the pelvis; FA exercises address femoral mobility. The distinction matters for exercise selection."
-  },
-  {
-    "id": "init-007",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What does PEC stand for, and what muscles compose it?",
-    "frontHint": "These are the back extensors. They flatten the thoracic spine.",
-    "back": "Posterior Exterior Chain — latissimus dorsi, quadratus lumborum, posterior intercostals, serratus posterior, iliocostalis lumborum (plus multifidus, spinalis, semispinalis).",
-    "backDetail": "The paraspinal extensors. They increase lumbar lordosis, flatten the thoracic spine, strain the SI joints, and restrict trunk rotation. They also act as accessory respiratory muscles and restrict lower lobe expansion. PEC overactivity locks the trunk in extension, reinforcing L AIC. (Manual p.vii)"
-  },
-  {
-    "id": "init-008",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What does AIC stand for, and what muscles compose it?",
-    "frontHint": "'Interior' means deep/intracavitary — distinguishing from superficial anterior muscles.",
-    "back": "Anterior Interior Chain — diaphragm, psoas, iliacus, TFL, vastus lateralis, biceps femoris.",
-    "backDetail": "Attaches from costal cartilage of ribs 7–12 to lateral patella, fibular head, and lateral tibial condyle. 'Interior' means the deep, intracavitary muscles (diaphragm and psoas specifically). This chain anteriorly tilts the pelvis, increases lumbar lordosis, and orients the femur. PRI calls the left-dominant version 'Left AIC' — the foundational pattern. (Manual p.vii)"
-  },
-  {
-    "id": "muscle-001",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "Origin and insertion of the psoas major?",
-    "frontHint": "One of the few muscles that crosses from the spine to the femur.",
-    "back": "Origin: T12–L5 vertebral bodies, intervertebral discs, and transverse processes. Insertion: lesser trochanter of the femur.",
-    "backDetail": "Standard action: hip flexion, lateral trunk flexion, debated role in femoral rotation. PRI role: the left psoas is part of L AIC — when shortened, it pulls lumbar spine and left pelvis down/forward, increasing left hemilordosis. PRI considers it an 'ineffective femoral external rotator' in L AIC. Treatment: inhibit via repositioning before facilitating opposing muscles."
-  },
-  {
-    "id": "muscle-002",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "Origin and insertion of the iliacus?",
-    "frontHint": "PRI distinguishes proximal vs. distal fibers — they have different roles.",
-    "back": "Origin: iliac fossa (inner surface of ilium). Insertion: lesser trochanter of the femur (joins psoas tendon).",
-    "backDetail": "Standard action: hip flexion. PRI splits it: distal iliacus acts on the femur (part of L AIC problem). Proximal iliacus acts on the ilium in closed chain — pulls ilium medially = inlet adduction (IP IR). Proximal iliacus is facilitated in Step 3 of L AIC hierarchy. PRI calls it 'anterior glute med' — confusing, but it's still iliacus. (Manual p.44, 76)"
-  },
-  {
-    "id": "muscle-003",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "What does the left obturator internus do in PRI's framework versus standard anatomy?",
-    "frontHint": "Same muscle, different reference frame. Open chain vs. closed chain.",
-    "back": "Standard anatomy: lateral (external) rotation of the hip. PRI: outlet abduction — in closed chain, the left obturator internus pulls the left ischial tuberosity laterally, widening the left outlet (IsP ER).",
-    "backDetail": "Origin: obturator membrane and surrounding bone (inside pelvis). Insertion: medial surface of greater trochanter. Exits through lesser sciatic foramen. When femur is fixed, OI pulls ischium laterally instead of rotating the femur. PRI targets it for left outlet restoration. Facilitated in Step 2 of L AIC hierarchy via left adductors. (Manual p.24–25)"
-  },
-  {
-    "id": "muscle-004",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "What does the right gluteus maximus do in the L AIC correction?",
-    "frontHint": "Works at both inlet and outlet. Facilitated in repositioning AND in Step 4.",
-    "back": "Right glute max rotates the sacrum back toward the left (countering L AIC forward rotation). It abducts the right inlet and adducts the right outlet.",
-    "backDetail": "Standard action: hip extension, external rotation, lower-fiber adduction. In PRI closed chain: right glute max produces right SI IR (sacral nutation on right) and right posterior outlet closure. 'Left Sidelying Right Glute Max' is one of three L AIC repositioning exercises. Superior fibers work at inlet; inferior fibers at outlet. Step 4 of facilitation. (Manual p.25, 77)"
-  },
-  {
-    "id": "muscle-005",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "What does the left gluteus medius do in the L AIC correction?",
-    "frontHint": "Works at the left posterior inlet. Facilitated in Step 3.",
-    "back": "Left gluteus medius produces counter-nutation on the left (IS ER) — the left sacral base tips posterior relative to the left ilium. It helps close the left posterior inlet.",
-    "backDetail": "Standard action: hip abduction, medial rotation (anterior fibers). PRI assigns it to left posterior inlet. In closed chain, left glute med pulls ilium laterally relative to sacrum, promoting IS ER (counter-nutation). Facilitated in Step 3 with left proximal iliacus. Test marker: +L PADT persists, −R PART achieved, R HALT 2/5. (Manual p.76)"
-  },
-  {
-    "id": "muscle-006",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "What is the role of the right rectus femoris and right sartorius in L AIC correction?",
-    "frontHint": "These are the first muscles facilitated in the L AIC hierarchy. They work at the right anterior inlet.",
-    "back": "They turn ON the right anterior inlet via IP ER — advancing the right knee ahead of the left, initiating the Right AIC position needed for alternating gait.",
-    "backDetail": "Standard actions — Rec fem: hip flexion + knee extension. Sartorius: hip flexion + ER + knee flexion. PRI role: producing right inlet flexion/abduction/ER to oppose L AIC. Step 1 of facilitation. Test markers: +L PADT, +R PART, R HALT 0/5. Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius. (Manual p.75)"
-  },
-  {
-    "id": "muscle-007",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "What do the left IO (internal oblique) and left TA (transversus abdominis) do in PRI's framework?",
-    "frontHint": "They connect the respiratory diaphragm to the pelvic inlet. Think pressure regulation.",
-    "back": "Left IO/TAs are the primary connectors linking the left respiratory diaphragm to left pelvic inlet control. They promote inlet extension (IP IR) and regulate intra-abdominal pressure between the two diaphragms.",
-    "backDetail": "In L AIC, the left IO/TAs are weak — the left abdominal wall can't oppose the left psoas/iliacus pull. Restoring them is essential for maintaining repositioning. They are integrated into exercises throughout the hierarchy (balloon activities, wall reaches). In B PEC, bilateral IO/TAs are long and weak with abdominal bulge. (Manual p.3, Handout 1)"
-  },
-  {
-    "id": "muscle-008",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "What does the iliococcygeus do in PRI's framework?",
-    "frontHint": "Part of the pelvic floor. Works at the anterior outlet alongside obturator internus.",
-    "back": "Left iliococcygeus produces left outlet abduction — pulls the left ischial tuberosity laterally, helping widen the left outlet (IsP ER) and ascend the left pelvic diaphragm.",
-    "backDetail": "Part of levator ani. Origin: arcuate tendon (tendinous arch of levator ani). Insertion: anococcygeal body and coccyx. Standard action: supports pelvic viscera, elevates pelvic floor. PRI targets it alongside left obturator internus for left outlet restoration. Facilitated in Step 2 of L AIC hierarchy via left adductors. (Manual p.24–25, 44)"
-  },
-  {
-    "id": "muscle-009",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "What do the left puborectalis and left pubococcygeus do in PRI's correction?",
-    "frontHint": "Anterior outlet muscles. Facilitated in Step 2 alongside the green-family muscles.",
-    "back": "They produce left anterior outlet IsP ER (opening) — contributing to left pelvic diaphragm ascension.",
-    "backDetail": "Puborectalis: origin at pubic symphysis, loops around the rectum. Pubococcygeus: origin at pubis, inserts on coccyx. Both are levator ani components. Standard role: support pelvic viscera, maintain continence. PRI role: when they contract effectively, they help elevate the descended left pelvic floor. Facilitated in Step 2 of L AIC hierarchy. (Manual p.24, 75)"
-  },
-  {
-    "id": "muscle-010",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "What do the right coccygeus and right piriformis do in L AIC correction?",
-    "frontHint": "Right posterior outlet muscles. Facilitated in Step 4 alongside right glute max.",
-    "back": "They produce right posterior outlet closure (SI IR) — the right sacrum nutates on the right ilium, narrowing the right outlet.",
-    "backDetail": "Coccygeus: origin at ischial spine, insertion at coccyx/lower sacrum. Standard action: supports pelvic floor, flexes coccyx. Piriformis: origin at anterior sacrum, insertion at greater trochanter. Standard action: lateral rotation of hip. PRI targets both for right SI IR. Step 4 of L AIC hierarchy. Test markers: −L PADT, −R PART, R HALT 4/5. (Manual p.25, 77)"
-  },
-  {
-    "id": "muscle-011",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "Origin and insertion of the piriformis?",
-    "frontHint": "Exits the pelvis through the greater sciatic foramen. Sciatic nerve runs close by.",
-    "back": "Origin: anterior surface of sacrum (S2–S4). Insertion: superior border of greater trochanter of the femur.",
-    "backDetail": "Standard action: lateral rotation (hip extended), abduction (hip flexed). PRI role: right piriformis produces right posterior outlet SI IR alongside right coccygeus and right inferior glute max. Also listed as a contributor to positive ADT restriction. In standard anatomy, piriformis syndrome (sciatic nerve compression) is a well-known clinical entity."
-  },
-  {
-    "id": "muscle-012",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "Origin and insertion of the TFL (tensor fasciae latae)?",
-    "frontHint": "Part of the AIC chain. Connects pelvis to the IT band.",
-    "back": "Origin: ASIS and anterior iliac crest. Insertion: iliotibial band (IT band), which inserts on the lateral tibial condyle (Gerdy's tubercle).",
-    "backDetail": "Standard actions: hip flexion, hip abduction, hip internal rotation. In L AIC, the left TFL is part of the AIC chain — it's overactive and contributes to anterior pelvic tilt on the left. PRI treatment includes inhibiting the left TFL as part of left anterior inlet inhibition (promoting extension via L IP IR). (Manual p.2, 77)"
-  },
-  {
-    "id": "treat-001",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "What are the three L AIC repositioning techniques?",
-    "frontHint": "These come first — before inhibition or facilitation. One targets left hamstring, one left adductor, one right glute max.",
-    "back": "1. 90-90 Supported Hip Lift with Hemibridge (left hamstring pulls left hemipelvis posteriorly). 2. Right Sidelying Respiratory Left Adductor Pull Back (left adductor magnus + left proximal obturator for left AF IR). 3. Left Sidelying Right Glute Max (rotates sacrum back toward left).",
-    "backDetail": "These must be done first. They reposition the left pelvis out of anterior tilt/forward rotation. After repositioning: retest ADT. If left ADT becomes negative, proceed to facilitation hierarchy (if +L PADT and/or +R PART remain) or Myokinematic Restoration program (if −L PADT and −R PART). (Manual p.45, 74)"
-  },
-  {
-    "id": "treat-002",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "What are the three B PEC / B Patho PEC repositioning techniques?",
-    "frontHint": "Different from L AIC repositioning. These are bilateral/symmetrical.",
-    "back": "1. Standing Wall Supported Reach. 2. 90-90 Hip Lift in Passive FA IR with Balloon. 3. Modified All Four Belly Lift.",
-    "backDetail": "These address bilateral anterior pelvic tilt. After repositioning: retest bilateral ADT. If −B ADT and +B PADT → Pelvis Restoration program (maximize inlet extension via IO/TAs, forward arm reach, proximal adductors). If −B ADT and −B PADT → Myokinematic Restoration & Postural Respiration program. (Manual p.45, 69–72)"
-  },
-  {
-    "id": "treat-003",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "What is the treatment sequence in PRI?",
-    "frontHint": "Three phases. You can't strengthen what's in the wrong position.",
-    "back": "Reposition → Inhibit → Facilitate. First move the pelvis out of its patterned position, then quiet overactive muscles, then activate underactive muscles.",
-    "backDetail": "Repositioning = the 'Big Three' for the specific pattern. Inhibition = quiet the dominant chain (left AIC muscles on the left, PEC muscles). Facilitation = the 10-step L AIC hierarchy activating muscles that oppose the pattern. Skipping repositioning means facilitation targets muscles that can't fire correctly from a malaligned position. (Manual p.75–81)"
-  },
-  {
-    "id": "treat-004",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "What is facilitated in Step 1 of the Left AIC hierarchy, and what are the test markers?",
-    "frontHint": "First muscles to come online after repositioning. They work at the right anterior inlet.",
-    "back": "Step 1: Turn ON right anterior inlet via IP ER — right rectus femoris and right sartorius. Test markers: +L PADT, +R PART, R HALT 0/5.",
-    "backDetail": "Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius. The right knee advances ahead of the left, initiating the Right AIC position needed for alternating gait. This is the entry point of the facilitation hierarchy — the patient has achieved negative left ADT but still has positive PADT and PART. (Manual p.75)"
-  },
-  {
-    "id": "treat-005",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "What is facilitated in Step 2 of the Left AIC hierarchy, and what are the test markers?",
-    "frontHint": "Left anterior outlet opens. The pelvic diaphragm needs to ascend. Adductors are involved.",
-    "back": "Step 2: Turn ON left anterior outlet via IsP ER — left puborectalis, left pubococcygeus, left iliococcygeus, left obturator internus (via left adductors). Pelvic diaphragm ascension. Test markers: +L PADT, +R PART, R HALT 1/5.",
-    "backDetail": "Exercises include: Right Sidelying Respiratory Left Adductor Pull Back (with Balloon), Left Sidelying Knee to Knee. The left adductors are the gateway — their contraction facilitates the left pelvic floor muscles to abduct the outlet and ascend the pelvic diaphragm. (Manual p.75)"
-  },
-  {
-    "id": "treat-006",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "What is facilitated in Step 3 of the Left AIC hierarchy, and what are the test markers?",
-    "frontHint": "Left posterior inlet. Counter-nutation on the left side.",
-    "back": "Step 3: Turn ON left posterior inlet via IP IR / IS ER — left proximal iliacus and left gluteus medius. Counter-nutation of the left sacrum. Test markers: +L PADT, −R PART, R HALT 2/5.",
-    "backDetail": "R PART resolves at this step (becomes negative) — a key milestone. The left iliacus adducts the left inlet while left glute med produces left IS ER (counter-nutation). Exercises: Right Sidelying Supported Left Glute Med, Right Sidelying Hemi 90-90 with Left FA IR variations. (Manual p.76)"
-  },
-  {
-    "id": "treat-007",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "What is facilitated in Step 4 of the Left AIC hierarchy, and what are the test markers?",
-    "frontHint": "Right posterior outlet closes. This is the last step before upright work begins.",
-    "back": "Step 4: Turn ON right posterior outlet via SI IR — right coccygeus, right piriformis, right glute max (via glute max). Test markers: −L PADT, −R PART, R HALT 4/5.",
-    "backDetail": "L PADT resolves at this step (becomes negative) — both PADT and PART are now negative. The right posterior outlet closes via right glute max extension with FA ER and FA abduction. Exercises: All Four Right Glute Max, Left Sidelying Supported Right Glute Max with Hip Extension. After Step 4: proceed to upright functional control. (Manual p.77)"
-  },
-  {
-    "id": "treat-008",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "After achieving negative left ADT and negative left PADT, where does the patient go?",
-    "frontHint": "Tests are now negative — but the patient needs to maintain neutral during function.",
-    "back": "Upright functional integration: Left single-leg frontal plane control (Step 5, requires HALT 3/5) → Right single-leg control (Step 6) → Sidelying frontal plane integration (Step 7) → Seated pelvic ascension control (Step 8) → Reciprocal alternating activity / gait (Step 9) → Squatting (Step 10).",
-    "backDetail": "Steps 5–10 integrate the corrected pelvic position into real-world movement. The patient practices maintaining neutral during single-leg stance, weight shifting, and walking. Step 9 includes techniques like Left Stance Interrupted Reciprocal Step Through and Two Point Gait with Right Glute Max. Step 10 promotes squatting. (Manual p.78–81)"
-  },
-  {
-    "id": "treat-009",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "After L AIC repositioning, test results are: −L ADT, −L PADT, −R PART. What program does the patient follow?",
-    "frontHint": "All tests negative after repositioning. The pelvis is neutral. Think: what course covers the next step?",
-    "back": "Myokinematic Restoration program — the patient does not need Pelvis Restoration facilitation.",
-    "backDetail": "If repositioning alone clears all tests, the pelvis is neutral and the facilitation hierarchy is not needed — patient transitions to Myokinematic Restoration (a different PRI course). If PADT or PART persist despite negative ADT, the facilitation hierarchy (Steps 1–10) is needed. (Manual p.74)"
-  },
-  {
-    "id": "treat-010",
-    "category": "facilitation",
-    "examWeight": "medium",
-    "front": "What is the A-B-A clinical design PRI recommends?",
-    "frontHint": "Each patient is their own control. Three phases.",
-    "back": "A Phase: baseline testing. B Phase: intervention then retest. Second A Phase: withdrawal (no intervention) then retest. If tests revert during the second A phase, the intervention caused the change.",
-    "backDetail": "PRI advocates single-subject A-B-A design over RCTs for clinical decision-making. Each patient is their own control. PRI cites Karimi et al. 2021 (n=18 RCT showing improvement from pelvic repositioning) as support, but philosophically argues A-B-A is more appropriate than RCTs for individual patients. (Handout 2)"
-  },
-  {
-    "id": "anat-001",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "What role does the sacrotuberous ligament play in SI joint stability?",
-    "frontHint": "Its tension depends on sacral position — nutation vs. counter-nutation.",
-    "back": "Passive restraint to sacral nutation. Becomes taut when the sacrum nutates (IS IR) and slack when it counter-nutates (IS ER).",
-    "backDetail": "Runs from posterior sacrum and coccyx to ischial tuberosity. In L AIC, the left SI is nutated (L IS IR) — this ligament is taut on the left. On the right, the SI is counter-nutated (R IS ER) and the ligament is relatively slack. This asymmetric tension contributes to right-side SI instability complaints in L AIC patients, because the right SI lacks passive restraint."
-  },
-  {
-    "id": "anat-002",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "What does the sacrospinous ligament connect, and what does it resist?",
-    "frontHint": "Connects sacrum to ischial spine. Relevant to outlet mechanics.",
-    "back": "Connects the lateral sacrum/coccyx to the ischial spine. Resists sacral nutation (like the sacrotuberous ligament) and helps form the boundary between the greater and lesser sciatic foramina.",
-    "backDetail": "Taut during nutation, slack during counter-nutation. Obturator internus exits through the lesser sciatic foramen, bounded inferiorly by sacrospinous ligament. Both sacrotuberous and sacrospinous ligaments provide passive SI stability — relevant to why nutated (L AIC left) vs. counter-nutated (L AIC right) SI joints present differently."
-  },
-  {
-    "id": "anat-003",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "Origin and insertion of the gluteus maximus?",
-    "frontHint": "Largest muscle in the body. In PRI, the right side works at both inlet and outlet.",
-    "back": "Origin: posterior gluteal line of ilium, dorsal surface of sacrum/coccyx, thoracolumbar fascia, sacrotuberous ligament. Insertion: IT band and gluteal tuberosity of femur.",
-    "backDetail": "Standard actions: hip extension, external rotation, lower-fiber adduction, upper-fiber abduction. In PRI: right glute max's superior fibers work at the right inlet (IP ER, advancing the right side), while inferior fibers work at the right posterior outlet (SI IR, closing the outlet). It is facilitated in L AIC repositioning (Left Sidelying Right Glute Max) and again in Step 4."
-  },
-  {
-    "id": "anat-004",
-    "category": "muscle_action",
-    "examWeight": "high",
-    "front": "Origin and insertion of the gluteus medius?",
-    "frontHint": "In PRI, the left glute med works at the left posterior inlet. Step 3 muscle.",
-    "back": "Origin: outer surface of ilium between anterior and posterior gluteal lines. Insertion: lateral surface of greater trochanter.",
-    "backDetail": "Standard actions: hip abduction (all fibers), medial rotation (anterior), lateral rotation (posterior). In PRI, left glute med promotes left IS ER (counter-nutation) — pulls left ilium laterally relative to sacrum, closing left posterior inlet. Facilitated in Step 3. Not the same as PRI's 'anterior glute med' (which refers to proximal iliacus)."
-  },
-  {
-    "id": "pattern-001",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "In L AIC, what is the position of the left pelvic inlet and left pelvic outlet?",
-    "frontHint": "Inlet opens, outlet closes — on the same side.",
-    "back": "Left inlet: IP ER (open — flexion, abduction, external rotation). Left outlet: IsP IR (closed — extension, adduction, internal rotation).",
-    "backDetail": "The left pelvis is anteriorly tilted and forwardly rotated. Viewing from above (inlet): the left ASIS drops forward, the ring widens (IP ER). Viewing from below (outlet): the left ischial tuberosities come together, the ring narrows (IsP IR). The left pelvic diaphragm is descended. Left IS IR (nutation) at the posterior inlet. Left SI IR at the posterior outlet. (Manual p.21)"
-  },
-  {
-    "id": "pattern-002",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "In L AIC, what is the compensatory position of the RIGHT side?",
-    "frontHint": "Everything is opposite the left. The right inlet closes while the right outlet opens.",
-    "back": "Right inlet: IP IR (closed — extension, adduction, internal rotation). Right outlet: IsP ER (open — flexion, abduction, external rotation). Right IS ER (counter-nutation). Right SI ER.",
-    "backDetail": "The right side compensates: the right pelvis is relatively posteriorly tilted and rotated back. Right inlet narrows, right outlet widens. Right SI is counter-nutated and relatively lax — the sacrotuberous and sacrospinous ligaments are slack on the right, contributing to right SI instability complaints. (Manual p.21)"
-  },
-  {
-    "id": "pattern-003",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "In B PEC, what is the position of the bilateral inlets and outlets?",
-    "frontHint": "Both sides look like the left side in L AIC.",
-    "back": "Both inlets: IP ER (open — bilateral anterior tilt). Both outlets: IsP IR (closed — bilateral outlet adduction). Bilateral pelvic diaphragm descended, hypertonic, and inflexible.",
-    "backDetail": "B PEC = both sides anteriorly tilted. Both diaphragms flat (poor bilateral ZOA). Both IO/TAs long and weak. Bilateral anterior sacrum flexed, posterior sacrum extended, coccyx flexed. Continual state of inhalation with passive exhalation. Unlike B Patho PEC, pelvic diaphragm is hypertonic/inflexible (not bulged). PART is negative bilaterally. (Manual p.28–33)"
-  },
-  {
-    "id": "test-011",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "Expected test results for L AIC pattern?",
-    "frontHint": "Five of six tests are positive. One is on the opposite side from the rest.",
-    "back": "+Left ADT, +Left PADT, +Right PART, SRT >0 inches, Functional Squat <3/5, HALT <3/5.",
-    "backDetail": "Note the asymmetry: ADT and PADT are positive on the LEFT, but PART is positive on the RIGHT. This is because the left inlet is stuck in IP ER (blocks left femoral adduction → +L ADT) while the right side's compensatory position (R IP IR) blocks right femoral abduction → +R PART. The left pelvic floor can't ascend → +L PADT. (Manual p.52)"
-  },
-  {
-    "id": "test-012",
-    "category": "test_procedure",
-    "examWeight": "high",
-    "front": "Expected test results for B PEC pattern?",
-    "frontHint": "Like L AIC but bilateral. PART is the distinguishing negative test.",
-    "back": "+Bilateral ADT, +Bilateral PADT, −Bilateral PART, SRT >0 inches, Functional Squat <3/5, HALT <3/5.",
-    "backDetail": "PART is negative bilaterally in B PEC — this distinguishes it from B Patho PEC (where PART becomes positive). Both sides are in IP ER (inlet open) so femoral adduction is restricted bilaterally, but femoral abduction is not restricted because neither side is in the compensatory IP IR position that restricts abduction. (Manual p.52)"
-  },
-  {
-    "id": "resp-001",
-    "category": "bridging_term",
-    "examWeight": "medium",
-    "front": "What does PRI mean when they say the pelvic diaphragm is 'in a state of inhalation'?",
-    "frontHint": "Metaphor, not literal. Think about what a flat respiratory diaphragm looks like.",
-    "back": "The pelvic floor is chronically descended — stuck in the position it takes during actual inhalation (eccentric descent under increased IAP). It has lost its ability to cycle between descent and ascension.",
-    "backDetail": "Analogous to a flattened respiratory diaphragm being 'stuck in inhalation.' During actual inhalation, the pelvic floor does eccentrically descend. PRI's point: a chronically descended pelvic floor has lost its ability to ascend during exhalation. The fix: restore pelvic diaphragm ascension via outlet abduction. (LEARN-PRI.md)"
-  },
-  {
-    "id": "resp-002",
-    "category": "bridging_term",
-    "examWeight": "medium",
-    "front": "What respiratory findings are associated with the L AIC pattern?",
-    "frontHint": "Left-sided breathing is restricted in a specific way. The left diaphragm is part of the problem.",
-    "back": "Left anterior ribs flared/ER, left respiratory diaphragm descended/flat/postural (poor left ZOA), left IO/TAs weak, left anterior thorax hyperinflated, left posterior mediastinum limited.",
-    "backDetail": "The left hemidiaphragm loses its dome shape, becomes tonic (postural) instead of phasic (respiratory). ZOA shrinks on the left. The left chest is stuck in relative inhalation — the left posterior mediastinum can't expand because the diaphragm can't ascend. Right posterior mediastinum is expanded, right anterior upper chest is limited. (Manual, LEARN-PRI.md)"
-  },
-  {
-    "id": "clinical-001",
-    "category": "facilitation",
-    "examWeight": "high",
-    "front": "When should you use a straw, kazoo, or party favor instead of a balloon?",
-    "frontHint": "Relates to one specific test finding in B Patho PEC.",
-    "back": "When Functional Squat Test is >3/5 (Patho finding). The patient likely cannot handle the expiratory resistance of blowing up a balloon.",
-    "backDetail": "This is noted twice in the manual. A Functional Squat >3/5 with positive bilateral ADT and PADT indicates B Patho PEC — the patient's compensatory hypermobility means their respiratory system can't handle high expiratory resistance. A straw, kazoo, or party favor provides gentler resistance to facilitate exhalation without overpressure. (Manual p.70)"
-  },
-  {
-    "id": "clinical-002",
-    "category": "facilitation",
-    "examWeight": "medium",
-    "front": "What test results indicate a patient needs the Pelvis Restoration program vs. the Myokinematic Restoration program after L AIC repositioning?",
-    "frontHint": "It depends on whether PADT and PART resolved with repositioning alone.",
-    "back": "Pelvis Restoration: −L ADT, +L PADT and/or +R PART (need further facilitation). Myokinematic Restoration: −L ADT, −L PADT, −R PART (pelvis is neutral, move to hip/femoral work).",
-    "backDetail": "If repositioning alone clears all tests, the pelvis is neutral and doesn't need the facilitation hierarchy — the patient transitions to Myokinematic Restoration (different PRI course). If PADT or PART persist despite negative ADT, the facilitation hierarchy (Steps 1–10) is needed. (Manual p.74)"
-  },
-  {
-    "id": "init-009",
-    "category": "initialism",
-    "examWeight": "high",
-    "front": "What does the master equivalence rule state?",
-    "frontHint": "Inlet and femur go one way. Outlet goes the other. Five joint names, one bone position.",
-    "back": "Inlet direction matches femur direction (both ER or both IR). Outlet direction is always opposite. All five PRI joint names (IP, IS, IsP, SI, AF) describe the same bone position from different reference frames.",
-    "backDetail": "Example — left side in L AIC: IP ER (inlet opens) = IS IR (nutation) = IsP IR (outlet closes) = SI IR (sacral nutation from outlet view) = AF ER (pelvis tilts anteriorly on femur). Inlet and AF share the same direction (ER). Outlet names (IsP, SI) are always opposite. IS follows inlet direction. This rule lets you convert between any PRI joint name."
-  },
-  {
-    "id": "muscle-013",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "What is the role of the left adductor magnus in L AIC correction?",
-    "frontHint": "Gateway to pelvic floor activation in Step 2. Part of the Adductor Pull Back exercise.",
-    "back": "Left adductor magnus facilitates left AF IR (pelvis rotates posteriorly on the left femur) and activates the left pelvic floor muscles (obturator internus, iliococcygeus) for outlet abduction.",
-    "backDetail": "Origin: ischial ramus and ischial tuberosity. Insertion: linea aspera and adductor tubercle. Standard action: hip adduction, extension (posterior fibers). In PRI, left adductor contraction adducts the left femur, producing left AF IR in closed chain and facilitating left outlet abduction. Exercise: Right Sidelying Respiratory Left Adductor Pull Back. (Manual p.75)"
-  },
-  {
-    "id": "muscle-014",
-    "category": "muscle_action",
-    "examWeight": "medium",
-    "front": "What is PRI's 'anterior glute med,' and why is it confusing?",
-    "frontHint": "It's not actually the anterior fibers of gluteus medius.",
-    "back": "PRI uses 'anterior glute med' to refer to the proximal iliacus — the fibers originating on the iliac fossa that adduct the inlet in closed chain. It is NOT the anterior fibers of the gluteus medius muscle.",
-    "backDetail": "This is a PRI-specific label. Proximal iliacus, when femur is fixed, pulls ilium medially (inlet adduction = IP IR). PRI calls this 'anterior glute med' because it opposes hip abduction at the inlet level, similar to how glute med abducts the hip. Standard anatomy: this is iliacus, not gluteus medius. Facilitated in Step 3. (Manual p.44, 76)"
-  },
-  {
-    "id": "concept-011",
-    "category": "bridging_term",
-    "examWeight": "high",
-    "front": "What is nutation? What is counter-nutation?",
-    "frontHint": "Sacral base and coccyx tip in opposite directions. PRI gives these IS designations.",
-    "back": "Nutation: sacral base tips anterior, coccyx tips posterior. Compresses the SI joint. PRI calls this IS IR. Counter-nutation: sacral base tips posterior, coccyx tips anterior. Decompresses the SI joint. PRI calls this IS ER.",
-    "backDetail": "Nutation is the normal sacral position during single-leg stance on the ipsilateral side. In L AIC, the left sacrum is nutated (L IS IR) — left SI compressed, sacrotuberous ligament taut on left. The right sacrum is counter-nutated (R IS ER) — right SI decompressed, ligaments lax. Treatment restores the ability to move between nutation and counter-nutation bilaterally."
-  },
-  {
-    "id": "clinical-003",
-    "category": "bridging_term",
-    "examWeight": "medium",
-    "front": "What is a 'reference center' in PRI?",
-    "frontHint": "Not a physical structure. Something the patient develops internally.",
-    "back": "The patient's internal sense of where their pelvis is in space — a felt sense of pelvic position they can return to throughout the day during functional activity.",
-    "backDetail": "PRI wants patients to develop proprioceptive awareness of their corrected pelvic position. If the patient can't feel the correct muscles (especially abdominals) or lacks a reference center, they may achieve neutral in the clinic but lose it immediately. Addressed in the 'can't maintain neutrality' troubleshooting section. (Manual)"
-  },
-  {
-    "id": "treat-011",
-    "category": "facilitation",
-    "examWeight": "medium",
-    "front": "What is the Left AIC Inhibition Program, and how does it relate to the Facilitation Program?",
-    "frontHint": "Parallel track. Facilitation turns muscles ON; inhibition turns muscles OFF.",
-    "back": "Inhibition quiets overactive muscles holding the L AIC pattern. It runs in parallel with facilitation. Step 1: Inhibit left anterior inlet (promote extension via L IP IR). Step 2: Inhibit right anterior outlet (R IsP IR). Step 3: Inhibit right posterior inlet (R IP ER). Step 4: Inhibit left posterior outlet (L IsP ER).",
-    "backDetail": "Facilitation turns ON the muscles that oppose L AIC. Inhibition turns OFF the muscles that hold L AIC. They address opposite sides of the same problem and share the same test markers. Inhibition Step 1 exercise: 90-90 Respiratory Left Hip Shift. Step 3 exercise: Standing Supported Left AF IR with Right Arm Reach. (Manual p.77–78)"
-  }
+    {
+        "id": "test-001",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "How is the Adduction Drop Test (ADT) performed?",
+        "frontHint": "Passive test. The examiner moves the top leg — the patient does nothing.",
+        "back": "Patient sidelying, bottom hip/knee flexed 90°. Examiner passively flexes, abducts, and extends the top hip to neutral with 90° knee flexion. Stabilize pelvis from falling backward. Let the top leg drop into adduction.",
+        "backDetail": "Positive = top knee cannot cross midline (femur won't adduct). Restriction comes from anterior-inferior acetabular labral rim, transverse ligament, and piriformis — secondary to an anteriorly rotated, forward hemipelvis. Usually positive on the left in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. This is a positional/osseous restriction, not a muscular flexibility test."
+    },
+    {
+        "id": "test-002",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "How is the Pelvic Ascension Drop Test (PADT) performed?",
+        "frontHint": "Active test — the patient does the work. Both hips start at 90°.",
+        "back": "Patient sidelying, both hips and knees flexed 90°. Patient actively brings the top leg back to neutral (knee toward mat) while maintaining 90° knee flexion. Negative = knee touches mat.",
+        "backDetail": "Positive = top knee can't reach mat. The ipsilateral pelvic diaphragm cannot ascend because the outlet (ischium) can't abduct and the inlet (ilium) can't adduct. Usually positive on left in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. Cause: overactivity of the left distal iliacus interfering with the left proximal iliacus's ability to adduct the inlet."
+    },
+    {
+        "id": "test-003",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "What does a positive left ADT indicate?",
+        "frontHint": "The left femur is blocked from adducting. What bony position causes that?",
+        "back": "The left hemipelvis is anteriorly rotated and forward. The femur cannot adduct past midline due to osseous restriction from the acetabular labral rim.",
+        "backDetail": "This is the primary indicator of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> pattern. The anteriorly rotated left innominate positions the acetabulum so that the labral rim, transverse ligament, and piriformis block femoral adduction. It's not a soft-tissue flexibility problem — it's a positional problem. Achieving negative bilateral <abbr title=\"Adduction Drop Test\">ADT</abbr> is the first treatment goal."
+    },
+    {
+        "id": "test-004",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "What does a positive left PADT indicate?",
+        "frontHint": "The left pelvic diaphragm can't ascend. Two things must happen for it to ascend.",
+        "back": "The left pelvic outlet cannot abduct (left ischium can't move laterally) and the left inlet cannot adduct (left ilium can't move medially). The left pelvic diaphragm is stuck descended.",
+        "backDetail": "Caused by overactivity of the left distal iliacus pulling on the femur, which interferes with the left proximal iliacus's ability to adduct the inlet and abduct the outlet. Treatment: facilitate left proximal iliacus, left iliococcygeus, and left obturator internus. (Manual p.44)"
+    },
+    {
+        "id": "test-005",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "How is the Passive Abduction Raise Test (PART) performed?",
+        "frontHint": "Passive test. The examiner lifts the top leg. Watch for trunk compensation.",
+        "back": "Patient sidelying, bottom hip/knee flexed 70–90°, top leg straight (0°). Examiner stabilizes the innominate with one hand and passively abducts the top leg. Discontinue if right thoracic abduction/sidebending occurs.",
+        "backDetail": "Positive = femoral abduction limited to less than 45°. In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, expect positive R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> — the right femoral head laterally buttresses against the superior acetabulum during abduction. When <abbr title=\"Adduction Drop Test\">ADT</abbr> is negative bilaterally, a persistent positive R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> may indicate right proximal iliacus overactivity interfering with right glute max. (Manual p.46)"
+    },
+    {
+        "id": "test-006",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "What does a positive right PART indicate in a patient with positive left ADT?",
+        "frontHint": "The right femur can't abduct passively. Think about what's happening at the right acetabulum.",
+        "back": "Right femoral abduction is limited (<45°) due to lateral buttressing of the right femoral head against the superior acetabulum.",
+        "backDetail": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>: positive left <abbr title=\"Adduction Drop Test\">ADT</abbr> predicts positive right <abbr title=\"Passive Abduction Raise Test\">PART</abbr>. The compensatory right-side position (R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>) causes the right acetabulum to restrict abduction. When <abbr title=\"Adduction Drop Test\">ADT</abbr> becomes negative bilaterally but R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> persists, the cause shifts to right proximal iliacus overactivity blocking right glute max — and right glute max facilitation is needed. (Manual p.46)"
+    },
+    {
+        "id": "test-007",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "How is the Standing Reach Test (SRT) performed for a Left AIC patient?",
+        "frontHint": "Different procedure than for B PEC — one involves a hip shift, one doesn't.",
+        "back": "Patient stands, knees extended, right fingers overlap left. Patient reaches toward left toes while shifting the left hip back, keeping the back rounded and exhaling. Measure distance from fingertips to floor in front of left toes. Repeat toward right side.",
+        "backDetail": "For <abbr title=\"Bilateral PEC\">B PEC</abbr> (no hip shift): patient reaches straight down toward floor, hips move back symmetrically, measure from fingertips to floor. A <abbr title=\"Bilateral PEC\">B PEC</abbr> patient who can touch toes despite positive bilateral <abbr title=\"Adduction Drop Test\">ADT</abbr> and <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> = Bilateral Patho <abbr title=\"Posterior Exterior Chain\">PEC</abbr>. <abbr title=\"Standing Reach Test\">SRT</abbr> reflects inlet/outlet ON-OFF states. (Manual p.47)"
+    },
+    {
+        "id": "test-008",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "In PRI testing, what does 'positive' mean?",
+        "frontHint": "The opposite of most orthopedic special tests.",
+        "back": "Positive (+) means the patient CANNOT do it. Negative (−) means the patient CAN do it.",
+        "backDetail": "This is inverted from standard orthopedic testing, where a positive test means pathology was provoked. In PRI, positive <abbr title=\"Adduction Drop Test\">ADT</abbr> = the femur won't adduct; positive <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> = the knee can't reach the mat; positive <abbr title=\"Passive Abduction Raise Test\">PART</abbr> = abduction is limited. Be careful on the exam — this reversal catches people."
+    },
+    {
+        "id": "test-009",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "What does the Hruska Abduction Lift Test (HALT) measure, and what is the patient position?",
+        "frontHint": "Graded 0–5. Each level maps to a facilitation step.",
+        "back": "Patient sidelying, top hip/knee at 90°, feet against wall. Tests progressive ability to abduct the top hip through the facilitation hierarchy. Each level = a different muscle group coming online.",
+        "backDetail": "Level 0: can't hold position (reposition first). Level 1: holds abduction at wall. Level 2: abducts with lateral trunk compensation. Level 3: abducts without trunk compensation. Level 4: raises leg fully off wall without lateral trunk. Level 5: extends the abducted top leg without back extension, knee flexion, or <abbr title=\"Femoro-Acetabular External Rotation\">FA ER</abbr>. (Manual p.50–51)"
+    },
+    {
+        "id": "test-010",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "What does Functional Squat Level 2 failure indicate?",
+        "frontHint": "The patient can initiate the squat (Level 1) but can't progress further. What's blocking?",
+        "back": "Inability to move the bottom back and knees forward while maintaining trunk flexion. Reflects lack of femoral adduction, hyperactive hip flexors, and overactive FA ERs, inferior glute max, coccygeus, and piriformis.",
+        "backDetail": "Level 1 failure = hyperactive back extensors, rectus femoris, and sartorius (can't even flex trunk to start). Level 2 failure adds hip flexor and external rotator dominance. Level 3 = can't get below knee level with heels down. If Squat > 3/5 with positive B <abbr title=\"Adduction Drop Test\">ADT</abbr> and B <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> = <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>. (Manual p.48)"
+    },
+    {
+        "id": "concept-001",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What is the Left AIC pattern?",
+        "frontHint": "Six muscles in a chain. The left pelvis is pulled in a specific direction.",
+        "back": "Left Anterior Interior Chain — the foundational asymmetrical pattern. The left diaphragm, left psoas, left iliacus, left TFL, left vastus lateralis, and left biceps femoris pull the left pelvis into anterior tilt and forward rotation.",
+        "backDetail": "Left diaphragm pulls dorsal spine up/forward. Left psoas + left iliacus pull lumbar spine and left pelvis down/forward. These increase left hemilordosis and left anterior pelvic tilt. The left femur orients inward via the acetabulum, overloading left vastus lateralis and left biceps femoris as compensatory stabilizers. (Manual p.2)"
+    },
+    {
+        "id": "concept-002",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "Why does the L AIC pattern exist in most people?",
+        "frontHint": "The right and left hemidiaphragms are not symmetrical. One has a structural advantage.",
+        "back": "The right hemidiaphragm is larger and sits on the liver, giving it a biomechanical platform for respiration. The left hemidiaphragm is smaller, sits above the stomach/spleen, and lacks that support — so it flattens and becomes postural rather than respiratory.",
+        "backDetail": "When the left hemidiaphragm loses its dome (<abbr title=\"Zone of Apposition\">ZOA</abbr>), it becomes tonic/postural rather than phasic/respiratory. This engages the left <abbr title=\"Anterior Interior Chain\">AIC</abbr> chain: the left psoas and iliacus pull the left pelvis anteriorly and forwardly. The body shifts rightward to compensate. This is why PRI considers <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> the baseline pattern."
+    },
+    {
+        "id": "concept-003",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What does 'neutral' mean in PRI?",
+        "frontHint": "Hruska compares it to a gearbox. It's not a position you hold.",
+        "back": "A state of disengagement where overactive polyarticular chains are inhibited, allowing reciprocal movement through a mid-zone in all three planes.",
+        "backDetail": "Like a disengaged gear — ready to go either direction. Achieving neutral means muscles can disengage so a new movement strategy begins from an unbiased position. Neutral is a prerequisite for alternating reciprocal activity (stance shifting, gait). A patient stuck in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> can't access neutral until repositioning and inhibition restore mid-zone access. (Manual p.ix–x)"
+    },
+    {
+        "id": "concept-004",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What is the Zone of Apposition (ZOA)?",
+        "frontHint": "Related to diaphragm shape. When it shrinks, breathing mechanics change.",
+        "back": "The area of the diaphragm dome that apposes (lies against) the inner rib cage.",
+        "backDetail": "When the diaphragm flattens and descends excessively, <abbr title=\"Zone of Apposition\">ZOA</abbr> shrinks. The diaphragm loses its dome and becomes a postural muscle instead of a respiratory one. PRI exercises emphasize exhalation to re-dome the diaphragm and restore <abbr title=\"Zone of Apposition\">ZOA</abbr>. In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left <abbr title=\"Zone of Apposition\">ZOA</abbr> is poor because the left hemidiaphragm is flat and tonic."
+    },
+    {
+        "id": "concept-005",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What is the rule: 'Behind every B PEC pattern is a ____'?",
+        "frontHint": "B PEC is a more compensated version of a simpler pattern.",
+        "back": "Behind every Bilateral PEC pattern is a Left AIC pattern.",
+        "backDetail": "<abbr title=\"Bilateral PEC\">B PEC</abbr> is bilateral anterior pelvic tilt — both sides now in <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>. But the underlying <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> asymmetry is still present underneath. Treatment for <abbr title=\"Bilateral PEC\">B PEC</abbr> starts with bilateral repositioning, then resolves the <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> once bilateral <abbr title=\"Adduction Drop Test\">ADT</abbr> is negative. The <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> facilitation hierarchy (Steps 1–10) is Step 3 in both <abbr title=\"Bilateral PEC\">B PEC</abbr> and <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> hierarchies. (Manual p.26, 70–72)"
+    },
+    {
+        "id": "concept-006",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "How do you distinguish B Patho PEC from B PEC on clinical testing?",
+        "frontHint": "Paradox: better mobility can mean worse pathology. Look for atypical findings.",
+        "back": "B Patho PEC has at least one atypical finding: positive PART (uni- or bilateral), SRT of 0 inches (touches toes), or Functional Squat > 3/5 — despite positive bilateral ADT and PADT.",
+        "backDetail": "<abbr title=\"Bilateral PEC\">B PEC</abbr>: negative <abbr title=\"Passive Abduction Raise Test\">PART</abbr> bilaterally, can't touch toes, Squat < 3/5. <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>: compensatory hypermobility — CAN touch toes, CAN squat deeply, and/or <abbr title=\"Passive Abduction Raise Test\">PART</abbr> is positive. Better ROM + poor pelvic control = more decompensated. Only one atypical finding needed. If Squat > 3/5 (Patho), use straw/kazoo instead of balloon. (Manual p.52, 69)"
+    },
+    {
+        "id": "concept-007",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What does 'ON' mean in PRI? What does 'OFF' mean?",
+        "frontHint": "These aren't about neural activation. Think leverage and length-tension.",
+        "back": "'ON' = muscle is in a shortened, mechanically advantaged position. 'OFF' = muscle is lengthened and in a mechanically disadvantaged position.",
+        "backDetail": "A muscle that is 'OFF' may be firing but can't produce effective force because it's too long (actively insufficient) or eccentrically strained. PRI clarifies: 'When we say a muscle is OFF, it's not completely OFF, but it's not in its best leveraged position to provide stability.' These are relative mechanical states, not on/off switches. (Manual p.36)"
+    },
+    {
+        "id": "concept-008",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What is the pelvic inlet? What are its borders?",
+        "frontHint": "The superior opening of the pelvic ring. Four muscle groups work here.",
+        "back": "The superior pelvic aperture — the bony ring bordered by the ASIS, sacral base, and pubic symphysis.",
+        "backDetail": "Muscles governing the inlet: iliacus (frontal adduction), rectus femoris and sartorius (sagittal), gluteus medius and gluteus maximus (posterior inlet), <abbr title=\"Internal Oblique\">IO</abbr>/TAs (integration). When PRI says '<abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>', they mean this ring is widening/opening on that side — the ASIS drops forward, the inlet abducts. Inlet and outlet always move in opposite directions simultaneously. (Manual p.3)"
+    },
+    {
+        "id": "concept-009",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What is the pelvic outlet? What are its borders?",
+        "frontHint": "The inferior opening — where the pelvic floor lives.",
+        "back": "The inferior pelvic aperture — bordered by the ischial tuberosities laterally, coccyx posteriorly, and pubic symphysis anteriorly.",
+        "backDetail": "Outlet muscles: obturator internus and iliococcygeus (anterior, abduction), puborectalis and pubococcygeus (anterior, sagittal), coccygeus and piriformis (posterior), arcuate tendon and anococcygeal ligament (integration). Key rule: outlet direction is always opposite inlet. When inlet opens (<abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>), outlet closes (<abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr>) on the same side. (Manual p.3)"
+    },
+    {
+        "id": "concept-010",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What is the inlet-outlet rule?",
+        "frontHint": "One opens, the other closes. Same bone movement, viewed from two different openings.",
+        "back": "Inlet and outlet always move in opposite directions on the same side. When the inlet opens (IP ER), the outlet closes (IsP IR), and vice versa.",
+        "backDetail": "This is because the pelvis is a ring with two openings. When the ASIS tips forward (anterior tilt), the inlet widens (<abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>) while the ischial tuberosities come together and the outlet narrows (<abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr>). One bone movement produces both — it just looks different depending on whether you're viewing from above (inlet) or below (outlet)."
+    },
+    {
+        "id": "init-001",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What does IP ER describe?",
+        "frontHint": "IP names the anterior inlet bones. The direction tells you the ring is doing something.",
+        "back": "Ilio-Pubo External Rotation — the anterior pelvic inlet is widening/opening on that side.",
+        "backDetail": "The ilio-pubo joint is PRI's name for the anterior inlet (ilium-to-pubis). <abbr title=\"External Rotation\">ER</abbr> = the inlet ring opens. In standard anatomy: anterior pelvic tilt — ASIS drops forward. PRI describes this as flexion, abduction, and external rotation of the innominate. This is the patterned left-side position in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. Equivalent outlet on the same side: <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> (outlet closes)."
+    },
+    {
+        "id": "init-002",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What does IsP IR describe?",
+        "frontHint": "IsP names two bones of the anterior outlet. This is happening below the inlet.",
+        "back": "Ischio-Pubo Internal Rotation — the anterior pelvic outlet is narrowing/closing on that side.",
+        "backDetail": "<abbr title=\"Ischio-Pubo\">IsP</abbr> = ischium-to-pubis (anterior outlet). <abbr title=\"Internal Rotation\">IR</abbr> = the outlet ring closes — ischial tuberosities move together. In standard terms: inferior pelvic aperture narrows. Happens simultaneously with <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (inlet opens) on the same side. PRI tri-planar descriptors: extension, adduction, internal rotation. In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, left <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> = left outlet stuck closed/adducted."
+    },
+    {
+        "id": "init-003",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What does IS IR describe?",
+        "frontHint": "IS names the posterior inlet bones. This describes what the sacrum does relative to the ilium.",
+        "back": "Ilio-Sacral Internal Rotation — sacral nutation. The sacral base tips anterior relative to the ilium on that side.",
+        "backDetail": "<abbr title=\"Ilio-Sacral\">IS</abbr> names the ilium as the treatment target (inlet perspective). The physical motion is sacral nutation — sacral base tips anterior relative to the ilium. Unlike <abbr title=\"Acetabulo-Femoral\">AF</abbr>/<abbr title=\"Femoro-Acetabular\">FA</abbr> where the first letter names the moving bone, <abbr title=\"Ilio-Sacral\">IS</abbr>/<abbr title=\"Sacro-Iliac\">SI</abbr> names the bone PRI intends to reposition: <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr> = reposition the ilium at the inlet; <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> = reposition the sacrum at the outlet. Same nutation, different clinical question."
+    },
+    {
+        "id": "init-004",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What does SI IR describe?",
+        "frontHint": "SI names the posterior outlet bones. Same joint as IS, but reversed — different treatment target.",
+        "back": "Sacro-Iliac Internal Rotation — the sacrum internally rotates on the ilium, viewed from the outlet perspective. Same motion as IS IR but names the sacrum as the moving bone.",
+        "backDetail": "<abbr title=\"Sacro-Iliac\">SI</abbr> names the sacrum as the treatment target (outlet perspective). Same nutation as <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr>, but the clinical question flips: instead of moving the ilium on the sacrum (inlet work), you're targeting the sacrum directly (outlet work). The naming reversal encodes that distinction — not a different motion, a different treatment approach."
+    },
+    {
+        "id": "init-005",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What does AF IR describe?",
+        "frontHint": "AF names the acetabulum as the moving bone on a fixed femur. Think closed chain.",
+        "back": "Acetabulo-Femoral Internal Rotation — the pelvis (acetabulum) internally rotates on a fixed femur. The pelvis tilts posteriorly relative to the planted leg.",
+        "backDetail": "Acetabulo-Femoral Internal Rotation — the pelvis tilts posteriorly on a fixed foot (closed chain). In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left pelvis is stuck in <abbr title=\"Acetabulo-Femoral External Rotation\">AF ER</abbr>; <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> is the corrective direction. Standard anatomy describes the joint angle; PRI's naming attempts to encode which segment moved — pelvis or femur (both typically move together)."
+    },
+    {
+        "id": "init-006",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What is the difference between AF and FA?",
+        "frontHint": "Same joint. The first letter tells you which bone PRI considers the moving bone.",
+        "back": "AF (Acetabulo-Femoral) = pelvis moves on a fixed femur (closed chain, stance leg). FA (Femoro-Acetabular) = femur moves on a fixed pelvis (open chain, swing leg).",
+        "backDetail": "Standard anatomy calls both 'hip internal rotation.' PRI splits the name to encode which bone is displaced and which is the treatment target. <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> = posterior pelvic tilt on a planted leg. <abbr title=\"Femoro-Acetabular Internal Rotation\">FA IR</abbr> = femur internally rotating in the socket. Clinically: <abbr title=\"Acetabulo-Femoral\">AF</abbr> exercises reposition the pelvis; <abbr title=\"Femoro-Acetabular\">FA</abbr> exercises address femoral mobility. The distinction matters for exercise selection."
+    },
+    {
+        "id": "init-007",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What does PEC stand for, and what muscles compose it?",
+        "frontHint": "These are the back extensors. They flatten the thoracic spine.",
+        "back": "Posterior Exterior Chain — latissimus dorsi, quadratus lumborum, posterior intercostals, serratus posterior, iliocostalis lumborum (plus multifidus, spinalis, semispinalis).",
+        "backDetail": "The paraspinal extensors. They increase lumbar lordosis, flatten the thoracic spine, strain the <abbr title=\"Sacro-Iliac\">SI</abbr> joints, and restrict trunk rotation. They also act as accessory respiratory muscles and restrict lower lobe expansion. <abbr title=\"Posterior Exterior Chain\">PEC</abbr> overactivity locks the trunk in extension, reinforcing <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. (Manual p.vii)"
+    },
+    {
+        "id": "init-008",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What does AIC stand for, and what muscles compose it?",
+        "frontHint": "'Interior' means deep/intracavitary — distinguishing from superficial anterior muscles.",
+        "back": "Anterior Interior Chain — diaphragm, psoas, iliacus, TFL, vastus lateralis, biceps femoris.",
+        "backDetail": "Attaches from costal cartilage of ribs 7–12 to lateral patella, fibular head, and lateral tibial condyle. 'Interior' means the deep, intracavitary muscles (diaphragm and psoas specifically). This chain anteriorly tilts the pelvis, increases lumbar lordosis, and orients the femur. PRI calls the left-dominant version 'Left <abbr title=\"Anterior Interior Chain\">AIC</abbr>' — the foundational pattern. (Manual p.vii)"
+    },
+    {
+        "id": "muscle-001",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "Origin and insertion of the psoas major?",
+        "frontHint": "One of the few muscles that crosses from the spine to the femur.",
+        "back": "Origin: T12–L5 vertebral bodies, intervertebral discs, and transverse processes. Insertion: lesser trochanter of the femur.",
+        "backDetail": "Standard action: hip flexion, lateral trunk flexion, debated role in femoral rotation. PRI role: the left psoas is part of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> — when shortened, it pulls lumbar spine and left pelvis down/forward, increasing left hemilordosis. PRI considers it an 'ineffective femoral external rotator' in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. Treatment: inhibit via repositioning before facilitating opposing muscles."
+    },
+    {
+        "id": "muscle-002",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "Origin and insertion of the iliacus?",
+        "frontHint": "PRI distinguishes proximal vs. distal fibers — they have different roles.",
+        "back": "Origin: iliac fossa (inner surface of ilium). Insertion: lesser trochanter of the femur (joins psoas tendon).",
+        "backDetail": "Standard action: hip flexion. PRI splits it: distal iliacus acts on the femur (part of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> problem). Proximal iliacus acts on the ilium in closed chain — pulls ilium medially = inlet adduction (<abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>). Proximal iliacus is facilitated in Step 3 of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy. PRI calls it 'anterior glute med' — confusing, but it's still iliacus. (Manual p.44, 76)"
+    },
+    {
+        "id": "muscle-003",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "What does the left obturator internus do in PRI's framework versus standard anatomy?",
+        "frontHint": "Same muscle, different reference frame. Open chain vs. closed chain.",
+        "back": "Standard anatomy: lateral (external) rotation of the hip. PRI: outlet abduction — in closed chain, the left obturator internus pulls the left ischial tuberosity laterally, widening the left outlet (IsP ER).",
+        "backDetail": "Origin: obturator membrane and surrounding bone (inside pelvis). Insertion: medial surface of greater trochanter. Exits through lesser sciatic foramen. When femur is fixed, <abbr title=\"Obturator Internus\">OI</abbr> pulls ischium laterally instead of rotating the femur. PRI targets it for left outlet restoration. Facilitated in Step 2 of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy via left adductors. (Manual p.24–25)"
+    },
+    {
+        "id": "muscle-004",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "What does the right gluteus maximus do in the L AIC correction?",
+        "frontHint": "Works at both inlet and outlet. Facilitated in repositioning AND in Step 4.",
+        "back": "Right glute max rotates the sacrum back toward the left (countering L AIC forward rotation). It abducts the right inlet and adducts the right outlet.",
+        "backDetail": "Standard action: hip extension, external rotation, lower-fiber adduction. In PRI closed chain: right glute max produces right <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> (sacral nutation on right) and right posterior outlet closure. 'Left Sidelying Right Glute Max' is one of three <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> repositioning exercises. Superior fibers work at inlet; inferior fibers at outlet. Step 4 of facilitation. (Manual p.25, 77)"
+    },
+    {
+        "id": "muscle-005",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "What does the left gluteus medius do in the L AIC correction?",
+        "frontHint": "Works at the left posterior inlet. Facilitated in Step 3.",
+        "back": "Left gluteus medius produces counter-nutation on the left (IS ER) — the left sacral base tips posterior relative to the left ilium. It helps close the left posterior inlet.",
+        "backDetail": "Standard action: hip abduction, medial rotation (anterior fibers). PRI assigns it to left posterior inlet. In closed chain, left glute med pulls ilium laterally relative to sacrum, promoting <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> (counter-nutation). Facilitated in Step 3 with left proximal iliacus. Test marker: +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> persists, −R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> achieved, R <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 2/5. (Manual p.76)"
+    },
+    {
+        "id": "muscle-006",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "What is the role of the right rectus femoris and right sartorius in L AIC correction?",
+        "frontHint": "These are the first muscles facilitated in the L AIC hierarchy. They work at the right anterior inlet.",
+        "back": "They turn ON the right anterior inlet via IP ER — advancing the right knee ahead of the left, initiating the Right AIC position needed for alternating gait.",
+        "backDetail": "Standard actions — Rec fem: hip flexion + knee extension. Sartorius: hip flexion + <abbr title=\"External Rotation\">ER</abbr> + knee flexion. PRI role: producing right inlet flexion/abduction/<abbr title=\"External Rotation\">ER</abbr> to oppose <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. Step 1 of facilitation. Test markers: +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, +R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>, R <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 0/5. Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius. (Manual p.75)"
+    },
+    {
+        "id": "muscle-007",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "What do the left IO (internal oblique) and left TA (transversus abdominis) do in PRI's framework?",
+        "frontHint": "They connect the respiratory diaphragm to the pelvic inlet. Think pressure regulation.",
+        "back": "Left IO/TAs are the primary connectors linking the left respiratory diaphragm to left pelvic inlet control. They promote inlet extension (IP IR) and regulate intra-abdominal pressure between the two diaphragms.",
+        "backDetail": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left <abbr title=\"Internal Oblique\">IO</abbr>/TAs are weak — the left abdominal wall can't oppose the left psoas/iliacus pull. Restoring them is essential for maintaining repositioning. They are integrated into exercises throughout the hierarchy (balloon activities, wall reaches). In <abbr title=\"Bilateral PEC\">B PEC</abbr>, bilateral <abbr title=\"Internal Oblique\">IO</abbr>/TAs are long and weak with abdominal bulge. (Manual p.3, Handout 1)"
+    },
+    {
+        "id": "muscle-008",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "What does the iliococcygeus do in PRI's framework?",
+        "frontHint": "Part of the pelvic floor. Works at the anterior outlet alongside obturator internus.",
+        "back": "Left iliococcygeus produces left outlet abduction — pulls the left ischial tuberosity laterally, helping widen the left outlet (IsP ER) and ascend the left pelvic diaphragm.",
+        "backDetail": "Part of levator ani. Origin: arcuate tendon (tendinous arch of levator ani). Insertion: anococcygeal body and coccyx. Standard action: supports pelvic viscera, elevates pelvic floor. PRI targets it alongside left obturator internus for left outlet restoration. Facilitated in Step 2 of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy via left adductors. (Manual p.24–25, 44)"
+    },
+    {
+        "id": "muscle-009",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "What do the left puborectalis and left pubococcygeus do in PRI's correction?",
+        "frontHint": "Anterior outlet muscles. Facilitated in Step 2 alongside the green-family muscles.",
+        "back": "They produce left anterior outlet IsP ER (opening) — contributing to left pelvic diaphragm ascension.",
+        "backDetail": "Puborectalis: origin at pubic symphysis, loops around the rectum. Pubococcygeus: origin at pubis, inserts on coccyx. Both are levator ani components. Standard role: support pelvic viscera, maintain continence. PRI role: when they contract effectively, they help elevate the descended left pelvic floor. Facilitated in Step 2 of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy. (Manual p.24, 75)"
+    },
+    {
+        "id": "muscle-010",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "What do the right coccygeus and right piriformis do in L AIC correction?",
+        "frontHint": "Right posterior outlet muscles. Facilitated in Step 4 alongside right glute max.",
+        "back": "They produce right posterior outlet closure (SI IR) — the right sacrum nutates on the right ilium, narrowing the right outlet.",
+        "backDetail": "Coccygeus: origin at ischial spine, insertion at coccyx/lower sacrum. Standard action: supports pelvic floor, flexes coccyx. Piriformis: origin at anterior sacrum, insertion at greater trochanter. Standard action: lateral rotation of hip. PRI targets both for right <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr>. Step 4 of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy. Test markers: −L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, −R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>, R <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 4/5. (Manual p.25, 77)"
+    },
+    {
+        "id": "muscle-011",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "Origin and insertion of the piriformis?",
+        "frontHint": "Exits the pelvis through the greater sciatic foramen. Sciatic nerve runs close by.",
+        "back": "Origin: anterior surface of sacrum (S2–S4). Insertion: superior border of greater trochanter of the femur.",
+        "backDetail": "Standard action: lateral rotation (hip extended), abduction (hip flexed). PRI role: right piriformis produces right posterior outlet <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> alongside right coccygeus and right inferior glute max. Also listed as a contributor to positive <abbr title=\"Adduction Drop Test\">ADT</abbr> restriction. In standard anatomy, piriformis syndrome (sciatic nerve compression) is a well-known clinical entity."
+    },
+    {
+        "id": "muscle-012",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "Origin and insertion of the TFL (tensor fasciae latae)?",
+        "frontHint": "Part of the AIC chain. Connects pelvis to the IT band.",
+        "back": "Origin: ASIS and anterior iliac crest. Insertion: iliotibial band (IT band), which inserts on the lateral tibial condyle (Gerdy's tubercle).",
+        "backDetail": "Standard actions: hip flexion, hip abduction, hip internal rotation. In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left <abbr title=\"Tensor Fasciae Latae\">TFL</abbr> is part of the <abbr title=\"Anterior Interior Chain\">AIC</abbr> chain — it's overactive and contributes to anterior pelvic tilt on the left. PRI treatment includes inhibiting the left <abbr title=\"Tensor Fasciae Latae\">TFL</abbr> as part of left anterior inlet inhibition (promoting extension via L <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>). (Manual p.2, 77)"
+    },
+    {
+        "id": "treat-001",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "What are the three L AIC repositioning techniques?",
+        "frontHint": "These come first — before inhibition or facilitation. One targets left hamstring, one left adductor, one right glute max.",
+        "back": "1. 90-90 Supported Hip Lift with Hemibridge (left hamstring pulls left hemipelvis posteriorly). 2. Right Sidelying Respiratory Left Adductor Pull Back (left adductor magnus + left proximal obturator for left AF IR). 3. Left Sidelying Right Glute Max (rotates sacrum back toward left).",
+        "backDetail": "These must be done first. They reposition the left pelvis out of anterior tilt/forward rotation. After repositioning: retest <abbr title=\"Adduction Drop Test\">ADT</abbr>. If left <abbr title=\"Adduction Drop Test\">ADT</abbr> becomes negative, proceed to facilitation hierarchy (if +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> and/or +R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> remain) or Myokinematic Restoration program (if −L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> and −R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>). (Manual p.45, 74)"
+    },
+    {
+        "id": "treat-002",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "What are the three B PEC / B Patho PEC repositioning techniques?",
+        "frontHint": "Different from L AIC repositioning. These are bilateral/symmetrical.",
+        "back": "1. Standing Wall Supported Reach. 2. 90-90 Hip Lift in Passive FA IR with Balloon. 3. Modified All Four Belly Lift.",
+        "backDetail": "These address bilateral anterior pelvic tilt. After repositioning: retest bilateral <abbr title=\"Adduction Drop Test\">ADT</abbr>. If −B <abbr title=\"Adduction Drop Test\">ADT</abbr> and +B <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> → Pelvis Restoration program (maximize inlet extension via <abbr title=\"Internal Oblique\">IO</abbr>/TAs, forward arm reach, proximal adductors). If −B <abbr title=\"Adduction Drop Test\">ADT</abbr> and −B <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> → Myokinematic Restoration & Postural Respiration program. (Manual p.45, 69–72)"
+    },
+    {
+        "id": "treat-003",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "What is the treatment sequence in PRI?",
+        "frontHint": "Three phases. You can't strengthen what's in the wrong position.",
+        "back": "Reposition → Inhibit → Facilitate. First move the pelvis out of its patterned position, then quiet overactive muscles, then activate underactive muscles.",
+        "backDetail": "Repositioning = the 'Big Three' for the specific pattern. Inhibition = quiet the dominant chain (left <abbr title=\"Anterior Interior Chain\">AIC</abbr> muscles on the left, <abbr title=\"Posterior Exterior Chain\">PEC</abbr> muscles). Facilitation = the 10-step <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy activating muscles that oppose the pattern. Skipping repositioning means facilitation targets muscles that can't fire correctly from a malaligned position. (Manual p.75–81)"
+    },
+    {
+        "id": "treat-004",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "What is facilitated in Step 1 of the Left AIC hierarchy, and what are the test markers?",
+        "frontHint": "First muscles to come online after repositioning. They work at the right anterior inlet.",
+        "back": "Step 1: Turn ON right anterior inlet via IP ER — right rectus femoris and right sartorius. Test markers: +L PADT, +R PART, R HALT 0/5.",
+        "backDetail": "Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius. The right knee advances ahead of the left, initiating the Right <abbr title=\"Anterior Interior Chain\">AIC</abbr> position needed for alternating gait. This is the entry point of the facilitation hierarchy — the patient has achieved negative left <abbr title=\"Adduction Drop Test\">ADT</abbr> but still has positive <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> and <abbr title=\"Passive Abduction Raise Test\">PART</abbr>. (Manual p.75)"
+    },
+    {
+        "id": "treat-005",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "What is facilitated in Step 2 of the Left AIC hierarchy, and what are the test markers?",
+        "frontHint": "Left anterior outlet opens. The pelvic diaphragm needs to ascend. Adductors are involved.",
+        "back": "Step 2: Turn ON left anterior outlet via IsP ER — left puborectalis, left pubococcygeus, left iliococcygeus, left obturator internus (via left adductors). Pelvic diaphragm ascension. Test markers: +L PADT, +R PART, R HALT 1/5.",
+        "backDetail": "Exercises include: Right Sidelying Respiratory Left Adductor Pull Back (with Balloon), Left Sidelying Knee to Knee. The left adductors are the gateway — their contraction facilitates the left pelvic floor muscles to abduct the outlet and ascend the pelvic diaphragm. (Manual p.75)"
+    },
+    {
+        "id": "treat-006",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "What is facilitated in Step 3 of the Left AIC hierarchy, and what are the test markers?",
+        "frontHint": "Left posterior inlet. Counter-nutation on the left side.",
+        "back": "Step 3: Turn ON left posterior inlet via IP IR / IS ER — left proximal iliacus and left gluteus medius. Counter-nutation of the left sacrum. Test markers: +L PADT, −R PART, R HALT 2/5.",
+        "backDetail": "R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> resolves at this step (becomes negative) — a key milestone. The left iliacus adducts the left inlet while left glute med produces left <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> (counter-nutation). Exercises: Right Sidelying Supported Left Glute Med, Right Sidelying Hemi 90-90 with Left <abbr title=\"Femoro-Acetabular Internal Rotation\">FA IR</abbr> variations. (Manual p.76)"
+    },
+    {
+        "id": "treat-007",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "What is facilitated in Step 4 of the Left AIC hierarchy, and what are the test markers?",
+        "frontHint": "Right posterior outlet closes. This is the last step before upright work begins.",
+        "back": "Step 4: Turn ON right posterior outlet via SI IR — right coccygeus, right piriformis, right glute max (via glute max). Test markers: −L PADT, −R PART, R HALT 4/5.",
+        "backDetail": "L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> resolves at this step (becomes negative) — both <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> and <abbr title=\"Passive Abduction Raise Test\">PART</abbr> are now negative. The right posterior outlet closes via right glute max extension with <abbr title=\"Femoro-Acetabular External Rotation\">FA ER</abbr> and <abbr title=\"Femoro-Acetabular\">FA</abbr> abduction. Exercises: All Four Right Glute Max, Left Sidelying Supported Right Glute Max with Hip Extension. After Step 4: proceed to upright functional control. (Manual p.77)"
+    },
+    {
+        "id": "treat-008",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "After achieving negative left ADT and negative left PADT, where does the patient go?",
+        "frontHint": "Tests are now negative — but the patient needs to maintain neutral during function.",
+        "back": "Upright functional integration: Left single-leg frontal plane control (Step 5, requires HALT 3/5) → Right single-leg control (Step 6) → Sidelying frontal plane integration (Step 7) → Seated pelvic ascension control (Step 8) → Reciprocal alternating activity / gait (Step 9) → Squatting (Step 10).",
+        "backDetail": "Steps 5–10 integrate the corrected pelvic position into real-world movement. The patient practices maintaining neutral during single-leg stance, weight shifting, and walking. Step 9 includes techniques like Left Stance Interrupted Reciprocal Step Through and Two Point Gait with Right Glute Max. Step 10 promotes squatting. (Manual p.78–81)"
+    },
+    {
+        "id": "treat-009",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "After L AIC repositioning, test results are: −L ADT, −L PADT, −R PART. What program does the patient follow?",
+        "frontHint": "All tests negative after repositioning. The pelvis is neutral. Think: what course covers the next step?",
+        "back": "Myokinematic Restoration program — the patient does not need Pelvis Restoration facilitation.",
+        "backDetail": "If repositioning alone clears all tests, the pelvis is neutral and the facilitation hierarchy is not needed — patient transitions to Myokinematic Restoration (a different PRI course). If <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> or <abbr title=\"Passive Abduction Raise Test\">PART</abbr> persist despite negative <abbr title=\"Adduction Drop Test\">ADT</abbr>, the facilitation hierarchy (Steps 1–10) is needed. (Manual p.74)"
+    },
+    {
+        "id": "treat-010",
+        "category": "facilitation",
+        "examWeight": "medium",
+        "front": "What is the A-B-A clinical design PRI recommends?",
+        "frontHint": "Each patient is their own control. Three phases.",
+        "back": "A Phase: baseline testing. B Phase: intervention then retest. Second A Phase: withdrawal (no intervention) then retest. If tests revert during the second A phase, the intervention caused the change.",
+        "backDetail": "PRI advocates single-subject A-B-A design over RCTs for clinical decision-making. Each patient is their own control. PRI cites Karimi et al. 2021 (n=18 RCT showing improvement from pelvic repositioning) as support, but philosophically argues A-B-A is more appropriate than RCTs for individual patients. (Handout 2)"
+    },
+    {
+        "id": "anat-001",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "What role does the sacrotuberous ligament play in SI joint stability?",
+        "frontHint": "Its tension depends on sacral position — nutation vs. counter-nutation.",
+        "back": "Passive restraint to sacral nutation. Becomes taut when the sacrum nutates (IS IR) and slack when it counter-nutates (IS ER).",
+        "backDetail": "Runs from posterior sacrum and coccyx to ischial tuberosity. In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left <abbr title=\"Sacro-Iliac\">SI</abbr> is nutated (L <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr>) — this ligament is taut on the left. On the right, the <abbr title=\"Sacro-Iliac\">SI</abbr> is counter-nutated (R <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr>) and the ligament is relatively slack. This asymmetric tension contributes to right-side <abbr title=\"Sacro-Iliac\">SI</abbr> instability complaints in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> patients, because the right <abbr title=\"Sacro-Iliac\">SI</abbr> lacks passive restraint."
+    },
+    {
+        "id": "anat-002",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "What does the sacrospinous ligament connect, and what does it resist?",
+        "frontHint": "Connects sacrum to ischial spine. Relevant to outlet mechanics.",
+        "back": "Connects the lateral sacrum/coccyx to the ischial spine. Resists sacral nutation (like the sacrotuberous ligament) and helps form the boundary between the greater and lesser sciatic foramina.",
+        "backDetail": "Taut during nutation, slack during counter-nutation. Obturator internus exits through the lesser sciatic foramen, bounded inferiorly by sacrospinous ligament. Both sacrotuberous and sacrospinous ligaments provide passive <abbr title=\"Sacro-Iliac\">SI</abbr> stability — relevant to why nutated (<abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> left) vs. counter-nutated (<abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> right) <abbr title=\"Sacro-Iliac\">SI</abbr> joints present differently."
+    },
+    {
+        "id": "anat-003",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "Origin and insertion of the gluteus maximus?",
+        "frontHint": "Largest muscle in the body. In PRI, the right side works at both inlet and outlet.",
+        "back": "Origin: posterior gluteal line of ilium, dorsal surface of sacrum/coccyx, thoracolumbar fascia, sacrotuberous ligament. Insertion: IT band and gluteal tuberosity of femur.",
+        "backDetail": "Standard actions: hip extension, external rotation, lower-fiber adduction, upper-fiber abduction. In PRI: right glute max's superior fibers work at the right inlet (<abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>, advancing the right side), while inferior fibers work at the right posterior outlet (<abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr>, closing the outlet). It is facilitated in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> repositioning (Left Sidelying Right Glute Max) and again in Step 4."
+    },
+    {
+        "id": "anat-004",
+        "category": "muscle_action",
+        "examWeight": "high",
+        "front": "Origin and insertion of the gluteus medius?",
+        "frontHint": "In PRI, the left glute med works at the left posterior inlet. Step 3 muscle.",
+        "back": "Origin: outer surface of ilium between anterior and posterior gluteal lines. Insertion: lateral surface of greater trochanter.",
+        "backDetail": "Standard actions: hip abduction (all fibers), medial rotation (anterior), lateral rotation (posterior). In PRI, left glute med promotes left <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> (counter-nutation) — pulls left ilium laterally relative to sacrum, closing left posterior inlet. Facilitated in Step 3. Not the same as PRI's 'anterior glute med' (which refers to proximal iliacus)."
+    },
+    {
+        "id": "pattern-001",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "In L AIC, what is the position of the left pelvic inlet and left pelvic outlet?",
+        "frontHint": "Inlet opens, outlet closes — on the same side.",
+        "back": "Left inlet: IP ER (open — flexion, abduction, external rotation). Left outlet: IsP IR (closed — extension, adduction, internal rotation).",
+        "backDetail": "The left pelvis is anteriorly tilted and forwardly rotated. Viewing from above (inlet): the left ASIS drops forward, the ring widens (<abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>). Viewing from below (outlet): the left ischial tuberosities come together, the ring narrows (<abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr>). The left pelvic diaphragm is descended. Left <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr> (nutation) at the posterior inlet. Left <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> at the posterior outlet. (Manual p.21)"
+    },
+    {
+        "id": "pattern-002",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "In L AIC, what is the compensatory position of the RIGHT side?",
+        "frontHint": "Everything is opposite the left. The right inlet closes while the right outlet opens.",
+        "back": "Right inlet: IP IR (closed — extension, adduction, internal rotation). Right outlet: IsP ER (open — flexion, abduction, external rotation). Right IS ER (counter-nutation). Right SI ER.",
+        "backDetail": "The right side compensates: the right pelvis is relatively posteriorly tilted and rotated back. Right inlet narrows, right outlet widens. Right <abbr title=\"Sacro-Iliac\">SI</abbr> is counter-nutated and relatively lax — the sacrotuberous and sacrospinous ligaments are slack on the right, contributing to right <abbr title=\"Sacro-Iliac\">SI</abbr> instability complaints. (Manual p.21)"
+    },
+    {
+        "id": "pattern-003",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "In B PEC, what is the position of the bilateral inlets and outlets?",
+        "frontHint": "Both sides look like the left side in L AIC.",
+        "back": "Both inlets: IP ER (open — bilateral anterior tilt). Both outlets: IsP IR (closed — bilateral outlet adduction). Bilateral pelvic diaphragm descended, hypertonic, and inflexible.",
+        "backDetail": "<abbr title=\"Bilateral PEC\">B PEC</abbr> = both sides anteriorly tilted. Both diaphragms flat (poor bilateral <abbr title=\"Zone of Apposition\">ZOA</abbr>). Both <abbr title=\"Internal Oblique\">IO</abbr>/TAs long and weak. Bilateral anterior sacrum flexed, posterior sacrum extended, coccyx flexed. Continual state of inhalation with passive exhalation. Unlike <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>, pelvic diaphragm is hypertonic/inflexible (not bulged). <abbr title=\"Passive Abduction Raise Test\">PART</abbr> is negative bilaterally. (Manual p.28–33)"
+    },
+    {
+        "id": "test-011",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "Expected test results for L AIC pattern?",
+        "frontHint": "Five of six tests are positive. One is on the opposite side from the rest.",
+        "back": "+Left ADT, +Left PADT, +Right PART, SRT >0 inches, Functional Squat <3/5, HALT <3/5.",
+        "backDetail": "Note the asymmetry: <abbr title=\"Adduction Drop Test\">ADT</abbr> and <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> are positive on the LEFT, but <abbr title=\"Passive Abduction Raise Test\">PART</abbr> is positive on the RIGHT. This is because the left inlet is stuck in <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (blocks left femoral adduction → +L <abbr title=\"Adduction Drop Test\">ADT</abbr>) while the right side's compensatory position (R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>) blocks right femoral abduction → +R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>. The left pelvic floor can't ascend → +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>. (Manual p.52)"
+    },
+    {
+        "id": "test-012",
+        "category": "test_procedure",
+        "examWeight": "high",
+        "front": "Expected test results for B PEC pattern?",
+        "frontHint": "Like L AIC but bilateral. PART is the distinguishing negative test.",
+        "back": "+Bilateral ADT, +Bilateral PADT, −Bilateral PART, SRT >0 inches, Functional Squat <3/5, HALT <3/5.",
+        "backDetail": "<abbr title=\"Passive Abduction Raise Test\">PART</abbr> is negative bilaterally in <abbr title=\"Bilateral PEC\">B PEC</abbr> — this distinguishes it from <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> (where <abbr title=\"Passive Abduction Raise Test\">PART</abbr> becomes positive). Both sides are in <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (inlet open) so femoral adduction is restricted bilaterally, but femoral abduction is not restricted because neither side is in the compensatory <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> position that restricts abduction. (Manual p.52)"
+    },
+    {
+        "id": "resp-001",
+        "category": "bridging_term",
+        "examWeight": "medium",
+        "front": "What does PRI mean when they say the pelvic diaphragm is 'in a state of inhalation'?",
+        "frontHint": "Metaphor, not literal. Think about what a flat respiratory diaphragm looks like.",
+        "back": "The pelvic floor is chronically descended — stuck in the position it takes during actual inhalation (eccentric descent under increased IAP). It has lost its ability to cycle between descent and ascension.",
+        "backDetail": "Analogous to a flattened respiratory diaphragm being 'stuck in inhalation.' During actual inhalation, the pelvic floor does eccentrically descend. PRI's point: a chronically descended pelvic floor has lost its ability to ascend during exhalation. The fix: restore pelvic diaphragm ascension via outlet abduction. (LEARN-PRI.md)"
+    },
+    {
+        "id": "resp-002",
+        "category": "bridging_term",
+        "examWeight": "medium",
+        "front": "What respiratory findings are associated with the L AIC pattern?",
+        "frontHint": "Left-sided breathing is restricted in a specific way. The left diaphragm is part of the problem.",
+        "back": "Left anterior ribs flared/ER, left respiratory diaphragm descended/flat/postural (poor left ZOA), left IO/TAs weak, left anterior thorax hyperinflated, left posterior mediastinum limited.",
+        "backDetail": "The left hemidiaphragm loses its dome shape, becomes tonic (postural) instead of phasic (respiratory). <abbr title=\"Zone of Apposition\">ZOA</abbr> shrinks on the left. The left chest is stuck in relative inhalation — the left posterior mediastinum can't expand because the diaphragm can't ascend. Right posterior mediastinum is expanded, right anterior upper chest is limited. (Manual, LEARN-PRI.md)"
+    },
+    {
+        "id": "clinical-001",
+        "category": "facilitation",
+        "examWeight": "high",
+        "front": "When should you use a straw, kazoo, or party favor instead of a balloon?",
+        "frontHint": "Relates to one specific test finding in B Patho PEC.",
+        "back": "When Functional Squat Test is >3/5 (Patho finding). The patient likely cannot handle the expiratory resistance of blowing up a balloon.",
+        "backDetail": "This is noted twice in the manual. A Functional Squat >3/5 with positive bilateral <abbr title=\"Adduction Drop Test\">ADT</abbr> and <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> indicates <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> — the patient's compensatory hypermobility means their respiratory system can't handle high expiratory resistance. A straw, kazoo, or party favor provides gentler resistance to facilitate exhalation without overpressure. (Manual p.70)"
+    },
+    {
+        "id": "clinical-002",
+        "category": "facilitation",
+        "examWeight": "medium",
+        "front": "What test results indicate a patient needs the Pelvis Restoration program vs. the Myokinematic Restoration program after L AIC repositioning?",
+        "frontHint": "It depends on whether PADT and PART resolved with repositioning alone.",
+        "back": "Pelvis Restoration: −L ADT, +L PADT and/or +R PART (need further facilitation). Myokinematic Restoration: −L ADT, −L PADT, −R PART (pelvis is neutral, move to hip/femoral work).",
+        "backDetail": "If repositioning alone clears all tests, the pelvis is neutral and doesn't need the facilitation hierarchy — the patient transitions to Myokinematic Restoration (different PRI course). If <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> or <abbr title=\"Passive Abduction Raise Test\">PART</abbr> persist despite negative <abbr title=\"Adduction Drop Test\">ADT</abbr>, the facilitation hierarchy (Steps 1–10) is needed. (Manual p.74)"
+    },
+    {
+        "id": "init-009",
+        "category": "initialism",
+        "examWeight": "high",
+        "front": "What does the master equivalence rule state?",
+        "frontHint": "Inlet and femur go one way. Outlet goes the other. Five joint names, one bone position.",
+        "back": "Inlet direction matches femur direction (both ER or both IR). Outlet direction is always opposite. All five PRI joint names (IP, IS, IsP, SI, AF) describe the same bone position from different reference frames.",
+        "backDetail": "Example — left side in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>: <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (inlet opens) = <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr> (nutation) = <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> (outlet closes) = <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> (sacral nutation from outlet view) = <abbr title=\"Acetabulo-Femoral External Rotation\">AF ER</abbr> (pelvis tilts anteriorly on femur). Inlet and <abbr title=\"Acetabulo-Femoral\">AF</abbr> share the same direction (<abbr title=\"External Rotation\">ER</abbr>). Outlet names (<abbr title=\"Ischio-Pubo\">IsP</abbr>, <abbr title=\"Sacro-Iliac\">SI</abbr>) are always opposite. <abbr title=\"Ilio-Sacral\">IS</abbr> follows inlet direction. This rule lets you convert between any PRI joint name."
+    },
+    {
+        "id": "muscle-013",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "What is the role of the left adductor magnus in L AIC correction?",
+        "frontHint": "Gateway to pelvic floor activation in Step 2. Part of the Adductor Pull Back exercise.",
+        "back": "Left adductor magnus facilitates left AF IR (pelvis rotates posteriorly on the left femur) and activates the left pelvic floor muscles (obturator internus, iliococcygeus) for outlet abduction.",
+        "backDetail": "Origin: ischial ramus and ischial tuberosity. Insertion: linea aspera and adductor tubercle. Standard action: hip adduction, extension (posterior fibers). In PRI, left adductor contraction adducts the left femur, producing left <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> in closed chain and facilitating left outlet abduction. Exercise: Right Sidelying Respiratory Left Adductor Pull Back. (Manual p.75)"
+    },
+    {
+        "id": "muscle-014",
+        "category": "muscle_action",
+        "examWeight": "medium",
+        "front": "What is PRI's 'anterior glute med,' and why is it confusing?",
+        "frontHint": "It's not actually the anterior fibers of gluteus medius.",
+        "back": "PRI uses 'anterior glute med' to refer to the proximal iliacus — the fibers originating on the iliac fossa that adduct the inlet in closed chain. It is NOT the anterior fibers of the gluteus medius muscle.",
+        "backDetail": "This is a PRI-specific label. Proximal iliacus, when femur is fixed, pulls ilium medially (inlet adduction = <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>). PRI calls this 'anterior glute med' because it opposes hip abduction at the inlet level, similar to how glute med abducts the hip. Standard anatomy: this is iliacus, not gluteus medius. Facilitated in Step 3. (Manual p.44, 76)"
+    },
+    {
+        "id": "concept-011",
+        "category": "bridging_term",
+        "examWeight": "high",
+        "front": "What is nutation? What is counter-nutation?",
+        "frontHint": "Sacral base and coccyx tip in opposite directions. PRI gives these IS designations.",
+        "back": "Nutation: sacral base tips anterior, coccyx tips posterior. Compresses the SI joint. PRI calls this IS IR. Counter-nutation: sacral base tips posterior, coccyx tips anterior. Decompresses the SI joint. PRI calls this IS ER.",
+        "backDetail": "Nutation is the normal sacral position during single-leg stance on the ipsilateral side. In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left sacrum is nutated (L <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr>) — left <abbr title=\"Sacro-Iliac\">SI</abbr> compressed, sacrotuberous ligament taut on left. The right sacrum is counter-nutated (R <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr>) — right <abbr title=\"Sacro-Iliac\">SI</abbr> decompressed, ligaments lax. Treatment restores the ability to move between nutation and counter-nutation bilaterally."
+    },
+    {
+        "id": "clinical-003",
+        "category": "bridging_term",
+        "examWeight": "medium",
+        "front": "What is a 'reference center' in PRI?",
+        "frontHint": "Not a physical structure. Something the patient develops internally.",
+        "back": "The patient's internal sense of where their pelvis is in space — a felt sense of pelvic position they can return to throughout the day during functional activity.",
+        "backDetail": "PRI wants patients to develop proprioceptive awareness of their corrected pelvic position. If the patient can't feel the correct muscles (especially abdominals) or lacks a reference center, they may achieve neutral in the clinic but lose it immediately. Addressed in the 'can't maintain neutrality' troubleshooting section. (Manual)"
+    },
+    {
+        "id": "treat-011",
+        "category": "facilitation",
+        "examWeight": "medium",
+        "front": "What is the Left AIC Inhibition Program, and how does it relate to the Facilitation Program?",
+        "frontHint": "Parallel track. Facilitation turns muscles ON; inhibition turns muscles OFF.",
+        "back": "Inhibition quiets overactive muscles holding the L AIC pattern. It runs in parallel with facilitation. Step 1: Inhibit left anterior inlet (promote extension via L IP IR). Step 2: Inhibit right anterior outlet (R IsP IR). Step 3: Inhibit right posterior inlet (R IP ER). Step 4: Inhibit left posterior outlet (L IsP ER).",
+        "backDetail": "Facilitation turns ON the muscles that oppose <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. Inhibition turns OFF the muscles that hold <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. They address opposite sides of the same problem and share the same test markers. Inhibition Step 1 exercise: 90-90 Respiratory Left Hip Shift. Step 3 exercise: Standing Supported Left <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> with Right Arm Reach. (Manual p.77–78)"
+    }
 ]
