@@ -413,6 +413,7 @@ function createStructureOverlays(svg, wrap, imgSet) {
       labelDiv.className = 'anatomize-label';
       labelDiv.classList.add(priColorClass(s.priColor));
       labelDiv.id = 'anat-' + id + '-label';
+      // CSS min-width: fit-content ensures readability on small images.
       labelDiv.style.cssText = 'left:' + pb.x + '%;top:' + pb.y
           + '%;width:' + pb.w + '%;height:' + pb.h + '%'
           + (imgSet.flipped ? ';transform:scaleX(-1)' : '');
@@ -441,12 +442,7 @@ function renderBlankPanels(imgSet) {
   wrap.appendChild(svg);
   document.getElementById('anat-arena').appendChild(wrap);
 
-  wrap.addEventListener('click', (e) => {
-    const label = e.target.closest('.anatomize-label');
-    if (!label) return;
-    const m = label.id.match(RE_LABEL_ID);
-    if (m) structureClickHandler(m[1]);
-  });
+  wrap.addEventListener('click', labelClickHandler);
 
   hookImageLoad();
 }
@@ -538,7 +534,7 @@ function renderLabelHunt(imgSet) {
     const hitbox = e.target.closest('.anatomize-hitbox');
     if (!hitbox) return;
     const m = hitbox.id.match(RE_HITBOX_ID);
-    if (m) structureClickHandler(m[1]);
+    if (m) assessSelectedStructure(m[1]);
   });
 
   document.getElementById('anat-arena').appendChild(wrap);
@@ -572,7 +568,7 @@ function renderMobile(imgSet) {
     const btn = e.target.closest('.anatomize-mobile-btn');
     if (!btn) return;
     const m = btn.id.match(RE_BTN_ID);
-    if (m) structureClickHandler(m[1]);
+    if (m) assessSelectedStructure(m[1]);
   });
 
   document.getElementById('anat-arena').appendChild(list);
@@ -649,7 +645,15 @@ function renderPromptPanel(structure) {
   document.getElementById('anat-detail').appendChild(panel);
 }
 
-function structureClickHandler(structureId) {
+function labelClickHandler(e) {
+  const label = e.target.closest('.anatomize-label');
+  if (!label) return;
+
+  const structureId = label.id.match(RE_LABEL_ID);
+  if (structureId) assessSelectedStructure(structureId[1]);
+}
+
+function assessSelectedStructure(structureId) {
   if (reviewMode) {
     const structure = state.structures[structureId];
     if (structure) {

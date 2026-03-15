@@ -146,24 +146,29 @@
 
 }
 
+/* min-width: fit-content ensures labels are readable on small images
+   (e.g. pelvic inlet) without resizing labels on larger images.
+   JS sets max-width to cap at image edge; overflow + ellipsis truncates. */
 .anatomize-label {
-  position:absolute;
-  box-sizing:border-box;
-  display:flex;
-  align-items:center;
-  font-family:var(--mono);
-  font-size:.5rem;
-  font-weight:600;
-  color:rgba(0, 0, 0, .8);
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-width: fit-content;
+  min-height: fit-content;
+  font-family: var(--mono);
+  font-size: .5rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, .8);
   border: 2px solid var(--pri-fg);
   border-radius: 3px;
   padding: .3rem 0 .25rem .1rem;
-  cursor:pointer;
-  pointer-events:auto;
-  overflow:hidden;
-  z-index:1;
-  white-space:nowrap;
-  transition:border-color .15s,background-color .15s;
+  cursor: pointer;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 1;
+  white-space: nowrap;
+  transition: border-color .15s, background-color .15s;
 }
 
 .anatomize-label .anatomize-label-text {
@@ -186,11 +191,15 @@
   color:rgba(255, 255, 255, .9);
 }
 
-@media (max-width:600px) {
+@media (max-width: 600px) {
+
+  .anatomize-label {
+    font-size: .55rem;
+  }
 
   .anatomize-label .anatomize-label-text {
     text-overflow: ellipsis;
-    overflow:hidden;
+    overflow: hidden;
   }
 }
 
