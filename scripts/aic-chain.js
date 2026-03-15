@@ -202,6 +202,7 @@ function showDetail(entry) {
     row.appendChild(labelEl);
     const valEl = document.createElement('span');
     valEl.style.fontSize = 'var(--text-sm)';
+    // JSON data contains <abbr> tags — HTML in data, not ideal.
     const prop = (typeof f.value === 'string' && f.value.includes('<')) ?
         'innerHTML' : 'textContent';
     valEl[prop] = f.value;

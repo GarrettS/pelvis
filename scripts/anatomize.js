@@ -848,6 +848,7 @@ const createDetailRow = (() => {
     const text = (typeof value === 'object' && value !== null &&
         (value.proximal || value.distal)) ?
         formatAttachments(value) : value;
+    // JSON data contains <abbr> tags — HTML in data, not ideal.
     const prop = (typeof text === 'string' && text.includes('<')) ?
         'innerHTML' : 'textContent';
     row.lastChild[prop] = text;
