@@ -1,6 +1,6 @@
 [
   {
-    "name": "Left <abbr title=\"Anterior Interior Chain\">AIC</abbr>",
+    "name": "Left AIC",
     "rows": [
       {
         "l": "Symmetry",
@@ -9,12 +9,12 @@
       },
       {
         "l": "Inlet L / R",
-        "v": "L: <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (open) / R: <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> (closed)",
+        "v": "L: IP ER (open) / R: IP IR (closed)",
         "key": false
       },
       {
         "l": "Outlet L / R",
-        "v": "L: <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> (closed) / R: <abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr> (open)",
+        "v": "L: IsP IR (closed) / R: IsP ER (open)",
         "key": false
       },
       {
@@ -23,32 +23,32 @@
         "key": false
       },
       {
-        "l": "<abbr title=\"Internal Oblique\">IO</abbr>/TA",
+        "l": "IO/TA",
         "v": "L weak",
         "key": false
       },
       {
-        "l": "<abbr title=\"Zone of Apposition\">ZOA</abbr>",
+        "l": "ZOA",
         "v": "L lost",
         "key": false
       },
       {
-        "l": "<abbr title=\"Adduction Drop Test\">ADT</abbr>",
+        "l": "ADT",
         "v": "+ Left only",
         "key": false
       },
       {
-        "l": "<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>",
+        "l": "PADT",
         "v": "+ Left only",
         "key": false
       },
       {
-        "l": "<abbr title=\"Passive Abduction Raise Test\">PART</abbr>",
+        "l": "PART",
         "v": "+ Right",
         "key": false
       },
       {
-        "l": "<abbr title=\"Standing Reach Test\">SRT</abbr>",
+        "l": "SRT",
         "v": "> 0\" (hip shift left)",
         "key": false
       },
@@ -65,7 +65,7 @@
     ]
   },
   {
-    "name": "Bilateral <abbr title=\"Posterior Exterior Chain\">PEC</abbr>",
+    "name": "Bilateral PEC",
     "rows": [
       {
         "l": "Symmetry",
@@ -74,12 +74,12 @@
       },
       {
         "l": "Inlet L / R",
-        "v": "Both <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (both open)",
+        "v": "Both IP ER (both open)",
         "key": false
       },
       {
         "l": "Outlet L / R",
-        "v": "Both <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> (both closed)",
+        "v": "Both IsP IR (both closed)",
         "key": false
       },
       {
@@ -88,32 +88,32 @@
         "key": false
       },
       {
-        "l": "<abbr title=\"Internal Oblique\">IO</abbr>/TA",
+        "l": "IO/TA",
         "v": "B long and weak",
         "key": false
       },
       {
-        "l": "<abbr title=\"Zone of Apposition\">ZOA</abbr>",
+        "l": "ZOA",
         "v": "B lost",
         "key": false
       },
       {
-        "l": "<abbr title=\"Adduction Drop Test\">ADT</abbr>",
+        "l": "ADT",
         "v": "+ Bilateral",
         "key": false
       },
       {
-        "l": "<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>",
+        "l": "PADT",
         "v": "+ Bilateral",
         "key": false
       },
       {
-        "l": "<abbr title=\"Passive Abduction Raise Test\">PART</abbr>",
+        "l": "PART",
         "v": "− Bilateral",
         "key": true
       },
       {
-        "l": "<abbr title=\"Standing Reach Test\">SRT</abbr>",
+        "l": "SRT",
         "v": "> 0\" (cannot touch toes)",
         "key": true
       },
@@ -124,13 +124,13 @@
       },
       {
         "l": "Repositioning",
-        "v": "Standing Wall Reach · 90-90 Hip Lift Passive <abbr title=\"Femoro-Acetabular Internal Rotation\">FA IR</abbr> w/ Balloon · Modified All Four Belly Lift",
+        "v": "Standing Wall Reach · 90-90 Hip Lift Passive FA IR w/ Balloon · Modified All Four Belly Lift",
         "key": false
       }
     ]
   },
   {
-    "name": "Bilateral <abbr title=\"Pathological Posterior Exterior Chain\">Patho PEC</abbr>",
+    "name": "Bilateral Patho PEC",
     "rows": [
       {
         "l": "Symmetry",
@@ -139,12 +139,12 @@
       },
       {
         "l": "Inlet L / R",
-        "v": "Both <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (both open)",
+        "v": "Both IP ER (both open)",
         "key": false
       },
       {
         "l": "Outlet L / R",
-        "v": "Both <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> (both closed)",
+        "v": "Both IsP IR (both closed)",
         "key": false
       },
       {
@@ -153,32 +153,32 @@
         "key": false
       },
       {
-        "l": "<abbr title=\"Internal Oblique\">IO</abbr>/TA",
-        "v": "B insufficient (worse than <abbr title=\"Posterior Exterior Chain\">PEC</abbr>)",
+        "l": "IO/TA",
+        "v": "B insufficient (worse than PEC)",
         "key": false
       },
       {
-        "l": "<abbr title=\"Zone of Apposition\">ZOA</abbr>",
+        "l": "ZOA",
         "v": "B lost (worse)",
         "key": false
       },
       {
-        "l": "<abbr title=\"Adduction Drop Test\">ADT</abbr>",
+        "l": "ADT",
         "v": "+ Bilateral",
         "key": false
       },
       {
-        "l": "<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>",
+        "l": "PADT",
         "v": "+ Bilateral",
         "key": false
       },
       {
-        "l": "<abbr title=\"Passive Abduction Raise Test\">PART</abbr>",
+        "l": "PART",
         "v": "+ Bilateral or unilateral",
         "key": true
       },
       {
-        "l": "<abbr title=\"Standing Reach Test\">SRT</abbr>",
+        "l": "SRT",
         "v": "= 0\" — touches toes",
         "key": true
       },
@@ -189,7 +189,7 @@
       },
       {
         "l": "Repositioning",
-        "v": "Same 3 as <abbr title=\"Bilateral Posterior Exterior Chain\">B PEC</abbr> — substitute straw/kazoo for balloon if Squat > 3/5",
+        "v": "Same 3 as B PEC — substitute straw/kazoo for balloon if Squat > 3/5",
         "key": false
       }
     ]

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 
 const PRECACHE_URLS = [
   './',
@@ -14,6 +14,7 @@ const PRECACHE_URLS = [
   './css/nomenclature.css',
   './css/abbr-popover.css',
   './css/patterns.css',
+  './scripts/abbr-expand.js',
   './scripts/abbr-popover.js',
   './scripts/aic-chain.js',
   './scripts/anatomize.js',

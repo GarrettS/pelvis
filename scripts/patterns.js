@@ -1,4 +1,5 @@
 import { showFetchError } from './fetch-feedback.js';
+import { expandAbbr } from './abbr-expand.js';
 
 let CHEAT_DATA, CAUSAL_MAP, SYMPTOM_PATTERNS, HALT_LEVELS, SQUAT_LEVELS;
 let MAP_NODES, MAP_EDGES;
@@ -46,10 +47,10 @@ function buildCheatSheet() {
   CHEAT_DATA.forEach(col => {
     const div = document.createElement('div');
     div.className = 'cheat-col';
-    let html = '<div class="cheat-col-header">' + col.name + '</div>';
+    let html = '<div class="cheat-col-header">' + expandAbbr(col.name) + '</div>';
     col.rows.forEach(row => {
       const cls = row.key ? (col.name.includes('Patho') ? 'cheat-row key-warn' : 'cheat-row key') : 'cheat-row';
-      html += '<div class="' + cls + '"><span>' + row.l + '</span><span>' + row.v + '</span></div>';
+      html += '<div class="' + cls + '"><span>' + expandAbbr(row.l) + '</span><span>' + expandAbbr(row.v) + '</span></div>';
     });
     div.innerHTML = html;
     grid.appendChild(div);

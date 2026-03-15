@@ -1,5 +1,6 @@
 import { getAllEquivalent } from './equivalence.js';
 import { showFetchError } from './fetch-feedback.js';
+import { expandAbbr } from './abbr-expand.js';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -235,7 +236,7 @@ function handleSubmit() {
   nextBtn.textContent = qIdx + 1 < queue.length ? 'Next Question \u2192' : 'Finish Session';
 
   const explanationEl = document.getElementById('mq-explanation');
-  explanationEl.innerHTML = '<div class="callout">' + q.explanation + '</div>';
+  explanationEl.innerHTML = '<div class="callout">' + expandAbbr(q.explanation) + '</div>';
   explanationEl.classList.remove('hidden');
 
   const alreadySaved = isAlreadySaved(q.id);
@@ -423,16 +424,16 @@ function renderResultsList(container, answers, showSave) {
     const detail = document.createElement('div');
     detail.className = 'mq-result-detail hidden';
 
-    let detailHTML = '<p class="mq-result-stem">' + q.stem + '</p>';
+    let detailHTML = '<p class="mq-result-stem">' + expandAbbr(q.stem) + '</p>';
     detailHTML += '<div class="mq-result-comparison">';
     for (const opt of q.options) {
       let cls = 'mq-result-opt';
       if (opt.key === q.answer) cls += ' correct';
       if (opt.key === a.chosen && !a.correct) cls += ' incorrect';
-      detailHTML += '<div class="' + cls + '">' + opt.key + '. ' + opt.text + '</div>';
+      detailHTML += '<div class="' + cls + '">' + opt.key + '. ' + expandAbbr(opt.text) + '</div>';
     }
     detailHTML += '</div>';
-    detailHTML += '<div class="callout">' + q.explanation + '</div>';
+    detailHTML += '<div class="callout">' + expandAbbr(q.explanation) + '</div>';
 
     if (showSave) {
       const alreadySaved = isAlreadySaved(q.id);

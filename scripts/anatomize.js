@@ -1,5 +1,6 @@
 import {createResizeHandle} from './resize-handle.js';
 import {showFetchError} from './fetch-feedback.js';
+import {expandAbbr} from './abbr-expand.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -848,10 +849,7 @@ const createDetailRow = (() => {
     const text = (typeof value === 'object' && value !== null &&
         (value.proximal || value.distal)) ?
         formatAttachments(value) : value;
-    // JSON data contains <abbr> tags — HTML in data, not ideal.
-    const prop = (typeof text === 'string' && text.includes('<')) ?
-        'innerHTML' : 'textContent';
-    row.lastChild[prop] = text;
+    row.lastChild.innerHTML = expandAbbr(text);
     return row;
   };
 })();

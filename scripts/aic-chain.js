@@ -1,5 +1,6 @@
 import {createResizeHandle} from './resize-handle.js';
 import {showFetchError} from './fetch-feedback.js';
+import {expandAbbr} from './abbr-expand.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const VIEWS = ['anterior', 'posterior'];
@@ -202,10 +203,7 @@ function showDetail(entry) {
     row.appendChild(labelEl);
     const valEl = document.createElement('span');
     valEl.style.fontSize = 'var(--text-sm)';
-    // JSON data contains <abbr> tags — HTML in data, not ideal.
-    const prop = (typeof f.value === 'string' && f.value.includes('<')) ?
-        'innerHTML' : 'textContent';
-    valEl[prop] = f.value;
+    valEl.innerHTML = expandAbbr(f.value);
     row.appendChild(valEl);
     panel.appendChild(row);
   });

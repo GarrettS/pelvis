@@ -1,4 +1,5 @@
 import { showFetchError } from './fetch-feedback.js';
+import { expandAbbr } from './abbr-expand.js';
 
 function shuffle(arr) {
   const a = [...arr];
@@ -79,7 +80,7 @@ function buildCardDOM(card) {
 
     const detailEl = document.createElement('div');
     detailEl.className = 'fc-detail hidden';
-    detailEl.innerHTML = card.backDetail;
+    detailEl.innerHTML = expandAbbr(card.backDetail);
     backArea.appendChild(detailEl);
 
     showMoreBtn.addEventListener('click', () => {

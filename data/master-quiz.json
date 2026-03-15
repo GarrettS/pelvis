@@ -22,7 +22,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Ilio-Pubo\">IP</abbr> = Ilio-Pubo, describing the anterior pelvic inlet bordered by the ASIS, sacral base, and pubic symphysis. B describes <abbr title=\"Ischio-Pubo\">IsP</abbr> (anterior outlet). C describes <abbr title=\"Ilio-Sacral\">IS</abbr> (posterior inlet). D is not a PRI acronym."
+        "explanation": "IP = Ilio-Pubo, describing the anterior pelvic inlet bordered by the ASIS, sacral base, and pubic symphysis. B describes IsP (anterior outlet). C describes IS (posterior inlet). D is not a PRI acronym."
     },
     {
         "id": "MQ-002",
@@ -47,7 +47,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> = Ilio-Pubo External Rotation = flexion, abduction, external rotation (opening of the anterior inlet). A describes <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> (closing). C and D mix components incorrectly."
+        "explanation": "IP ER = Ilio-Pubo External Rotation = flexion, abduction, external rotation (opening of the anterior inlet). A describes IP IR (closing). C and D mix components incorrectly."
     },
     {
         "id": "MQ-003",
@@ -72,7 +72,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "The <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> patterned position: inlet and <abbr title=\"Acetabulo-Femoral\">AF</abbr> share <abbr title=\"External Rotation\">ER</abbr>; posterior inlet (<abbr title=\"Ilio-Sacral\">IS</abbr>) and posterior outlet (<abbr title=\"Sacro-Iliac\">SI</abbr>) share <abbr title=\"Internal Rotation\">IR</abbr>; anterior outlet (<abbr title=\"Ischio-Pubo\">IsP</abbr>) is <abbr title=\"Internal Rotation\">IR</abbr> (opposite of inlet). B is the corrected/neutral chain. C and D violate the reciprocal inlet-outlet rule."
+        "explanation": "The L AIC patterned position: inlet and AF share ER; posterior inlet (IS) and posterior outlet (SI) share IR; anterior outlet (IsP) is IR (opposite of inlet). B is the corrected/neutral chain. C and D violate the reciprocal inlet-outlet rule."
     },
     {
         "id": "MQ-004",
@@ -97,7 +97,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Inlet direction matches femur (<abbr title=\"Acetabulo-Femoral\">AF</abbr>) direction. Outlet direction is always opposite of inlet. C (<abbr title=\"Sacro-Iliac\">SI</abbr>) matches outlet, not inlet. D applies only in <abbr title=\"Bilateral PEC\">B PEC</abbr> (where both sides match), not as a general rule."
+        "explanation": "Inlet direction matches femur (AF) direction. Outlet direction is always opposite of inlet. C (SI) matches outlet, not inlet. D applies only in B PEC (where both sides match), not as a general rule."
     },
     {
         "id": "MQ-005",
@@ -122,7 +122,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Inlet and outlet are reciprocal. When the inlet opens (<abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>), the outlet closes (<abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr>). A violates the reciprocal rule. C and D describe posterior structures, not the anterior outlet."
+        "explanation": "Inlet and outlet are reciprocal. When the inlet opens (IP ER), the outlet closes (IsP IR). A violates the reciprocal rule. C and D describe posterior structures, not the anterior outlet."
     },
     {
         "id": "MQ-006",
@@ -147,7 +147,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr> = Ilio-Sacral Internal Rotation = nutation (ilium rotating inward on sacrum). A describes <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> (counter-nutation). C describes <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr>. D describes <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr>."
+        "explanation": "IS IR = Ilio-Sacral Internal Rotation = nutation (ilium rotating inward on sacrum). A describes IS ER (counter-nutation). C describes IsP IR. D describes AF IR."
     },
     {
         "id": "MQ-007",
@@ -172,7 +172,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "PRI's <abbr title=\"Internal Rotation\">IR</abbr>/<abbr title=\"External Rotation\">ER</abbr> for <abbr title=\"Ilio-Pubo\">IP</abbr>, <abbr title=\"Ischio-Pubo\">IsP</abbr>, <abbr title=\"Ilio-Sacral\">IS</abbr>, and <abbr title=\"Sacro-Iliac\">SI</abbr> joints describe innominate bone motions, not femoral joint motions, even though the tri-planar descriptors match conventional hip terminology. A and D conflate innominate and femoral motion. C describes <abbr title=\"Sacro-Iliac\">SI</abbr> motion, not <abbr title=\"Ilio-Pubo\">IP</abbr>."
+        "explanation": "PRI's IR/ER for IP, IsP, IS, and SI joints describe innominate bone motions, not femoral joint motions, even though the tri-planar descriptors match conventional hip terminology. A and D conflate innominate and femoral motion. C describes SI motion, not IP."
     },
     {
         "id": "MQ-008",
@@ -197,7 +197,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Acetabulo-Femoral\">AF</abbr> = Acetabular-Femoral = acetabulum (pelvis) rotating on a fixed femur (closed chain). <abbr title=\"Femoro-Acetabular\">FA</abbr> = Femoral-Acetabular = femur moving on a fixed pelvis (open chain). B reverses them. C invents wrong expansions. D is incorrect — they describe different mechanical scenarios."
+        "explanation": "AF = Acetabular-Femoral = acetabulum (pelvis) rotating on a fixed femur (closed chain). FA = Femoral-Acetabular = femur moving on a fixed pelvis (open chain). B reverses them. C invents wrong expansions. D is incorrect — they describe different mechanical scenarios."
     },
     {
         "id": "MQ-009",
@@ -222,7 +222,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "L <abbr title=\"Acetabulo-Femoral External Rotation\">AF ER</abbr> = L <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>. Inlet direction matches femur (<abbr title=\"Acetabulo-Femoral\">AF</abbr>) direction. A is the inverse chain. C is the wrong side. D describes the outlet, which is opposite."
+        "explanation": "L AF ER = L IP ER. Inlet direction matches femur (AF) direction. A is the inverse chain. C is the wrong side. D describes the outlet, which is opposite."
     },
     {
         "id": "MQ-010",
@@ -247,7 +247,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> is the corrected/closed inlet. In the inverse chain: R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> = R <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> = R <abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr> = R <abbr title=\"Sacro-Iliac External Rotation\">SI ER</abbr> = R <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr>. The posterior inlet (<abbr title=\"Ilio-Sacral\">IS</abbr>) follows the inverse of the anterior inlet's direction designation but the same chain logic. A would pair with <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>. C and D describe outlet, not inlet."
+        "explanation": "R IP IR is the corrected/closed inlet. In the inverse chain: R IP IR = R IS ER = R IsP ER = R SI ER = R AF IR. The posterior inlet (IS) follows the inverse of the anterior inlet's direction designation but the same chain logic. A would pair with IP ER. C and D describe outlet, not inlet."
     },
     {
         "id": "MQ-011",
@@ -272,7 +272,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "<abbr title=\"Sacro-Iliac\">SI</abbr> = Sacro-Ilio = posterior outlet (sacrum rotating on ilium). A = <abbr title=\"Ilio-Sacral\">IS</abbr> = posterior inlet. B = <abbr title=\"Ilio-Pubo\">IP</abbr> = anterior inlet. D = <abbr title=\"Ischio-Pubo\">IsP</abbr> = anterior outlet."
+        "explanation": "SI = Sacro-Ilio = posterior outlet (sacrum rotating on ilium). A = IS = posterior inlet. B = IP = anterior inlet. D = IsP = anterior outlet."
     },
     {
         "id": "MQ-012",
@@ -347,7 +347,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Nutation = <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr>. The sacral base tips anterior and the ilium rotates inward on the sacrum, compressing the <abbr title=\"Sacro-Iliac\">SI</abbr> joint. A is the opposite. C describes the posterior outlet. D describes the anterior inlet."
+        "explanation": "Nutation = IS IR. The sacral base tips anterior and the ilium rotates inward on the sacrum, compressing the SI joint. A is the opposite. C describes the posterior outlet. D describes the anterior inlet."
     },
     {
         "id": "MQ-015",
@@ -372,7 +372,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left sacrum is nutated (L <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr>, compressed <abbr title=\"Sacro-Iliac\">SI</abbr>) while the right is counter-nutated (R <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr>, decompressed <abbr title=\"Sacro-Iliac\">SI</abbr>). The sacrotuberous ligament is taut on the left and lax on the right, contributing to right <abbr title=\"Sacro-Iliac\">SI</abbr> instability complaints. A describes <abbr title=\"Bilateral PEC\">B PEC</abbr>. C and D are not consistent with patterned presentations."
+        "explanation": "In L AIC, the left sacrum is nutated (L IS IR, compressed SI) while the right is counter-nutated (R IS ER, decompressed SI). The sacrotuberous ligament is taut on the left and lax on the right, contributing to right SI instability complaints. A describes B PEC. C and D are not consistent with patterned presentations."
     },
     {
         "id": "MQ-016",
@@ -397,7 +397,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "PRI's \"anterior glute med\" refers to the proximal iliacus. In closed chain, proximal iliacus pulls the ilium medially (inlet adduction = <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>). PRI labels it this way because it opposes hip abduction at the inlet level. A is the literal reading but incorrect in PRI context. Facilitated in Step 3 of the <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy."
+        "explanation": "PRI's \"anterior glute med\" refers to the proximal iliacus. In closed chain, proximal iliacus pulls the ilium medially (inlet adduction = IP IR). PRI labels it this way because it opposes hip abduction at the inlet level. A is the literal reading but incorrect in PRI context. Facilitated in Step 3 of the L AIC hierarchy."
     },
     {
         "id": "MQ-017",
@@ -422,7 +422,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left pelvis is anteriorly tilted (L <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>) while the right pelvis is the compensatory opposite (R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> — closed inlet). The manual states: L <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> = R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>. A would be <abbr title=\"Bilateral PEC\">B PEC</abbr>. C describes the left outlet in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, not the right inlet. D describes the left, not right, posterior inlet in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>."
+        "explanation": "In L AIC, the left pelvis is anteriorly tilted (L IP ER) while the right pelvis is the compensatory opposite (R IP IR — closed inlet). The manual states: L IP ER = R IP IR. A would be B PEC. C describes the left outlet in L AIC, not the right inlet. D describes the left, not right, posterior inlet in L AIC."
     },
     {
         "id": "MQ-018",
@@ -447,7 +447,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Bilateral PEC\">B PEC</abbr> = bilateral anterior pelvic tilt = both inlets in <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>. Both sides look like the left side in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. A is the corrected position. C describes <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> asymmetry. D describes the outlet, which is opposite — both outlets are in <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr>."
+        "explanation": "B PEC = bilateral anterior pelvic tilt = both inlets in IP ER. Both sides look like the left side in L AIC. A is the corrected position. C describes L AIC asymmetry. D describes the outlet, which is opposite — both outlets are in IsP IR."
     },
     {
         "id": "MQ-019",
@@ -472,7 +472,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Bilateral PEC\">B PEC</abbr>, both inlets are in <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (open) so both outlets are reciprocally in <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> (closed). Both pelvic diaphragms are descended. A is the corrected outlet position. C describes <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> asymmetry. D is the posterior outlet corrected position."
+        "explanation": "In B PEC, both inlets are in IP ER (open) so both outlets are reciprocally in IsP IR (closed). Both pelvic diaphragms are descended. A is the corrected outlet position. C describes L AIC asymmetry. D is the posterior outlet corrected position."
     },
     {
         "id": "MQ-020",
@@ -497,7 +497,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The corrected/neutral chain is the inverse of the patterned chain: L <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> = L <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> = L <abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr> = L <abbr title=\"Sacro-Iliac External Rotation\">SI ER</abbr> = L <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr>. Inlet closes (<abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>), outlet opens (<abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr>), counter-nutation (<abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr>). A is the patterned <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> position. C and D violate reciprocal rules."
+        "explanation": "The corrected/neutral chain is the inverse of the patterned chain: L IP IR = L IS ER = L IsP ER = L SI ER = L AF IR. Inlet closes (IP IR), outlet opens (IsP ER), counter-nutation (IS ER). A is the patterned L AIC position. C and D violate reciprocal rules."
     },
     {
         "id": "MQ-021",
@@ -522,7 +522,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "[[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] = Adduction Drop Test. Patient supine, hip and knee flexed 90°, examiner passively adducts the femur. Positive = femur won't adduct cleanly in the acetabulum given pelvic orientation. B describes [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]]. C describes [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]]. D describes [[<abbr title=\"Standing Reach Test\">SRT</abbr>]]."
+        "explanation": "[[ADT]] = Adduction Drop Test. Patient supine, hip and knee flexed 90°, examiner passively adducts the femur. Positive = femur won't adduct cleanly in the acetabulum given pelvic orientation. B describes [[PADT]]. C describes [[PART]]. D describes [[SRT]]."
     },
     {
         "id": "MQ-022",
@@ -547,7 +547,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "[[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]] = Pelvic Ascension Drop Test. Patient sidelying, both hips/knees at 90°. The patient actively drops the top knee toward the mat. Positive = knee can't reach mat (pelvic diaphragm can't ascend). A describes [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]]. C describes [[<abbr title=\"Standing Reach Test\">SRT</abbr>]]. D describes [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]]."
+        "explanation": "[[PADT]] = Pelvic Ascension Drop Test. Patient sidelying, both hips/knees at 90°. The patient actively drops the top knee toward the mat. Positive = knee can't reach mat (pelvic diaphragm can't ascend). A describes [[ADT]]. C describes [[SRT]]. D describes [[PART]]."
     },
     {
         "id": "MQ-023",
@@ -572,7 +572,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Positive [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]] = the pelvic diaphragm on that side cannot ascend. The outlet ischium can't abduct and the inlet ilium can't adduct. Cause: overactivity of distal iliacus interfering with proximal iliacus's ability to adduct the inlet. B is a generic finding, not PRI-specific. C describes positive [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]]. D is unrelated."
+        "explanation": "Positive [[PADT]] = the pelvic diaphragm on that side cannot ascend. The outlet ischium can't abduct and the inlet ilium can't adduct. Cause: overactivity of distal iliacus interfering with proximal iliacus's ability to adduct the inlet. B is a generic finding, not PRI-specific. C describes positive [[PART]]. D is unrelated."
     },
     {
         "id": "MQ-024",
@@ -597,7 +597,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "[[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]] = Passive Abduction Raise Test. Patient sidelying, bottom hip/knee flexed, top leg straight. Examiner passively abducts the top leg, stabilizing the innominate, stopping if thoracic sidebending occurs. Positive = abduction < 45°. B describes [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]]. C describes [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]]. D describes [[<abbr title=\"Standing Reach Test\">SRT</abbr>]]."
+        "explanation": "[[PART]] = Passive Abduction Raise Test. Patient sidelying, bottom hip/knee flexed, top leg straight. Examiner passively abducts the top leg, stabilizing the innominate, stopping if thoracic sidebending occurs. Positive = abduction < 45°. B describes [[ADT]]. C describes [[PADT]]. D describes [[SRT]]."
     },
     {
         "id": "MQ-025",
@@ -622,7 +622,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]] is positive on the right. The right inlet is in <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> (closed) — the compensatory position causes lateral buttressing of the right femoral head against the superior acetabulum, limiting right hip abduction. Left [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] and left [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]] are positive, but [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]] is positive on the opposite side."
+        "explanation": "In L AIC, [[PART]] is positive on the right. The right inlet is in IP IR (closed) — the compensatory position causes lateral buttressing of the right femoral head against the superior acetabulum, limiting right hip abduction. Left [[ADT]] and left [[PADT]] are positive, but [[PART]] is positive on the opposite side."
     },
     {
         "id": "MQ-026",
@@ -647,7 +647,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In PRI, positive = the patient cannot do it. This is inverted from standard orthopedic testing where a positive test means pathology was provoked. Positive [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] = femur won't adduct. Positive [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]] = knee can't reach mat. Positive [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]] = abduction < 45°."
+        "explanation": "In PRI, positive = the patient cannot do it. This is inverted from standard orthopedic testing where a positive test means pathology was provoked. Positive [[ADT]] = femur won't adduct. Positive [[PADT]] = knee can't reach mat. Positive [[PART]] = abduction < 45°."
     },
     {
         "id": "MQ-027",
@@ -672,7 +672,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "For <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the patient reaches toward left toes with both hands while shifting the left hip back, then repeats toward the right. For <abbr title=\"Bilateral PEC\">B PEC</abbr> (no hip shift), the patient reaches straight down toward the floor with hips moving back symmetrically. Positive = > 0 inches from floor."
+        "explanation": "For L AIC, the patient reaches toward left toes with both hands while shifting the left hip back, then repeats toward the right. For B PEC (no hip shift), the patient reaches straight down toward the floor with hips moving back symmetrically. Positive = > 0 inches from floor."
     },
     {
         "id": "MQ-028",
@@ -697,7 +697,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>: [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] and [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]] positive on the left, [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]] positive on the right (note the asymmetry). [[<abbr title=\"Standing Reach Test\">SRT</abbr>]] > 0 inches, Squat < 3/5, [[<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr>]] < 3/5. B is <abbr title=\"Bilateral PEC\">B PEC</abbr>. C is <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>. D incorrectly puts [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]] on the left."
+        "explanation": "L AIC: [[ADT]] and [[PADT]] positive on the left, [[PART]] positive on the right (note the asymmetry). [[SRT]] > 0 inches, Squat < 3/5, [[HALT]] < 3/5. B is B PEC. C is B Patho PEC. D incorrectly puts [[PART]] on the left."
     },
     {
         "id": "MQ-029",
@@ -722,7 +722,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Bilateral PEC\">B PEC</abbr>: bilateral positive [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] and [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]], bilateral negative [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]], [[<abbr title=\"Standing Reach Test\">SRT</abbr>]] > 0\" (can't touch toes), Squat < 3/5, [[<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr>]] < 3/5. A is <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>. C is <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. D mixes <abbr title=\"Bilateral PEC\">B PEC</abbr> and Patho features."
+        "explanation": "B PEC: bilateral positive [[ADT]] and [[PADT]], bilateral negative [[PART]], [[SRT]] > 0\" (can't touch toes), Squat < 3/5, [[HALT]] < 3/5. A is B Patho PEC. C is L AIC. D mixes B PEC and Patho features."
     },
     {
         "id": "MQ-030",
@@ -747,7 +747,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The three distinguishing tests: (1) [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]]: negative bilateral in <abbr title=\"Bilateral PEC\">B PEC</abbr>, positive in Patho. (2) [[<abbr title=\"Standing Reach Test\">SRT</abbr>]]: can't touch toes in <abbr title=\"Bilateral PEC\">B PEC</abbr>, CAN touch toes in Patho. (3) Squat: < 3/5 in <abbr title=\"Bilateral PEC\">B PEC</abbr>, > 3/5 in Patho. [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]], [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]], and [[<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr>]] are the same in both patterns."
+        "explanation": "The three distinguishing tests: (1) [[PART]]: negative bilateral in B PEC, positive in Patho. (2) [[SRT]]: can't touch toes in B PEC, CAN touch toes in Patho. (3) Squat: < 3/5 in B PEC, > 3/5 in Patho. [[ADT]], [[PADT]], and [[HALT]] are the same in both patterns."
     },
     {
         "id": "MQ-031",
@@ -772,7 +772,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Bilateral positive [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] and [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]] with positive [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]], <abbr title=\"Standing Reach Test\">SRT</abbr> = 0 (touches toes), and Squat > 3/5 = <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>. The paradoxical performance — better ROM/squat = worse pathology. Compensatory hypermobility, not motor control. <abbr title=\"Bilateral PEC\">B PEC</abbr> would have negative [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]], <abbr title=\"Standing Reach Test\">SRT</abbr> > 0, Squat < 3/5."
+        "explanation": "Bilateral positive [[ADT]] and [[PADT]] with positive [[PART]], SRT = 0 (touches toes), and Squat > 3/5 = B Patho PEC. The paradoxical performance — better ROM/squat = worse pathology. Compensatory hypermobility, not motor control. B PEC would have negative [[PART]], SRT > 0, Squat < 3/5."
     },
     {
         "id": "MQ-032",
@@ -797,7 +797,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "High squat score (> 3/5) with positive [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]]/[[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]] = Patho <abbr title=\"Posterior Exterior Chain\">PEC</abbr>. This is paradoxical performance: better ROM does not mean better function. It indicates compensatory hypermobility driven by long and tonic muscles. D is wrong because <abbr title=\"Bilateral PEC\">B PEC</abbr> shows Squat < 3/5."
+        "explanation": "High squat score (> 3/5) with positive [[ADT]]/[[PADT]] = Patho PEC. This is paradoxical performance: better ROM does not mean better function. It indicates compensatory hypermobility driven by long and tonic muscles. D is wrong because B PEC shows Squat < 3/5."
     },
     {
         "id": "MQ-033",
@@ -847,7 +847,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Level 2: can't get bottom back, knees forward, trunk flexed. Hyperactive hip flexors and <abbr title=\"Femoro-Acetabular\">FA</abbr> external rotators with lack of femoral adduction. Level 1 = can't even initiate. Level 3 = can't get below knees. Level 4 = can't achieve full squat."
+        "explanation": "Level 2: can't get bottom back, knees forward, trunk flexed. Hyperactive hip flexors and FA external rotators with lack of femoral adduction. Level 1 = can't even initiate. Level 3 = can't get below knees. Level 4 = can't achieve full squat."
     },
     {
         "id": "MQ-035",
@@ -872,7 +872,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Level 3 inability (can't get bottom below knees, heels down, trunk flexed) = hyperactive intercostals, tib ant/post, and poor <abbr title=\"Internal Oblique\">IO</abbr>/<abbr title=\"Transversus Abdominis\">TA</abbr> integration. A = Level 1. B = Level 2. D = Level 4."
+        "explanation": "Level 3 inability (can't get bottom below knees, heels down, trunk flexed) = hyperactive intercostals, tib ant/post, and poor IO/TA integration. A = Level 1. B = Level 2. D = Level 4."
     },
     {
         "id": "MQ-036",
@@ -897,7 +897,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Level 5 = maximal squat with COG through heels. Inability = lack of maximal <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> and poor synchronization between the respiratory and pelvic diaphragms. A = Level 4. B = Level 4. D = Level 1."
+        "explanation": "Level 5 = maximal squat with COG through heels. Inability = lack of maximal AF IR and poor synchronization between the respiratory and pelvic diaphragms. A = Level 4. B = Level 4. D = Level 1."
     },
     {
         "id": "MQ-037",
@@ -922,7 +922,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "[[<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr>]] setup: patient sidelying, top leg extended aligned with hip/shoulder with top knee above shoulder level. Bottom leg flexed with toes on wall on a 4–6 inch bolster. Top palm flat in front of chest, bottom hand under head. A describes the 90-90 position. C and D are not <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> positions."
+        "explanation": "[[HALT]] setup: patient sidelying, top leg extended aligned with hip/shoulder with top knee above shoulder level. Bottom leg flexed with toes on wall on a 4–6 inch bolster. Top palm flat in front of chest, bottom hand under head. A describes the 90-90 position. C and D are not HALT positions."
     },
     {
         "id": "MQ-038",
@@ -947,7 +947,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> Level 0 failure = can't even get into position. The pelvis is malaligned and the patient can't inhibit outlet abduction of the extended leg. Facilitation target: repositioning first — pelvis not yet neutral. A = Level 1. C = Level 2. D = Level 5."
+        "explanation": "HALT Level 0 failure = can't even get into position. The pelvis is malaligned and the patient can't inhibit outlet abduction of the extended leg. Facilitation target: repositioning first — pelvis not yet neutral. A = Level 1. C = Level 2. D = Level 5."
     },
     {
         "id": "MQ-039",
@@ -972,7 +972,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> Level 2 failure = poor IC adductor/anterior glute med with inability to achieve outlet abduction of the flexed leg. Facilitate IC adductor + anterior glute med. A = Level 1. C = Level 3. D = Level 4."
+        "explanation": "HALT Level 2 failure = poor IC adductor/anterior glute med with inability to achieve outlet abduction of the flexed leg. Facilitate IC adductor + anterior glute med. A = Level 1. C = Level 3. D = Level 4."
     },
     {
         "id": "MQ-040",
@@ -997,7 +997,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> Level 3 failure = poor glute min/anterior glute med or labral impingement with inability to achieve inlet adduction of the flexed leg. Facilitate glute min + anterior glute med. A = Level 2. B = Level 1. D = Level 5."
+        "explanation": "HALT Level 3 failure = poor glute min/anterior glute med or labral impingement with inability to achieve inlet adduction of the flexed leg. Facilitate glute min + anterior glute med. A = Level 2. B = Level 1. D = Level 5."
     },
     {
         "id": "MQ-041",
@@ -1022,7 +1022,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> Level 5 failure = can't extend with glute max during concomitant abduction and can't achieve outlet adduction of the extended leg. Facilitate glute max extension during abduction. A = Level 0. B = Level 3. D is a setup instruction."
+        "explanation": "HALT Level 5 failure = can't extend with glute max during concomitant abduction and can't achieve outlet adduction of the extended leg. Facilitate glute max extension during abduction. A = Level 0. B = Level 3. D is a setup instruction."
     },
     {
         "id": "MQ-042",
@@ -1047,7 +1047,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> steps: (1) Press bottom toes into wall (stabilize pelvis), (2) Press bottom hip into surface (engage lower abs/adductors), (3) Turn/raise bottom knee using IC adductor and anterior glute med, (4) Turn top heel up/top toes down, (5) Raise top leg off wall and extend hip. Discontinue at failure."
+        "explanation": "HALT steps: (1) Press bottom toes into wall (stabilize pelvis), (2) Press bottom hip into surface (engage lower abs/adductors), (3) Turn/raise bottom knee using IC adductor and anterior glute med, (4) Turn top heel up/top toes down, (5) Raise top leg off wall and extend hip. Discontinue at failure."
     },
     {
         "id": "MQ-043",
@@ -1072,7 +1072,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the patient can't expand the right anterior chest wall. The right anterior outlet is in abduction (pelvic diaphragm ascended on right), and the right anterior inlet is in extension. B would be the opposite finding. C describes <abbr title=\"Bilateral PEC\">B PEC</abbr>. D is not a standard PRI finding."
+        "explanation": "In L AIC, the patient can't expand the right anterior chest wall. The right anterior outlet is in abduction (pelvic diaphragm ascended on right), and the right anterior inlet is in extension. B would be the opposite finding. C describes B PEC. D is not a standard PRI finding."
     },
     {
         "id": "MQ-044",
@@ -1097,7 +1097,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the patient can't fill the left posterior mediastinum in right sidelying. The left anterior outlet is in adduction, pelvic diaphragm descended, left inlet in flexion — air is pushed into the left anterior outlet/chest wall instead of the posterior mediastinum. C describes <abbr title=\"Bilateral PEC\">B PEC</abbr>."
+        "explanation": "In L AIC, the patient can't fill the left posterior mediastinum in right sidelying. The left anterior outlet is in adduction, pelvic diaphragm descended, left inlet in flexion — air is pushed into the left anterior outlet/chest wall instead of the posterior mediastinum. C describes B PEC."
     },
     {
         "id": "MQ-045",
@@ -1122,7 +1122,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "The functional relationship chain: positive L [[<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>]] predicts positive L Posterior Outlet Mediastinum Expansion Test, which predicts positive R Apical Expansion Test. B, C, and D misconnect the test relationships."
+        "explanation": "The functional relationship chain: positive L [[PADT]] predicts positive L Posterior Outlet Mediastinum Expansion Test, which predicts positive R Apical Expansion Test. B, C, and D misconnect the test relationships."
     },
     {
         "id": "MQ-046",
@@ -1147,7 +1147,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Positive L [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] indicates the left femur won't adduct cleanly in the acetabulum. The left inlet is in <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (open), and the acetabular orientation blocks femoral adduction. B mixes outlet with <abbr title=\"Adduction Drop Test\">ADT</abbr>. C and D describe the wrong side."
+        "explanation": "Positive L [[ADT]] indicates the left femur won't adduct cleanly in the acetabulum. The left inlet is in IP ER (open), and the acetabular orientation blocks femoral adduction. B mixes outlet with ADT. C and D describe the wrong side."
     },
     {
         "id": "MQ-047",
@@ -1172,7 +1172,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "When [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] is negative (pelvis repositioned) but R [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]] persists, the cause is no longer acetabular buttressing from pelvic malalignment. It shifts to right proximal iliacus overactivity blocking right glute max. Facilitate right glute max. A applies only when <abbr title=\"Adduction Drop Test\">ADT</abbr> is still positive."
+        "explanation": "When [[ADT]] is negative (pelvis repositioned) but R [[PART]] persists, the cause is no longer acetabular buttressing from pelvic malalignment. It shifts to right proximal iliacus overactivity blocking right glute max. Facilitate right glute max. A applies only when ADT is still positive."
     },
     {
         "id": "MQ-048",
@@ -1197,7 +1197,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "In the <abbr title=\"Bilateral PEC\">B PEC</abbr> case study, visit 3 shows: −B <abbr title=\"Adduction Drop Test\">ADT</abbr>, +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>/−R <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, −L <abbr title=\"Passive Abduction Raise Test\">PART</abbr>/+R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>. The asymmetry indicates the left side needs further work — promote left inlet adduction via left proximal iliacus. C would apply only if all tests were negative. B is not needed since <abbr title=\"Adduction Drop Test\">ADT</abbr> cleared."
+        "explanation": "In the B PEC case study, visit 3 shows: −B ADT, +L PADT/−R PADT, −L PART/+R PART. The asymmetry indicates the left side needs further work — promote left inlet adduction via left proximal iliacus. C would apply only if all tests were negative. B is not needed since ADT cleared."
     },
     {
         "id": "MQ-049",
@@ -1222,7 +1222,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The [[<abbr title=\"Standing Reach Test\">SRT</abbr>]] is a global measure reflecting stacking, respiratory mechanics, and inlet/outlet ON-OFF states. It is not an isolated tissue-length test. A–D each describe only one possible contributor."
+        "explanation": "The [[SRT]] is a global measure reflecting stacking, respiratory mechanics, and inlet/outlet ON-OFF states. It is not an isolated tissue-length test. A–D each describe only one possible contributor."
     },
     {
         "id": "MQ-050",
@@ -1247,7 +1247,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Positive left [[<abbr title=\"Adduction Drop Test\">ADT</abbr>]] predicts positive right [[<abbr title=\"Passive Abduction Raise Test\">PART</abbr>]]. The left inlet is stuck in <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (blocks left femoral adduction → +L <abbr title=\"Adduction Drop Test\">ADT</abbr>), while the right side's compensatory position (R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>) blocks right femoral abduction → +R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>."
+        "explanation": "Positive left [[ADT]] predicts positive right [[PART]]. The left inlet is stuck in IP ER (blocks left femoral adduction → +L ADT), while the right side's compensatory position (R IP IR) blocks right femoral abduction → +R PART."
     },
     {
         "id": "MQ-051",
@@ -1272,7 +1272,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Brown (Sagittal) = R rectus femoris (inlet), R sartorius (inlet), L hamstring (outlet), L pubococcygeus (outlet), L puborectalis (outlet). B = Red (Adduction) + Orange (Transverse). C = Green (Abduction). D = Violet (<abbr title=\"Internal Rotation\">IR</abbr>)."
+        "explanation": "Brown (Sagittal) = R rectus femoris (inlet), R sartorius (inlet), L hamstring (outlet), L pubococcygeus (outlet), L puborectalis (outlet). B = Red (Adduction) + Orange (Transverse). C = Green (Abduction). D = Violet (IR)."
     },
     {
         "id": "MQ-052",
@@ -1297,7 +1297,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Left iliacus = Red family (Frontal Plane Adduction) — it acts at the inlet. In closed chain, proximal iliacus adducts the left inlet (<abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>). A = sagittal plane muscles. C = outlet abduction muscles. D = internal rotation muscles."
+        "explanation": "Left iliacus = Red family (Frontal Plane Adduction) — it acts at the inlet. In closed chain, proximal iliacus adducts the left inlet (IP IR). A = sagittal plane muscles. C = outlet abduction muscles. D = internal rotation muscles."
     },
     {
         "id": "MQ-053",
@@ -1347,7 +1347,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Yellow (Integration) = L <abbr title=\"Internal Oblique\">IO</abbr> (inlet), L <abbr title=\"Transversus Abdominis\">TA</abbr> (inlet), L arcuate tendon (outlet), L anococcygeal ligament (outlet). These connect the respiratory diaphragm to pelvic inlet control. A = Orange. B = Violet. D = Brown."
+        "explanation": "Yellow (Integration) = L IO (inlet), L TA (inlet), L arcuate tendon (outlet), L anococcygeal ligament (outlet). These connect the respiratory diaphragm to pelvic inlet control. A = Orange. B = Violet. D = Brown."
     },
     {
         "id": "MQ-055",
@@ -1372,7 +1372,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "R gluteus maximus works at both the inlet (superior fibers producing <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> / inlet abduction) and the outlet (inferior fibers producing <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> / outlet closure). It belongs to the Violet (<abbr title=\"Internal Rotation\">IR</abbr>) family and is facilitated in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> repositioning and again in Step 4."
+        "explanation": "R gluteus maximus works at both the inlet (superior fibers producing IP ER / inlet abduction) and the outlet (inferior fibers producing SI IR / outlet closure). It belongs to the Violet (IR) family and is facilitated in L AIC repositioning and again in Step 4."
     },
     {
         "id": "MQ-056",
@@ -1397,7 +1397,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In closed chain, the left obturator internus pulls the ischium laterally instead of rotating the femur. This widens the left outlet (<abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr> = outlet abduction). A is the standard open-chain action. C is incorrect for <abbr title=\"Obturator Internus\">OI</abbr>. D describes the proximal iliacus."
+        "explanation": "In closed chain, the left obturator internus pulls the ischium laterally instead of rotating the femur. This widens the left outlet (IsP ER = outlet abduction). A is the standard open-chain action. C is incorrect for OI. D describes the proximal iliacus."
     },
     {
         "id": "MQ-057",
@@ -1422,7 +1422,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The anterior pelvic inlet is governed by iliacus, rectus femoris, and sartorius, with <abbr title=\"Internal Oblique\">IO</abbr>/TAs connecting the respiratory diaphragm to inlet control. A describes the anterior outlet. C describes the posterior outlet. D mixes inlet and outlet muscles."
+        "explanation": "The anterior pelvic inlet is governed by iliacus, rectus femoris, and sartorius, with IO/TAs connecting the respiratory diaphragm to inlet control. A describes the anterior outlet. C describes the posterior outlet. D mixes inlet and outlet muscles."
     },
     {
         "id": "MQ-058",
@@ -1497,7 +1497,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Standard action: hip flexion (joining with psoas at the lesser trochanter). PRI splits iliacus into distal (flexor, part of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> problem) and proximal (inlet adduction in closed chain — the corrective action). B = glute max. C = glute med. D = anterior glute med fibers."
+        "explanation": "Standard action: hip flexion (joining with psoas at the lesser trochanter). PRI splits iliacus into distal (flexor, part of L AIC problem) and proximal (inlet adduction in closed chain — the corrective action). B = glute max. C = glute med. D = anterior glute med fibers."
     },
     {
         "id": "MQ-061",
@@ -1522,7 +1522,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Proximal iliacus in closed chain pulls the ilium medially = inlet adduction = <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>. This is facilitated in Step 3. PRI calls this muscle \"anterior glute med.\" A is the distal iliacus action (part of the <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> problem). C and D are not iliacus actions."
+        "explanation": "Proximal iliacus in closed chain pulls the ilium medially = inlet adduction = IP IR. This is facilitated in Step 3. PRI calls this muscle \"anterior glute med.\" A is the distal iliacus action (part of the L AIC problem). C and D are not iliacus actions."
     },
     {
         "id": "MQ-062",
@@ -1572,7 +1572,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "The <abbr title=\"Anterior Interior Chain\">AIC</abbr> = Anterior Interior Chain: diaphragm → psoas → iliacus → <abbr title=\"Tensor Fasciae Latae\">TFL</abbr> → vastus lateralis → biceps femoris (left side). B = posterior outlet muscles. C = integration muscles. D mixes inlet muscles from different sides."
+        "explanation": "The AIC = Anterior Interior Chain: diaphragm → psoas → iliacus → TFL → vastus lateralis → biceps femoris (left side). B = posterior outlet muscles. C = integration muscles. D mixes inlet muscles from different sides."
     },
     {
         "id": "MQ-064",
@@ -1597,7 +1597,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Left <abbr title=\"Internal Oblique\">IO</abbr>/TAs are the primary connectors linking the left respiratory diaphragm to left pelvic inlet control — the \"conduit for airflow and pressure regulation\" between the two diaphragms. They promote inlet extension (<abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>) and regulate intra-abdominal pressure."
+        "explanation": "Left IO/TAs are the primary connectors linking the left respiratory diaphragm to left pelvic inlet control — the \"conduit for airflow and pressure regulation\" between the two diaphragms. They promote inlet extension (IP IR) and regulate intra-abdominal pressure."
     },
     {
         "id": "MQ-065",
@@ -1622,7 +1622,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Zone of Apposition\">ZOA</abbr> = the curved area where the diaphragm muscle apposes the inner ribcage. When the diaphragm is domed (good <abbr title=\"Zone of Apposition\">ZOA</abbr>), it contracts efficiently. In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left diaphragm loses <abbr title=\"Zone of Apposition\">ZOA</abbr> — becomes flat, postural, and inefficient. B–D are not <abbr title=\"Zone of Apposition\">ZOA</abbr>."
+        "explanation": "ZOA = the curved area where the diaphragm muscle apposes the inner ribcage. When the diaphragm is domed (good ZOA), it contracts efficiently. In L AIC, the left diaphragm loses ZOA — becomes flat, postural, and inefficient. B–D are not ZOA."
     },
     {
         "id": "MQ-066",
@@ -1672,7 +1672,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left <abbr title=\"Internal Oblique\">IO</abbr>/TAs become weak. The left abdominal wall can't oppose the leftward pull of the psoas/iliacus, contributing to the anterior tilt and forward rotation. Restoring <abbr title=\"Internal Oblique\">IO</abbr>/<abbr title=\"Transversus Abdominis\">TA</abbr> function is essential for maintaining repositioning. In <abbr title=\"Bilateral PEC\">B PEC</abbr>, bilateral <abbr title=\"Internal Oblique\">IO</abbr>/TAs are long and weak."
+        "explanation": "In L AIC, the left IO/TAs become weak. The left abdominal wall can't oppose the leftward pull of the psoas/iliacus, contributing to the anterior tilt and forward rotation. Restoring IO/TA function is essential for maintaining repositioning. In B PEC, bilateral IO/TAs are long and weak."
     },
     {
         "id": "MQ-068",
@@ -1722,7 +1722,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left femur orients inward via the acetabulum, causing compensatory overactivity of the vastus lateralis and biceps femoris as antagonistic hip stabilizers. A would be corrective muscles. C = pelvic floor muscles. D = left-side problem muscles."
+        "explanation": "In L AIC, the left femur orients inward via the acetabulum, causing compensatory overactivity of the vastus lateralis and biceps femoris as antagonistic hip stabilizers. A would be corrective muscles. C = pelvic floor muscles. D = left-side problem muscles."
     },
     {
         "id": "MQ-070",
@@ -1747,7 +1747,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Left adductor magnus facilitates left <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> (pelvis rotates posteriorly on the left femur) and activates the left pelvic floor muscles (obturator internus, iliococcygeus) for outlet abduction. Used in the Right Sidelying Respiratory Left Adductor Pull Back exercise. C is not an adductor action. D is opposite of the corrective direction."
+        "explanation": "Left adductor magnus facilitates left AF IR (pelvis rotates posteriorly on the left femur) and activates the left pelvic floor muscles (obturator internus, iliococcygeus) for outlet abduction. Used in the Right Sidelying Respiratory Left Adductor Pull Back exercise. C is not an adductor action. D is opposite of the corrective direction."
     },
     {
         "id": "MQ-071",
@@ -1772,7 +1772,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Pubalgia is associated with <abbr title=\"Bilateral PEC\">B PEC</abbr>. Bilateral <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> creates eccentrically lengthened rectus abdominis and short paraspinals. Bilateral <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> creates lengthened adductors with shearing at the pubic symphysis. A is asymmetric. C is also bilateral but with different mechanism. D is upper quadrant."
+        "explanation": "Pubalgia is associated with B PEC. Bilateral IP ER creates eccentrically lengthened rectus abdominis and short paraspinals. Bilateral IsP IR creates lengthened adductors with shearing at the pubic symphysis. A is asymmetric. C is also bilateral but with different mechanism. D is upper quadrant."
     },
     {
         "id": "MQ-072",
@@ -1797,7 +1797,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Levator ani syndrome with left-side predominance is consistent with <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>. The left pelvic diaphragm is descended in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> (L <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr>). The PRI manual states this condition is \"typically more prominent on the left side.\" A and C are bilateral. D is not a standard PRI pattern."
+        "explanation": "Levator ani syndrome with left-side predominance is consistent with L AIC. The left pelvic diaphragm is descended in L AIC (L IsP IR). The PRI manual states this condition is \"typically more prominent on the left side.\" A and C are bilateral. D is not a standard PRI pattern."
     },
     {
         "id": "MQ-073",
@@ -1822,7 +1822,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left <abbr title=\"Sacro-Iliac\">SI</abbr> is compressed (L <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr> = nutation) while the right <abbr title=\"Sacro-Iliac\">SI</abbr> is distracted (R <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> = counter-nutation). Right <abbr title=\"Sacro-Iliac\">SI</abbr> decompression = instability complaints on the right. The sacrotuberous and sacrospinous ligaments are slack on the right. D gets the side wrong."
+        "explanation": "In L AIC, the left SI is compressed (L IS IR = nutation) while the right SI is distracted (R IS ER = counter-nutation). Right SI decompression = instability complaints on the right. The sacrotuberous and sacrospinous ligaments are slack on the right. D gets the side wrong."
     },
     {
         "id": "MQ-074",
@@ -1847,7 +1847,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Coccygodynia is associated with <abbr title=\"Bilateral PEC\">B PEC</abbr> or <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>. Bilateral outlet is in <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> (closed), coccyx is flexed anteriorly, coccygeus is hypertonic. This creates pelvic floor dysfunction at the posterior outlet. A is asymmetric. C is upper quadrant."
+        "explanation": "Coccygodynia is associated with B PEC or B Patho PEC. Bilateral outlet is in IsP IR (closed), coccyx is flexed anteriorly, coccygeus is hypertonic. This creates pelvic floor dysfunction at the posterior outlet. A is asymmetric. C is upper quadrant."
     },
     {
         "id": "MQ-075",
@@ -1872,7 +1872,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Touching toes (<abbr title=\"Standing Reach Test\">SRT</abbr> = 0) with positive bilateral <abbr title=\"Adduction Drop Test\">ADT</abbr>/<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> and Squat > 3/5 = <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>. Better ROM = worse pathology. This is compensatory hypermobility driven by long and tonic muscles, not motor control. <abbr title=\"Bilateral PEC\">B PEC</abbr> can't touch toes and has Squat < 3/5."
+        "explanation": "Touching toes (SRT = 0) with positive bilateral ADT/PADT and Squat > 3/5 = B Patho PEC. Better ROM = worse pathology. This is compensatory hypermobility driven by long and tonic muscles, not motor control. B PEC can't touch toes and has Squat < 3/5."
     },
     {
         "id": "MQ-076",
@@ -1897,7 +1897,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "SUI is associated with <abbr title=\"Bilateral PEC\">B PEC</abbr>/<abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>. The bilateral pelvic diaphragm is descended, hypertonic, and inflexible (<abbr title=\"Bilateral PEC\">B PEC</abbr>) or descended and bulged with high resting tone (Patho). The pelvic floor has lost the ability to cycle between descent and ascension."
+        "explanation": "SUI is associated with B PEC/B Patho PEC. The bilateral pelvic diaphragm is descended, hypertonic, and inflexible (B PEC) or descended and bulged with high resting tone (Patho). The pelvic floor has lost the ability to cycle between descent and ascension."
     },
     {
         "id": "MQ-077",
@@ -1922,7 +1922,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Bilateral PEC\">B PEC</abbr> respiratory findings: bilateral anterior ribs flared/<abbr title=\"External Rotation\">ER</abbr>, bilateral diaphragms descended/linear/postural (poor bilateral <abbr title=\"Zone of Apposition\">ZOA</abbr>), bilateral <abbr title=\"Internal Oblique\">IO</abbr>/TAs long/weak, continual state of inhalation with passive exhalation. A describes <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> (unilateral). C and D are not PRI pattern findings."
+        "explanation": "B PEC respiratory findings: bilateral anterior ribs flared/ER, bilateral diaphragms descended/linear/postural (poor bilateral ZOA), bilateral IO/TAs long/weak, continual state of inhalation with passive exhalation. A describes L AIC (unilateral). C and D are not PRI pattern findings."
     },
     {
         "id": "MQ-078",
@@ -1947,7 +1947,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Bilateral PEC\">B PEC</abbr>: pelvic diaphragm is descended, hypertonic, and inflexible (but not bulged). <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>: all <abbr title=\"Bilateral PEC\">B PEC</abbr> findings PLUS abdominal AND pelvic bulge, rectus abdominis eccentrically tight/strained, pelvic diaphragm descended/bulged with high resting tone. D reverses them."
+        "explanation": "B PEC: pelvic diaphragm is descended, hypertonic, and inflexible (but not bulged). B Patho PEC: all B PEC findings PLUS abdominal AND pelvic bulge, rectus abdominis eccentrically tight/strained, pelvic diaphragm descended/bulged with high resting tone. D reverses them."
     },
     {
         "id": "MQ-079",
@@ -1972,7 +1972,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "If Squat > 3/5 (Patho), the patient likely cannot handle blowing up a balloon. The manual notes this twice. Use a straw, kazoo, or party favor instead. The increased <abbr title=\"Intra-Abdominal Pressure\">IAP</abbr> from balloon inflation may overwhelm the already-compromised pelvic floor."
+        "explanation": "If Squat > 3/5 (Patho), the patient likely cannot handle blowing up a balloon. The manual notes this twice. Use a straw, kazoo, or party favor instead. The increased IAP from balloon inflation may overwhelm the already-compromised pelvic floor."
     },
     {
         "id": "MQ-080",
@@ -2047,7 +2047,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> repositioning = (1) 90-90 Supported Hip Lift with Hemibridge, (2) Right Sidelying Respiratory Left Adductor Pull Back, (3) Left Sidelying Right Glute Max. A = <abbr title=\"Bilateral PEC\">B PEC</abbr>/Patho repositioning. C and D are facilitation/inhibition exercises used later."
+        "explanation": "L AIC repositioning = (1) 90-90 Supported Hip Lift with Hemibridge, (2) Right Sidelying Respiratory Left Adductor Pull Back, (3) Left Sidelying Right Glute Max. A = B PEC/Patho repositioning. C and D are facilitation/inhibition exercises used later."
     },
     {
         "id": "MQ-083",
@@ -2072,7 +2072,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Bilateral PEC\">B PEC</abbr> and <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> use the SAME three repositioning techniques: (1) Standing Wall Supported Reach, (2) 90-90 Hip Lift in Passive <abbr title=\"Femoro-Acetabular Internal Rotation\">FA IR</abbr> with Balloon, (3) Modified All Four Belly Lift. These are bilateral/symmetrical. A = <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> repositioning. C and D are later-stage exercises."
+        "explanation": "B PEC and B Patho PEC use the SAME three repositioning techniques: (1) Standing Wall Supported Reach, (2) 90-90 Hip Lift in Passive FA IR with Balloon, (3) Modified All Four Belly Lift. These are bilateral/symmetrical. A = L AIC repositioning. C and D are later-stage exercises."
     },
     {
         "id": "MQ-084",
@@ -2097,7 +2097,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "−L <abbr title=\"Adduction Drop Test\">ADT</abbr> with +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> ± R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> = proceed to Pelvis Restoration facilitation (<abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy, maximize hemi 90-90 position). A applies only when all tests are negative. C applies when <abbr title=\"Adduction Drop Test\">ADT</abbr> doesn't clear. D is upper quadrant."
+        "explanation": "−L ADT with +L PADT ± R PART = proceed to Pelvis Restoration facilitation (L AIC hierarchy, maximize hemi 90-90 position). A applies only when all tests are negative. C applies when ADT doesn't clear. D is upper quadrant."
     },
     {
         "id": "MQ-085",
@@ -2122,7 +2122,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "All tests negative after repositioning = the pelvis is neutral and the facilitation hierarchy is not needed. Transition to Myokinematic Restoration (a different PRI course). A is only needed if <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>/<abbr title=\"Passive Abduction Raise Test\">PART</abbr> persist. D is unnecessary since tests cleared."
+        "explanation": "All tests negative after repositioning = the pelvis is neutral and the facilitation hierarchy is not needed. Transition to Myokinematic Restoration (a different PRI course). A is only needed if PADT/PART persist. D is unnecessary since tests cleared."
     },
     {
         "id": "MQ-086",
@@ -2147,7 +2147,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "−B <abbr title=\"Adduction Drop Test\">ADT</abbr> with +B <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> = proceed to Pelvis Restoration (maximize inlet extension via <abbr title=\"Internal Oblique\">IO</abbr>/TAs, forward arm reach, proximal adductors). B applies when both <abbr title=\"Adduction Drop Test\">ADT</abbr> and <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> are negative. C applies when <abbr title=\"Adduction Drop Test\">ADT</abbr> doesn't clear. D is a different pattern."
+        "explanation": "−B ADT with +B PADT = proceed to Pelvis Restoration (maximize inlet extension via IO/TAs, forward arm reach, proximal adductors). B applies when both ADT and PADT are negative. C applies when ADT doesn't clear. D is a different pattern."
     },
     {
         "id": "MQ-087",
@@ -2172,7 +2172,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "−B <abbr title=\"Adduction Drop Test\">ADT</abbr> and −B <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> = pelvis neutral. Transition to Myokinematic Restoration & Postural Respiration program. A is only needed when <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> persists."
+        "explanation": "−B ADT and −B PADT = pelvis neutral. Transition to Myokinematic Restoration & Postural Respiration program. A is only needed when PADT persists."
     },
     {
         "id": "MQ-088",
@@ -2222,7 +2222,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Step 1: Turn ON right anterior inlet (<abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>) via right rectus femoris and right sartorius. Test markers: +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, +R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>, R <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 0/5. Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius. A = Step 2. C = Step 3. D = Step 4."
+        "explanation": "Step 1: Turn ON right anterior inlet (IP ER) via right rectus femoris and right sartorius. Test markers: +L PADT, +R PART, R HALT 0/5. Exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius. A = Step 2. C = Step 3. D = Step 4."
     },
     {
         "id": "MQ-090",
@@ -2247,7 +2247,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Step 2: Turn ON left anterior outlet (<abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr>) — pelvic diaphragm ascension. Left adductors are the gateway to activating left pelvic floor muscles. Test markers: +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, +R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>, R <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 1/5. A = Step 1. C = Step 3. D = Step 4."
+        "explanation": "Step 2: Turn ON left anterior outlet (IsP ER) — pelvic diaphragm ascension. Left adductors are the gateway to activating left pelvic floor muscles. Test markers: +L PADT, +R PART, R HALT 1/5. A = Step 1. C = Step 3. D = Step 4."
     },
     {
         "id": "MQ-091",
@@ -2272,7 +2272,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> resolves at Step 3. Step 3 targets left proximal iliacus + left glute med for left posterior inlet correction (<abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> / counter-nutation). Test markers at Step 3: +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> persists, −R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> achieved, R <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 2/5. This is a key milestone."
+        "explanation": "R PART resolves at Step 3. Step 3 targets left proximal iliacus + left glute med for left posterior inlet correction (IS ER / counter-nutation). Test markers at Step 3: +L PADT persists, −R PART achieved, R HALT 2/5. This is a key milestone."
     },
     {
         "id": "MQ-092",
@@ -2297,7 +2297,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> resolves at Step 4 (becomes negative). Step 4 targets right posterior outlet (<abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr>) via right coccygeus, piriformis, and glute max. After Step 4: both <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> and <abbr title=\"Passive Abduction Raise Test\">PART</abbr> are negative. Test markers: −L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, −R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>, R <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 4/5."
+        "explanation": "L PADT resolves at Step 4 (becomes negative). Step 4 targets right posterior outlet (SI IR) via right coccygeus, piriformis, and glute max. After Step 4: both PADT and PART are negative. Test markers: −L PADT, −R PART, R HALT 4/5."
     },
     {
         "id": "MQ-093",
@@ -2322,7 +2322,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Step 3 targets L <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> = counter-nutation of the left sacrum. Left proximal iliacus adducts the left inlet while left glute med produces left <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr>. This corrects the left ilium's nutation on the sacrum. A is the patterned inlet position. C = Step 2 target. D = Step 4 target."
+        "explanation": "Step 3 targets L IS ER = counter-nutation of the left sacrum. Left proximal iliacus adducts the left inlet while left glute med produces left IS ER. This corrects the left ilium's nutation on the sacrum. A is the patterned inlet position. C = Step 2 target. D = Step 4 target."
     },
     {
         "id": "MQ-094",
@@ -2347,7 +2347,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Step 4: Turn ON right posterior outlet via R <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> — right coccygeus, right piriformis, right glute max. The right posterior outlet closes via right glute max extension with <abbr title=\"Femoro-Acetabular External Rotation\">FA ER</abbr> and <abbr title=\"Femoro-Acetabular\">FA</abbr> abduction. B = patterned position. C = Step 1. D = Step 2."
+        "explanation": "Step 4: Turn ON right posterior outlet via R SI IR — right coccygeus, right piriformis, right glute max. The right posterior outlet closes via right glute max extension with FA ER and FA abduction. B = patterned position. C = Step 1. D = Step 2."
     },
     {
         "id": "MQ-095",
@@ -2372,7 +2372,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Step 1 exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius. The right knee advances ahead of the left, initiating the Right <abbr title=\"Anterior Interior Chain\">AIC</abbr> position. A = Step 2 exercises. C = Step 3 exercises. D = Step 4 exercises."
+        "explanation": "Step 1 exercise: 90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius. The right knee advances ahead of the left, initiating the Right AIC position. A = Step 2 exercises. C = Step 3 exercises. D = Step 4 exercises."
     },
     {
         "id": "MQ-096",
@@ -2422,7 +2422,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "After Step 4 (−<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, −<abbr title=\"Passive Abduction Raise Test\">PART</abbr>, <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 4/5), the patient progresses to upright functional control: Steps 5–10 include single-leg frontal plane control, sidelying integration, seated pelvic ascension control, reciprocal alternating activity, and squatting."
+        "explanation": "After Step 4 (−PADT, −PART, HALT 4/5), the patient progresses to upright functional control: Steps 5–10 include single-leg frontal plane control, sidelying integration, seated pelvic ascension control, reciprocal alternating activity, and squatting."
     },
     {
         "id": "MQ-098",
@@ -2497,7 +2497,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The patient lies on the right side, pulls the left leg back on inhalation, then squeezes the left knee down into a towel on exhalation. They should feel the left inner thigh engage. Left adductor contraction facilitates left <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> and activates the left pelvic floor."
+        "explanation": "The patient lies on the right side, pulls the left leg back on inhalation, then squeezes the left knee down into a towel on exhalation. They should feel the left inner thigh engage. Left adductor contraction facilitates left AF IR and activates the left pelvic floor."
     },
     {
         "id": "MQ-101",
@@ -2547,7 +2547,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "The Standing Wall Supported Reach targets bilateral anterior inlet and posterior outlet inhibition, promoting inlet extension. The patient squeezes a ball between the knees, rounds the back with lower back flat on wall, and reaches forward on exhale. B, C, D are <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>-specific targets."
+        "explanation": "The Standing Wall Supported Reach targets bilateral anterior inlet and posterior outlet inhibition, promoting inlet extension. The patient squeezes a ball between the knees, rounds the back with lower back flat on wall, and reaches forward on exhale. B, C, D are L AIC-specific targets."
     },
     {
         "id": "MQ-103",
@@ -2572,7 +2572,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> hierarchy (after −B <abbr title=\"Adduction Drop Test\">ADT</abbr>, +B <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>): Step 1 is maximize diaphragmatic respiratory function. This includes 90-90 Hip Lift in Passive <abbr title=\"Femoro-Acetabular Internal Rotation\">FA IR</abbr> with Balloon (or straw/kazoo for Patho), Supine Hooklying Synchronized Resisted Glute Max, etc. A is Step 2. C is Step 3."
+        "explanation": "B Patho PEC hierarchy (after −B ADT, +B PADT): Step 1 is maximize diaphragmatic respiratory function. This includes 90-90 Hip Lift in Passive FA IR with Balloon (or straw/kazoo for Patho), Supine Hooklying Synchronized Resisted Glute Max, etc. A is Step 2. C is Step 3."
     },
     {
         "id": "MQ-104",
@@ -2597,7 +2597,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Bilateral PEC\">B PEC</abbr> hierarchy: (1) Maximize diaphragmatic respiratory function, (2) Maximize inhibition of bilateral anterior inlet and bilateral posterior outlet (promote inlet extension), (3) Left <abbr title=\"Anterior Interior Chain\">AIC</abbr> alternating program. A is Step 3, not Step 2."
+        "explanation": "B PEC hierarchy: (1) Maximize diaphragmatic respiratory function, (2) Maximize inhibition of bilateral anterior inlet and bilateral posterior outlet (promote inlet extension), (3) Left AIC alternating program. A is Step 3, not Step 2."
     },
     {
         "id": "MQ-105",
@@ -2647,7 +2647,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Visit 1 with all tests positive = repositioning phase. <abbr title=\"Bilateral PEC\">B PEC</abbr> uses Standing Wall Supported Reach, 90-90 Hip Lift in Passive <abbr title=\"Femoro-Acetabular Internal Rotation\">FA IR</abbr> with Balloon, and Stair Short Seated Balloon. A uses different exercises. C is premature. D applies only after tests clear."
+        "explanation": "Visit 1 with all tests positive = repositioning phase. B PEC uses Standing Wall Supported Reach, 90-90 Hip Lift in Passive FA IR with Balloon, and Stair Short Seated Balloon. A uses different exercises. C is premature. D applies only after tests clear."
     },
     {
         "id": "MQ-107",
@@ -2672,7 +2672,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Visit 2: <abbr title=\"Adduction Drop Test\">ADT</abbr> clears but <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> persists. Emphasize mediastinum expansion and abs with reciprocal repositioning. This targets the respiratory component of the pattern. A is unnecessary (<abbr title=\"Adduction Drop Test\">ADT</abbr> cleared). C is later. D is premature."
+        "explanation": "Visit 2: ADT clears but PADT persists. Emphasize mediastinum expansion and abs with reciprocal repositioning. This targets the respiratory component of the pattern. A is unnecessary (ADT cleared). C is later. D is premature."
     },
     {
         "id": "MQ-108",
@@ -2697,7 +2697,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Visit 2 in <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> case: <abbr title=\"Adduction Drop Test\">ADT</abbr> and <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> clear but R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> persists. Inhibit L posterior mediastinum and promote R inlet abduction via R glute max. C applies only when all tests are negative. B is unnecessary since <abbr title=\"Adduction Drop Test\">ADT</abbr> cleared."
+        "explanation": "Visit 2 in L AIC case: ADT and PADT clear but R PART persists. Inhibit L posterior mediastinum and promote R inlet abduction via R glute max. C applies only when all tests are negative. B is unnecessary since ADT cleared."
     },
     {
         "id": "MQ-109",
@@ -2722,7 +2722,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Visit 5: <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> and <abbr title=\"Passive Abduction Raise Test\">PART</abbr> both negative, <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 4/4. The next step is integrating R outlet adduction via R inferior glute max. This corresponds to advancing from <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 4 toward <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 5. D is premature — integration work remains."
+        "explanation": "Visit 5: PADT and PART both negative, HALT 4/4. The next step is integrating R outlet adduction via R inferior glute max. This corresponds to advancing from HALT 4 toward HALT 5. D is premature — integration work remains."
     },
     {
         "id": "MQ-110",
@@ -2747,7 +2747,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Visit 6: <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 5/5 and Squat 4/5 = integration into reciprocal/alternating function. Activities include retro walking, heel stair descents, and reverse squatting. The patient has progressed through the full hierarchy."
+        "explanation": "Visit 6: HALT 5/5 and Squat 4/5 = integration into reciprocal/alternating function. Activities include retro walking, heel stair descents, and reverse squatting. The patient has progressed through the full hierarchy."
     },
     {
         "id": "MQ-111",
@@ -2772,7 +2772,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> Step 1 = press bottom toes into wall (stabilize pelvis). Step 2 = press bottom hip into surface. Step 3 = turn/raise bottom knee. Step 4 = turn top heel up. Step 5 = raise top leg and extend hip. B = Step 5. C = Step 4. D = Step 5."
+        "explanation": "HALT Step 1 = press bottom toes into wall (stabilize pelvis). Step 2 = press bottom hip into surface. Step 3 = turn/raise bottom knee. Step 4 = turn top heel up. Step 5 = raise top leg and extend hip. B = Step 5. C = Step 4. D = Step 5."
     },
     {
         "id": "MQ-112",
@@ -2797,7 +2797,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> Step 3 = turn/raise bottom knee using IC adductor and anterior glute med (top hip stays). This step tests the ability to achieve outlet abduction of the flexed leg. A = Step 2. C = Step 5. D = Step 1."
+        "explanation": "HALT Step 3 = turn/raise bottom knee using IC adductor and anterior glute med (top hip stays). This step tests the ability to achieve outlet abduction of the flexed leg. A = Step 2. C = Step 5. D = Step 1."
     },
     {
         "id": "MQ-113",
@@ -2822,7 +2822,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "During <abbr title=\"Passive Abduction Raise Test\">PART</abbr>, the examiner passively abducts the top leg while stabilizing the innominate. Stop if thoracic sidebending occurs — this indicates compensation rather than true hip abduction. Positive = abduction < 45°."
+        "explanation": "During PART, the examiner passively abducts the top leg while stabilizing the innominate. Stop if thoracic sidebending occurs — this indicates compensation rather than true hip abduction. Positive = abduction < 45°."
     },
     {
         "id": "MQ-114",
@@ -2847,7 +2847,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Positive <abbr title=\"Passive Abduction Raise Test\">PART</abbr> = top leg abduction < 45°. A is a negative (normal) finding. C describes positive <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>. D describes positive <abbr title=\"Standing Reach Test\">SRT</abbr>."
+        "explanation": "Positive PART = top leg abduction < 45°. A is a negative (normal) finding. C describes positive PADT. D describes positive SRT."
     },
     {
         "id": "MQ-115",
@@ -2922,7 +2922,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The patient lies supine with feet flat on the wall, hips and knees at 90°. Move feet out wider than the hips. Place a 4–6 inch ball between the knees. The wider foot position with ball squeeze facilitates passive <abbr title=\"Femoro-Acetabular Internal Rotation\">FA IR</abbr> during the breathing sequence."
+        "explanation": "The patient lies supine with feet flat on the wall, hips and knees at 90°. Move feet out wider than the hips. Place a 4–6 inch ball between the knees. The wider foot position with ball squeeze facilitates passive FA IR during the breathing sequence."
     },
     {
         "id": "MQ-118",
@@ -3022,7 +3022,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "A bolster is placed between the feet and a towel between the knees. The left knee should be lower than the left hip and ankle. This positioning biases the left hip toward internal rotation and adduction, facilitating left <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> when the patient pulls back and squeezes down."
+        "explanation": "A bolster is placed between the feet and a towel between the knees. The left knee should be lower than the left hip and ankle. This positioning biases the left hip toward internal rotation and adduction, facilitating left AF IR when the patient pulls back and squeezes down."
     },
     {
         "id": "MQ-122",
@@ -3072,7 +3072,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> Level 4 = ability to raise the top leg completely off the wall and hold without using lateral trunk muscle. Inability reflects poor integration between contralateral hip adductors and ipsilateral hip abductor (gluteus medius). A = Level 1. B = Level 2. D = Level 5."
+        "explanation": "HALT Level 4 = ability to raise the top leg completely off the wall and hold without using lateral trunk muscle. Inability reflects poor integration between contralateral hip adductors and ipsilateral hip abductor (gluteus medius). A = Level 1. B = Level 2. D = Level 5."
     },
     {
         "id": "MQ-124",
@@ -3097,7 +3097,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "<abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> Level 5: move the correctly abducted top lower extremity into extension without extending the low back, flexing the knee, or rotating the leg externally (<abbr title=\"Femoro-Acetabular External Rotation\">FA ER</abbr>). Inability = can't extend with glute max during concomitant abduction. A = Step 1. B = Step 3."
+        "explanation": "HALT Level 5: move the correctly abducted top lower extremity into extension without extending the low back, flexing the knee, or rotating the leg externally (FA ER). Inability = can't extend with glute max during concomitant abduction. A = Step 1. B = Step 3."
     },
     {
         "id": "MQ-125",
@@ -3122,7 +3122,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> respiratory findings: left anterior ribs flared/<abbr title=\"External Rotation\">ER</abbr>, left diaphragm descended/linear/postural (poor <abbr title=\"Zone of Apposition\">ZOA</abbr>), left <abbr title=\"Internal Oblique\">IO</abbr>/TAs weak, left anterior thorax hyperinflated, left posterior mediastinum limited. B = <abbr title=\"Bilateral PEC\">B PEC</abbr> findings. D reverses the mediastinum findings."
+        "explanation": "L AIC respiratory findings: left anterior ribs flared/ER, left diaphragm descended/linear/postural (poor ZOA), left IO/TAs weak, left anterior thorax hyperinflated, left posterior mediastinum limited. B = B PEC findings. D reverses the mediastinum findings."
     },
     {
         "id": "MQ-126",
@@ -3147,7 +3147,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The metaphor means: just as a flattened respiratory diaphragm reflects a stuck-inhale thorax, a descended pelvic floor reflects a stuck-inhale pelvis. The pelvic floor doesn't literally inhale. During actual inhalation, the pelvic floor eccentrically descends to accommodate increased <abbr title=\"Intra-Abdominal Pressure\">IAP</abbr>. PRI's point is that a chronically descended pelvic floor has lost its cycling ability."
+        "explanation": "The metaphor means: just as a flattened respiratory diaphragm reflects a stuck-inhale thorax, a descended pelvic floor reflects a stuck-inhale pelvis. The pelvic floor doesn't literally inhale. During actual inhalation, the pelvic floor eccentrically descends to accommodate increased IAP. PRI's point is that a chronically descended pelvic floor has lost its cycling ability."
     },
     {
         "id": "MQ-127",
@@ -3172,7 +3172,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Strong pelvic diaphragm contraction produces more efficient abdominal co-contraction, most efficient during mid and end phase of exhalation. <abbr title=\"Internal Oblique\">IO</abbr> and <abbr title=\"Transversus Abdominis\">TA</abbr> contractions are closely coupled with pelvic diaphragm activity. Pelvic diaphragm strength correlates with increased FEV, flow, and FVC."
+        "explanation": "Strong pelvic diaphragm contraction produces more efficient abdominal co-contraction, most efficient during mid and end phase of exhalation. IO and TA contractions are closely coupled with pelvic diaphragm activity. Pelvic diaphragm strength correlates with increased FEV, flow, and FVC."
     },
     {
         "id": "MQ-128",
@@ -3197,7 +3197,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Dyssynchronous patterns: pelvic diaphragm descension associated with increased <abbr title=\"Intra-Abdominal Pressure\">IAP</abbr> (Valsalva, abdominal bracing) and global activation. External obliques are predominantly recruited during abdominal bracing. Overuse of EOs and rectus abdominis is noted in nulliparous women with SUI."
+        "explanation": "Dyssynchronous patterns: pelvic diaphragm descension associated with increased IAP (Valsalva, abdominal bracing) and global activation. External obliques are predominantly recruited during abdominal bracing. Overuse of EOs and rectus abdominis is noted in nulliparous women with SUI."
     },
     {
         "id": "MQ-129",
@@ -3247,7 +3247,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Research shows that voluntary abdominal activity increases pelvic diaphragm muscle activity. <abbr title=\"Internal Oblique\">IO</abbr> and <abbr title=\"Transversus Abdominis\">TA</abbr> contractions are closely coupled with pelvic diaphragm activity. This is why PRI exercises integrate abdominal activation with pelvic floor restoration."
+        "explanation": "Research shows that voluntary abdominal activity increases pelvic diaphragm muscle activity. IO and TA contractions are closely coupled with pelvic diaphragm activity. This is why PRI exercises integrate abdominal activation with pelvic floor restoration."
     },
     {
         "id": "MQ-131",
@@ -3272,7 +3272,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Inlet direction matches <abbr title=\"Acetabulo-Femoral\">AF</abbr> direction. R <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> = R <abbr title=\"Acetabulo-Femoral External Rotation\">AF ER</abbr>. A is the inverse. C is the wrong side. D describes femoral-on-acetabular motion, not acetabular-on-femoral."
+        "explanation": "Inlet direction matches AF direction. R IP ER = R AF ER. A is the inverse. C is the wrong side. D describes femoral-on-acetabular motion, not acetabular-on-femoral."
     },
     {
         "id": "MQ-132",
@@ -3297,7 +3297,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Sacro-Iliac\">SI</abbr> = Sacro-Ilio = sacrum rotating on the ilium at the posterior outlet. R <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> = right sacrum rotating inward on the right ilium = posterior outlet closing. B describes <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr> (posterior inlet). C describes <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr>. D describes <abbr title=\"Acetabulo-Femoral\">AF</abbr>."
+        "explanation": "SI = Sacro-Ilio = sacrum rotating on the ilium at the posterior outlet. R SI IR = right sacrum rotating inward on the right ilium = posterior outlet closing. B describes IS IR (posterior inlet). C describes IP IR. D describes AF."
     },
     {
         "id": "MQ-133",
@@ -3322,7 +3322,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "L <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> (inlet opens) and L <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> (outlet closes) are in the same equivalence chain (L <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr> = L <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr> = L <abbr title=\"Ischio-Pubo Internal Rotation\">IsP IR</abbr> = L <abbr title=\"Sacro-Iliac Internal Rotation\">SI IR</abbr> = L <abbr title=\"Acetabulo-Femoral External Rotation\">AF ER</abbr>). The inlet and outlet move reciprocally — when one opens, the other closes on the same side."
+        "explanation": "L IP ER (inlet opens) and L IsP IR (outlet closes) are in the same equivalence chain (L IP ER = L IS IR = L IsP IR = L SI IR = L AF ER). The inlet and outlet move reciprocally — when one opens, the other closes on the same side."
     },
     {
         "id": "MQ-134",
@@ -3347,7 +3347,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "When <abbr title=\"Adduction Drop Test\">ADT</abbr> is negative bilaterally (repositioned) but <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> persists with positive <abbr title=\"Standing Reach Test\">SRT</abbr>, this reflects a standard <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> or <abbr title=\"Bilateral PEC\">B PEC</abbr> pattern. <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> would show <abbr title=\"Standing Reach Test\">SRT</abbr> = 0 (touches toes). C is wrong because <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> persists. The functional relationship table in the manual maps −L <abbr title=\"Adduction Drop Test\">ADT</abbr>, +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, +<abbr title=\"Standing Reach Test\">SRT</abbr> to standard patterns."
+        "explanation": "When ADT is negative bilaterally (repositioned) but PADT persists with positive SRT, this reflects a standard L AIC or B PEC pattern. B Patho PEC would show SRT = 0 (touches toes). C is wrong because PADT persists. The functional relationship table in the manual maps −L ADT, +L PADT, +SRT to standard patterns."
     },
     {
         "id": "MQ-135",
@@ -3372,7 +3372,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "−L <abbr title=\"Adduction Drop Test\">ADT</abbr>, −L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>, +R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> = Myokinematic territory or late-stage Pelvis Restoration. The R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> persists because R glute max facilitation is needed. The cause has shifted from pelvic malalignment to R proximal iliacus overactivity blocking R glute max."
+        "explanation": "−L ADT, −L PADT, +R PART = Myokinematic territory or late-stage Pelvis Restoration. The R PART persists because R glute max facilitation is needed. The cause has shifted from pelvic malalignment to R proximal iliacus overactivity blocking R glute max."
     },
     {
         "id": "MQ-136",
@@ -3397,7 +3397,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "When <abbr title=\"Adduction Drop Test\">ADT</abbr> is negative but <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> persists and <abbr title=\"Standing Reach Test\">SRT</abbr> is negative (0\" = touches toes), this pattern suggests Patho <abbr title=\"Posterior Exterior Chain\">PEC</abbr> with long and tonic muscles — everything is \"OFF\" in the pelvic inlet and outlet. A would show <abbr title=\"Standing Reach Test\">SRT</abbr> > 0\"."
+        "explanation": "When ADT is negative but PADT persists and SRT is negative (0\" = touches toes), this pattern suggests Patho PEC with long and tonic muscles — everything is \"OFF\" in the pelvic inlet and outlet. A would show SRT > 0\"."
     },
     {
         "id": "MQ-137",
@@ -3422,7 +3422,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Left gluteus medius = Orange family (Transverse Plane). It acts at the inlet, producing left <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> (counter-nutation) in closed chain. A = L iliacus. B = L obturator internus and L iliococcygeus. D = R glute max, R piriformis, R coccygeus."
+        "explanation": "Left gluteus medius = Orange family (Transverse Plane). It acts at the inlet, producing left IS ER (counter-nutation) in closed chain. A = L iliacus. B = L obturator internus and L iliococcygeus. D = R glute max, R piriformis, R coccygeus."
     },
     {
         "id": "MQ-138",
@@ -3447,7 +3447,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Violet (<abbr title=\"Internal Rotation\">IR</abbr>) = R gluteus maximus (inlet & outlet), R piriformis (outlet), R coccygeus (outlet). These produce right-sided internal rotation that opposes the <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> pattern. A = Green. C = Orange. D = Yellow."
+        "explanation": "Violet (IR) = R gluteus maximus (inlet & outlet), R piriformis (outlet), R coccygeus (outlet). These produce right-sided internal rotation that opposes the L AIC pattern. A = Green. C = Orange. D = Yellow."
     },
     {
         "id": "MQ-139",
@@ -3472,7 +3472,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Left iliococcygeus produces left outlet abduction — pulls the left ischial tuberosity laterally, widening the left outlet (<abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr>) and helping ascend the left pelvic diaphragm. Part of levator ani. Green family. Facilitated in Step 2 of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy."
+        "explanation": "Left iliococcygeus produces left outlet abduction — pulls the left ischial tuberosity laterally, widening the left outlet (IsP ER) and helping ascend the left pelvic diaphragm. Part of levator ani. Green family. Facilitated in Step 2 of L AIC hierarchy."
     },
     {
         "id": "MQ-140",
@@ -3522,7 +3522,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "The goal of <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> correction is to move the pelvis from L <abbr title=\"Acetabulo-Femoral External Rotation\">AF ER</abbr> (patterned — inlet open, outlet closed) to L <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> (neutral/restored — inlet closed, outlet open). B is moving into the pattern. C = <abbr title=\"Bilateral PEC\">B PEC</abbr>. D = bilateral outlet closing = <abbr title=\"Bilateral PEC\">B PEC</abbr> position."
+        "explanation": "The goal of L AIC correction is to move the pelvis from L AF ER (patterned — inlet open, outlet closed) to L AF IR (neutral/restored — inlet closed, outlet open). B is moving into the pattern. C = B PEC. D = bilateral outlet closing = B PEC position."
     },
     {
         "id": "MQ-142",
@@ -3547,7 +3547,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "The left hamstring (outlet muscle) pulls the left hemipelvis posteriorly, opposing the anterior tilt of the <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> pattern. With the pelvic tilt maintained and right leg straight, the left leg on the wall allows the left hamstring to drive posterior pelvic rotation. B is open-chain action. C is the patterned direction."
+        "explanation": "The left hamstring (outlet muscle) pulls the left hemipelvis posteriorly, opposing the anterior tilt of the L AIC pattern. With the pelvic tilt maintained and right leg straight, the left leg on the wall allows the left hamstring to drive posterior pelvic rotation. B is open-chain action. C is the patterned direction."
     },
     {
         "id": "MQ-143",
@@ -3597,7 +3597,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Step 5 = upright left single-leg frontal plane static and dynamic control. Requires <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 3/5. The patient must demonstrate adequate pelvic control before transitioning to upright single-leg work. Earlier steps correspond to lower <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> levels (Step 1 = 0/5, Step 2 = 1/5, Step 3 = 2/5, Step 4 = 4/5)."
+        "explanation": "Step 5 = upright left single-leg frontal plane static and dynamic control. Requires HALT 3/5. The patient must demonstrate adequate pelvic control before transitioning to upright single-leg work. Earlier steps correspond to lower HALT levels (Step 1 = 0/5, Step 2 = 1/5, Step 3 = 2/5, Step 4 = 4/5)."
     },
     {
         "id": "MQ-145",
@@ -3622,7 +3622,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The 90-90 Respiratory Left Hip Shift is used specifically for Left Anterior Inlet Inhibition to stop the <abbr title=\"Tensor Fasciae Latae\">TFL</abbr> from pulling the pelvis into anterior tilt. A is a repositioning exercise. C is for bilateral inhibition. D is for right glute max facilitation."
+        "explanation": "The 90-90 Respiratory Left Hip Shift is used specifically for Left Anterior Inlet Inhibition to stop the TFL from pulling the pelvis into anterior tilt. A is a repositioning exercise. C is for bilateral inhibition. D is for right glute max facilitation."
     },
     {
         "id": "MQ-146",
@@ -3647,7 +3647,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "L <abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr> (outlet opening) is facilitated by left pelvic floor muscles accessed via left adductor activation. The adductors create femoral adduction which, in closed chain, activates the pelvic floor to pull ischial tuberosities apart (outlet abduction = <abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr>). This is facilitation Step 2."
+        "explanation": "L IsP ER (outlet opening) is facilitated by left pelvic floor muscles accessed via left adductor activation. The adductors create femoral adduction which, in closed chain, activates the pelvic floor to pull ischial tuberosities apart (outlet abduction = IsP ER). This is facilitation Step 2."
     },
     {
         "id": "MQ-147",
@@ -3672,7 +3672,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Step 9 = reciprocal alternating activity. Includes Left Stance Interrupted Reciprocal Step Through and Two Point Gait with Right Glute Max to integrate the corrected position into walking. A = repositioning. C = <abbr title=\"Bilateral PEC\">B PEC</abbr> repositioning. D = <abbr title=\"Bilateral PEC\">B PEC</abbr> repositioning."
+        "explanation": "Step 9 = reciprocal alternating activity. Includes Left Stance Interrupted Reciprocal Step Through and Two Point Gait with Right Glute Max to integrate the corrected position into walking. A = repositioning. C = B PEC repositioning. D = B PEC repositioning."
     },
     {
         "id": "MQ-148",
@@ -3722,7 +3722,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "In <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr>, the rectus abdominis is eccentrically tight/strained. This is in addition to the bilateral <abbr title=\"Internal Oblique\">IO</abbr>/TAs being long/weak with abdominal AND pelvic bulge. The eccentric strain of the rectus reflects the long and tonic muscle state characteristic of Patho."
+        "explanation": "In B Patho PEC, the rectus abdominis is eccentrically tight/strained. This is in addition to the bilateral IO/TAs being long/weak with abdominal AND pelvic bulge. The eccentric strain of the rectus reflects the long and tonic muscle state characteristic of Patho."
     },
     {
         "id": "MQ-150",
@@ -3747,7 +3747,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Anterior Interior Chain\">AIC</abbr> = Anterior Interior Chain. The chain consists of diaphragm → psoas → iliacus → <abbr title=\"Tensor Fasciae Latae\">TFL</abbr> → vastus lateralis → biceps femoris. \"Left <abbr title=\"Anterior Interior Chain\">AIC</abbr>\" = the left side's anterior interior chain is dominant/patterned."
+        "explanation": "AIC = Anterior Interior Chain. The chain consists of diaphragm → psoas → iliacus → TFL → vastus lateralis → biceps femoris. \"Left AIC\" = the left side's anterior interior chain is dominant/patterned."
     },
     {
         "id": "MQ-151",
@@ -3772,7 +3772,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Posterior Exterior Chain\">PEC</abbr> = Posterior Exterior Chain. <abbr title=\"Bilateral PEC\">B PEC</abbr> = Bilateral Posterior Exterior Chain = bilateral extension dominance. A invents a wrong expansion. C and D are not PRI terms."
+        "explanation": "PEC = Posterior Exterior Chain. B PEC = Bilateral Posterior Exterior Chain = bilateral extension dominance. A invents a wrong expansion. C and D are not PRI terms."
     },
     {
         "id": "MQ-152",
@@ -3822,7 +3822,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "The <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> assesses pelvic diaphragm function — specifically the ability of the pelvic floor to ascend. Positive = the pelvic diaphragm on that side cannot ascend because the outlet ischium can't abduct and the inlet ilium can't adduct. B relates more to <abbr title=\"Adduction Drop Test\">ADT</abbr>. C is assessed by <abbr title=\"Ilio-Sacral\">IS</abbr> position."
+        "explanation": "The PADT assesses pelvic diaphragm function — specifically the ability of the pelvic floor to ascend. Positive = the pelvic diaphragm on that side cannot ascend because the outlet ischium can't abduct and the inlet ilium can't adduct. B relates more to ADT. C is assessed by IS position."
     },
     {
         "id": "MQ-154",
@@ -3847,7 +3847,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "The left inlet is stuck in <abbr title=\"Ilio-Pubo External Rotation\">IP ER</abbr>, which blocks left femoral adduction (→ +L <abbr title=\"Adduction Drop Test\">ADT</abbr>). The right side compensates in R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> (closed inlet), which causes lateral buttressing of the right femoral head against the superior acetabulum, blocking right hip abduction (→ +R <abbr title=\"Passive Abduction Raise Test\">PART</abbr>). The asymmetry reflects the asymmetric <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> pattern."
+        "explanation": "The left inlet is stuck in IP ER, which blocks left femoral adduction (→ +L ADT). The right side compensates in R IP IR (closed inlet), which causes lateral buttressing of the right femoral head against the superior acetabulum, blocking right hip abduction (→ +R PART). The asymmetry reflects the asymmetric L AIC pattern."
     },
     {
         "id": "MQ-155",
@@ -3872,7 +3872,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "<abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> uses asymmetric/left-specific repositioning: Hemibridge, R Sidelying L Adductor Pull Back, L Sidelying R Glute Max. <abbr title=\"Bilateral PEC\">B PEC</abbr> and <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> use the SAME three bilateral/symmetrical repositioning techniques (Standing Wall Supported Reach, 90-90 with Balloon, Modified All Four Belly Lift). D is incorrect — the sets are different."
+        "explanation": "L AIC uses asymmetric/left-specific repositioning: Hemibridge, R Sidelying L Adductor Pull Back, L Sidelying R Glute Max. B PEC and B Patho PEC use the SAME three bilateral/symmetrical repositioning techniques (Standing Wall Supported Reach, 90-90 with Balloon, Modified All Four Belly Lift). D is incorrect — the sets are different."
     },
     {
         "id": "MQ-156",
@@ -3897,7 +3897,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "True. Both <abbr title=\"Bilateral PEC\">B PEC</abbr> and <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> use the same three repositioning techniques: Standing Wall Supported Reach, 90-90 Hip Lift in Passive <abbr title=\"Femoro-Acetabular Internal Rotation\">FA IR</abbr> with Balloon, Modified All Four Belly Lift. Both are bilateral extension patterns. The difference is in subsequent treatment hierarchy — Patho may need straw/kazoo instead of balloon."
+        "explanation": "True. Both B PEC and B Patho PEC use the same three repositioning techniques: Standing Wall Supported Reach, 90-90 Hip Lift in Passive FA IR with Balloon, Modified All Four Belly Lift. Both are bilateral extension patterns. The difference is in subsequent treatment hierarchy — Patho may need straw/kazoo instead of balloon."
     },
     {
         "id": "MQ-157",
@@ -3922,7 +3922,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "Per the manual's terminology key: letters preceding / = position, letters following / = action. When no / exists, the entire description = action. So \"Standing Wall Supported Respiratory Left <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr> with Left <abbr title=\"Internal Oblique\">IO</abbr>/<abbr title=\"Transversus Abdominis\">TA</abbr> Integration\" describes what the patient actively does."
+        "explanation": "Per the manual's terminology key: letters preceding / = position, letters following / = action. When no / exists, the entire description = action. So \"Standing Wall Supported Respiratory Left AF IR with Left IO/TA Integration\" describes what the patient actively does."
     },
     {
         "id": "MQ-158",
@@ -3972,7 +3972,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Visit 4 in the <abbr title=\"Bilateral PEC\">B PEC</abbr> case: <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> clears bilaterally, L <abbr title=\"Passive Abduction Raise Test\">PART</abbr> negative but R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> positive. The right side needs glute max facilitation to achieve right inlet abduction. C was visit 3's target. B is unnecessary since <abbr title=\"Adduction Drop Test\">ADT</abbr>/<abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> cleared."
+        "explanation": "Visit 4 in the B PEC case: PADT clears bilaterally, L PART negative but R PART positive. The right side needs glute max facilitation to achieve right inlet abduction. C was visit 3's target. B is unnecessary since ADT/PADT cleared."
     },
     {
         "id": "MQ-160",
@@ -4022,7 +4022,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Ischio-Pubo\">IsP</abbr> = Ischio-Pubo = the anterior pelvic outlet. Bordered by the ischial tuberosities and pubic symphysis. A conflates <abbr title=\"Ilio-Sacral\">IS</abbr> and P. C and D are not PRI terms."
+        "explanation": "IsP = Ischio-Pubo = the anterior pelvic outlet. Bordered by the ischial tuberosities and pubic symphysis. A conflates IS and P. C and D are not PRI terms."
     },
     {
         "id": "MQ-162",
@@ -4047,7 +4047,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> is an active test — the patient does the work. They actively bring the top leg back to neutral (knee toward mat) while maintaining 90° knee flexion. Contrast with <abbr title=\"Passive Abduction Raise Test\">PART</abbr>, which is passive — the examiner moves the limb."
+        "explanation": "The PADT is an active test — the patient does the work. They actively bring the top leg back to neutral (knee toward mat) while maintaining 90° knee flexion. Contrast with PART, which is passive — the examiner moves the limb."
     },
     {
         "id": "MQ-163",
@@ -4072,7 +4072,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "When <abbr title=\"Adduction Drop Test\">ADT</abbr> is positive (pelvis still malaligned), the positive R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> is caused by the compensatory R <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> position creating lateral buttressing of the right femoral head. B applies when <abbr title=\"Adduction Drop Test\">ADT</abbr> becomes negative. C is not the PRI interpretation. D describes a different finding."
+        "explanation": "When ADT is positive (pelvis still malaligned), the positive R PART is caused by the compensatory R IP IR position creating lateral buttressing of the right femoral head. B applies when ADT becomes negative. C is not the PRI interpretation. D describes a different finding."
     },
     {
         "id": "MQ-164",
@@ -4097,7 +4097,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "<abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> inhibition targets the overactive pattern muscles: left <abbr title=\"Tensor Fasciae Latae\">TFL</abbr>, left psoas major, right adductor magnus, and right hamstrings. B lists corrective muscles that should be facilitated, not inhibited. C lists Step 1 facilitation muscles."
+        "explanation": "L AIC inhibition targets the overactive pattern muscles: left TFL, left psoas major, right adductor magnus, and right hamstrings. B lists corrective muscles that should be facilitated, not inhibited. C lists Step 1 facilitation muscles."
     },
     {
         "id": "MQ-165",
@@ -4122,7 +4122,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "L <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> = counter-nutation = ilium rotating outward on the sacrum. This decompresses the <abbr title=\"Sacro-Iliac\">SI</abbr> joint (opposite of nutation). In the corrected chain: L <abbr title=\"Ilio-Pubo Internal Rotation\">IP IR</abbr> = L <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr> = L <abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr> = L <abbr title=\"Sacro-Iliac External Rotation\">SI ER</abbr> = L <abbr title=\"Acetabulo-Femoral Internal Rotation\">AF IR</abbr>. A describes <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr> (nutation). C = <abbr title=\"Ischio-Pubo External Rotation\">IsP ER</abbr> (correct but describes a different joint). D = <abbr title=\"Femoro-Acetabular External Rotation\">FA ER</abbr>."
+        "explanation": "L IS ER = counter-nutation = ilium rotating outward on the sacrum. This decompresses the SI joint (opposite of nutation). In the corrected chain: L IP IR = L IS ER = L IsP ER = L SI ER = L AF IR. A describes IS IR (nutation). C = IsP ER (correct but describes a different joint). D = FA ER."
     },
     {
         "id": "MQ-166",
@@ -4172,7 +4172,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Step 10 = squatting. This is the final step of the <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> hierarchy, integrating full pelvic control into a deep squat movement. Steps 5–10 progress from single-leg control through gait to squatting."
+        "explanation": "Step 10 = squatting. This is the final step of the L AIC hierarchy, integrating full pelvic control into a deep squat movement. Steps 5–10 progress from single-leg control through gait to squatting."
     },
     {
         "id": "MQ-168",
@@ -4222,7 +4222,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "<abbr title=\"Bilateral PEC\">B PEC</abbr> <abbr title=\"Standing Reach Test\">SRT</abbr> (no hip shift): patient reaches straight down toward the floor with hips moving back symmetrically. Measure from fingertips to floor. A is the <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> version with hip shift. C and D are not standard <abbr title=\"Standing Reach Test\">SRT</abbr> procedures."
+        "explanation": "B PEC SRT (no hip shift): patient reaches straight down toward the floor with hips moving back symmetrically. Measure from fingertips to floor. A is the L AIC version with hip shift. C and D are not standard SRT procedures."
     },
     {
         "id": "MQ-170",
@@ -4247,7 +4247,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "Patho = Paradoxical performance. The patient touches toes (<abbr title=\"Standing Reach Test\">SRT</abbr> = 0\") and squats well (> 3/5) despite having positive bilateral <abbr title=\"Adduction Drop Test\">ADT</abbr> and <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr>. Better ROM = worse pathology. This is compensatory hypermobility from long and tonic muscles, not motor control."
+        "explanation": "Patho = Paradoxical performance. The patient touches toes (SRT = 0\") and squats well (> 3/5) despite having positive bilateral ADT and PADT. Better ROM = worse pathology. This is compensatory hypermobility from long and tonic muscles, not motor control."
     },
     {
         "id": "MQ-171",
@@ -4272,7 +4272,7 @@
             }
         ],
         "answer": "A",
-        "explanation": "In <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr>, the left sacrum is nutated (L <abbr title=\"Ilio-Sacral Internal Rotation\">IS IR</abbr>) — the left <abbr title=\"Sacro-Iliac\">SI</abbr> is compressed and the sacrotuberous ligament is taut on the left. The right <abbr title=\"Sacro-Iliac\">SI</abbr> is counter-nutated (R <abbr title=\"Ilio-Sacral External Rotation\">IS ER</abbr>) — sacrotuberous and sacrospinous ligaments are lax on the right, contributing to right <abbr title=\"Sacro-Iliac\">SI</abbr> instability."
+        "explanation": "In L AIC, the left sacrum is nutated (L IS IR) — the left SI is compressed and the sacrotuberous ligament is taut on the left. The right SI is counter-nutated (R IS ER) — sacrotuberous and sacrospinous ligaments are lax on the right, contributing to right SI instability."
     },
     {
         "id": "MQ-172",
@@ -4297,7 +4297,7 @@
             }
         ],
         "answer": "B",
-        "explanation": "The Brachial Chain techniques referenced in the <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> hierarchy are from the Postural Respiration course, which is out of scope for the Pelvis Restoration exam. The mention should be noted as \"(out of scope)\" in study materials."
+        "explanation": "The Brachial Chain techniques referenced in the B Patho PEC hierarchy are from the Postural Respiration course, which is out of scope for the Pelvis Restoration exam. The mention should be noted as \"(out of scope)\" in study materials."
     },
     {
         "id": "MQ-173",
@@ -4347,7 +4347,7 @@
             }
         ],
         "answer": "C",
-        "explanation": "Step 3 test markers: +L <abbr title=\"Pelvic Ascension Drop Test\">PADT</abbr> persists, −R <abbr title=\"Passive Abduction Raise Test\">PART</abbr> achieved, R <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 2/5. The <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> level maps to the facilitation step: Step 1 = <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 0/5, Step 2 = <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 1/5, Step 3 = <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 2/5, Step 4 = <abbr title=\"Hruska Abduction Lift Test\">HALT</abbr> 4/5."
+        "explanation": "Step 3 test markers: +L PADT persists, −R PART achieved, R HALT 2/5. The HALT level maps to the facilitation step: Step 1 = HALT 0/5, Step 2 = HALT 1/5, Step 3 = HALT 2/5, Step 4 = HALT 4/5."
     },
     {
         "id": "MQ-175",
@@ -4372,6 +4372,6 @@
             }
         ],
         "answer": "C",
-        "explanation": "Both <abbr title=\"Bilateral PEC\">B PEC</abbr> and <abbr title=\"Bilateral Pathological PEC\">B Patho PEC</abbr> hierarchies: Step 1 = maximize diaphragmatic respiratory function, Step 2 = maximize bilateral inlet/outlet inhibition, Step 3 = Left <abbr title=\"Anterior Interior Chain\">AIC</abbr> Pattern Pelvis Restoration Facilitation (Alternating) Program. The bilateral patterns eventually funnel into <abbr title=\"Left Anterior Interior Chain\">L AIC</abbr> alternating work."
+        "explanation": "Both B PEC and B Patho PEC hierarchies: Step 1 = maximize diaphragmatic respiratory function, Step 2 = maximize bilateral inlet/outlet inhibition, Step 3 = Left AIC Pattern Pelvis Restoration Facilitation (Alternating) Program. The bilateral patterns eventually funnel into L AIC alternating work."
     }
 ]
