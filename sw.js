@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 
 const PRECACHE_URLS = [
   './',
@@ -12,7 +12,9 @@ const PRECACHE_URLS = [
   './css/landing.css',
   './css/masterquiz.css',
   './css/nomenclature.css',
+  './css/abbr-popover.css',
   './css/patterns.css',
+  './scripts/abbr-popover.js',
   './scripts/aic-chain.js',
   './scripts/anatomize.js',
   './scripts/decoder.js',
