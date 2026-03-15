@@ -75,20 +75,47 @@ function buildConceptMap() {
     };
   }
 
-  let edgeSVG = '';
+  let edgeLineSVG = '';
+  let edgeLabelSVG = '';
+  const OFF_DIST = 18;
+  const LABEL_PAD = 4;
+
+  const edgeMeta = [];
   MAP_EDGES.forEach((edge, i) => {
     const fromNode = MAP_NODES[edge.from];
     const toNode = MAP_NODES[edge.to];
     if (!fromNode || !toNode) return;
     const f = px(fromNode), t = px(toNode);
-    const mx = (f.cx + t.cx) / 2, my = (f.cy + t.cy) / 2;
-    edgeSVG += `<line class="map-edge" id="cmap-edge-${i}"
+    const mx = (f.cx + t.cx) / 2;
+    const my = (f.cy + t.cy) / 2;
+
+    edgeLineSVG += `<line class="map-edge" id="cmap-edge-${i}"
       x1="${f.cx}" y1="${f.cy}"
       x2="${t.cx}" y2="${t.cy}"
       marker-end="url(#arrow-map)"/>`;
-    edgeSVG += `<text class="map-edge-label"
-      x="${mx}" y="${my - 4}"
-      text-anchor="middle">${edge.label}</text>`;
+
+    const dx = t.cx - f.cx;
+    const dy = t.cy - f.cy;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+    const ox = mx + nx * OFF_DIST;
+    const oy = my + ny * OFF_DIST;
+
+    edgeLabelSVG += `<g class="map-edge-label-group"
+      id="cmap-elabel-${i}">
+      <line x1="${mx}" y1="${my}"
+        x2="${ox}" y2="${oy}"
+        stroke="var(--border)" stroke-width="0.5"/>
+      <rect rx="3"
+        fill="var(--bg)" fill-opacity="0.85"
+        stroke="var(--border)" stroke-width="0.5"/>
+      <text class="map-edge-label"
+        x="${ox}" y="${oy + 3}"
+        text-anchor="middle"
+        font-size="7">${edge.label}</text>
+    </g>`;
+    edgeMeta.push(i);
   });
 
   let nodeSVG = '';
@@ -124,7 +151,20 @@ function buildConceptMap() {
       refX="8" refY="3" orient="auto">
       <polygon points="0 0, 8 3, 0 6"
         fill="var(--accent)"/></marker>
-    </defs>` + edgeSVG + nodeSVG;
+    </defs>` + edgeLineSVG + nodeSVG + edgeLabelSVG;
+
+  edgeMeta.forEach(i => {
+    const g = document.getElementById('cmap-elabel-' + i);
+    const text = g.querySelector('text');
+    const rect = g.querySelector('rect');
+    const tw = text.getComputedTextLength() + LABEL_PAD * 2;
+    const th = 12;
+    const bbox = text.getBBox();
+    rect.setAttribute('x', bbox.x - LABEL_PAD);
+    rect.setAttribute('y', bbox.y - 1);
+    rect.setAttribute('width', tw);
+    rect.setAttribute('height', th);
+  });
 
   svg.addEventListener('click', (e) => {
     const nodeEl = e.target.closest('.map-node');

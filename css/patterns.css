@@ -79,9 +79,8 @@
 }
 
 .map-edge-label {
-  font-size:var(--text-xs);
-  fill:var(--text-dim);
-  font-family:var(--mono);
+  fill: var(--text-dim);
+  font-family: var(--mono);
 }
 
 .quiz-card {
