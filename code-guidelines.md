@@ -67,6 +67,10 @@ Favor source HTML over JS-generated markup. Keep the DOM to the simplest semanti
 
 Separate app code from dev tools. App code lives in designated directories by type (scripts, styles, data, assets). Dev tools live in their own directory, not mixed with app code. The project root contains only files that must be there (entry HTML, files with browser scope constraints) and project documentation.
 
+### Progressive Enhancement
+
+Use progressive enhancement sparingly, and generally avoid polyfills. Degrade gracefully; don't try hamfisted approaches to force it to work in all browsers.
+
 ### Explicit Asset Lists
 
 When code enumerates project assets — precache manifests, build tool file lists, resource loaders — each entry must be individually justified by an app code reference. Dev tools and documentation are not app code; a reference from a dev tool does not justify inclusion in an asset list. Never glob-include a directory. An asset list is a contract: every entry is used by the running app, every app-used asset is listed. When files are added or removed, update asset lists in the same commit.
