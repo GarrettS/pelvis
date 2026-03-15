@@ -219,6 +219,7 @@ Comments are a failure of the code to explain itself. When one is necessary, it 
 - Avoid comments likely to become obsolete. A comment that drifts from the code it describes is worse than no comment.
 - No decorative banner or landmark comments (`═══`, `───`, `****`, `/* ── Section ── */`). Use code structure — function names, module boundaries, blank lines — to communicate organization.
 - A comment *is* warranted when code intentionally violates a project convention. State the violation, why it exists, and how it is handled instead. Without this, a future reader will "fix" the code back to the convention and break the design.
+- Remove dead comments. Commented-out code, obsolete TODOs, and notes that no longer apply are clutter. They mislead readers and accumulate. If the code is gone, the comment goes with it. Version control preserves history — the comment does not need to.
 
 ### Version Control
 
