@@ -49,8 +49,14 @@ function buildCheatSheet() {
     div.classList.add('cheat-col');
     let html = '<div class="cheat-col-header">' + expandAbbr(col.name) + '</div>';
     col.rows.forEach(row => {
-      const cls = row.key ? (col.name.includes('Patho') ? 'cheat-row key-warn' : 'cheat-row key') : 'cheat-row';
-      html += '<div class="' + cls + '"><span>' + expandAbbr(row.l) + '</span><span>' + expandAbbr(row.v) + '</span></div>';
+      const isPatho = col.name.includes('Patho');
+      const cls = row.key
+        ? (isPatho ? 'cheat-row key-warn' : 'cheat-row key')
+        : 'cheat-row';
+      html += '<div class="' + cls + '">'
+        + '<span>' + expandAbbr(row.l) + '</span>'
+        + '<span>' + expandAbbr(row.v) + '</span>'
+        + '</div>';
     });
     div.innerHTML = html;
     grid.appendChild(div);
@@ -76,8 +82,13 @@ function buildConceptMap() {
     if (!fromNode || !toNode) return;
     const f = px(fromNode), t = px(toNode);
     const mx = (f.cx + t.cx) / 2, my = (f.cy + t.cy) / 2;
-    edgeSVG += '<line class="map-edge" id="cmap-edge-' + i + '" x1="' + f.cx + '" y1="' + f.cy + '" x2="' + t.cx + '" y2="' + t.cy + '" marker-end="url(#arrow-map)"/>';
-    edgeSVG += '<text class="map-edge-label" x="' + mx + '" y="' + (my - 4) + '" text-anchor="middle">' + edge.label + '</text>';
+    edgeSVG += `<line class="map-edge" id="cmap-edge-${i}"
+      x1="${f.cx}" y1="${f.cy}"
+      x2="${t.cx}" y2="${t.cy}"
+      marker-end="url(#arrow-map)"/>`;
+    edgeSVG += `<text class="map-edge-label"
+      x="${mx}" y="${my - 4}"
+      text-anchor="middle">${edge.label}</text>`;
   });
 
   let nodeSVG = '';
@@ -89,19 +100,31 @@ function buildConceptMap() {
     const rx = p.cx - rw / 2, ry = p.cy - rh / 2;
     const fillColor = node.central ? 'var(--accent-bg)' : 'var(--surface)';
     const strokeColor = node.central ? 'var(--accent)' : 'var(--border)';
-    nodeSVG += '<g class="map-node' + (node.central ? ' central' : '') + '" id="' + id + '" transform="translate(0,0)">'
-      + '<rect x="' + rx + '" y="' + ry + '" width="' + rw + '" height="' + rh + '" rx="4" fill="' + fillColor + '" stroke="' + strokeColor + '" stroke-width="1.5"/>';
+    const cls = 'map-node' + (node.central ? ' central' : '');
+    nodeSVG += `<g class="${cls}" id="${id}"
+      transform="translate(0,0)">
+      <rect x="${rx}" y="${ry}"
+        width="${rw}" height="${rh}" rx="4"
+        fill="${fillColor}" stroke="${strokeColor}"
+        stroke-width="1.5"/>`;
     lines.forEach((l, li) => {
-      nodeSVG += '<text x="' + p.cx + '" y="' + (ry + 11 + li * 11) + '" text-anchor="middle" font-family="monospace" font-size="8.5" fill="var(--text)">' + l + '</text>';
+      nodeSVG += `<text x="${p.cx}" y="${ry + 11 + li * 11}"
+        text-anchor="middle" font-family="monospace"
+        font-size="8.5" fill="var(--text)">${l}</text>`;
     });
     nodeSVG += '</g>';
   });
 
-  svg.innerHTML = '<defs>'
-    + '<marker id="arrow-map" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--border)"/></marker>'
-    + '<marker id="arrow-map-hl" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--accent)"/></marker>'
-    + '</defs>'
-    + edgeSVG + nodeSVG;
+  svg.innerHTML = `<defs>
+    <marker id="arrow-map" markerWidth="8" markerHeight="6"
+      refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6"
+        fill="var(--border)"/></marker>
+    <marker id="arrow-map-hl" markerWidth="8" markerHeight="6"
+      refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6"
+        fill="var(--accent)"/></marker>
+    </defs>` + edgeSVG + nodeSVG;
 
   svg.addEventListener('click', (e) => {
     const nodeEl = e.target.closest('.map-node');
@@ -112,7 +135,9 @@ function buildConceptMap() {
       .filter(edge => edge.from === nodeId || edge.to === nodeId)
       .map(edge => edge.i);
 
-    svg.querySelectorAll('.map-node').forEach(n => { n.classList.remove('highlighted'); });
+    svg.querySelectorAll('.map-node').forEach(n => {
+      n.classList.remove('highlighted');
+    });
     svg.querySelectorAll('.map-edge').forEach(edge => {
       edge.classList.remove('highlighted');
       edge.setAttribute('marker-end', 'url(#arrow-map)');
@@ -156,9 +181,13 @@ function initSymptomQuiz() {
     const isCorrect = chosen === current.pattern;
     symptomQuiz.score.total++;
     if (isCorrect) symptomQuiz.score.correct++;
-    document.getElementById('symptom-score').textContent = 'Score: ' + symptomQuiz.score.correct + ' / ' + symptomQuiz.score.total;
+    const scoreEl = document.getElementById('symptom-score');
+    scoreEl.textContent = 'Score: '
+      + symptomQuiz.score.correct
+      + ' / ' + symptomQuiz.score.total;
 
-    const correctBtn = answersEl.querySelector('.answer-btn[data-ans="' + current.pattern + '"]');
+    const sel = '[data-ans="' + current.pattern + '"]';
+    const correctBtn = answersEl.querySelector(sel);
     correctBtn.classList.add('correct');
     symptomQuiz.markedBtns = [correctBtn];
     if (!isCorrect) {
@@ -169,7 +198,9 @@ function initSymptomQuiz() {
 
     const feedback = document.getElementById('symptom-feedback');
     feedback.classList.toggle('error', !isCorrect);
-    feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</strong> ' + current.explanation;
+    const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
+    feedback.innerHTML = '<strong>' + verdict
+      + '</strong> ' + current.explanation;
     feedback.classList.remove('hidden');
     document.getElementById('symptom-next').classList.remove('hidden');
   });
