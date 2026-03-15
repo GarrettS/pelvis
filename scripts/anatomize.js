@@ -845,10 +845,12 @@ const createDetailRow = (() => {
   return function createDetailRow(label, value) {
     const row = rowTpl.cloneNode(true);
     row.firstChild.textContent = label;
-    row.lastChild.textContent =
-        (typeof value === 'object' && value !== null &&
-            (value.proximal || value.distal)) ?
-            formatAttachments(value) : value;
+    const text = (typeof value === 'object' && value !== null &&
+        (value.proximal || value.distal)) ?
+        formatAttachments(value) : value;
+    const prop = (typeof text === 'string' && text.includes('<')) ?
+        'innerHTML' : 'textContent';
+    row.lastChild[prop] = text;
     return row;
   };
 })();
