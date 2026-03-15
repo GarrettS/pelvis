@@ -202,7 +202,9 @@ function showDetail(entry) {
     row.appendChild(labelEl);
     const valEl = document.createElement('span');
     valEl.style.fontSize = 'var(--text-sm)';
-    valEl.textContent = f.value;
+    const prop = (typeof f.value === 'string' && f.value.includes('<')) ?
+        'innerHTML' : 'textContent';
+    valEl[prop] = f.value;
     row.appendChild(valEl);
     panel.appendChild(row);
   });
