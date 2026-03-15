@@ -26,6 +26,8 @@ const ABBRS = [
   ['ROM', 'Range of Motion'],
   ['TAs', 'Transversus Abdominis'],
   ['IO', 'Internal Oblique'],
+  ['IC', 'Ischiocondylar'],
+  ['COG', 'Center of Gravity'],
 ];
 
 const MAP = {};

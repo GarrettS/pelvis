@@ -196,8 +196,8 @@ function initHaltQuiz() {
     const level = HALT_LEVELS[haltQuiz.idx];
     const q = document.getElementById('halt-question');
     q.innerHTML += '<div class="feedback-box">'
-      + '<strong>Answer:</strong> ' + level.failure + '<br>'
-      + '<strong>Facilitate:</strong> ' + level.facilitate
+      + '<strong>Answer:</strong> ' + expandAbbr(level.failure) + '<br>'
+      + '<strong>Facilitate:</strong> ' + expandAbbr(level.facilitate)
       + '</div>';
   });
   document.getElementById('halt-next').addEventListener('click', () => {
@@ -213,6 +213,8 @@ function renderHaltQuestion() {
   q.innerHTML = '<div class="quiz-badge-wrap"><span class="quiz-level-badge">HALT Level ' + level.level + '</span></div>'
     + '<div class="quiz-progress">(' + (haltQuiz.idx + 1) + ' of ' + HALT_LEVELS.length + ')</div>'
     + '<p class="quiz-prompt">What does failure at HALT Level ' + level.level + ' indicate, and what should you facilitate?</p>';
+  document.getElementById('halt-next').textContent =
+      haltQuiz.idx + 1 < HALT_LEVELS.length ? 'Next Level' : 'Start Over';
 }
 
 function initSquatQuiz() {
@@ -225,8 +227,8 @@ function initSquatQuiz() {
     const level = SQUAT_LEVELS[squatQuiz.idx];
     const q = document.getElementById('squat-question');
     q.innerHTML += '<div class="feedback-box">'
-      + '<strong>Failure:</strong> ' + level.failure + '<br>'
-      + '<strong>Hyperactive muscles:</strong> ' + level.hyperactive
+      + '<strong>Failure:</strong> ' + expandAbbr(level.failure) + '<br>'
+      + '<strong>Hyperactive muscles:</strong> ' + expandAbbr(level.hyperactive)
       + '</div>';
   });
   document.getElementById('squat-next').addEventListener('click', () => {
@@ -242,4 +244,6 @@ function renderSquatQuestion() {
   q.innerHTML = '<div class="quiz-badge-wrap"><span class="quiz-level-badge">Squat Level ' + level.level + '</span></div>'
     + '<div class="quiz-progress">(' + (squatQuiz.idx + 1) + ' of ' + SQUAT_LEVELS.length + ')</div>'
     + '<p class="quiz-prompt">What failure pattern and which muscles are hyperactive at Squat Level ' + level.level + '?</p>';
+  document.getElementById('squat-next').textContent =
+      squatQuiz.idx + 1 < SQUAT_LEVELS.length ? 'Next Level' : 'Start Over';
 }
