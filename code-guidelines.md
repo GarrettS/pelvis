@@ -2,7 +2,7 @@
 
 Standards for web application development. Vanilla JavaScript, no frameworks, no build tools.
 
-Baseline authorities: [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html), [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html), and [Code Guidelines for Rich Internet Application Development](https://web.archive.org/web/20240805191807/http://jibbering.com/faq/notes/code-guidelines/) by Garrett Smith et al. Where this document is silent, defer to those. Where it speaks, it governs.
+Baseline authorities for formatting: [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html), [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html), and [Code Guidelines for Rich Internet Application Development](https://web.archive.org/web/20240805191807/http://jibbering.com/faq/notes/code-guidelines/) by Garrett Smith et al. The Formatting section below overrides and extends those guides. Where both this document and the Formatting section are silent, defer to the baseline authorities.
 
 ---
 
@@ -142,29 +142,50 @@ When creating multiple similar elements in a loop, build one template element ou
 
 ---
 
+## Formatting
+
+### General
+
+- Line length: target 80 columns, 90 maximum. Break long concatenation and conditionals across lines.
+
+### HTML
+
+- Lowercase tags, quoted attributes.
+- No self-closing slash where end tag is forbidden (`<img>` not `<img />`).
+
+### CSS
+
+- External stylesheets only. No inline `<style>` blocks.
+- One declaration per line, opening brace on selector line, one blank line between rules.
+- Space after the colon in property declarations: `margin: 0` not `margin:0`.
+- In CSS functions like `rgb()`, include a single space after each comma.
+
+### JavaScript
+
+- Semicolons explicit. Do not rely on ASI. Restricted productions (`return`, `throw`, `break`, `continue`, postfix `++`/`--`): the expression must start on the same line as the keyword. Do not add a semicolon after a function declaration, block, switch, or try/catch — a semicolon there is an empty statement.
+- Use template literals for large multi-line HTML/SVG builders. Use concatenation for short one-liners.
+
+---
+
 ## Language Rules
 
-Additions and overrides to the baseline authorities listed above.
+Semantic and behavioral rules. Where these overlap with the baseline authorities, this document governs.
 
 ### HTML
 
 - Valid markup. Code that uses malformed HTML is expecting nonstandard behavior. When a browser encounters an HTML error it performs proprietary error correction, producing a DOM that differs from what the code expects.
-- Semantic elements: headings, nav, section, article — not generic divs. Nav lists, not buttons. ARIA roles where semantics fall short. Lowercase tags, quoted attributes.
+- Semantic elements: headings, nav, section, article — not generic divs. Nav lists, not buttons. ARIA roles where semantics fall short.
 - No inline styles except those set dynamically by JS at runtime.
-- No self-closing slash where end tag is forbidden (`<img>` not `<img />`).
 - No `javascript:` pseudo-protocol.
 - No inline event handler attributes (`onclick`, `onchange`, etc.).
 
 ### CSS
 
-- External stylesheets only. No inline `<style>` blocks.
 - Separate structure from domain styles (e.g., `layout.css` for shared primitives; `css/<domain>.css` for each module).
-- One declaration per line, opening brace on selector line, one blank line between rules.
 - Class and id selectors must have semantic meaning. `.redButton` is meaningless; `.errorAction` represents a state. See: [Use class with semantics in mind](https://www.w3.org/QA/Tips/goodclassnames). Use unambiguous names from the project's ubiquitous language: `activeTab`, `activeSubtab` — not `.active`.
 - Modular CSS: each file groups conceptually-related functionality, does one thing, and minimizes dependence on other CSS files.
 - All colors via CSS custom properties. Never hardcode hex or rgb in rules. Define custom properties on `:root` in the CSS file that owns the concept. If a dark mode override is needed, define it in `@media (prefers-color-scheme: dark)` in the same file.
 - System font stacks. No CDN fonts, no Google Fonts. Scalable font sizes using `clamp()` — define a font scale as custom properties on `:root` and use those for all `font-size` declarations. No fixed `px` or bare `rem` font sizes in rules.
-- In CSS functions like `rgb()`, include a single space after each comma.
 - Mobile-first. Base styles target small screens; widen with `min-width` media queries. Images: `max-width: 100%; height: auto`. Overlay positioning uses percentages. No layout element should require horizontal scrolling on a 320px-wide viewport.
 - Light/dark theme via `prefers-color-scheme`. Define light as `:root` default, dark in the media query. No manual toggle unless the project spec requires one.
 
@@ -187,33 +208,33 @@ Additions and overrides to the baseline authorities listed above.
 - No form submission on Enter unless that is the intended UX. Prevent default on `keydown` where needed.
 - `===` for strict equality. Always use strict equality to compare objects.
 - Do not use Boolean coercion on values that may be acceptably falsy (e.g., `if (e.pageX)`). Use `typeof`: `if (typeof e.pageX === 'number')`.
-- Semicolons explicit. Do not rely on ASI. Restricted productions (`return`, `throw`, `break`, `continue`, postfix `++`/`--`): the expression must start on the same line as the keyword. Do not add a semicolon after a function declaration, block, switch, or try/catch — a semicolon there is an empty statement.
 - Efficient string concatenation. Do not repeatedly create and discard temporary strings. Do not `+=` in a loop — each iteration creates and discards an intermediate string. Use `.join()` to build repeated markup; use `.map()` + `.join('')` when each item needs distinct attributes.
 
-  ❌ WRONG — `+=` in a loop creates n intermediate strings:
+  Wrong — `+=` in a loop creates n intermediate strings:
   ```javascript
   let html = '<ul>';
   items.forEach((item) => { html += '<li>' + item + '</li>'; });
   html += '</ul>';
   ```
 
-  ✅ RIGHT — uniform items: join with delimiter (guard empty case):
+  Right — uniform items: join with delimiter (guard empty case):
   ```javascript
   if (items.length) {
     el.innerHTML = '<ul><li>' + items.join('</li><li>') + '</li></ul>';
   }
   ```
 
-  ✅ RIGHT — per-item attributes: map + join:
+  Right — per-item attributes: map + join:
   ```javascript
   el.innerHTML = items.map((item) =>
     '<div data-id="' + item.id + '">' + item.name + '</div>'
   ).join('');
   ```
 - Prefer simple regular expressions. Anchor where needed to avoid false matches. Test success and failure cases.
-- Line length: target 80 columns, 90 maximum. Break long concatenation and conditionals across lines.
 
-### Comments
+---
+
+## Comments
 
 Comments are a failure of the code to explain itself. When one is necessary, it should justify its existence.
 
@@ -223,6 +244,8 @@ Comments are a failure of the code to explain itself. When one is necessary, it 
 - A comment *is* warranted when code intentionally violates a project convention. State the violation, why it exists, and how it is handled instead. Without this, a future reader will "fix" the code back to the convention and break the design.
 - Remove dead comments. Commented-out code, obsolete TODOs, and notes that no longer apply are clutter. They mislead readers and accumulate. If the code is gone, the comment goes with it. Version control preserves history — the comment does not need to.
 
-### Version Control
+---
+
+## Version Control
 
 - Atomic commits: one logical, cohesive change per commit. A commit should do one thing and do it completely — all files affected by that change, nothing unrelated.
