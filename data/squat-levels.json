@@ -1,27 +1,32 @@
 [
   {
     "level": 1,
-    "failure": "Can't initiate squat (slight knee bend, trunk flexed)",
-    "hyperactive": "Extensors, rectus femoris, sartorius"
+    "ability": "Initiate a squat by slightly bending knees while trunk remains in flexion",
+    "inability": "Lack of posterior pelvic rotation",
+    "hyperactive": "Back extensors, rectus femoris, sartorius"
   },
   {
     "level": 2,
-    "failure": "Can't get bottom back, knees forward, trunk flexed",
-    "hyperactive": "Hip flexors, FA external rotators. Lack of femoral adduction."
+    "ability": "Begin squatting, moving bottom back and knees forward while trunk remains in flexion",
+    "inability": "Lack of femoral adduction",
+    "hyperactive": "Hip flexors; overactive FA ERs (inferior glute max, coccygeus, piriformis)"
   },
   {
     "level": 3,
-    "failure": "Can't get bottom below knees, heels down, trunk flexed",
-    "hyperactive": "Intercostals, tib ant/post. Poor IO/TA integration."
+    "ability": "Squat bringing bottom below knee level while keeping heels down and trunk flexed",
+    "inability": "Tight intercostals; hyperactive anterior/posterior tibialis; lack of integration of IO/TAs with posterior mediastinum expansion",
+    "hyperactive": "Intercostals, anterior tibialis, posterior tibialis"
   },
   {
     "level": 4,
-    "failure": "Can't achieve full squat, heels down, bottom to heels",
-    "hyperactive": "Quads, gastroc-soleus. Poor IO/TA frontal plane integration."
+    "ability": "Squat keeping heels down, trunk flexed, and bottom to heels",
+    "inability": "Lack of integration of IO/TAs with frontal plane of pelvis",
+    "hyperactive": "Quads, gastroc-soleus"
   },
   {
     "level": 5,
-    "failure": "Can't achieve maximal squat with COG through heels",
-    "hyperactive": "Lack of maximal AF IR. Poor respiratory/pelvic diaphragm synchronization."
+    "ability": "Maximally squat keeping heels down and trunk flexed while keeping center of gravity through heels",
+    "inability": "Lack of maximal AF IR and synchronized mechanics of diaphragm and pelvic diaphragm respiration",
+    "hyperactive": ""
   }
 ]

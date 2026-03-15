@@ -155,29 +155,7 @@ Port test data and display from the existing apps. Include the test profiles tab
 → "Facilitate: IC adductor + anterior glute med."
 6 levels (0-5), each a quiz card.
 
-Data (from LEARN-PRI.md HALT section):
-```javascript
-const HALT_LEVELS = [
-  { level: 0, failure: "Can't position (malaligned pelvis) + can't inhibit outlet abduction of extended leg", facilitate: "Repositioning first — pelvis not yet neutral" },
-  { level: 1, failure: "IO/TA weakness + can't inhibit inlet abduction (rectus femoris/sartorius) of flexed leg", facilitate: "IO/TAs + inlet inhibition" },
-  { level: 2, failure: "Poor IC adductor/anterior glute med + can't achieve outlet abduction of flexed leg", facilitate: "IC adductor + anterior glute med" },
-  { level: 3, failure: "Poor glute min/anterior glute med or labral impingement + can't achieve inlet adduction of flexed leg", facilitate: "Glute min + anterior glute med" },
-  { level: 4, failure: "Poor contralateral adductor/ipsilateral glute med integration + can't achieve inlet abduction of extended leg", facilitate: "Contralateral adductor + ipsilateral glute med" },
-  { level: 5, failure: "Can't extend with glute max during concomitant abduction + can't achieve outlet adduction of extended leg", facilitate: "Glute max extension during abduction" }
-];
-```
-
-**Squat Level Quiz (NEW):**
-Same structure, 5 levels. Data from LEARN-PRI.md:
-```javascript
-const SQUAT_LEVELS = [
-  { level: 1, failure: "Can't initiate squat (slight knee bend, trunk flexed)", hyperactive: "Extensors, rectus femoris, sartorius" },
-  { level: 2, failure: "Can't get bottom back, knees forward, trunk flexed", hyperactive: "Hip flexors, FA external rotators. Lack of femoral adduction." },
-  { level: 3, failure: "Can't get bottom below knees, heels down, trunk flexed", hyperactive: "Intercostals, tib ant/post. Poor IO/TA integration." },
-  { level: 4, failure: "Can't achieve full squat, heels down, bottom to heels", hyperactive: "Quads, gastroc-soleus. Poor IO/TA frontal plane integration." },
-  { level: 5, failure: "Can't achieve maximal squat with COG through heels", hyperactive: "Lack of maximal AF IR. Poor respiratory/pelvic diaphragm synchronization." }
-];
-```
+Canonical data: `data/halt-levels.json` and `data/squat-levels.json`. See `prd/cc-prd-test-level-fix.md` for schema and content rationale.
 
 ---
 

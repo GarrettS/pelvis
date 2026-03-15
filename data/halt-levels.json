@@ -1,32 +1,56 @@
 [
   {
     "level": 0,
-    "failure": "Can't position (malaligned pelvis) + can't inhibit outlet abduction of extended leg",
-    "facilitate": "Repositioning first — pelvis not yet neutral"
+    "ability": "",
+    "inability": "Inability to position top leg in alignment with top shoulder and hip and with top knee above top shoulder without experiencing top hip impingement, SI pain, or low back pain",
+    "muscles": "Adductors, abductors, FA rotators (frontal plane integration)",
+    "also_reflects": "",
+    "differentials": "Top hip impingement; sacroiliac pain; low back pain",
+    "facilitate": "Repositioning first — pelvis not yet neutral. Malaligned pelvis and poor integration of adductors, abductors, and FA rotators in frontal plane"
   },
   {
     "level": 1,
-    "failure": "IO/TA weakness + can't inhibit inlet abduction (rectus femoris/sartorius) of flexed leg",
+    "ability": "Push bottom hip into surface",
+    "inability": "Weakness in bottom IO/TA, or bottom quadratus lumborum, or top external obliques",
+    "muscles": "IO/TAs, quadratus lumborum, external obliques",
+    "also_reflects": "Inability to inhibit inlet abduction (proximal rectus femoris/sartorius) of the flexed extremity via inlet extension with IO/TAs",
+    "differentials": "",
     "facilitate": "IO/TAs + inlet inhibition"
   },
   {
     "level": 2,
-    "failure": "Poor IC adductor/anterior glute med + can't achieve outlet abduction of flexed leg",
+    "ability": "Raise or turn in bottom knee without moving top pelvis backwards",
+    "inability": "Poor strength or kinesthetic awareness of ischiocondylar adductor or anterior gluteus medius",
+    "muscles": "Ischiocondylar adductor, anterior gluteus medius",
+    "also_reflects": "Inability to achieve outlet abduction of the flexed extremity via facilitation of the inferior medial obturator internus and iliococcygeus with femoral adduction",
+    "differentials": "Lax iliofemoral\u2013pubofemoral ligament",
     "facilitate": "IC adductor + anterior glute med"
   },
   {
     "level": 3,
-    "failure": "Poor glute min/anterior glute med or labral impingement + can't achieve inlet adduction of flexed leg",
+    "ability": "Rotate top extremity inward (FA IR) without moving top pelvis forward",
+    "inability": "Poor strength or kinesthetic awareness of ipsilateral gluteus minimus and anterior gluteus medius",
+    "muscles": "Gluteus minimus, anterior gluteus medius",
+    "also_reflects": "Inability to achieve inlet adduction of the flexed extremity via ilium attachment of the iliacus and left gluteus medius",
+    "differentials": "Impingement of medial femoral head on anterior medial cotyloid labral rim secondary to forward, anteriorly rotated contralateral pelvis",
     "facilitate": "Glute min + anterior glute med"
   },
   {
     "level": 4,
-    "failure": "Poor contralateral adductor/ipsilateral glute med integration + can't achieve inlet abduction of extended leg",
+    "ability": "Raise top leg completely off the wall and hold without using lateral trunk muscle",
+    "inability": "Poor integration between contralateral hip adductors and ipsilateral hip abductor (gluteus medius)",
+    "muscles": "Contralateral adductors, ipsilateral gluteus medius",
+    "also_reflects": "Inability to achieve inlet abduction of the extended extremity via superior gluteus maximus",
+    "differentials": "",
     "facilitate": "Contralateral adductor + ipsilateral glute med"
   },
   {
     "level": 5,
-    "failure": "Can't extend with glute max during concomitant abduction + can't achieve outlet adduction of extended leg",
+    "ability": "Move correctly abducted top lower extremity into extension without extending low back or flexing knee or rotating leg externally (FA ER)",
+    "inability": "Inability to extend leg with gluteus maximus during concomitant abduction and FA stabilization provided by adductors (IRs) and anterior gluteus medius and TFL",
+    "muscles": "Gluteus maximus, adductors (IRs), anterior gluteus medius, TFL",
+    "also_reflects": "Inability to achieve outlet adduction of the extended extremity via inferior gluteus maximus",
+    "differentials": "",
     "facilitate": "Glute max extension during abduction"
   }
 ]

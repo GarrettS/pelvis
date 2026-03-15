@@ -4,9 +4,9 @@ import { expandAbbr } from './abbr-expand.js';
 let CHEAT_DATA, CAUSAL_MAP, SYMPTOM_PATTERNS, HALT_LEVELS, SQUAT_LEVELS;
 let MAP_NODES, MAP_EDGES;
 
-let symptomQuiz = { idx: 0, isAnswered: false, score: { correct: 0, total: 0 } };
-let haltQuiz = { idx: 0, isAnswered: false };
-let squatQuiz = { idx: 0, isAnswered: false };
+let symptomQuiz = { idx: 0, isQuizDone: false, score: { correct: 0, total: 0 } };
+let haltQuiz = { idx: 0, isQuizDone: false };
+let squatQuiz = { idx: 0, isQuizDone: false };
 
 export async function initPatterns() {
   try {
@@ -46,7 +46,7 @@ function buildCheatSheet() {
   grid.innerHTML = '';
   CHEAT_DATA.forEach(col => {
     const div = document.createElement('div');
-    div.className = 'cheat-col';
+    div.classList.add('cheat-col');
     let html = '<div class="cheat-col-header">' + expandAbbr(col.name) + '</div>';
     col.rows.forEach(row => {
       const cls = row.key ? (col.name.includes('Patho') ? 'cheat-row key-warn' : 'cheat-row key') : 'cheat-row';
@@ -143,14 +143,14 @@ function initSymptomQuiz() {
 
   document.getElementById('symptom-next').addEventListener('click', () => {
     symptomQuiz.idx = (symptomQuiz.idx + 1) % SYMPTOM_PATTERNS.length;
-    symptomQuiz.isAnswered = false;
+    symptomQuiz.isQuizDone = false;
     renderSymptomQuestion();
   });
 
   answersEl.addEventListener('click', (e) => {
     const btn = e.target.closest('.answer-btn');
-    if (!btn || symptomQuiz.isAnswered) return;
-    symptomQuiz.isAnswered = true;
+    if (!btn || symptomQuiz.isQuizDone) return;
+    symptomQuiz.isQuizDone = true;
     const current = SYMPTOM_PATTERNS[symptomQuiz.idx];
     const chosen = btn.dataset.ans;
     const isCorrect = chosen === current.pattern;
@@ -168,7 +168,7 @@ function initSymptomQuiz() {
     answersEl.classList.add('answered');
 
     const feedback = document.getElementById('symptom-feedback');
-    feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
+    feedback.classList.toggle('error', !isCorrect);
     feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</strong> ' + current.explanation;
     feedback.classList.remove('hidden');
     document.getElementById('symptom-next').classList.remove('hidden');
@@ -188,62 +188,101 @@ function renderSymptomQuestion() {
 
 function initHaltQuiz() {
   haltQuiz.idx = 0;
-  haltQuiz.isAnswered = false;
+  haltQuiz.isQuizDone = false;
   renderHaltQuestion();
-  document.getElementById('halt-reveal').addEventListener('click', () => {
-    if (haltQuiz.isAnswered) return;
-    haltQuiz.isAnswered = true;
+  const revealButton = document.getElementById('halt-reveal');
+  const nextButton = document.getElementById('halt-next');
+  revealButton.addEventListener('click', function() {
+    if (haltQuiz.isQuizDone) return;
+    haltQuiz.isQuizDone = true;
+    this.disabled = true;
     const level = HALT_LEVELS[haltQuiz.idx];
-    const q = document.getElementById('halt-question');
-    q.innerHTML += '<div class="feedback-box">'
-      + '<strong>Answer:</strong> ' + expandAbbr(level.failure) + '<br>'
-      + '<strong>Facilitate:</strong> ' + expandAbbr(level.facilitate)
-      + '</div>';
+    const parts = [
+      ['Inability', level.inability],
+      ['Muscles', level.muscles],
+      ['Facilitate', level.facilitate]
+    ];
+    if (level.ability) {
+      parts.unshift(['Ability', level.ability]);
+    }
+    if (level.also_reflects) {
+      parts.push(['Also reflects', level.also_reflects]);
+    }
+    if (level.differentials) {
+      parts.push(['Differentials', level.differentials]);
+    }
+    const body = parts.map(
+      ([k, v]) => '<strong>' + k + ':</strong> ' + expandAbbr(v)
+    ).join('<br>');
+    document.getElementById('halt-question').innerHTML +=
+      '<div class="feedback-box">' + body + '</div>';
   });
-  document.getElementById('halt-next').addEventListener('click', () => {
+  nextButton.addEventListener('click', () => {
     haltQuiz.idx = (haltQuiz.idx + 1) % HALT_LEVELS.length;
-    haltQuiz.isAnswered = false;
+    haltQuiz.isQuizDone = false;
+    document.getElementById('halt-reveal').disabled = false;
     renderHaltQuestion();
   });
 }
 
 function renderHaltQuestion() {
   const level = HALT_LEVELS[haltQuiz.idx];
+  const n = haltQuiz.idx + 1;
   const q = document.getElementById('halt-question');
-  q.innerHTML = '<div class="quiz-badge-wrap"><span class="quiz-level-badge">HALT Level ' + level.level + '</span></div>'
-    + '<div class="quiz-progress">(' + (haltQuiz.idx + 1) + ' of ' + HALT_LEVELS.length + ')</div>'
-    + '<p class="quiz-prompt">What does failure at HALT Level ' + level.level + ' indicate, and what should you facilitate?</p>';
+  q.innerHTML = `<div class="quiz-badge-wrap">
+    <span class="quiz-level-badge">
+      HALT Level ${level.level}</span></div>
+    <div class="quiz-progress">
+      (${n} of ${HALT_LEVELS.length})</div>
+    <p class="quiz-prompt">
+      What does failure at HALT Level ${level.level}
+      indicate, and what should you facilitate?</p>`;
   document.getElementById('halt-next').textContent =
-      haltQuiz.idx + 1 < HALT_LEVELS.length ? 'Next Level' : 'Start Over';
+    n < HALT_LEVELS.length ? 'Next Level' : 'Start Over';
 }
 
 function initSquatQuiz() {
   squatQuiz.idx = 0;
-  squatQuiz.isAnswered = false;
+  squatQuiz.isQuizDone = false;
   renderSquatQuestion();
-  document.getElementById('squat-reveal').addEventListener('click', () => {
-    if (squatQuiz.isAnswered) return;
-    squatQuiz.isAnswered = true;
+  document.getElementById('squat-reveal').addEventListener('click', function() {
+    if (squatQuiz.isQuizDone) return;
+    squatQuiz.isQuizDone = true;
+    this.disabled = true;
     const level = SQUAT_LEVELS[squatQuiz.idx];
-    const q = document.getElementById('squat-question');
-    q.innerHTML += '<div class="feedback-box">'
-      + '<strong>Failure:</strong> ' + expandAbbr(level.failure) + '<br>'
-      + '<strong>Hyperactive muscles:</strong> ' + expandAbbr(level.hyperactive)
-      + '</div>';
+    const parts = [
+      ['Ability', level.ability],
+      ['Inability', level.inability]
+    ];
+    if (level.hyperactive) {
+      parts.push(['Hyperactive', level.hyperactive]);
+    }
+    const body = parts.map(
+      ([k, v]) => '<strong>' + k + ':</strong> ' + expandAbbr(v)
+    ).join('<br>');
+    document.getElementById('squat-question').innerHTML +=
+      '<div class="feedback-box">' + body + '</div>';
   });
   document.getElementById('squat-next').addEventListener('click', () => {
     squatQuiz.idx = (squatQuiz.idx + 1) % SQUAT_LEVELS.length;
-    squatQuiz.isAnswered = false;
+    squatQuiz.isQuizDone = false;
+    document.getElementById('squat-reveal').disabled = false;
     renderSquatQuestion();
   });
 }
 
 function renderSquatQuestion() {
   const level = SQUAT_LEVELS[squatQuiz.idx];
+  const n = squatQuiz.idx + 1;
   const q = document.getElementById('squat-question');
-  q.innerHTML = '<div class="quiz-badge-wrap"><span class="quiz-level-badge">Squat Level ' + level.level + '</span></div>'
-    + '<div class="quiz-progress">(' + (squatQuiz.idx + 1) + ' of ' + SQUAT_LEVELS.length + ')</div>'
-    + '<p class="quiz-prompt">What failure pattern and which muscles are hyperactive at Squat Level ' + level.level + '?</p>';
+  q.innerHTML = `<div class="quiz-badge-wrap">
+    <span class="quiz-level-badge">
+      Squat Level ${level.level}</span></div>
+    <div class="quiz-progress">
+      (${n} of ${SQUAT_LEVELS.length})</div>
+    <p class="quiz-prompt">
+      What failure pattern and which muscles are
+      hyperactive at Squat Level ${level.level}?</p>`;
   document.getElementById('squat-next').textContent =
-      squatQuiz.idx + 1 < SQUAT_LEVELS.length ? 'Next Level' : 'Start Over';
+    n < SQUAT_LEVELS.length ? 'Next Level' : 'Start Over';
 }

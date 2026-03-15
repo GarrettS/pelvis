@@ -171,7 +171,7 @@ Additions and overrides to the baseline authorities listed above.
 ### JavaScript
 
 - `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not wrap an entire module body in an IIFE — the module already provides scope. IIFEs remain useful for creating closures within a module (e.g. binding private state to a function).
-- Function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when context (`this`) doesn't matter, for brevity.
+- Function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when context (`this`) doesn't matter, for brevity. When an event handler needs to reference the element it is attached to, use a function expression (not an arrow) so `this` is bound to the element by `addEventListener`.
 - Constants: `UPPER_SNAKE_CASE`. Functions/variables: `camelCase`. Classes: `PascalCase`. Booleans prefixed: `is`/`has`/`does`/`can`.
 - Event handler functions: `[object][EventName]Handler` (e.g. `itemClickHandler`, `formSubmitHandler`). Functions that process results but do not receive an event object are not handlers — name them by what they do (e.g. `validateInput`, `saveRecord`).
 - Declare variables in the narrowest possible scope. Always use `const` or `let`. No assignment to undeclared identifiers. Give each identifier a meaningful name from the project's ubiquitous language.
@@ -211,6 +211,8 @@ Additions and overrides to the baseline authorities listed above.
   ).join('');
   ```
 - Prefer simple regular expressions. Anchor where needed to avoid false matches. Test success and failure cases.
+- Line length: target 80 columns, 90 maximum. Break long concatenation and conditionals across lines.
+
 ### Comments
 
 Comments are a failure of the code to explain itself. When one is necessary, it should justify its existence.
