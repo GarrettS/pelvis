@@ -111,21 +111,21 @@
     <div class="tab-section">
       <div class="anatomize-controls">
         <div class="anatomize-control-row">
-          <div class="anatomize-image-selector btn-row"></div>
-          <div class="anatomize-filter btn-row"></div>
-          <button class="btn anatomize-reset">Reset</button>
+          <div class="anatomize-image-selector btn-row" id="anat-image-selector"></div>
+          <div class="anatomize-filter btn-row" id="anat-filter"></div>
+          <button class="btn anatomize-reset" id="anat-reset">Reset</button>
         </div>
       </div>
-      <div class="anatomize-body">
+      <div class="anatomize-body" id="anat-body">
         <div class="anatomize-info-col">
-          <div class="anatomize-detail"></div>
+          <div class="anatomize-detail" id="anat-detail"></div>
         </div>
         <div class="anatomize-image-col">
           <div class="anatomize-info-header">
-            <span class="anatomize-score"></span>
-            <div class="anatomize-next disabled" role="button" tabindex="0">Next &#x2192;</div>
+            <span class="anatomize-score" id="anat-score"></span>
+            <div class="anatomize-next disabled" id="anat-next" role="button" tabindex="0">Next &#x2192;</div>
           </div>
-          <div class="anatomize-arena"></div>
+          <div class="anatomize-arena" id="anat-arena"></div>
         </div>
       </div>
     </div>

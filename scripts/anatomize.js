@@ -25,7 +25,6 @@ function defaultState() {
 
 const state = defaultState();
 
-const dom = Object.create(null);
 let isMobile = false;
 let initialized = false;
 let attemptedOnCurrent = false;
@@ -99,18 +98,11 @@ function startImageFromHash() {
   return true;
 }
 
-function initDom(container) {
-  dom.container = container;
-  dom.imageSelector = container.querySelector('.anatomize-image-selector');
-  dom.filterRow = container.querySelector('.anatomize-filter');
-  dom.resetBtn = container.querySelector('.anatomize-reset');
-  dom.nextBtn = container.querySelector('.anatomize-next');
-  dom.arena = container.querySelector('.anatomize-arena');
-  dom.scoreDisplay = container.querySelector('.anatomize-score');
-  dom.scoreText = document.createElement('span');
-  dom.scoreText.className = 'score-display';
-  dom.scoreDisplay.appendChild(dom.scoreText);
-  dom.detail = container.querySelector('.anatomize-detail');
+function initScoreText() {
+  const scoreText = document.createElement('span');
+  scoreText.className = 'score-display';
+  scoreText.id = 'anat-score-text';
+  document.getElementById('anat-score').appendChild(scoreText);
 }
 
 function initListeners() {
@@ -123,21 +115,22 @@ function initListeners() {
         }
       });
 
-  dom.resetBtn.addEventListener('click', resetSession);
+  document.getElementById('anat-reset').addEventListener('click', resetSession);
 
-  dom.nextBtn.addEventListener('click', () => {
-    if (dom.nextBtn.classList.contains('disabled')) return;
-    if (dom.nextBtn.dataset.action === 'reset') {
+  const nextBtn = document.getElementById('anat-next');
+  nextBtn.addEventListener('click', () => {
+    if (nextBtn.classList.contains('disabled')) return;
+    if (nextBtn.dataset.action === 'reset') {
       resetSession();
       return;
     }
-    dom.nextBtn.classList.add('disabled');
+    nextBtn.classList.add('disabled');
     promptNext();
   });
-  dom.nextBtn.addEventListener('keydown', (e) => {
+  nextBtn.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      dom.nextBtn.click();
+      nextBtn.click();
     }
   });
 
@@ -154,14 +147,10 @@ function initListeners() {
 }
 
 async function initAnatomize() {
-  const container = document.querySelector(
-      '#anatomy-anatomize .tab-section');
-  if (!container) return;
-
   const loaded = await loadAnatomizeData('#anatomy-anatomize');
   if (!loaded) return;
 
-  initDom(container);
+  initScoreText();
   renderImageSelector();
   renderControls();
   initListeners();
@@ -175,12 +164,13 @@ async function initAnatomize() {
 function resetAnatomize() {
   resetState();
   reviewMode = false;
-  dom.arena.textContent = '';
-  dom.nextBtn.textContent = 'Next \u2192';
-  delete dom.nextBtn.dataset.action;
-  dom.nextBtn.classList.add('disabled');
-  dom.scoreText.textContent = '';
-  dom.detail.textContent = '';
+  document.getElementById('anat-arena').textContent = '';
+  const nextBtn = document.getElementById('anat-next');
+  nextBtn.textContent = 'Next \u2192';
+  delete nextBtn.dataset.action;
+  nextBtn.classList.add('disabled');
+  document.getElementById('anat-score-text').textContent = '';
+  document.getElementById('anat-detail').textContent = '';
 }
 
 function resetState() {
@@ -189,7 +179,7 @@ function resetState() {
 }
 
 function renderImageSelector() {
-  dom.imageSelector.textContent = '';
+  document.getElementById('anat-image-selector').textContent = '';
   if (!anatomizeData) return;
 
   Object.entries(anatomizeData.images).forEach(([id, imgSet]) => {
@@ -197,10 +187,10 @@ function renderImageSelector() {
     btn.className = 'btn';
     btn.id = 'anat-img-' + id;
     btn.textContent = imgSet.label;
-    dom.imageSelector.appendChild(btn);
+    document.getElementById('anat-image-selector').appendChild(btn);
   });
 
-  dom.imageSelector.addEventListener('click', (e) => {
+  document.getElementById('anat-image-selector').addEventListener('click', (e) => {
     const btn = e.target.closest('.btn');
     if (!btn) return;
     const m = btn.id.match(RE_IMG_ID);
@@ -209,7 +199,7 @@ function renderImageSelector() {
 }
 
 function renderControls() {
-  dom.filterRow.textContent = '';
+  document.getElementById('anat-filter').textContent = '';
   const filters = [
     {key: 'all', label: 'All'},
     {key: 'muscles', label: 'Muscles'},
@@ -224,9 +214,9 @@ function renderControls() {
       btn.classList.add('active');
       activeFilterBtn = btn;
     }
-    dom.filterRow.appendChild(btn);
+    document.getElementById('anat-filter').appendChild(btn);
   });
-  dom.filterRow.addEventListener('click', (e) => {
+  document.getElementById('anat-filter').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-filter]');
     if (!btn || btn.disabled) return;
     activeFilterBtn?.classList.remove('active');
@@ -241,7 +231,7 @@ function updateFilterDisabled() {
   const imgSet = getImageSet(state.imageId);
   if (!imgSet) return;
 
-  dom.filterRow.querySelectorAll('button').forEach((btn) => {
+  document.getElementById('anat-filter').querySelectorAll('button').forEach((btn) => {
     const filter = btn.dataset.filter;
     if (filter === 'all') {
       btn.disabled = false;
@@ -273,15 +263,13 @@ function getImageSet(imageId) {
 }
 
 function loadImageSet(imageId, skipHash) {
-  if (!dom.container) return;
-
   const imgSet = getImageSet(imageId);
   if (!imgSet) return;
 
   state.imageId = imageId;
   state.mechanic = imgSet.mechanic;
   state.flipped = imgSet.flipped || false;
-  dom.arena.classList.toggle('anatomize-dark-bg',
+  document.getElementById('anat-arena').classList.toggle('anatomize-dark-bg',
       imgSet.theme === 'dark');
 
   if (!skipHash) {
@@ -301,8 +289,8 @@ function loadImageSet(imageId, skipHash) {
   const hasLandmarks = vals.some(
       (s) => s.type === 'landmark');
   const showFilter = hasMuscles && hasLandmarks;
-  dom.filterRow.hidden = !showFilter;
-  dom.resetBtn.hidden = !showFilter;
+  document.getElementById('anat-filter').hidden = !showFilter;
+  document.getElementById('anat-reset').hidden = !showFilter;
 
   if (!showFilter) {
     state.filter = 'all';
@@ -322,8 +310,9 @@ function resetSession() {
   state.current = null;
   attemptedOnCurrent = false;
   reviewMode = false;
-  dom.nextBtn.textContent = 'Next \u2192';
-  delete dom.nextBtn.dataset.action;
+  const nextBtn = document.getElementById('anat-next');
+  nextBtn.textContent = 'Next \u2192';
+  delete nextBtn.dataset.action;
 
   state.structures = Object.create(null);
   state.structureCount = 0;
@@ -335,8 +324,8 @@ function resetSession() {
   }
   state.queue = shuffle(Object.keys(state.structures));
 
-  dom.detail.textContent = '';
-  dom.nextBtn.classList.add('disabled');
+  document.getElementById('anat-detail').textContent = '';
+  nextBtn.classList.add('disabled');
 
   if (state.mechanic === 'blank_panels') {
     renderBlankPanels(imgSet);
@@ -360,7 +349,7 @@ function shuffle(arr) {
 }
 
 function createArenaWrap(imgSet) {
-  dom.arena.textContent = '';
+  document.getElementById('anat-arena').textContent = '';
   const wrap = document.createElement('div');
   wrap.className = 'anatomize-arena-wrap';
   if (imgSet.flipped) {
@@ -449,7 +438,7 @@ function renderBlankPanels(imgSet) {
   createStructureOverlays(svg, wrap, imgSet);
 
   wrap.appendChild(svg);
-  dom.arena.appendChild(wrap);
+  document.getElementById('anat-arena').appendChild(wrap);
 
   wrap.addEventListener('click', (e) => {
     const label = e.target.closest('.anatomize-label');
@@ -462,7 +451,7 @@ function renderBlankPanels(imgSet) {
 }
 
 function drawArrows() {
-  const wrap = dom.arena.querySelector('.anatomize-arena-wrap');
+  const wrap = document.getElementById('anat-arena').querySelector('.anatomize-arena-wrap');
   const svg = wrap?.querySelector('.anatomize-svg-overlay');
   if (!wrap || !svg) return;
   
@@ -551,7 +540,7 @@ function renderLabelHunt(imgSet) {
     if (m) structureClickHandler(m[1]);
   });
 
-  dom.arena.appendChild(wrap);
+  document.getElementById('anat-arena').appendChild(wrap);
 
   hookImageLoad();
 }
@@ -559,7 +548,7 @@ function renderLabelHunt(imgSet) {
 function renderMobile(imgSet) {
   const wrap = createArenaWrap(imgSet);
 
-  dom.arena.appendChild(wrap);
+  document.getElementById('anat-arena').appendChild(wrap);
 
   const list = document.createElement('div');
   list.className = 'anatomize-mobile-list';
@@ -585,7 +574,7 @@ function renderMobile(imgSet) {
     if (m) structureClickHandler(m[1]);
   });
 
-  dom.arena.appendChild(list);
+  document.getElementById('anat-arena').appendChild(list);
 }
 
 function promptNext() {
@@ -595,7 +584,7 @@ function promptNext() {
   }
   state.current = state.queue.shift();
   attemptedOnCurrent = false;
-  dom.nextBtn.classList.add('disabled');
+  document.getElementById('anat-next').classList.add('disabled');
 
   const structure = state.structures[state.current];
   if (structure) {
@@ -645,7 +634,7 @@ const createRevealLayer = (() => {
 })();
 
 function renderPromptPanel(structure) {
-  dom.detail.textContent = '';
+  document.getElementById('anat-detail').textContent = '';
   const panel = document.createElement('div');
   panel.className = 'anatomize-detail-panel';
   panel.classList.add(priColorClass(structure.priColor));
@@ -656,7 +645,7 @@ function renderPromptPanel(structure) {
   hint.textContent = 'Identify on image';
   panel.appendChild(hint);
 
-  dom.detail.appendChild(panel);
+  document.getElementById('anat-detail').appendChild(panel);
 }
 
 function structureClickHandler(structureId) {
@@ -700,9 +689,10 @@ function scoreAttempt(structureId, correct) {
 }
 
 function showNextButton() {
-  dom.nextBtn.classList.remove('disabled');
+  const nextBtn = document.getElementById('anat-next');
+  nextBtn.classList.remove('disabled');
   if (state.queue.length === 0) {
-    dom.nextBtn.textContent = 'Finish';
+    nextBtn.textContent = 'Finish';
   }
 }
 
@@ -781,7 +771,7 @@ function renderMobileFeedback(structureId, correct) {
 }
 
 function renderDetailPanel(structure) {
-  dom.detail.textContent = '';
+  document.getElementById('anat-detail').textContent = '';
 
   const panel = document.createElement('div');
   panel.className = 'anatomize-detail-panel';
@@ -833,7 +823,7 @@ function renderDetailPanel(structure) {
     ], 'Show Treatment', panel);
   }
 
-  dom.detail.appendChild(panel);
+  document.getElementById('anat-detail').appendChild(panel);
 }
 
 function formatAttachments(obj) {
@@ -867,12 +857,13 @@ function endSession() {
   state.current = null;
   reviewMode = true;
 
-  dom.nextBtn.textContent = 'Reset';
-  dom.nextBtn.classList.remove('disabled');
-  dom.nextBtn.dataset.action = 'reset';
+  const nextBtn = document.getElementById('anat-next');
+  nextBtn.textContent = 'Reset';
+  nextBtn.classList.remove('disabled');
+  nextBtn.dataset.action = 'reset';
 
   if (isMobile) {
-    dom.arena.querySelector('.anatomize-mobile-list')
+    document.getElementById('anat-arena').querySelector('.anatomize-mobile-list')
         ?.classList.add('review');
   }
 
@@ -884,16 +875,16 @@ function endSession() {
   summary.className = 'anatomize-end-summary';
   summary.textContent =
       `Complete. Score: ${state.score}. Accuracy: ${accuracy}%.`;
-  dom.detail.appendChild(summary);
+  document.getElementById('anat-detail').appendChild(summary);
 }
 
 function updateScore() {
-  dom.scoreText.textContent = `Score: ${state.score} \u00b7 ` +
+  document.getElementById('anat-score-text').textContent = `Score: ${state.score} \u00b7 ` +
       `${state.identified.size} of ${state.structureCount}`;
 }
 
 function initResizeHandle() {
-  const body = dom.container.querySelector('.anatomize-body');
+  const body = document.getElementById('anat-body');
   if (!body) return;
 
   const imageCol = body.querySelector('.anatomize-image-col');
@@ -913,7 +904,7 @@ function initResizeHandle() {
 }
 
 function hookImageLoad() {
-  const img = dom.arena.querySelector('img');
+  const img = document.getElementById('anat-arena').querySelector('img');
   if (!img) return;
   if (img.complete && img.naturalWidth) {
     drawArrows();
