@@ -1,3 +1,7 @@
+:root {
+  --text-label: clamp(0.55rem, 0.45rem + 0.2vw, 0.625rem);
+}
+
 .anatomize-controls {
   margin-bottom:.5rem;
 }
@@ -146,9 +150,8 @@
 
 }
 
-/* min-width: fit-content ensures labels are readable on small images
-   (e.g. pelvic inlet) without resizing labels on larger images.
-   JS sets max-width to cap at image edge; overflow + ellipsis truncates. */
+/* min-width/height: fit-content ensures labels are readable on small
+   images (e.g. pelvic inlet) without resizing labels on larger images. */
 .anatomize-label {
   position: absolute;
   box-sizing: border-box;
@@ -157,7 +160,7 @@
   min-width: fit-content;
   min-height: fit-content;
   font-family: var(--mono);
-  font-size: .5rem;
+  font-size: var(--text-label);
   font-weight: 600;
   color: rgba(0, 0, 0, .8);
   border: 2px solid var(--pri-fg);
@@ -192,10 +195,6 @@
 }
 
 @media (max-width: 600px) {
-
-  .anatomize-label {
-    font-size: .55rem;
-  }
 
   .anatomize-label .anatomize-label-text {
     text-overflow: ellipsis;
