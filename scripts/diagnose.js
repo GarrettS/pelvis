@@ -406,24 +406,40 @@ function buildChainCard(chain, ci) {
       li.className = 'chain-item';
       li.setAttribute('draggable', 'true');
       li.dataset.step = step;
-      li.innerHTML = `<span class="chain-step-num">${i + 1}.</span><span>${step}</span>`;
-      li.addEventListener('dragstart', () => li.classList.add('dragging'));
-      li.addEventListener('dragend', () => li.classList.remove('dragging'));
+      li.innerHTML =
+        `<span class="chain-step-num">${i + 1}.</span>`
+        + `<span>${step}</span>`;
       ul.appendChild(li);
     });
-    ul.addEventListener('dragover', e => {
-      e.preventDefault();
-      const dragging = ul.querySelector('.dragging');
-      const siblings = [...ul.querySelectorAll('.chain-item:not(.dragging)')];
-      const after = siblings.find(s => {
-        const box = s.getBoundingClientRect();
-        return e.clientY <= box.top + box.height / 2;
-      });
-      if (after) ul.insertBefore(dragging, after);
-      else ul.appendChild(dragging);
-      order = [...ul.querySelectorAll('.chain-item')].map(li => li.dataset.step);
-    });
   }
+
+  let activeDragItem = null;
+
+  ul.addEventListener('dragstart', (e) => {
+    activeDragItem = e.target.closest('.chain-item');
+    if (activeDragItem) activeDragItem.classList.add('dragging');
+  });
+  ul.addEventListener('dragend', () => {
+    if (activeDragItem) activeDragItem.classList.remove('dragging');
+    activeDragItem = null;
+  });
+  ul.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (!activeDragItem) return;
+
+    const siblings = [...ul.children];
+    const after = siblings.find((s) => {
+      if (s === activeDragItem) return false;
+
+      const box = s.getBoundingClientRect();
+      return e.clientY <= box.top + box.height / 2;
+    });
+    if (after) ul.insertBefore(activeDragItem, after);
+    else ul.appendChild(activeDragItem);
+    order = [...ul.children]
+      .map((li) => li.dataset.step);
+  });
+
   buildList();
   div.appendChild(ul);
 
