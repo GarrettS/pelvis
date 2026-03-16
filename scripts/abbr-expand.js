@@ -30,18 +30,33 @@ const ABBRS = [
   ['COG', 'Center of Gravity'],
 ];
 
-const MAP = {};
+const ABBR_TITLES = {};
 for (const [abbr, title] of ABBRS) {
-  MAP[abbr] = title;
+  ABBR_TITLES[abbr] = title;
 }
 
-const sorted = ABBRS.map(([a]) => a).sort((a, b) => b.length - a.length);
-const pattern = sorted.map(a => a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-const RE = new RegExp('\\b(' + pattern + ')\\b', 'g');
+const longestFirst = ABBRS.map(([a]) => a)
+  .sort((a, b) => b.length - a.length);
+const abbrPattern = longestFirst
+  .map(a => a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+  .join('|');
+const ABBR_RE = new RegExp(
+  '\\b(' + abbrPattern + ')\\b', 'g'
+);
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 function expandAbbr(text) {
-  return text.replace(RE, (match) =>
-    '<abbr title="' + MAP[match] + '">' + match + '</abbr>'
+  return escapeHtml(text).replace(
+    ABBR_RE, (match) =>
+      '<abbr title="' + ABBR_TITLES[match] + '">'
+        + match + '</abbr>'
   );
 }
 
