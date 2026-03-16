@@ -177,29 +177,29 @@ function initNodeHighlight(svg) {
   let activeEdgeEls = [];
   let activeNodeEls = [];
 
-  svg.addEventListener('click', (e) => {
-    const nodeEl = e.target.closest('.map-node');
-    if (!nodeEl) return;
+  function clearHighlight() {
+    if (!activeNode) return;
 
-    if (activeNode) {
-      activeNode.classList.remove('highlighted');
-      activeEdgeEls.forEach((el) => {
-        el.classList.remove('highlighted');
-        el.setAttribute(
-          'marker-end', 'url(#arrow-map)'
-        );
-      });
-      activeNodeEls.forEach((el) => {
-        el.classList.remove('highlighted');
-      });
-    }
-
-    activeNode = nodeEl;
+    activeNode.classList.remove('highlighted');
+    activeEdgeEls.forEach((el) => {
+      el.classList.remove('highlighted');
+      el.setAttribute(
+        'marker-end', 'url(#arrow-map)'
+      );
+    });
+    activeNodeEls.forEach((el) => {
+      el.classList.remove('highlighted');
+    });
+    activeNode = null;
     activeEdgeEls = [];
     activeNodeEls = [];
-    const nodeId = nodeEl.id;
+  }
 
+  function highlightNode(nodeEl) {
+    activeNode = nodeEl;
+    const nodeId = nodeEl.id;
     nodeEl.classList.add('highlighted');
+
     MAP_EDGES.forEach((edge, i) => {
       if (edge.from !== nodeId
         && edge.to !== nodeId) return;
@@ -224,6 +224,14 @@ function initNodeHighlight(svg) {
         activeNodeEls.push(otherEl);
       }
     });
+  }
+
+  svg.addEventListener('click', (e) => {
+    const nodeEl = e.target.closest('.map-node');
+    if (!nodeEl) return;
+
+    clearHighlight();
+    highlightNode(nodeEl);
   });
 }
 
