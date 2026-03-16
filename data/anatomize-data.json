@@ -1106,7 +1106,7 @@
           }
         },
         "rectus_femoris_direct": {
-          "label": "Direct head of rectus (R)",
+          "label": "Direct head of rectus femoris (R)",
           "type": "muscle",
           "priColor": "--pri-brown",
           "panelBox": {
@@ -1145,7 +1145,7 @@
           }
         },
         "rectus_femoris_reflected": {
-          "label": "Reflected tendon of rectus (R)",
+          "label": "Reflected tendon of rectus femoris (R)",
           "type": "muscle",
           "priColor": "--pri-brown",
           "panelBox": {
