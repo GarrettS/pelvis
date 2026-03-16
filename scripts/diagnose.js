@@ -417,10 +417,10 @@ function buildChainCard(chain, ci) {
 
   ul.addEventListener('dragstart', (e) => {
     activeDragItem = e.target.closest('.chain-item');
-    if (activeDragItem) activeDragItem.classList.add('dragging');
+    activeDragItem?.classList.add('dragging');
   });
   ul.addEventListener('dragend', () => {
-    if (activeDragItem) activeDragItem.classList.remove('dragging');
+    activeDragItem?.classList.remove('dragging');
     activeDragItem = null;
   });
   ul.addEventListener('dragover', (e) => {
@@ -488,23 +488,31 @@ function checkChainOrder(ul, steps, feedbackEl) {
 function buildDecisionTree() {
   const wrap = document.getElementById('tree-wrap');
   wrap.innerHTML = '';
-  renderTreeNode(DATA.decisionTree, wrap, 0);
+  renderTreeNode(DATA.decisionTree, wrap);
+
+  wrap.addEventListener('click', (e) => {
+    const toggle = e.target.closest('.tree-answer-toggle');
+    if (!toggle) return;
+
+    toggleTreeBranch(toggle);
+  });
 }
 
-function renderTreeNode(node, parent, depth) {
+function toggleTreeBranch(toggle) {
+  const children = toggle.nextElementSibling;
+  const isOpen = children.classList.toggle('open');
+  toggle.classList.toggle('open', isOpen);
+  toggle.textContent = (isOpen ? '\u25BC ' : '\u25B6 ')
+    + toggle.dataset.answer;
+}
+
+function renderTreeNode(node, parent) {
   if (!node) return;
+
   if (node.terminal) {
     const el = document.createElement('div');
     el.className = 'tree-terminal';
-    let content = node.content || '';
-    // Append out-of-scope note for references to Myokinematic Restoration
-    if (content.includes('Myokinematic Restoration')) {
-      content = content.replace('Myokinematic Restoration & Postural Respiration', 'Myokinematic Restoration & Postural Respiration (out of scope for this course)');
-      content = content.replace('Myokinematic Restoration.', 'Myokinematic Restoration (out of scope for this course).');
-      content = content.replace('Myokinematic Restoration\u2014', 'Myokinematic Restoration (out of scope for this course) —');
-      content = content.replace('Myokinematic Restoration —', 'Myokinematic Restoration (out of scope for this course) —');
-    }
-    el.textContent = content;
+    el.textContent = annotateOutOfScope(node.content || '');
     parent.appendChild(el);
     return;
   }
@@ -513,27 +521,49 @@ function renderTreeNode(node, parent, depth) {
   qEl.textContent = node.question || node.id;
   parent.appendChild(qEl);
 
-  if (node.branches) {
-    node.branches.forEach(branch => {
-      const branchWrap = document.createElement('div');
-      branchWrap.className = 'tree-branch';
-      const toggle = document.createElement('button');
-      toggle.className = 'tree-answer-toggle';
-      toggle.textContent = '▶ ' + branch.answer;
-      const children = document.createElement('div');
-      children.className = 'tree-children';
-      toggle.addEventListener('click', () => {
-        const isOpen = children.classList.contains('open');
-        children.classList.toggle('open', !isOpen);
-        toggle.classList.toggle('open', !isOpen);
-        toggle.textContent = (isOpen ? '▶ ' : '▼ ') + branch.answer;
-      });
-      branchWrap.appendChild(toggle);
-      renderTreeNode(branch.next, children, depth + 1);
-      branchWrap.appendChild(children);
-      parent.appendChild(branchWrap);
-    });
+  if (!node.branches) return;
+
+  node.branches.forEach((branch) => {
+    const branchWrap = document.createElement('div');
+    branchWrap.className = 'tree-branch';
+    const toggle = document.createElement('button');
+    toggle.className = 'tree-answer-toggle';
+    toggle.dataset.answer = branch.answer;
+    toggle.textContent = '\u25B6 ' + branch.answer;
+    const children = document.createElement('div');
+    children.className = 'tree-children';
+    branchWrap.appendChild(toggle);
+    renderTreeNode(branch.next, children);
+    branchWrap.appendChild(children);
+    parent.appendChild(branchWrap);
+  });
+}
+
+function annotateOutOfScope(content) {
+  if (!content.includes('Myokinematic Restoration')) {
+    return content;
   }
+
+  const OOS = ' (out of scope for this course)';
+  return content
+    .replace(
+      'Myokinematic Restoration'
+        + ' & Postural Respiration',
+      'Myokinematic Restoration'
+        + ' & Postural Respiration' + OOS
+    )
+    .replace(
+      'Myokinematic Restoration.',
+      'Myokinematic Restoration' + OOS + '.'
+    )
+    .replace(
+      'Myokinematic Restoration\u2014',
+      'Myokinematic Restoration' + OOS + ' \u2014'
+    )
+    .replace(
+      'Myokinematic Restoration \u2014',
+      'Myokinematic Restoration' + OOS + ' \u2014'
+    );
 }
 
 function buildMuscleMap() {

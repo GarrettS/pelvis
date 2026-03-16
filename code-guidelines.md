@@ -75,7 +75,41 @@ Implementation patterns for DOM-heavy vanilla JS applications.
 
 ### Event Delegation
 
-Do not loop through elements to attach event listeners. Attach one handler to a common ancestor and inspect `event.target`. This scales, avoids initialization loops, and works for dynamically added elements.
+Attach one handler to a stable ancestor and inspect `event.target`. This scales, avoids initialization loops, and works for dynamically added elements.
+
+❌ Per-element listeners in a build function — accumulate on reset, create N identical closures:
+```javascript
+function buildList(items) {
+  ul.innerHTML = '';
+  items.forEach((item) => {
+    const li = document.createElement('li');
+    li.addEventListener('click', () => handleItem(item));
+    ul.appendChild(li);
+  });
+}
+```
+
+❌ Shared function, but still per-element — no accumulation, but N bindings for one concern:
+```javascript
+function buildList(items) {
+  ul.innerHTML = '';
+  items.forEach((item) => {
+    const li = document.createElement('li');
+    li.addEventListener('click', itemClickHandler);
+    ul.appendChild(li);
+  });
+}
+```
+
+✅ Delegation — one listener, attached once, handles all current and future children:
+```javascript
+ul.addEventListener('click', (e) => {
+  const li = e.target.closest('.item');
+  if (!li) return;
+
+  handleItem(li);
+});
+```
 
 Attach listeners once. Never place `addEventListener` in a function that can be called more than once — listeners accumulate (there is no `replaceEventListener`). Separate one-time initialization (DOM refs, listeners) from repeatable actions (reset state, re-render). `init` may call `reset`; `reset` must never call `init`.
 
@@ -206,7 +240,37 @@ Semantic and behavioral rules. Where these overlap with the baseline authorities
 
 - **Modules.** `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not wrap an entire module body in an IIFE — the module already provides scope. IIFEs remain useful for creating closures within a module (e.g. binding private state to a function).
 - **Functions.** Use function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when `this` doesn't matter or is wanted from the enclosing context. Use function expressions when the handler needs `this` bound to the element by `addEventListener`.
-- **Variables.** Declare with `const` or `let` in the narrowest possible scope, close to first use. No assignment to undeclared identifiers.
+- **Variables.** Declare with `const` or `let`, close to first use. Minimize the visibility of the identifier, but maximize the stability of the implementation — keep the variable narrow, but keep the function it references in a stable scope so you aren't punishing the engine. No assignment to undeclared identifiers.
+- **Function allocation.** Any anonymous function inside a repeated code path (loop, handler, render, timer) that doesn't close over per-execution state is a redundant allocation. Define functions once at a stable scope; reference them from the hot path.
+
+  | Approach | Readability | Performance | Use when |
+  |---|---|---|---|
+  | Inline anonymous | High (logic in place) | Low (constant re-creation) | One-shot code paths only |
+  | Hoisted named | Medium (jump to def) | High (single allocation) | Loops, renders, handlers |
+  | Event delegation | Medium (abstracted) | Highest (minimal footprint) | Large/dynamic DOM trees |
+
+  How to spot the anti-pattern: any anonymous function defined inside a function that runs more than once. If you can move it outside and nothing breaks, it should be outside.
+
+  ❌ Function recreated on every click:
+  ```javascript
+  revealBtn.addEventListener('click', () => {
+    const html = parts.map(
+      ([k, v]) => '<strong>' + k + ':</strong> ' + v
+    ).join('<br>');
+  });
+  ```
+
+  ✅ Formatter defined once, referenced by name:
+  ```javascript
+  function formatKeyValue([k, v]) {
+    return '<strong>' + k + ':</strong> ' + v;
+  }
+
+  revealBtn.addEventListener('click', () => {
+    const html = parts.map(formatKeyValue)
+      .join('<br>');
+  });
+  ```
 - **Naming conventions.** Constants: `UPPER_SNAKE_CASE`. Functions/variables: `camelCase`. Classes: `PascalCase`. Booleans prefixed: `is`/`has`/`does`/`can`. Event handler functions: `[object][EventName]Handler` (e.g. `itemClickHandler`, `formSubmitHandler`). Functions that process results but do not receive an event object are not handlers — name them by what they do (e.g. `validateInput`, `saveRecord`). Give each identifier a meaningful name from the project's ubiquitous language.
 - **Identifier naming.** Name by purpose, not by type. A name should answer *what is this for*, not *what data structure is it*.
 

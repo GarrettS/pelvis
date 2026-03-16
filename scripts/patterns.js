@@ -316,103 +316,120 @@ function renderSymptomQuestion() {
   answersEl.classList.remove('answered');
 }
 
-function initHaltQuiz() {
-  haltQuiz.idx = 0;
-  haltQuiz.isQuizDone = false;
-  renderHaltQuestion();
-  const revealButton = document.getElementById('halt-reveal');
-  const nextButton = document.getElementById('halt-next');
-  revealButton.addEventListener('click', function() {
-    if (haltQuiz.isQuizDone) return;
-    haltQuiz.isQuizDone = true;
-    this.disabled = true;
-    const level = HALT_LEVELS[haltQuiz.idx];
-    const parts = [
-      ['Inability', level.inability],
-      ['Muscles', level.muscles],
-      ['Facilitate', level.facilitate]
-    ];
-    if (level.ability) {
-      parts.unshift(['Ability', level.ability]);
-    }
-    if (level.also_reflects) {
-      parts.push(['Also reflects', level.also_reflects]);
-    }
-    if (level.differentials) {
-      parts.push(['Differentials', level.differentials]);
-    }
-    const feedbackHtml = parts.map(
-      ([k, v]) => '<strong>' + k + ':</strong> ' + expandAbbr(v)
-    ).join('<br>');
-    document.getElementById('halt-question').innerHTML +=
-      '<div class="feedback-box">' + feedbackHtml + '</div>';
-  });
-  nextButton.addEventListener('click', () => {
-    haltQuiz.idx = (haltQuiz.idx + 1) % HALT_LEVELS.length;
-    haltQuiz.isQuizDone = false;
-    document.getElementById('halt-reveal').disabled = false;
-    renderHaltQuestion();
-  });
+function formatKeyValue([k, v]) {
+  return '<strong>' + k + ':</strong> '
+    + expandAbbr(v);
 }
 
-function renderHaltQuestion() {
-  const level = HALT_LEVELS[haltQuiz.idx];
-  const n = haltQuiz.idx + 1;
-  const q = document.getElementById('halt-question');
-  q.innerHTML = `<div class="quiz-badge-wrap">
-    <span class="quiz-level-badge">
-      HALT Level ${level.level}</span></div>
-    <div class="quiz-progress">
-      (${n} of ${HALT_LEVELS.length})</div>
-    <p class="quiz-prompt">
-      What does failure at HALT Level ${level.level}
-      indicate, and what should you facilitate?</p>`;
-  document.getElementById('halt-next').textContent =
-    n < HALT_LEVELS.length ? 'Next Level' : 'Start Over';
+function haltParts(level) {
+  const parts = [
+    ['Inability', level.inability],
+    ['Muscles', level.muscles],
+    ['Facilitate', level.facilitate]
+  ];
+  if (level.ability) {
+    parts.unshift(['Ability', level.ability]);
+  }
+  if (level.also_reflects) {
+    parts.push(
+      ['Also reflects', level.also_reflects]
+    );
+  }
+  if (level.differentials) {
+    parts.push(
+      ['Differentials', level.differentials]
+    );
+  }
+  return parts;
+}
+
+function squatParts(level) {
+  const parts = [
+    ['Ability', level.ability],
+    ['Inability', level.inability]
+  ];
+  if (level.hyperactive) {
+    parts.push(
+      ['Hyperactive', level.hyperactive]
+    );
+  }
+  return parts;
+}
+
+function initLevelQuiz(opts) {
+  const { state, levels, prefix,
+    prompt, buildParts } = opts;
+  state.idx = 0;
+  state.isQuizDone = false;
+
+  function render() {
+    const level = levels[state.idx];
+    const n = state.idx + 1;
+    const questionEl = document.getElementById(
+      prefix + '-question'
+    );
+    questionEl.innerHTML =
+      `<div class="quiz-badge-wrap">
+        <span class="quiz-level-badge">
+          ${prefix.toUpperCase()} Level
+          ${level.level}</span></div>
+      <div class="quiz-progress">
+        (${n} of ${levels.length})</div>
+      <p class="quiz-prompt">
+        ${prompt(level)}</p>`;
+    document.getElementById(prefix + '-next')
+      .textContent = n < levels.length
+        ? 'Next Level' : 'Start Over';
+  }
+
+  function revealAnswer() {
+    if (state.isQuizDone) return;
+
+    state.isQuizDone = true;
+    document.getElementById(prefix + '-reveal').disabled = true;
+    const feedbackHtml = buildParts(levels[state.idx])
+      .map(formatKeyValue).join('<br>');
+    document.getElementById(prefix + '-question').innerHTML +=
+      '<div class="feedback-box">' + feedbackHtml + '</div>';
+  }
+
+  function advanceQuiz() {
+    state.idx = (state.idx + 1) % levels.length;
+    state.isQuizDone = false;
+    document.getElementById(prefix + '-reveal').disabled = false;
+    render();
+  }
+
+  render();
+  document.getElementById(prefix + '-reveal')
+    .addEventListener('click', revealAnswer);
+  document.getElementById(prefix + '-next')
+    .addEventListener('click', advanceQuiz);
+}
+
+function initHaltQuiz() {
+  initLevelQuiz({
+    state: haltQuiz,
+    levels: HALT_LEVELS,
+    prefix: 'halt',
+    prompt: (level) =>
+      'What does failure at HALT Level '
+        + level.level
+        + ' indicate, and what should you'
+        + ' facilitate?',
+    buildParts: haltParts
+  });
 }
 
 function initSquatQuiz() {
-  squatQuiz.idx = 0;
-  squatQuiz.isQuizDone = false;
-  renderSquatQuestion();
-  document.getElementById('squat-reveal').addEventListener('click', function() {
-    if (squatQuiz.isQuizDone) return;
-    squatQuiz.isQuizDone = true;
-    this.disabled = true;
-    const level = SQUAT_LEVELS[squatQuiz.idx];
-    const parts = [
-      ['Ability', level.ability],
-      ['Inability', level.inability]
-    ];
-    if (level.hyperactive) {
-      parts.push(['Hyperactive', level.hyperactive]);
-    }
-    const feedbackHtml = parts.map(
-      ([k, v]) => '<strong>' + k + ':</strong> ' + expandAbbr(v)
-    ).join('<br>');
-    document.getElementById('squat-question').innerHTML +=
-      '<div class="feedback-box">' + feedbackHtml + '</div>';
+  initLevelQuiz({
+    state: squatQuiz,
+    levels: SQUAT_LEVELS,
+    prefix: 'squat',
+    prompt: (level) =>
+      'What failure pattern and which muscles'
+        + ' are hyperactive at Squat Level '
+        + level.level + '?',
+    buildParts: squatParts
   });
-  document.getElementById('squat-next').addEventListener('click', () => {
-    squatQuiz.idx = (squatQuiz.idx + 1) % SQUAT_LEVELS.length;
-    squatQuiz.isQuizDone = false;
-    document.getElementById('squat-reveal').disabled = false;
-    renderSquatQuestion();
-  });
-}
-
-function renderSquatQuestion() {
-  const level = SQUAT_LEVELS[squatQuiz.idx];
-  const n = squatQuiz.idx + 1;
-  const q = document.getElementById('squat-question');
-  q.innerHTML = `<div class="quiz-badge-wrap">
-    <span class="quiz-level-badge">
-      Squat Level ${level.level}</span></div>
-    <div class="quiz-progress">
-      (${n} of ${SQUAT_LEVELS.length})</div>
-    <p class="quiz-prompt">
-      What failure pattern and which muscles are
-      hyperactive at Squat Level ${level.level}?</p>`;
-  document.getElementById('squat-next').textContent =
-    n < SQUAT_LEVELS.length ? 'Next Level' : 'Start Over';
 }
