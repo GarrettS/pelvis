@@ -50,37 +50,66 @@
 }
 
 #concept-map-svg {
-  width:100%;
-  height:min(65vh, 600px);
+  width: 100%;
+  height: min(65vh, 600px);
 }
 
 .map-node {
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .map-node rect {
-  transition:fill .15s,stroke .15s;
+  rx: 4;
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: fill .15s, stroke .15s;
+}
+
+.map-node.central rect {
+  fill: var(--accent-bg);
+  stroke: var(--accent);
 }
 
 .map-node.highlighted rect {
-  stroke:var(--accent);
-  stroke-width:2;
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.map-node text {
+  font-family: monospace;
+  font-size: 8.5px;
+  fill: var(--text);
 }
 
 .map-edge {
-  stroke:var(--border);
-  stroke-width:1.5;
-  fill:none;
+  stroke: var(--border);
+  stroke-width: 1.5;
+  fill: none;
 }
 
 .map-edge.highlighted {
-  stroke:var(--accent);
-  stroke-width:2;
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.map-edge-leader {
+  stroke: var(--border);
+  stroke-width: 0.5;
+}
+
+.map-edge-label-bg {
+  fill: var(--bg);
+  fill-opacity: 0.85;
+  stroke: var(--border);
+  stroke-width: 0.5;
+  rx: 3;
 }
 
 .map-edge-label {
   fill: var(--text-dim);
   font-family: var(--mono);
+  font-size: 7px;
 }
 
 .quiz-card {

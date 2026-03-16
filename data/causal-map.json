@@ -51,47 +51,65 @@
     {
       "from": "cmap-diaphragm",
       "to": "cmap-psoas",
-      "label": "crural pull / ZOA loss"
+      "label": "crural pull / ZOA loss",
+      "labelDx": 58.4,
+      "labelDy": -17.4
     },
     {
       "from": "cmap-diaphragm",
       "to": "cmap-iotas",
-      "label": "no abdominal counter-pressure"
+      "label": "no abdominal counter-pressure",
+      "labelDx": -17.8,
+      "labelDy": -21.8
     },
     {
       "from": "cmap-iotas",
       "to": "cmap-aic",
-      "label": "no posterior tilt opposition"
+      "label": "no posterior tilt opposition",
+      "labelDx": -21.5,
+      "labelDy": 14.1
     },
     {
       "from": "cmap-psoas",
       "to": "cmap-aic",
-      "label": "pulls ilium forward"
+      "label": "pulls ilium forward",
+      "labelDx": -66.4,
+      "labelDy": -1.5
     },
     {
       "from": "cmap-aic",
       "to": "cmap-nutat",
-      "label": "ilium fwd → nutation"
+      "label": "ilium fwd → nutation",
+      "labelDx": -36.7,
+      "labelDy": -24
     },
     {
       "from": "cmap-aic",
       "to": "cmap-outlet",
-      "label": "inlet/outlet reciprocal"
+      "label": "inlet/outlet reciprocal",
+      "labelDx": -49.6,
+      "labelDy": 22
     },
     {
       "from": "cmap-outlet",
       "to": "cmap-floor",
-      "label": "outlet closed → floor descends"
+      "label": "outlet closed → floor descends",
+      "labelDx": -89.9,
+      "labelDy": 13.2
     },
     {
       "from": "cmap-aic",
       "to": "cmap-spine",
-      "label": "sacrum follows"
+      "label": "sacrum follows",
+      "labelDx": -48.9,
+      "labelDy": -8.8
     },
     {
       "from": "cmap-spine",
       "to": "cmap-right",
-      "label": "weight shift right"
+      "label": "weight shift right",
+      "labelDx": -41.8,
+      "labelDy": -18.4
     }
   ]
 }

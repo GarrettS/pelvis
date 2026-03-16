@@ -44,160 +44,237 @@ export async function initPatterns() {
 function buildCheatSheet() {
   const grid = document.getElementById('cheat-sheet-grid');
   grid.innerHTML = '';
+  const colTemplate = document.createElement('div');
+  colTemplate.classList.add('cheat-col');
   CHEAT_DATA.forEach(col => {
-    const div = document.createElement('div');
-    div.classList.add('cheat-col');
-    let html = '<div class="cheat-col-header">' + expandAbbr(col.name) + '</div>';
-    col.rows.forEach(row => {
-      const isPatho = col.name.includes('Patho');
-      const cls = row.key
-        ? (isPatho ? 'cheat-row key-warn' : 'cheat-row key')
-        : 'cheat-row';
-      html += '<div class="' + cls + '">'
-        + '<span>' + expandAbbr(row.l) + '</span>'
-        + '<span>' + expandAbbr(row.v) + '</span>'
-        + '</div>';
-    });
-    div.innerHTML = html;
+    const div = colTemplate.cloneNode(false);
+    const isPatho = col.name.includes('Patho');
+    div.innerHTML = '<div class="cheat-col-header">'
+      + expandAbbr(col.name) + '</div>'
+      + col.rows.map((row) => {
+        const keyCls = row.key
+          ? (isPatho ? ' key-warn' : ' key')
+          : '';
+        return '<div class="cheat-row'
+          + keyCls + '">'
+          + '<span>' + expandAbbr(row.l)
+          + '</span>'
+          + '<span>' + expandAbbr(row.v)
+          + '</span></div>';
+      }).join('');
     grid.appendChild(div);
   });
 }
 
-function buildConceptMap() {
-  const svg = document.getElementById('concept-map-svg');
-  const W = 500, H = 340;
-  const PADDING = 20;
+const CMAP_W = 500, CMAP_H = 340;
+const CMAP_PAD = 20;
+const LABEL_PAD = 4;
+const OFF_DIST = 18;
+const NODE_CHAR_W = 5.2;
+const NODE_PAD = 12;
+const NODE_MIN_W = 60;
 
-  function px(node) {
-    return {
-      cx: PADDING + node.x / 100 * (W - 2 * PADDING),
-      cy: PADDING + node.y / 100 * (H - 2 * PADDING)
-    };
-  }
+function cmapPx(node) {
+  return {
+    cx: CMAP_PAD
+      + node.x / 100 * (CMAP_W - 2 * CMAP_PAD),
+    cy: CMAP_PAD
+      + node.y / 100 * (CMAP_H - 2 * CMAP_PAD)
+  };
+}
 
-  let edgeLineSVG = '';
-  let edgeLabelSVG = '';
-  const OFF_DIST = 18;
-  const LABEL_PAD = 4;
-
-  const edgeMeta = [];
-  MAP_EDGES.forEach((edge, i) => {
-    const fromNode = MAP_NODES[edge.from];
-    const toNode = MAP_NODES[edge.to];
-    if (!fromNode || !toNode) return;
-    const f = px(fromNode), t = px(toNode);
-    const mx = (f.cx + t.cx) / 2;
-    const my = (f.cy + t.cy) / 2;
-
-    edgeLineSVG += `<line class="map-edge" id="cmap-edge-${i}"
+function buildEdgeLines() {
+  return MAP_EDGES.map((edge, i) => {
+    const f = cmapPx(MAP_NODES[edge.from]);
+    const t = cmapPx(MAP_NODES[edge.to]);
+    return `<line class="map-edge"
+      id="cmap-edge-${i}"
       x1="${f.cx}" y1="${f.cy}"
       x2="${t.cx}" y2="${t.cy}"
       marker-end="url(#arrow-map)"/>`;
+  }).join('');
+}
 
-    const dx = t.cx - f.cx;
-    const dy = t.cy - f.cy;
-    const len = Math.sqrt(dx * dx + dy * dy) || 1;
-    const nx = -dy / len;
-    const ny = dx / len;
-    const ox = mx + nx * OFF_DIST;
-    const oy = my + ny * OFF_DIST;
-
-    edgeLabelSVG += `<g class="map-edge-label-group"
+function buildEdgeLabels() {
+  return MAP_EDGES.map((edge, i) => {
+    const f = cmapPx(MAP_NODES[edge.from]);
+    const t = cmapPx(MAP_NODES[edge.to]);
+    const mx = (f.cx + t.cx) / 2;
+    const my = (f.cy + t.cy) / 2;
+    let ox, oy;
+    if (typeof edge.labelDx === 'number') {
+      ox = mx + edge.labelDx;
+      oy = my + edge.labelDy;
+    } else {
+      const dx = t.cx - f.cx;
+      const dy = t.cy - f.cy;
+      const len = Math.sqrt(
+        dx * dx + dy * dy
+      ) || 1;
+      ox = mx + (-dy / len) * OFF_DIST;
+      oy = my + (dx / len) * OFF_DIST;
+    }
+    return `<g class="map-edge-label-group"
       id="cmap-elabel-${i}">
-      <line x1="${mx}" y1="${my}"
-        x2="${ox}" y2="${oy}"
-        stroke="var(--border)" stroke-width="0.5"/>
-      <rect rx="3"
-        fill="var(--bg)" fill-opacity="0.85"
-        stroke="var(--border)" stroke-width="0.5"/>
+      <line class="map-edge-leader"
+        x1="${mx}" y1="${my}"
+        x2="${ox}" y2="${oy}"/>
+      <rect class="map-edge-label-bg"/>
       <text class="map-edge-label"
         x="${ox}" y="${oy + 3}"
-        text-anchor="middle"
-        font-size="7">${edge.label}</text>
+        text-anchor="middle">${edge.label}</text>
     </g>`;
-    edgeMeta.push(i);
-  });
+  }).join('');
+}
 
-  let nodeSVG = '';
-  Object.keys(MAP_NODES).forEach(id => {
+function buildNodes() {
+  return Object.keys(MAP_NODES).map((id) => {
     const node = MAP_NODES[id];
-    const p = px(node);
+    const p = cmapPx(node);
     const lines = node.label.split('\n');
-    const rw = 75, rh = lines.length > 2 ? 38 : 28;
-    const rx = p.cx - rw / 2, ry = p.cy - rh / 2;
-    const fillColor = node.central ? 'var(--accent-bg)' : 'var(--surface)';
-    const strokeColor = node.central ? 'var(--accent)' : 'var(--border)';
-    const cls = 'map-node' + (node.central ? ' central' : '');
-    nodeSVG += `<g class="${cls}" id="${id}"
-      transform="translate(0,0)">
+    const maxLen = Math.max(
+      ...lines.map((l) => l.length)
+    );
+    const rw = Math.max(
+      NODE_MIN_W, maxLen * NODE_CHAR_W + NODE_PAD
+    );
+    const rh = lines.length > 2 ? 38 : 28;
+    const rx = p.cx - rw / 2;
+    const ry = p.cy - rh / 2;
+    const cls = 'map-node'
+      + (node.central ? ' central' : '');
+    const textSVG = lines.map((l, li) =>
+      `<text x="${p.cx}"
+        y="${ry + 11 + li * 11}"
+        text-anchor="middle">${l}</text>`
+    ).join('');
+    return `<g class="${cls}" id="${id}">
       <rect x="${rx}" y="${ry}"
-        width="${rw}" height="${rh}" rx="4"
-        fill="${fillColor}" stroke="${strokeColor}"
-        stroke-width="1.5"/>`;
-    lines.forEach((l, li) => {
-      nodeSVG += `<text x="${p.cx}" y="${ry + 11 + li * 11}"
-        text-anchor="middle" font-family="monospace"
-        font-size="8.5" fill="var(--text)">${l}</text>`;
-    });
-    nodeSVG += '</g>';
-  });
+        width="${rw}" height="${rh}"/>
+      ${textSVG}</g>`;
+  }).join('');
+}
 
-  svg.innerHTML = `<defs>
-    <marker id="arrow-map" markerWidth="8" markerHeight="6"
-      refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6"
-        fill="var(--border)"/></marker>
-    <marker id="arrow-map-hl" markerWidth="8" markerHeight="6"
-      refX="8" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6"
-        fill="var(--accent)"/></marker>
-    </defs>` + edgeLineSVG + nodeSVG + edgeLabelSVG;
-
-  edgeMeta.forEach(i => {
-    const g = document.getElementById('cmap-elabel-' + i);
+function sizeEdgeLabelBoxes() {
+  MAP_EDGES.forEach((edge, i) => {
+    const g = document.getElementById(
+      'cmap-elabel-' + i
+    );
     const text = g.querySelector('text');
     const rect = g.querySelector('rect');
-    const tw = text.getComputedTextLength() + LABEL_PAD * 2;
-    const th = 12;
+    const tw = text.getComputedTextLength()
+      + LABEL_PAD * 2;
     const bbox = text.getBBox();
     rect.setAttribute('x', bbox.x - LABEL_PAD);
     rect.setAttribute('y', bbox.y - 1);
     rect.setAttribute('width', tw);
-    rect.setAttribute('height', th);
+    rect.setAttribute('height', 12);
   });
+}
+
+function initNodeHighlight(svg) {
+  let activeNode = null;
+  let activeEdgeEls = [];
+  let activeNodeEls = [];
 
   svg.addEventListener('click', (e) => {
     const nodeEl = e.target.closest('.map-node');
     if (!nodeEl) return;
-    const nodeId = nodeEl.id;
-    const connectedEdges = MAP_EDGES
-      .map((edge, i) => ({ from: edge.from, to: edge.to, i }))
-      .filter(edge => edge.from === nodeId || edge.to === nodeId)
-      .map(edge => edge.i);
 
-    svg.querySelectorAll('.map-node').forEach(n => {
-      n.classList.remove('highlighted');
-    });
-    svg.querySelectorAll('.map-edge').forEach(edge => {
-      edge.classList.remove('highlighted');
-      edge.setAttribute('marker-end', 'url(#arrow-map)');
-      edge.style.stroke = '';
-    });
+    if (activeNode) {
+      activeNode.classList.remove('highlighted');
+      activeEdgeEls.forEach((el) => {
+        el.classList.remove('highlighted');
+        el.setAttribute(
+          'marker-end', 'url(#arrow-map)'
+        );
+      });
+      activeNodeEls.forEach((el) => {
+        el.classList.remove('highlighted');
+      });
+    }
+
+    activeNode = nodeEl;
+    activeEdgeEls = [];
+    activeNodeEls = [];
+    const nodeId = nodeEl.id;
 
     nodeEl.classList.add('highlighted');
-    connectedEdges.forEach(i => {
-      const edgeEl = document.getElementById('cmap-edge-' + i);
+    MAP_EDGES.forEach((edge, i) => {
+      if (edge.from !== nodeId
+        && edge.to !== nodeId) return;
+
+      const edgeEl = document.getElementById(
+        'cmap-edge-' + i
+      );
       if (edgeEl) {
         edgeEl.classList.add('highlighted');
-        edgeEl.setAttribute('marker-end', 'url(#arrow-map-hl)');
-        edgeEl.style.stroke = 'var(--accent)';
+        edgeEl.setAttribute(
+          'marker-end', 'url(#arrow-map-hl)'
+        );
+        activeEdgeEls.push(edgeEl);
       }
-      const edgeData = MAP_EDGES[i];
-      const otherId = edgeData.from === nodeId ? edgeData.to : edgeData.from;
-      const otherEl = document.getElementById(otherId);
-      if (otherEl) otherEl.classList.add('highlighted');
+      const otherId = edge.from === nodeId
+        ? edge.to : edge.from;
+      const otherEl = document.getElementById(
+        otherId
+      );
+      if (otherEl) {
+        otherEl.classList.add('highlighted');
+        activeNodeEls.push(otherEl);
+      }
     });
   });
+}
+
+function buildConceptMap() {
+  const svg = document.getElementById(
+    'concept-map-svg'
+  );
+  const defs = svg.querySelector('defs');
+  defs.insertAdjacentHTML(
+    'afterend',
+    buildEdgeLines() + buildNodes()
+      + buildEdgeLabels()
+  );
+  sizeEdgeLabelBoxes();
+  initNodeHighlight(svg);
+}
+
+function gradeSymptomAnswer(btn, answersEl) {
+  symptomQuiz.isQuizDone = true;
+  const current = SYMPTOM_PATTERNS[symptomQuiz.idx];
+  const chosen = btn.dataset.ans;
+  const isCorrect = chosen === current.pattern;
+  symptomQuiz.score.total++;
+  if (isCorrect) symptomQuiz.score.correct++;
+  document.getElementById('symptom-score')
+    .textContent = 'Score: '
+      + symptomQuiz.score.correct
+      + ' / ' + symptomQuiz.score.total;
+
+  const sel = '[data-ans="'
+    + current.pattern + '"]';
+  const correctBtn = answersEl.querySelector(sel);
+  correctBtn.classList.add('correct');
+  symptomQuiz.markedBtns = [correctBtn];
+  if (!isCorrect) {
+    btn.classList.add('incorrect');
+    symptomQuiz.markedBtns.push(btn);
+  }
+  answersEl.classList.add('answered');
+
+  const feedback = document.getElementById(
+    'symptom-feedback'
+  );
+  feedback.classList.toggle('error', !isCorrect);
+  const verdict = isCorrect
+    ? 'Correct.' : 'Incorrect.';
+  feedback.innerHTML = '<strong>' + verdict
+    + '</strong> ' + current.explanation;
+  feedback.classList.remove('hidden');
+  document.getElementById('symptom-next')
+    .classList.remove('hidden');
 }
 
 function initSymptomQuiz() {
@@ -215,34 +292,8 @@ function initSymptomQuiz() {
   answersEl.addEventListener('click', (e) => {
     const btn = e.target.closest('.answer-btn');
     if (!btn || symptomQuiz.isQuizDone) return;
-    symptomQuiz.isQuizDone = true;
-    const current = SYMPTOM_PATTERNS[symptomQuiz.idx];
-    const chosen = btn.dataset.ans;
-    const isCorrect = chosen === current.pattern;
-    symptomQuiz.score.total++;
-    if (isCorrect) symptomQuiz.score.correct++;
-    const scoreEl = document.getElementById('symptom-score');
-    scoreEl.textContent = 'Score: '
-      + symptomQuiz.score.correct
-      + ' / ' + symptomQuiz.score.total;
 
-    const sel = '[data-ans="' + current.pattern + '"]';
-    const correctBtn = answersEl.querySelector(sel);
-    correctBtn.classList.add('correct');
-    symptomQuiz.markedBtns = [correctBtn];
-    if (!isCorrect) {
-      btn.classList.add('incorrect');
-      symptomQuiz.markedBtns.push(btn);
-    }
-    answersEl.classList.add('answered');
-
-    const feedback = document.getElementById('symptom-feedback');
-    feedback.classList.toggle('error', !isCorrect);
-    const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
-    feedback.innerHTML = '<strong>' + verdict
-      + '</strong> ' + current.explanation;
-    feedback.classList.remove('hidden');
-    document.getElementById('symptom-next').classList.remove('hidden');
+    gradeSymptomAnswer(btn, answersEl);
   });
 }
 
@@ -282,11 +333,11 @@ function initHaltQuiz() {
     if (level.differentials) {
       parts.push(['Differentials', level.differentials]);
     }
-    const body = parts.map(
+    const feedbackHtml = parts.map(
       ([k, v]) => '<strong>' + k + ':</strong> ' + expandAbbr(v)
     ).join('<br>');
     document.getElementById('halt-question').innerHTML +=
-      '<div class="feedback-box">' + body + '</div>';
+      '<div class="feedback-box">' + feedbackHtml + '</div>';
   });
   nextButton.addEventListener('click', () => {
     haltQuiz.idx = (haltQuiz.idx + 1) % HALT_LEVELS.length;
@@ -328,11 +379,11 @@ function initSquatQuiz() {
     if (level.hyperactive) {
       parts.push(['Hyperactive', level.hyperactive]);
     }
-    const body = parts.map(
+    const feedbackHtml = parts.map(
       ([k, v]) => '<strong>' + k + ':</strong> ' + expandAbbr(v)
     ).join('<br>');
     document.getElementById('squat-question').innerHTML +=
-      '<div class="feedback-box">' + body + '</div>';
+      '<div class="feedback-box">' + feedbackHtml + '</div>';
   });
   document.getElementById('squat-next').addEventListener('click', () => {
     squatQuiz.idx = (squatQuiz.idx + 1) % SQUAT_LEVELS.length;
