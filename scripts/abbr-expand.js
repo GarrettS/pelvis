@@ -40,9 +40,7 @@ const longestFirst = ABBRS.map(([a]) => a)
 const abbrPattern = longestFirst
   .map(a => a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
   .join('|');
-const ABBR_RE = new RegExp(
-  '\\b(' + abbrPattern + ')\\b', 'g'
-);
+const ABBR_RE = new RegExp('\\b(' + abbrPattern + ')\\b', 'g');
 
 function escapeHtml(str) {
   return str

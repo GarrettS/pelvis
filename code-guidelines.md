@@ -47,14 +47,6 @@ Specific operations that require guarded handling:
 - `localStorage` / `sessionStorage` — browsers throw in private mode or when quota is exceeded.
 - Fire-and-forget async — any `async` function called without `await` must have `.catch()` at the call site.
 
-### Single Responsibility
-
-Functions do one thing. Consistent return types. Test the happy path and the sad path. Consider refactoring conditionals to dynamic dispatch or function redefinition.
-
-### Short Parameter Lists
-
-Three or fewer parameters per function. When a function needs more context, pass a single options object with named properties. This eliminates ordering bugs and makes call sites self-documenting.
-
 ### Module Cohesion
 
 Each module owns one domain concept. Name the module after what it does: `quiz.js`, `flashcards.js`, `navigation.js`. If the name describes a role instead of a domain concept, it is a junk drawer — `utils.js`, `helpers.js`, `tools.js`, `misc.js`, `common.js` are common examples, but any name that could apply to any project instead of *this* project violates the principle. If a function does not belong in an existing module, create a new module with a specific name. When a module grows to cover multiple concerns, split it.
@@ -128,9 +120,30 @@ When two or more code blocks follow the same structure but differ in specific va
 
 When a chain of conditionals maps a value to an action, replace it with a keyed object. The table makes the mapping visible at a glance, is trivial to extend, and separates routing from logic.
 
-### Compose Method
+### Functions
 
-A long function should read as a sequence of named steps at the same level of abstraction. Extract each step into a function whose name describes *what* it does. The original function becomes a table of contents — readable top-down without scrolling into implementation.
+Small. DRY. One thing. Descriptive name. Consistent return type. Pure where possible. Three or fewer parameters — use an options object when more context is needed. Each step at the same level of abstraction — the calling function reads as a table of contents. Consider refactoring conditionals to dynamic dispatch or function redefinition.
+
+Inline callbacks follow the same rule. The listener is routing; the function is logic.
+
+❌ Logic buried in callback:
+```javascript
+el.addEventListener('click', (e) => {
+  const target = e.target.closest('.item');
+  if (!target) return;
+  // ... 30 lines of processing ...
+});
+```
+
+✅ Callback delegates to named function:
+```javascript
+el.addEventListener('click', (e) => {
+  const target = e.target.closest('.item');
+  if (!target) return;
+
+  processItem(target);
+});
+```
 
 ### Decompose Conditional
 
@@ -191,12 +204,26 @@ Semantic and behavioral rules. Where these overlap with the baseline authorities
 
 ### JavaScript
 
-- `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not wrap an entire module body in an IIFE — the module already provides scope. IIFEs remain useful for creating closures within a module (e.g. binding private state to a function).
-- Function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when context (`this`) doesn't matter, for brevity. When an event handler needs to reference the element it is attached to, use a function expression (not an arrow) so `this` is bound to the element by `addEventListener`.
-- Constants: `UPPER_SNAKE_CASE`. Functions/variables: `camelCase`. Classes: `PascalCase`. Booleans prefixed: `is`/`has`/`does`/`can`.
-- Event handler functions: `[object][EventName]Handler` (e.g. `itemClickHandler`, `formSubmitHandler`). Functions that process results but do not receive an event object are not handlers — name them by what they do (e.g. `validateInput`, `saveRecord`).
-- Declare variables in the narrowest possible scope. Always use `const` or `let`. No assignment to undeclared identifiers. Give each identifier a meaningful name from the project's ubiquitous language.
-- Guard clauses: use early `return` to reject invalid state at the top of a function rather than wrapping the body in a conditional. Always follow a guard clause with a blank line so the pattern stands out visually.
+- **Modules.** `<script type="module">` — strict mode by default. ES modules with explicit exports. Do not wrap an entire module body in an IIFE — the module already provides scope. IIFEs remain useful for creating closures within a module (e.g. binding private state to a function).
+- **Functions.** Use function declarations for named module-level functions (hoisted, readable top-down). Use arrow functions instead of anonymous function expressions when `this` doesn't matter or is wanted from the enclosing context. Use function expressions when the handler needs `this` bound to the element by `addEventListener`.
+- **Variables.** Declare with `const` or `let` in the narrowest possible scope, close to first use. No assignment to undeclared identifiers.
+- **Naming conventions.** Constants: `UPPER_SNAKE_CASE`. Functions/variables: `camelCase`. Classes: `PascalCase`. Booleans prefixed: `is`/`has`/`does`/`can`. Event handler functions: `[object][EventName]Handler` (e.g. `itemClickHandler`, `formSubmitHandler`). Functions that process results but do not receive an event object are not handlers — name them by what they do (e.g. `validateInput`, `saveRecord`). Give each identifier a meaningful name from the project's ubiquitous language.
+- **Identifier naming.** Name by purpose, not by type. A name should answer *what is this for*, not *what data structure is it*.
+
+  ❌ Names describe type or structure:
+  ```javascript
+  const MAP = {};
+  const RE = new RegExp(pattern, 'g');
+  const sorted = items.sort((a, b) => b.length - a.length);
+  ```
+
+  ✅ Names describe purpose:
+  ```javascript
+  const ABBR_TITLES = {};
+  const ABBR_RE = new RegExp(abbrPattern, 'g');
+  const longestFirst = items.sort((a, b) => b.length - a.length);
+  ```
+- **Guard clauses.** Use early `return` to reject invalid state at the top of a function rather than wrapping the body in a conditional. Always follow a guard clause with a blank line so the pattern stands out visually.
   ```javascript
   function update(id) {
     if (!id) return;
@@ -204,33 +231,32 @@ Semantic and behavioral rules. Where these overlap with the baseline authorities
     // function body
   }
   ```
-- `textContent` over `innerHTML`. Use `innerHTML` only when inserting HTML structure.
-- No form submission on Enter unless that is the intended UX. Prevent default on `keydown` where needed.
-- `===` for strict equality. Always use strict equality to compare objects.
-- Do not use Boolean coercion on values that may be acceptably falsy (e.g., `if (e.pageX)`). Use `typeof`: `if (typeof e.pageX === 'number')`.
-- Efficient string concatenation. Do not repeatedly create and discard temporary strings. Do not `+=` in a loop — each iteration creates and discards an intermediate string. Use `.join()` to build repeated markup; use `.map()` + `.join('')` when each item needs distinct attributes.
+- **DOM content.** `textContent` over `innerHTML`. Use `innerHTML` only when inserting HTML structure.
+- **Form submission.** No form submission on Enter unless that is the intended UX. Prevent default on `keydown` where needed.
+- **Strict equality.** `===` always. Do not use Boolean coercion on values that may be acceptably falsy (e.g., `if (e.pageX)`). Use `typeof`: `if (typeof e.pageX === 'number')`.
+- **String concatenation.** Do not `+=` in a loop — each iteration creates and discards an intermediate string. Use `.join()` for uniform items; use `.map()` + `.join('')` when each item needs distinct attributes.
 
-  Wrong — `+=` in a loop creates n intermediate strings:
+  ❌ `+=` in a loop creates n intermediate strings:
   ```javascript
   let html = '<ul>';
   items.forEach((item) => { html += '<li>' + item + '</li>'; });
   html += '</ul>';
   ```
 
-  Right — uniform items: join with delimiter (guard empty case):
+  ✅ Uniform items — join with delimiter (guard empty case):
   ```javascript
   if (items.length) {
     el.innerHTML = '<ul><li>' + items.join('</li><li>') + '</li></ul>';
   }
   ```
 
-  Right — per-item attributes: map + join:
+  ✅ Per-item attributes — map + join:
   ```javascript
   el.innerHTML = items.map((item) =>
     '<div data-id="' + item.id + '">' + item.name + '</div>'
   ).join('');
   ```
-- Prefer simple regular expressions. Anchor where needed to avoid false matches. Test success and failure cases.
+- **Regular expressions.** Prefer simple patterns. Anchor where needed to avoid false matches. Test success and failure cases.
 
 ---
 
