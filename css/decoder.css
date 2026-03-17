@@ -79,105 +79,143 @@
 }
 
 .equiv-chain {
-  font-family:var(--mono);
-  font-size:var(--text-sm);
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:6px;
-  padding:1rem;
-  margin:1rem 0;
+  font-family: var(--mono);
+  font-size: var(--text-sm);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
 }
 
 .decoder-info .equiv-chain {
-  margin:0;
+  margin: 0;
 }
 
 .equiv-line {
-  padding:.15rem 0;
+  padding: .15rem 0;
 }
 
 .equiv-line.main {
-  color:var(--accent);
-  font-weight:700;
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .equiv-line.outlet {
-  color:var(--outlet);
+  color: var(--outlet);
 }
 
 .equiv-chain-label {
-  font-family:var(--mono);
-  font-size:var(--text-xs);
-  color:var(--text-dim);
-  margin-bottom:.35rem;
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  margin-bottom: .35rem;
 }
 
 .equiv-chain-intro {
-  margin-bottom:1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .equiv-opts {
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-  gap:.5rem;
-  margin:1rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: .5rem;
+  margin: 1rem 0;
 }
 
 .equiv-opt {
-  font-family:var(--mono);
-  font-size:var(--text-sm);
-  background:var(--surface2);
-  border:2px solid var(--border);
-  border-radius:4px;
-  padding:.5rem .75rem;
-  cursor:pointer;
-  transition:all .12s;
-  text-align:center;
+  font-family: var(--mono);
+  font-size: var(--text-sm);
+  background: var(--surface2);
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  padding: .5rem .75rem;
+  cursor: pointer;
+  transition: all .12s;
+  text-align: center;
 }
 
 .equiv-opt:hover {
-  border-color:var(--accent-dim);
+  border-color: var(--accent-dim);
 }
 
 .equiv-opt.selected {
-  border-color:var(--accent);
-  background:var(--accent-bg);
+  border-color: var(--accent);
+  background: var(--accent-bg);
 }
 
 .equiv-opt.correct-reveal {
-  border-color:var(--green);
-  background:var(--accent-bg);
+  border-color: var(--green);
+  background: var(--accent-bg);
 }
 
 .equiv-opt.wrong-reveal {
-  border-color:var(--error);
-  background:var(--error-bg);
+  border-color: var(--error);
+  background: var(--error-bg);
 }
 
 .equiv-opt.missed {
-  border-color:var(--warn);
-  background:var(--warn-bg);
+  border-color: var(--warn);
+  background: var(--warn-bg);
 }
 
 .equiv-given {
-  font-family:var(--mono);
-  font-size:var(--text-xl);
-  color:var(--accent);
-  font-weight:700;
-  margin:.5rem 0 .25rem;
+  font-family: var(--mono);
+  font-size: var(--text-xl);
+  color: var(--accent);
+  font-weight: 700;
+  margin: .5rem 0 .25rem;
 }
 
 .equiv-instruction {
-  font-size:var(--text-sm);
-  color:var(--text-dim);
-  margin-bottom:1rem;
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+  margin-bottom: 1rem;
 }
 
 .feedback-next {
-  margin-top:.75rem;
+  margin-top: .75rem;
 }
 
-/* ── Pelvis SVG ── */
+.equiv-chain-note {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  margin-top: .5em;
+}
+
+.equiv-explanation {
+  margin-top: 1rem;
+}
+
+.equiv-expl-label {
+  font-weight: 700;
+  margin-bottom: .25em;
+}
+
+.equiv-expl-note {
+  border-left: 3px solid var(--surface2);
+  padding-left: 0.75em;
+  color: var(--text-dim);
+  margin: 0.5em 0;
+}
+
+.equiv-expl-ref {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+}
+
+.equiv-expl-coupling {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+}
+
+.equiv-expl-link {
+  margin-top: 1em;
+}
+
+.equiv-expl-region {
+  margin-bottom: 1em;
+}
 
 .pelvis-ghost {
   stroke:var(--text);

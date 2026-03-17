@@ -39,6 +39,7 @@ const PRECACHE_URLS = [
   './data/anatomize-data.json',
   './data/causal-map.json',
   './data/cheat-data.json',
+  './data/equivalence-explanations.json',
   './data/flashcard-deck.json',
   './data/halt-levels.json',
   './data/master-quiz.json',

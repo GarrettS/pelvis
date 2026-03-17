@@ -1,0 +1,116 @@
+{
+  "couplingDisclaimer": "PRI treats these positions as a single equivalence chain — the same physical event named from different anatomical reference frames. This assumes the innominate is rigid and that the SI joint, hip joint, and innominate tilt move in lockstep. In reality: the innominate is mostly rigid in adults, but the SI joint has independent (small) degrees of freedom, and the hip joint is a separate articulation entirely. The equivalence is a useful clinical approximation for treatment planning, not a biomechanical identity.",
+
+  "regions": {
+    "ip": {
+      "name": "Ilio-Pubo",
+      "anatomicalName": "Anterior Inlet",
+      "manualRef": "Manual pp.5–6",
+      "er": {
+        "pri": "Ilium and pubis forwardly rotated (flexion), abducted, externally rotated. PRI's tri-planar description of anterior pelvic tilt using the pubic symphysis as reference.",
+        "biomechanics": "Anterior pelvic tilt. The tri-planar descriptors (flex/abd/ER) describe innominate motion, not hip motion, despite using identical terminology. 'IP ER' is not hip ER."
+      },
+      "ir": {
+        "pri": "Ilium and pubis posteriorly rotated (extension), adducted, internally rotated. Goal position for L side in L AIC.",
+        "biomechanics": "Posterior pelvic tilt. Same innominate-motion frame as IP ER, opposite direction."
+      }
+    },
+    "is": {
+      "name": "Ilio-Sacral",
+      "anatomicalName": "Posterior Inlet",
+      "manualRef": "Manual p.7",
+      "ir": {
+        "pri": "Ilium internally rotating on the sacrum. Same bone position as IP ER viewed from the posterior inlet.",
+        "biomechanics": "The ilium rotating anteriorly relative to the sacrum — the iliac half of the SI joint position. This is not nutation; nutation is sacral motion (SI IR). PRI relabels iliac anterior rotation as 'IS IR' to encode treatment targeting: IS = facilitate muscles acting on the ilium at the posterior inlet."
+      },
+      "er": {
+        "pri": "Ilium externally rotating on the sacrum. Counter-nutation. Goal position for L side.",
+        "biomechanics": "Counter-nutation at the SI joint. The ilium rotates posteriorly relative to the sacrum."
+      }
+    },
+    "isp": {
+      "name": "Ischio-Pubo",
+      "anatomicalName": "Anterior Outlet",
+      "manualRef": "Manual pp.8–9",
+      "ir": {
+        "pri": "Ischium and pubis extended, adducted, internally rotated. Outlet closed. Pelvic floor descended.",
+        "biomechanics": "When the top of the innominate tips forward (IP ER), the bottom (ischium) moves inward. This is rigid-body mechanics — if the innominate is one bone, inlet and outlet move in opposite directions. True in adults where the innominate is fused. The 'IsP' joint (ischio-pubo) is not a real articulation."
+      },
+      "er": {
+        "pri": "Ischia abducted, outlet open, pelvic floor ascended. Goal position for L side.",
+        "biomechanics": "Pelvic floor muscles contract, pulling ischial tuberosities laterally. Outlet opens as a consequence of posterior pelvic tilt."
+      }
+    },
+    "si": {
+      "name": "Sacro-Ilio",
+      "anatomicalName": "Posterior Outlet",
+      "manualRef": "Manual p.10",
+      "ir": {
+        "pri": "Sacrum nutating on the ilium. PRI chains this with IS IR because both bones are displaced in the L AIC pattern.",
+        "biomechanics": "IS IR and SI IR describe positions of two different bones at the same joint. IS IR = ilium anteriorly rotated. SI IR = sacrum nutated (base forward). PRI names both because both are displaced in L AIC, and chains them as equivalent because they co-occur when the whole pelvis tips as a unit. But they are mechanically distinguishable: the ilium can tip without the sacrum nutating, and vice versa."
+      },
+      "er": {
+        "pri": "Sacrum counter-nutating on the ilium. Goal position.",
+        "biomechanics": "Sacral counter-nutation. PRI pairs this with IS ER (ilium posteriorly rotated) as the goal. Both bones returning to neutral at the SI joint."
+      }
+    },
+    "af": {
+      "name": "Acetabulo-Femoral",
+      "anatomicalName": "Hip (pelvis-on-femur)",
+      "manualRef": "Manual p.5",
+      "er": {
+        "pri": "Acetabulum rotating externally on the femur. Closed-chain perspective: the pelvis moved forward over a planted femur.",
+        "biomechanics": "Standard anatomy describes this joint as femoral-acetabular (femur moves on pelvis). PRI reverses the convention to encode that the pelvis is the displaced segment. The description is valid in closed chain (standing), where the femur is fixed and the pelvis tilts. AF ER = anterior pelvic tilt viewed from the hip joint."
+      },
+      "ir": {
+        "pri": "Acetabulum rotating internally on the femur. Goal position — pelvis repositioned posteriorly over the planted femur.",
+        "biomechanics": "Closed-chain posterior pelvic tilt. The net result of the entire L AIC facilitation hierarchy."
+      }
+    }
+  },
+
+  "links": [
+    {
+      "from": "ip",
+      "to": "is",
+      "priReasoning": "Same innominate position described from the anterior (IP) vs. posterior (IS) inlet. IP ER and IS IR are two names for one position.",
+      "biomechanics": "Correct as far as it goes — both describe innominate anterior tilt. But IS IR also implies nutation at the SI joint, which is a separate articulation. The innominate can tilt anteriorly (IP ER) without the sacrum nutating if the SI joint doesn't move. PRI collapses this into one event.",
+      "couplingType": "same-bone, different-reference-frame"
+    },
+    {
+      "from": "ip",
+      "to": "isp",
+      "priReasoning": "Inlet and outlet move in opposite directions on the same bone. When IP = ER (inlet open), IsP = IR (outlet closed).",
+      "biomechanics": "Rigid-body mechanics. In adults, the innominate is a single fused bone, so opposite ends do move in opposite directions. This is the most mechanically sound link in the chain. The coupling is real.",
+      "couplingType": "same-bone, opposite-ends"
+    },
+    {
+      "from": "ip",
+      "to": "si",
+      "priReasoning": "Anterior inlet tilt (IP ER) produces sacral nutation (SI IR). Same chain.",
+      "biomechanics": "The SI joint is a separate articulation from the innominate's tilt axis. The sacrum can nutate from axial loading (body weight, ground reaction force) without the innominate tilting anteriorly, and the innominate can tilt without the sacrum nutating. PRI's chain assumes they always co-occur.",
+      "couplingType": "separate-joint, assumed-coupling"
+    },
+    {
+      "from": "ip",
+      "to": "af",
+      "priReasoning": "Anterior pelvic tilt (IP ER) = acetabulum rotating forward over the femur (AF ER). Same tilt described at the hip joint.",
+      "biomechanics": "The hip joint and the innominate are separate articulations. The pelvis can tilt anteriorly with varying degrees of hip flexion depending on trunk position and femoral angle. AF position depends on both innominate tilt AND hip joint angle. PRI treats them as one variable.",
+      "couplingType": "separate-joint, assumed-coupling"
+    },
+    {
+      "from": "is",
+      "to": "si",
+      "priReasoning": "IS IR (ilium on sacrum) and SI IR (sacrum on ilium) are both present in L AIC. Same joint, both bones displaced.",
+      "biomechanics": "These are positions of two different bones at the same joint, not one event named twice. The ilium can rotate anteriorly without the sacrum nutating (e.g., if SI joint ligaments resist sacral motion). The sacrum can nutate under axial load without the ilium tilting. PRI chains them because in the L AIC pattern, the whole pelvis tips forward and both bones end up displaced. The treatment distinction is real: IS targets muscles on the ilium, SI targets muscles on the sacrum (piriformis, coccygeus, inferior glute max).",
+      "couplingType": "same-joint, assumed-co-occurrence"
+    },
+    {
+      "from": "isp",
+      "to": "si",
+      "priReasoning": "Outlet closed (IsP IR) while sacrum nutates (SI IR). Same bone, outlet side.",
+      "biomechanics": "Similar to IP-IS link. The ischium position (IsP) is rigidly coupled to the innominate. The sacral position (SI) involves a separate joint. The coupling between IsP and SI depends on the SI joint moving in lockstep with innominate tilt.",
+      "couplingType": "separate-joint, assumed-coupling"
+    }
+  ]
+}

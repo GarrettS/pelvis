@@ -12,6 +12,7 @@ let score = { correct: 0, total: 0 };
 let isAnswered = false;
 let isCorrect = false;
 let selected = new Set();
+let explanations = null;
 
 function buildDistractors(side, region, dir) {
   const otherSide = side === 'L' ? 'R' : 'L';
@@ -73,7 +74,21 @@ const CLICK_DISPATCH = {
   'equiv-restart': resetSession
 };
 
+async function loadExplanations() {
+  try {
+    const resp = await fetch(
+      'data/equivalence-explanations.json'
+    );
+    if (!resp.ok) return;
+
+    explanations = await resp.json();
+  } catch (_) {
+    // User sees chain + verdict, no explanation block
+  }
+}
+
 export function initEquivalence() {
+  loadExplanations();
   const wrap = document.getElementById('equiv-quiz-wrap');
 
   wrap.addEventListener('click', (e) => {
@@ -121,12 +136,19 @@ function handleOptionToggle(opt) {
 }
 
 function renderQuestion() {
-  document.getElementById('equiv-score').textContent = 'Score: ' + score.correct + ' / ' + score.total;
+  document.getElementById('equiv-score')
+    .textContent = 'Score: '
+      + score.correct + ' / ' + score.total;
 
   if (qIdx >= questions.length) {
-    document.getElementById('equiv-quiz-wrap').innerHTML = '<div class="callout"><strong>Session complete.</strong> Score: '
-      + score.correct + ' / ' + score.total
-      + '.<div class="btn-row"><button class="btn primary" id="equiv-restart">New Session</button></div></div>';
+    document.getElementById('equiv-quiz-wrap')
+      .innerHTML = `<div class="callout">
+        <strong>Session complete.</strong>
+        Score: ${score.correct} / ${score.total}.
+        <div class="btn-row">
+          <button class="btn primary"
+            id="equiv-restart">New Session</button>
+        </div></div>`;
     return;
   }
 
@@ -135,16 +157,25 @@ function renderQuestion() {
   isAnswered = false;
 
   const optItems = q.options.map((opt) =>
-    '<div class="equiv-opt" data-opt="' + opt + '" role="checkbox" aria-checked="false" tabindex="0">' + opt + '</div>'
-  );
-  document.getElementById('equiv-quiz-wrap').innerHTML = '<div class="card">'
-    + '<div class="card-label">Question ' + (qIdx + 1) + ' of ' + questions.length + '</div>'
-    + '<div class="equiv-given">' + q.given + '</div>'
-    + '<p class="equiv-instruction">Select all equivalent positions:</p>'
-    + '<div class="equiv-opts" id="equiv-options">' + optItems.join('') + '</div>'
-    + '<div class="btn-row"><button class="btn primary" id="equiv-submit">Submit</button></div>'
-    + '<div id="equiv-feedback" class="hidden"></div>'
-    + '</div>';
+    `<div class="equiv-opt" data-opt="${opt}"
+      role="checkbox" aria-checked="false"
+      tabindex="0">${opt}</div>`
+  ).join('');
+  document.getElementById('equiv-quiz-wrap')
+    .innerHTML = `<div class="card">
+      <div class="card-label">Question
+        ${qIdx + 1} of ${questions.length}</div>
+      <div class="equiv-given">${q.given}</div>
+      <p class="equiv-instruction">Select all
+        equivalent positions:</p>
+      <div class="equiv-opts" id="equiv-options">
+        ${optItems}</div>
+      <div class="btn-row">
+        <button class="btn primary"
+          id="equiv-submit">Submit</button></div>
+      <div id="equiv-feedback" class="hidden">
+      </div>
+    </div>`;
 }
 
 function handleSubmit() {
@@ -152,28 +183,106 @@ function handleSubmit() {
 
   isAnswered = true;
   const q = questions[qIdx];
-  isCorrect = selected.size === q.correctAnswers.size &&
-    [...selected].every((s) => q.correctAnswers.has(s));
+  isCorrect = selected.size === q.correctAnswers.size
+    && [...selected].every(
+      (s) => q.correctAnswers.has(s)
+    );
 
-  const optEls = document.getElementById('equiv-quiz-wrap').querySelectorAll('.equiv-opt');
+  const optEls = document.getElementById(
+    'equiv-quiz-wrap'
+  ).querySelectorAll('.equiv-opt');
   for (const optEl of optEls) {
     const val = optEl.dataset.opt;
     const isCorr = q.correctAnswers.has(val);
     const isSel = selected.has(val);
-    if (isCorr && isSel) optEl.classList.add('correct-reveal');
-    else if (isCorr && !isSel) optEl.classList.add('missed');
-    else if (!isCorr && isSel) optEl.classList.add('wrong-reveal');
+    if (isCorr && isSel) {
+      optEl.classList.add('correct-reveal');
+    } else if (isCorr && !isSel) {
+      optEl.classList.add('missed');
+    } else if (!isCorr && isSel) {
+      optEl.classList.add('wrong-reveal');
+    }
     optEl.classList.remove('selected');
   }
 
   const chainHTML = buildEquivChainHTML(q);
-  const feedback = document.getElementById('equiv-feedback');
-  feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
-  feedback.innerHTML = '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</strong>'
-    + chainHTML
-    + '<button class="btn primary feedback-next">'
-    + (qIdx + 1 < questions.length ? 'Next Question \u2192' : 'Finish Session')
-    + '</button>';
+  const explHTML = buildExplanationHTML(q);
+  const nextLabel = qIdx + 1 < questions.length
+    ? 'Next Question \u2192' : 'Finish Session';
+  const feedback = document.getElementById(
+    'equiv-feedback'
+  );
+  feedback.className = 'feedback-box'
+    + (isCorrect ? '' : ' error');
+  feedback.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong>
+    ${chainHTML}${explHTML}
+    <button class="btn primary feedback-next">
+      ${nextLabel}</button>`;
+}
+
+function parsePosition(pos) {
+  const parts = pos.split(' ');
+  return {
+    side: parts[0],
+    region: parts[1].toLowerCase(),
+    dir: parts[2].toLowerCase()
+  };
+}
+
+function findLink(fromId, toId) {
+  if (!explanations) return null;
+
+  return explanations.links.find(
+    (lk) => (lk.from === fromId && lk.to === toId)
+      || (lk.from === toId && lk.to === fromId)
+  ) || null;
+}
+
+function buildExplanationHTML(q) {
+  if (!explanations) return '';
+
+  const given = parsePosition(q.given);
+  const region = explanations.regions[given.region];
+  if (!region) return '';
+
+  const dirInfo = region[given.dir];
+  if (!dirInfo) return '';
+
+  const side = q.given.split(' ')[0];
+  const DIR = given.dir.toUpperCase();
+  const REG = given.region.toUpperCase();
+  const label = side + ' ' + region.name + ' ' + DIR
+    + ' \u2014 ' + region.anatomicalName;
+
+  const linkBlocks = [...q.correctAnswers].map(
+    (answer) => {
+      const ans = parsePosition(answer);
+      const link = findLink(
+        given.region, ans.region
+      );
+      if (!link) return '';
+
+      const ANS_REG = ans.region.toUpperCase();
+      const ANS_DIR = ans.dir.toUpperCase();
+      return `<div class="equiv-expl-link">
+        <div class="equiv-expl-label">Why ${REG} ${DIR} = ${ANS_REG} ${ANS_DIR}</div>
+        <p>${link.priReasoning}</p>
+        <div class="equiv-expl-note">Note \u2014 ${link.biomechanics}</div>
+        <div class="equiv-expl-coupling">${link.couplingType}</div>
+      </div>`;
+    }
+  ).join('');
+
+  return `<div class="equiv-explanation">
+    <div class="equiv-expl-region">
+      <div class="equiv-expl-label">${label}</div>
+      <p>${dirInfo.pri}</p>
+      <div class="equiv-expl-note">Note \u2014 ${dirInfo.biomechanics}</div>
+      <div class="equiv-expl-ref">${region.manualRef}</div>
+    </div>
+    ${linkBlocks}
+    <div class="equiv-expl-note">Note \u2014 ${explanations.couplingDisclaimer}</div>
+  </div>`;
 }
 
 function buildEquivChainHTML(q) {
