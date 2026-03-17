@@ -63,17 +63,12 @@ function generateQuestions() {
 }
 
 function getSessionSize() {
-  const val = parseInt(
-    document.getElementById('equiv-count').value,
-    10
-  );
-  return val || 0;
+  const el = document.getElementById('equiv-count');
+  return el.valueAsNumber || +el.defaultValue;
 }
 
 function resetSession() {
-  const all = generateQuestions();
-  const size = getSessionSize();
-  questions = size > 0 ? all.slice(0, size) : all;
+  questions = generateQuestions();
   qIdx = 0;
   score = { correct: 0, total: 0 };
   sessionAnswers = [];
@@ -121,6 +116,9 @@ export function initEquivalence() {
     'equiv-quiz-wrap'
   );
 
+  document.getElementById('equiv-count')
+    .addEventListener('change', renderQuestion);
+
   section.addEventListener('click', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (opt) {
@@ -136,7 +134,7 @@ export function initEquivalence() {
       score.total++;
       score.correct += +isCorrect;
       qIdx++;
-      if (qIdx >= questions.length) {
+      if (qIdx >= getSessionSize()) {
         renderResults();
       } else {
         renderQuestion();
@@ -191,7 +189,7 @@ function renderQuestion() {
   document.getElementById('equiv-quiz-wrap')
     .innerHTML = `<div class="card">
       <div class="card-label">Question
-        ${qIdx + 1} of ${questions.length}</div>
+        ${qIdx + 1} of ${getSessionSize()}</div>
       <div class="equiv-given">${q.given}</div>
       <p class="equiv-instruction">Select all
         equivalent positions:</p>
@@ -234,7 +232,7 @@ function handleSubmit() {
 
   const chainHTML = buildEquivChainHTML(q);
   const explHTML = buildExplanationHTML(q);
-  const nextLabel = qIdx + 1 < questions.length
+  const nextLabel = qIdx + 1 < getSessionSize()
     ? 'Next Question \u2192' : 'Finish Session';
   const feedback = document.getElementById(
     'equiv-feedback'

@@ -662,6 +662,10 @@ p:last-child {
   border-color: var(--accent);
 }
 
+.quiz-count {
+  width: 4rem;
+}
+
 .answer-opts {
   display: flex;
   flex-direction: column;

@@ -600,12 +600,9 @@
   </div>
   <div class="equiv-session-config">
     <label class="mono-label" for="equiv-count">Questions:</label>
-    <select id="equiv-count" class="btn">
-      <option value="5">5</option>
-      <option value="10" selected>10</option>
-      <option value="20">20</option>
-      <option value="0">All</option>
-    </select>
+    <input type="number" id="equiv-count"
+      class="btn quiz-count" value="10"
+      min="5" max="50" step="5">
   </div>
   <div class="score-display" id="equiv-score">Score: 0 / 0</div>
   <div id="equiv-quiz-wrap"></div>
@@ -652,14 +649,10 @@
 
     <h3 class="subsection-title">Questions</h3>
     <div class="mq-config-row">
-      <label class="control-label" for="mq-count">Count</label>
-      <select id="mq-count" class="mq-select">
-        <option value="10">10</option>
-        <option value="20">20</option>
-        <option value="35" selected>35</option>
-        <option value="50">50</option>
-        <option value="all">All</option>
-      </select>
+      <label class="mono-label" for="mq-count">Questions:</label>
+      <input type="number" id="mq-count"
+        class="btn quiz-count" value="25"
+        min="5" max="100" step="5">
     </div>
     <div class="mq-config-row">
       <label class="mq-priority-label"><input type="checkbox" id="mq-priority" checked> Prioritize missed questions</label>

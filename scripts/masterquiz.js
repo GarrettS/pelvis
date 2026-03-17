@@ -104,8 +104,8 @@ function getSelectedDomains() {
 }
 
 function getQuestionCount() {
-  const val = document.getElementById('mq-count').value;
-  return val === 'all' ? 9999 : parseInt(val, 10);
+  const el = document.getElementById('mq-count');
+  return el.valueAsNumber || +el.defaultValue;
 }
 
 function renderStats() {
