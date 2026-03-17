@@ -32,6 +32,7 @@ const PRECACHE_URLS = [
   './scripts/navigation-tabs.js',
   './scripts/nomenclature.js',
   './scripts/patterns.js',
+  './scripts/shuffle.js',
   './scripts/resize-handle.js',
   './scripts/study-data-cache.js',
   './data/aic-chain.json',

@@ -1,6 +1,8 @@
 import { getAllEquivalent, REGION_LABELS } from './equivalence.js';
+import { shuffle } from './shuffle.js';
 
-const REGIONS = Object.keys(REGION_LABELS).filter((r) => r !== 'FA');
+const REGIONS = Object.keys(REGION_LABELS)
+  .filter((r) => r !== 'FA');
 const SIDES = ['L', 'R'];
 const DIRS = ['ER', 'IR'];
 
@@ -11,41 +13,51 @@ let isAnswered = false;
 let isCorrect = false;
 let selected = new Set();
 
+function buildDistractors(side, region, dir) {
+  const otherSide = side === 'L' ? 'R' : 'L';
+  const wrongDir = dir === 'ER' ? 'IR' : 'ER';
+  const outletRegion = ['IP', 'IS']
+    .includes(region) ? 'IsP' : 'IP';
+  const wrongEquivDir = ['IP', 'IS', 'AF']
+    .includes(outletRegion) ? dir : wrongDir;
+  return [
+    otherSide + ' ' + region + ' ' + dir,
+    side + ' ' + region + ' ' + wrongDir,
+    side + ' ' + outletRegion + ' ' + wrongEquivDir,
+    otherSide + ' '
+      + (REGIONS.find((r) => r !== region) || 'SI')
+      + ' ' + dir
+  ];
+}
+
+function buildQuestion(side, region, dir) {
+  const equiv = getAllEquivalent(region, dir);
+  const allEquiv = Object.entries(equiv)
+    .filter(([rid]) => rid !== region)
+    .map(([rid, d]) => side + ' ' + rid + ' ' + d);
+  const correctPick = shuffle(allEquiv).slice(0, 3);
+  const distractors = buildDistractors(side, region, dir);
+  const distPick = distractors
+    .filter((d) => !correctPick.includes(d))
+    .slice(0, 2);
+  return {
+    given: side + ' ' + region + ' ' + dir,
+    correctAnswers: new Set(correctPick.slice(0, 2)),
+    options: shuffle(correctPick.slice(0, 2).concat(distPick)),
+    equiv: equiv
+  };
+}
+
 function generateQuestions() {
   const qs = [];
   SIDES.forEach((side) => {
     REGIONS.forEach((region) => {
       DIRS.forEach((dir) => {
-        const equiv = getAllEquivalent(region, dir);
-        const allEquiv = Object.entries(equiv)
-          .filter(([rid]) => rid !== region)
-          .map(([rid, d]) => side + ' ' + rid + ' ' + d);
-
-        const otherSide = side === 'L' ? 'R' : 'L';
-        const wrongDir = dir === 'ER' ? 'IR' : 'ER';
-        const outletRegion = ['IP', 'IS'].includes(region) ? 'IsP' : 'IP';
-        const wrongEquivDir = ['IP', 'IS', 'AF'].includes(outletRegion) ? dir : wrongDir;
-        const distractors = [
-          otherSide + ' ' + region + ' ' + dir,
-          side + ' ' + region + ' ' + wrongDir,
-          side + ' ' + outletRegion + ' ' + wrongEquivDir,
-          otherSide + ' ' + (REGIONS.find((r) => r !== region) || 'SI') + ' ' + dir
-        ];
-
-        const correctPick = allEquiv.slice(0, 3);
-        const distPick = distractors.filter((d) => !correctPick.includes(d)).slice(0, 2);
-        const allOpts = correctPick.slice(0, 2).concat(distPick).sort(() => Math.random() - 0.5);
-
-        qs.push({
-          given: side + ' ' + region + ' ' + dir,
-          correctAnswers: new Set(correctPick.slice(0, 2)),
-          options: allOpts,
-          equiv: equiv
-        });
+        qs.push(buildQuestion(side, region, dir));
       });
     });
   });
-  return qs.sort(() => Math.random() - 0.5);
+  return shuffle(qs);
 }
 
 function resetSession() {

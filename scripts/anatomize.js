@@ -1,6 +1,7 @@
 import {createResizeHandle} from './resize-handle.js';
 import {showFetchError} from './fetch-feedback.js';
 import {expandAbbr} from './abbr-expand.js';
+import {shuffle} from './shuffle.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -340,14 +341,6 @@ function resetSession() {
   promptNext();
 }
 
-function shuffle(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 function createArenaWrap(imgSet) {
   document.getElementById('anat-arena').textContent = '';
