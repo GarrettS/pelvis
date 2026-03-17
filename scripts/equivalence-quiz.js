@@ -361,10 +361,15 @@ function renderResults() {
     correct
   );
 
-  document.getElementById('equiv-incorrect-section')
-    .classList.toggle('hidden', incorrect.length === 0);
-  document.getElementById('equiv-correct-section')
-    .classList.toggle('hidden', correct.length === 0);
+  const resultsEl = document.getElementById(
+    'equiv-results'
+  );
+  resultsEl.classList.toggle(
+    'has-incorrect', incorrect.length > 0
+  );
+  resultsEl.classList.toggle(
+    'has-correct', correct.length > 0
+  );
 
   if (incorrect.length > 0) {
     document.getElementById(
@@ -376,11 +381,6 @@ function renderResults() {
       'equiv-correct-details'
     ).open = false;
   }
-
-  document.getElementById('equiv-retake-missed')
-    .classList.toggle(
-      'hidden', incorrect.length === 0
-    );
 }
 
 function renderResultsList(container, answers) {

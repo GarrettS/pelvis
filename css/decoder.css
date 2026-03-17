@@ -193,6 +193,15 @@
   display: none;
 }
 
+#equiv-results:not(.has-incorrect) {
+  #equiv-incorrect-section,
+  #equiv-retake-missed { display: none; }
+}
+
+#equiv-results:not(.has-correct) {
+  #equiv-correct-section { display: none; }
+}
+
 #tab-equivalence.showing-results {
   #equiv-quiz-wrap,
   #equiv-score { display: none; }

@@ -12,17 +12,15 @@ These principles govern judgment calls. They are not suggestions.
 
 ### Fail-Safe
 
-Bad things happen at runtime: networks drop, APIs return garbage, users enter nonsense, browsers block storage. Every operation that can fail must have an explicit failure path. Silent failures are bugs. Unhandled throws are crashes.
+**No unhandled exceptions and no silent failure paths. Every failure must resolve to a defined, user-visible outcome.**
 
-Fail-safe code is defensive programming: it tests for failure paths and handles them. Code that throws on failure is not fail-safe — it fails by throwing runtime errors, then leaves the app in a broken state where it will throw more. A helper that checks `response.ok` and throws looks safe at a glance. It is not. It moves the problem up the stack and calls it a solution. The caller still crashes if it does not catch, and `console.error` in a `catch` block is not handling — the user sees nothing; the app is broken.
+Three failure modes violate this:
 
-Returning `null`, `undefined`, or an empty value from a failed operation is the same problem in different clothes. The failure is still silent — the user sees nothing, the app is in a broken state, and the problem is delegated to whatever calls the function. The caller must now check for `null`, and if it does not, the app breaks downstream. This is not handling. This is hiding.
+1. **Unhandled throw.** An exception propagates up the stack with no `catch` that presents a user-visible response. The app enters an undefined state. A helper that checks `response.ok` and throws has not handled the failure — it has relocated it. The caller still crashes if it does not catch, and `console.error` in a `catch` block is not a user-visible response.
+2. **Silent return.** A function returns `null`, `undefined`, or an empty value after a failure. The caller receives a sentinel instead of data, must check for it, and if it does not, the app breaks downstream. The user sees nothing.
+3. **Console-only catch.** A `catch` block logs to the console and continues. The error is swallowed. The user sees nothing. The app proceeds on invalid state.
 
-**Every failure path must include user-visible feedback.** The user must know something went wrong and what to do about it. "Handling" means the user sees a message, a retry option, a fallback, or a graceful degradation — not that the code swallowed the error and returned a sentinel value.
-
-**Do not throw errors in production code.** Do not return null/undefined as a silent failure signal. Handle failures where they are caught, with a user-visible response.
-
-**When writing a failure path, present the failure scenario and handling options to the person directing the work.** State what can fail, what the consequence is, and list contextual options. Do not pick a strategy silently.
+"Handling" means the user sees a message, a retry option, a fallback, or a graceful degradation.
 
 **Two categories of failure must be addressed:**
 - *Runtime failures* — network errors, parse failures, storage quota exceeded, missing resources. Catch at the source. Do not let upstream failures cascade into downstream reference errors.
@@ -43,9 +41,9 @@ Specific operations that require guarded handling:
     showError('Could not load quiz data. Check your connection.');
   }
   ```
-- `JSON.parse()` — malformed data must not crash the app.
-- `localStorage` / `sessionStorage` — browsers throw in private mode or when quota is exceeded.
-- Fire-and-forget async — any `async` function called without `await` must have `.catch()` at the call site.
+- `JSON.parse()` — malformed data must not crash the app. Wrap in `try/catch` with a user-visible response on failure.
+- `localStorage` / `sessionStorage` — browsers throw in private mode or when quota is exceeded. Wrap access in `try/catch` with a user-visible response or silent degradation (feature works without persistence).
+- Fire-and-forget async — any `async` function called without `await` must have `.catch()` at the call site with a user-visible response.
 
 ### Module Cohesion
 
@@ -53,7 +51,7 @@ Each module owns one domain concept. Name the module after what it does: `quiz.j
 
 ### DOM-Light
 
-Favor source HTML over JS-generated markup. Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`. In loops, create one element as a prototype, then `cloneNode`.
+Favor source HTML over JS-generated markup. Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`.
 
 ### Directory Structure
 
@@ -113,7 +111,7 @@ ul.addEventListener('click', (e) => {
 
 Attach listeners once. Never place `addEventListener` in a function that can be called more than once — listeners accumulate (there is no `replaceEventListener`). Separate one-time initialization (DOM refs, listeners) from repeatable actions (reset state, re-render). `init` may call `reset`; `reset` must never call `init`.
 
-Do not eagerly cache DOM refs into a lookup object. `getElementById` is a hash lookup — effectively free. Caching adds a sync burden (HTML changes require updating the cache) and initialization cost for elements the user may never interact with. Look up elements at point of use.
+Do not speculatively cache DOM references the code may never use. `getElementById` is a hash-table lookup — fast enough to call at point of use. Speculative caching adds a sync burden (HTML changes require updating the cache) and initialization cost for elements the user may never interact with.
 
 ### Active Object
 
@@ -174,7 +172,7 @@ When a chain of conditionals maps a value to an action, replace it with a keyed 
 
 ### Functions
 
-Small. DRY. One thing. Descriptive name. Consistent return type. Pure where possible. Three or fewer parameters — use an options object when more context is needed. Each step at the same level of abstraction — the calling function reads as a table of contents. Consider refactoring conditionals to dynamic dispatch or function redefinition.
+Functions must do one thing. The name must clearly reflect what that thing is. Consistent return type — callers should not need to check which shape came back. Pure where possible. Three or fewer parameters; use an options object when more context is needed. Within a function, each step operates at the same level of abstraction — the body reads as a table of contents for the operation. When a chain of conditionals routes to different actions, consider a dispatch table or function redefinition.
 
 Inline callbacks follow the same rule. The listener is routing; the function is logic.
 
