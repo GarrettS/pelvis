@@ -140,7 +140,7 @@ function renderQuestion() {
   document.getElementById('equiv-quiz-wrap').innerHTML = '<div class="card">'
     + '<div class="card-label">Question ' + (qIdx + 1) + ' of ' + questions.length + '</div>'
     + '<div class="equiv-given">' + q.given + '</div>'
-    + '<p class="equiv-instruction">Select ALL equivalent positions (may be zero or more):</p>'
+    + '<p class="equiv-instruction">Select all equivalent positions:</p>'
     + '<div class="equiv-opts" id="equiv-options">' + optItems.join('') + '</div>'
     + '<div class="btn-row"><button class="btn primary" id="equiv-submit">Submit</button></div>'
     + '<div id="equiv-feedback" class="hidden"></div>'
