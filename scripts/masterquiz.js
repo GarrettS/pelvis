@@ -158,7 +158,7 @@ function renderQuestion() {
   document.getElementById('mq-progress-fill').style.width = ((qIdx / queue.length) * 100) + '%';
   document.getElementById('mq-progress-text').textContent = 'Question ' + (qIdx + 1) + ' of ' + queue.length;
   document.getElementById('mq-domain-badge').textContent = q.domain;
-  document.getElementById('mq-stem').textContent = q.stem;
+  document.getElementById('mq-stem').innerHTML = expandAbbr(q.stem);
 
   const optionsEl = document.getElementById('mq-options');
   optionsEl.innerHTML = '';
@@ -166,7 +166,7 @@ function renderQuestion() {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.dataset.key = opt.key;
-    btn.textContent = opt.key + '. ' + opt.text;
+    btn.innerHTML = opt.key + '. ' + expandAbbr(opt.text);
     optionsEl.appendChild(btn);
   }
 

@@ -20,6 +20,7 @@ const ABBRS = [
   ['PART', 'Passive Abduction Raise Test'],
   ['ADT', 'Adduction Drop Test'],
   ['SRT', 'Standing Reach Test'],
+  ['ASLR', 'Active Straight Leg Raise'],
   ['ZOA', 'Zone of Apposition'],
   ['AIC', 'Anterior Interior Chain'],
   ['PEC', 'Posterior Exterior Chain'],

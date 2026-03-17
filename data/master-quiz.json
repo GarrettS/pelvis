@@ -262,7 +262,7 @@
     {
         "id": "MQ-021",
         "domain": "tests",
-        "stem": "How is the [[ADT]] performed?",
+        "stem": "How is the ADT performed?",
         "options": [
             { "key": "A", "text": "Patient supine, hip flexed 90°, knee flexed 90°. Examiner passively adducts the femur. Positive = femur won't adduct past midline." },
             { "key": "B", "text": "Patient sidelying, both hips/knees 90°. Patient actively drops the top knee toward the mat." },
@@ -270,12 +270,12 @@
             { "key": "D", "text": "Patient standing, reaching toward toes while shifting one hip back." }
         ],
         "answer": "A",
-        "explanation": "[[ADT]] = Adduction Drop Test. Patient supine, hip and knee flexed 90°, examiner passively adducts the femur. Positive = femur won't adduct cleanly in the acetabulum given pelvic orientation. B describes [[PADT]]. C describes [[PART]]. D describes [[SRT]]."
+        "explanation": "ADT = Adduction Drop Test. Patient supine, hip and knee flexed 90°, examiner passively adducts the femur. Positive = femur won't adduct cleanly in the acetabulum given pelvic orientation. B describes PADT. C describes PART. D describes SRT."
     },
     {
         "id": "MQ-022",
         "domain": "tests",
-        "stem": "How is the [[PADT]] performed?",
+        "stem": "How is the PADT performed?",
         "options": [
             { "key": "A", "text": "Patient supine, examiner passively adducts the femur" },
             { "key": "B", "text": "Patient sidelying, both hips/knees 90°; patient actively brings the top knee toward the mat while maintaining 90° knee flexion" },
@@ -283,12 +283,12 @@
             { "key": "D", "text": "Patient sidelying, top leg straight; examiner passively abducts the top leg" }
         ],
         "answer": "B",
-        "explanation": "[[PADT]] = Pelvic Ascension Drop Test. Patient sidelying, both hips/knees at 90°. The patient actively drops the top knee toward the mat. Positive = knee can't reach mat (pelvic diaphragm can't ascend). A describes [[ADT]]. C describes [[SRT]]. D describes [[PART]]."
+        "explanation": "PADT = Pelvic Ascension Drop Test. Patient sidelying, both hips/knees at 90°. The patient actively drops the top knee toward the mat. Positive = knee can't reach mat (pelvic diaphragm can't ascend). A describes ADT. C describes SRT. D describes PART."
     },
     {
         "id": "MQ-023",
         "domain": "tests",
-        "stem": "What does a positive [[PADT]] indicate?",
+        "stem": "What does a positive PADT indicate?",
         "options": [
             { "key": "A", "text": "The ipsilateral pelvic diaphragm cannot ascend because the outlet ischium can't abduct and the inlet ilium can't adduct" },
             { "key": "B", "text": "Hip flexor tightness limiting extension" },
@@ -296,12 +296,12 @@
             { "key": "D", "text": "Hamstring shortness preventing knee extension" }
         ],
         "answer": "A",
-        "explanation": "Positive [[PADT]] = the pelvic diaphragm on that side cannot ascend. The outlet ischium can't abduct and the inlet ilium can't adduct. Cause: overactivity of distal iliacus interfering with proximal iliacus's ability to adduct the inlet. B is a generic finding, not PRI-specific. C describes positive [[PART]]. D is unrelated."
+        "explanation": "Positive PADT = the pelvic diaphragm on that side cannot ascend. The outlet ischium can't abduct and the inlet ilium can't adduct. Cause: overactivity of distal iliacus interfering with proximal iliacus's ability to adduct the inlet. B is a generic finding, not PRI-specific. C describes positive PART. D is unrelated."
     },
     {
         "id": "MQ-024",
         "domain": "tests",
-        "stem": "How is the [[PART]] performed?",
+        "stem": "How is the PART performed?",
         "options": [
             { "key": "A", "text": "Patient sidelying, bottom knee/hip flexed 70–90°, top leg straight; examiner passively abducts the top leg while stabilizing the innominate" },
             { "key": "B", "text": "Patient supine, hip flexed 90°; examiner passively adducts the femur" },
@@ -309,20 +309,20 @@
             { "key": "D", "text": "Patient standing, reaching forward with hip shift" }
         ],
         "answer": "A",
-        "explanation": "[[PART]] = Passive Abduction Raise Test. Patient sidelying, bottom hip/knee flexed, top leg straight. Examiner passively abducts the top leg, stabilizing the innominate, stopping if thoracic sidebending occurs. Positive = abduction < 45°. B describes [[ADT]]. C describes [[PADT]]. D describes [[SRT]]."
+        "explanation": "PART = Passive Abduction Raise Test. Patient sidelying, bottom hip/knee flexed, top leg straight. Examiner passively abducts the top leg, stabilizing the innominate, stopping if thoracic sidebending occurs. Positive = abduction < 45°. B describes ADT. C describes PADT. D describes SRT."
     },
     {
         "id": "MQ-025",
         "domain": "tests",
-        "stem": "In the L AIC pattern, which side is the [[PART]] expected to be positive?",
+        "stem": "In the L AIC pattern, which side is the PART expected to be positive?",
         "options": [
             { "key": "A", "text": "Left" },
             { "key": "B", "text": "Right" },
             { "key": "C", "text": "Bilateral" },
-            { "key": "D", "text": "Neither — [[PART]] is negative in L AIC" }
+            { "key": "D", "text": "Neither — PART is negative in L AIC" }
         ],
         "answer": "B",
-        "explanation": "In L AIC, [[PART]] is positive on the right. The right inlet is in IP IR (closed) — the compensatory position causes lateral buttressing of the right femoral head against the superior acetabulum, limiting right hip abduction. Left [[ADT]] and left [[PADT]] are positive, but [[PART]] is positive on the opposite side."
+        "explanation": "In L AIC, PART is positive on the right. The right inlet is in IP IR (closed) — the compensatory position causes lateral buttressing of the right femoral head against the superior acetabulum, limiting right hip abduction. Left ADT and left PADT are positive, but PART is positive on the opposite side."
     },
     {
         "id": "MQ-026",
@@ -335,12 +335,12 @@
             { "key": "D", "text": "The test is inconclusive and must be repeated" }
         ],
         "answer": "B",
-        "explanation": "In PRI, positive = the patient cannot do it. This is inverted from standard orthopedic testing where a positive test means pathology was provoked. Positive [[ADT]] = femur won't adduct. Positive [[PADT]] = knee can't reach mat. Positive [[PART]] = abduction < 45°."
+        "explanation": "In PRI, positive = the patient cannot do it. This is inverted from standard orthopedic testing where a positive test means pathology was provoked. Positive ADT = femur won't adduct. Positive PADT = knee can't reach mat. Positive PART = abduction < 45°."
     },
     {
         "id": "MQ-027",
         "domain": "tests",
-        "stem": "How is the [[SRT]] performed differently for L AIC versus B PEC?",
+        "stem": "How is the SRT performed differently for L AIC versus B PEC?",
         "options": [
             { "key": "A", "text": "L AIC: reach toward left toes with left hip shift back; B PEC: reach straight down, hips move back symmetrically" },
             { "key": "B", "text": "L AIC: reach straight down; B PEC: reach with hip shift" },
@@ -355,44 +355,44 @@
         "domain": "tests",
         "stem": "What is the expected test profile for the L AIC pattern?",
         "options": [
-            { "key": "A", "text": "+L [[ADT]], +L [[PADT]], +R [[PART]], [[SRT]] > 0\", Squat < 3/5, [[HALT]] < 3/5" },
-            { "key": "B", "text": "+B [[ADT]], +B [[PADT]], −B [[PART]], [[SRT]] > 0\", Squat < 3/5, [[HALT]] < 3/5" },
-            { "key": "C", "text": "+B [[ADT]], +B [[PADT]], +B [[PART]], [[SRT]] 0\", Squat > 3/5, [[HALT]] < 3/5" },
-            { "key": "D", "text": "+L [[ADT]], +L [[PADT]], +L [[PART]], [[SRT]] > 0\", Squat < 3/5, [[HALT]] < 3/5" }
+            { "key": "A", "text": "+L ADT, +L PADT, +R PART, SRT > 0\", Squat < 3/5, HALT < 3/5" },
+            { "key": "B", "text": "+B ADT, +B PADT, −B PART, SRT > 0\", Squat < 3/5, HALT < 3/5" },
+            { "key": "C", "text": "+B ADT, +B PADT, +B PART, SRT 0\", Squat > 3/5, HALT < 3/5" },
+            { "key": "D", "text": "+L ADT, +L PADT, +L PART, SRT > 0\", Squat < 3/5, HALT < 3/5" }
         ],
         "answer": "A",
-        "explanation": "L AIC: [[ADT]] and [[PADT]] positive on the left, [[PART]] positive on the right (note the asymmetry). [[SRT]] > 0 inches, Squat < 3/5, [[HALT]] < 3/5. B is B PEC. C is B Patho PEC. D incorrectly puts [[PART]] on the left."
+        "explanation": "L AIC: ADT and PADT positive on the left, PART positive on the right (note the asymmetry). SRT > 0 inches, Squat < 3/5, HALT < 3/5. B is B PEC. C is B Patho PEC. D incorrectly puts PART on the left."
     },
     {
         "id": "MQ-029",
         "domain": "tests",
         "stem": "What is the expected test profile for B PEC?",
         "options": [
-            { "key": "A", "text": "+B [[ADT]], +B [[PADT]], +B [[PART]], [[SRT]] 0\", Squat > 3/5, [[HALT]] < 3/5" },
-            { "key": "B", "text": "+B [[ADT]], +B [[PADT]], −B [[PART]], [[SRT]] > 0\", Squat < 3/5, [[HALT]] < 3/5" },
-            { "key": "C", "text": "+L [[ADT]], +L [[PADT]], +R [[PART]], [[SRT]] > 0\", Squat < 3/5, [[HALT]] < 3/5" },
-            { "key": "D", "text": "+B [[ADT]], +B [[PADT]], −B [[PART]], [[SRT]] 0\", Squat > 3/5, [[HALT]] < 3/5" }
+            { "key": "A", "text": "+B ADT, +B PADT, +B PART, SRT 0\", Squat > 3/5, HALT < 3/5" },
+            { "key": "B", "text": "+B ADT, +B PADT, −B PART, SRT > 0\", Squat < 3/5, HALT < 3/5" },
+            { "key": "C", "text": "+L ADT, +L PADT, +R PART, SRT > 0\", Squat < 3/5, HALT < 3/5" },
+            { "key": "D", "text": "+B ADT, +B PADT, −B PART, SRT 0\", Squat > 3/5, HALT < 3/5" }
         ],
         "answer": "B",
-        "explanation": "B PEC: bilateral positive [[ADT]] and [[PADT]], bilateral negative [[PART]], [[SRT]] > 0\" (can't touch toes), Squat < 3/5, [[HALT]] < 3/5. A is B Patho PEC. C is L AIC. D mixes B PEC and Patho features."
+        "explanation": "B PEC: bilateral positive ADT and PADT, bilateral negative PART, SRT > 0\" (can't touch toes), Squat < 3/5, HALT < 3/5. A is B Patho PEC. C is L AIC. D mixes B PEC and Patho features."
     },
     {
         "id": "MQ-030",
         "domain": "tests",
         "stem": "Which three tests distinguish B Patho PEC from standard B PEC?",
         "options": [
-            { "key": "A", "text": "[[ADT]], [[PADT]], [[HALT]]" },
-            { "key": "B", "text": "[[PART]], [[SRT]], Functional Squat" },
-            { "key": "C", "text": "[[ADT]], [[PART]], [[HALT]]" },
-            { "key": "D", "text": "[[PADT]], [[SRT]], [[HALT]]" }
+            { "key": "A", "text": "ADT, PADT, HALT" },
+            { "key": "B", "text": "PART, SRT, Functional Squat" },
+            { "key": "C", "text": "ADT, PART, HALT" },
+            { "key": "D", "text": "PADT, SRT, HALT" }
         ],
         "answer": "B",
-        "explanation": "The three distinguishing tests: (1) [[PART]]: negative bilateral in B PEC, positive in Patho. (2) [[SRT]]: can't touch toes in B PEC, CAN touch toes in Patho. (3) Squat: < 3/5 in B PEC, > 3/5 in Patho. [[ADT]], [[PADT]], and [[HALT]] are the same in both patterns."
+        "explanation": "The three distinguishing tests: (1) PART: negative bilateral in B PEC, positive in Patho. (2) SRT: can't touch toes in B PEC, CAN touch toes in Patho. (3) Squat: < 3/5 in B PEC, > 3/5 in Patho. ADT, PADT, and HALT are the same in both patterns."
     },
     {
         "id": "MQ-031",
         "domain": "tests",
-        "stem": "A patient has +B [[ADT]], +B [[PADT]], +B [[PART]], [[SRT]] = 0 inches, Squat 4/5, [[HALT]] 1/5. Most consistent with:",
+        "stem": "A patient has +B ADT, +B PADT, +B PART, SRT = 0 inches, Squat 4/5, HALT 1/5. Most consistent with:",
         "options": [
             { "key": "A", "text": "L AIC" },
             { "key": "B", "text": "B PEC" },
@@ -400,12 +400,12 @@
             { "key": "D", "text": "No pattern — all tests normal" }
         ],
         "answer": "C",
-        "explanation": "Bilateral positive [[ADT]] and [[PADT]] with positive [[PART]], SRT = 0 (touches toes), and Squat > 3/5 = B Patho PEC. The paradoxical performance — better ROM/squat = worse pathology. Compensatory hypermobility, not motor control. B PEC would have negative [[PART]], SRT > 0, Squat < 3/5."
+        "explanation": "Bilateral positive ADT and PADT with positive PART, SRT = 0 (touches toes), and Squat > 3/5 = B Patho PEC. The paradoxical performance — better ROM/squat = worse pathology. Compensatory hypermobility, not motor control. B PEC would have negative PART, SRT > 0, Squat < 3/5."
     },
     {
         "id": "MQ-032",
         "domain": "tests",
-        "stem": "A patient scores 4/5 on the Functional Squat with bilateral positive [[ADT]] and [[PADT]]. What does this suggest?",
+        "stem": "A patient scores 4/5 on the Functional Squat with bilateral positive ADT and PADT. What does this suggest?",
         "options": [
             { "key": "A", "text": "Good motor control — the patient is improving" },
             { "key": "B", "text": "Compensatory hypermobility consistent with B Patho PEC" },
@@ -413,7 +413,7 @@
             { "key": "D", "text": "Standard B PEC presentation" }
         ],
         "answer": "B",
-        "explanation": "High squat score (> 3/5) with positive [[ADT]]/[[PADT]] = Patho PEC. This is paradoxical performance: better ROM does not mean better function. It indicates compensatory hypermobility driven by long and tonic muscles. D is wrong because B PEC shows Squat < 3/5."
+        "explanation": "High squat score (> 3/5) with positive ADT/PADT = Patho PEC. This is paradoxical performance: better ROM does not mean better function. It indicates compensatory hypermobility driven by long and tonic muscles. D is wrong because B PEC shows Squat < 3/5."
     },
     {
         "id": "MQ-033",
@@ -457,7 +457,7 @@
     {
         "id": "MQ-036",
         "domain": "tests",
-        "stem": "Squat Level 5 inability reflects:",
+        "stem": "A patient fails Squat Level 5. What does this indicate?",
         "options": [
             { "key": "A", "text": "Hyperactive quads and gastroc-soleus" },
             { "key": "B", "text": "Poor IO/TA frontal plane integration" },
@@ -470,7 +470,7 @@
     {
         "id": "MQ-037",
         "domain": "tests",
-        "stem": "What is the patient position for the [[HALT]]?",
+        "stem": "What is the patient position for the HALT?",
         "options": [
             { "key": "A", "text": "Supine, hips/knees flexed 90°, feet on wall" },
             { "key": "B", "text": "Sidelying, top leg extended aligned with hip/shoulder, bottom leg flexed with toes on wall on a bolster" },
@@ -478,12 +478,12 @@
             { "key": "D", "text": "Prone, knees flexed, feet together" }
         ],
         "answer": "B",
-        "explanation": "[[HALT]] setup: patient sidelying, top leg extended aligned with hip/shoulder with top knee above shoulder level. Bottom leg flexed with toes on wall on a 4–6 inch bolster. Top palm flat in front of chest, bottom hand under head. A describes the 90-90 position. C and D are not HALT positions."
+        "explanation": "HALT setup: patient sidelying, top leg extended aligned with hip/shoulder with top knee above shoulder level. Bottom leg flexed with toes on wall on a 4–6 inch bolster. Top palm flat in front of chest, bottom hand under head. A describes the 90-90 position. C and D are not HALT positions."
     },
     {
         "id": "MQ-038",
         "domain": "tests",
-        "stem": "A patient fails [[HALT]] at Level 0. What does this mean?",
+        "stem": "A patient fails HALT at Level 0. What does this mean?",
         "options": [
             { "key": "A", "text": "IO/TA weakness with inability to inhibit inlet abduction of the flexed leg" },
             { "key": "B", "text": "Can't position (malaligned pelvis) and can't inhibit outlet abduction of the extended leg — reposition first" },
@@ -496,7 +496,7 @@
     {
         "id": "MQ-039",
         "domain": "tests",
-        "stem": "A patient fails [[HALT]] at Level 2. What should be facilitated?",
+        "stem": "A patient fails HALT at Level 2. What should be facilitated?",
         "options": [
             { "key": "A", "text": "IO/TAs and inlet inhibition" },
             { "key": "B", "text": "IC adductor and anterior glute med" },
@@ -509,7 +509,7 @@
     {
         "id": "MQ-040",
         "domain": "tests",
-        "stem": "A patient fails [[HALT]] at Level 3. This reflects poor function of which muscles?",
+        "stem": "A patient fails HALT at Level 3. This reflects poor function of which muscles?",
         "options": [
             { "key": "A", "text": "IC adductor and anterior glute med" },
             { "key": "B", "text": "IO/TAs" },
@@ -522,7 +522,7 @@
     {
         "id": "MQ-041",
         "domain": "tests",
-        "stem": "[[HALT]] Level 5 failure reflects inability to:",
+        "stem": "A patient fails HALT Level 5. What can't they do?",
         "options": [
             { "key": "A", "text": "Inhibit outlet abduction of the extended leg" },
             { "key": "B", "text": "Achieve inlet adduction of the flexed leg" },
@@ -535,7 +535,7 @@
     {
         "id": "MQ-042",
         "domain": "tests",
-        "stem": "Which five steps does the [[HALT]] progress through?",
+        "stem": "Which five steps does the HALT progress through?",
         "options": [
             { "key": "A", "text": "1. Press bottom toes into wall, 2. Press bottom hip into surface, 3. Turn/raise bottom knee, 4. Turn top heel up/toes down, 5. Raise top leg and extend hip" },
             { "key": "B", "text": "1. Raise top leg, 2. Extend top hip, 3. Rotate trunk, 4. Press into wall, 5. Hold" },
@@ -576,18 +576,18 @@
         "domain": "tests",
         "stem": "Which functional relationship chain connects pelvic and respiratory test findings?",
         "options": [
-            { "key": "A", "text": "+L [[PADT]] → +L Posterior Outlet Mediastinum Expansion Test → +R Apical Expansion Test" },
-            { "key": "B", "text": "+L [[ADT]] → +L Apical Expansion Test → +R [[PADT]]" },
-            { "key": "C", "text": "+R [[PART]] → +B Posterior Mediastinum Test → +L [[ADT]]" },
-            { "key": "D", "text": "+[[SRT]] → +L Apical Expansion Test → +R Posterior Mediastinum Test" }
+            { "key": "A", "text": "+L PADT → +L Posterior Outlet Mediastinum Expansion Test → +R Apical Expansion Test" },
+            { "key": "B", "text": "+L ADT → +L Apical Expansion Test → +R PADT" },
+            { "key": "C", "text": "+R PART → +B Posterior Mediastinum Test → +L ADT" },
+            { "key": "D", "text": "+SRT → +L Apical Expansion Test → +R Posterior Mediastinum Test" }
         ],
         "answer": "A",
-        "explanation": "The functional relationship chain: positive L [[PADT]] predicts positive L Posterior Outlet Mediastinum Expansion Test, which predicts positive R Apical Expansion Test. B, C, and D misconnect the test relationships."
+        "explanation": "The functional relationship chain: positive L PADT predicts positive L Posterior Outlet Mediastinum Expansion Test, which predicts positive R Apical Expansion Test. B, C, and D misconnect the test relationships."
     },
     {
         "id": "MQ-046",
         "domain": "tests",
-        "stem": "A positive left [[ADT]] most directly indicates limitation in:",
+        "stem": "A positive left ADT most directly indicates limitation in:",
         "options": [
             { "key": "A", "text": "Left posterior inlet IR — the left femur cannot adduct in the acetabulum given the pelvic orientation" },
             { "key": "B", "text": "Left anterior outlet ER — the left outlet cannot open" },
@@ -595,12 +595,12 @@
             { "key": "D", "text": "Right anterior inlet ER — the right inlet can't open" }
         ],
         "answer": "A",
-        "explanation": "Positive L [[ADT]] indicates the left femur won't adduct cleanly in the acetabulum. The left inlet is in IP ER (open), and the acetabular orientation blocks femoral adduction. B mixes outlet with ADT. C and D describe the wrong side."
+        "explanation": "Positive L ADT indicates the left femur won't adduct cleanly in the acetabulum. The left inlet is in IP ER (open), and the acetabular orientation blocks femoral adduction. B mixes outlet with ADT. C and D describe the wrong side."
     },
     {
         "id": "MQ-047",
         "domain": "tests",
-        "stem": "When [[ADT]] is negative bilaterally but right [[PART]] remains positive, the cause shifts to:",
+        "stem": "When ADT is negative bilaterally but right PART remains positive, the cause shifts to:",
         "options": [
             { "key": "A", "text": "Lateral acetabular buttressing from L AIC compensatory position" },
             { "key": "B", "text": "Right proximal iliacus overactivity blocking right glute max — facilitate right glute max" },
@@ -608,12 +608,12 @@
             { "key": "D", "text": "Left hamstring tightness" }
         ],
         "answer": "B",
-        "explanation": "When [[ADT]] is negative (pelvis repositioned) but R [[PART]] persists, the cause is no longer acetabular buttressing from pelvic malalignment. It shifts to right proximal iliacus overactivity blocking right glute max. Facilitate right glute max. A applies only when ADT is still positive."
+        "explanation": "When ADT is negative (pelvis repositioned) but R PART persists, the cause is no longer acetabular buttressing from pelvic malalignment. It shifts to right proximal iliacus overactivity blocking right glute max. Facilitate right glute max. A applies only when ADT is still positive."
     },
     {
         "id": "MQ-048",
         "domain": "tests",
-        "stem": "After B PEC repositioning, test results are: −B [[ADT]], +L [[PADT]], −R [[PADT]], −L [[PART]], +R [[PART]]. The next step is:",
+        "stem": "After B PEC repositioning, test results are: −B ADT, +L PADT, −R PADT, −L PART, +R PART. The next step is:",
         "options": [
             { "key": "A", "text": "Promote left inlet adduction via left proximal iliacus" },
             { "key": "B", "text": "Repeat repositioning" },
@@ -626,7 +626,7 @@
     {
         "id": "MQ-049",
         "domain": "tests",
-        "stem": "What does the [[SRT]] most broadly assess?",
+        "stem": "What does the SRT most broadly assess?",
         "options": [
             { "key": "A", "text": "Hamstring length" },
             { "key": "B", "text": "Global stacking, respiratory mechanics, and inlet/outlet ON-OFF states" },
@@ -634,12 +634,12 @@
             { "key": "D", "text": "Ankle dorsiflexion" }
         ],
         "answer": "B",
-        "explanation": "The [[SRT]] is a global measure reflecting stacking, respiratory mechanics, and inlet/outlet ON-OFF states. It is not an isolated tissue-length test. A–D each describe only one possible contributor."
+        "explanation": "The SRT is a global measure reflecting stacking, respiratory mechanics, and inlet/outlet ON-OFF states. It is not an isolated tissue-length test. A–D each describe only one possible contributor."
     },
     {
         "id": "MQ-050",
         "domain": "tests",
-        "stem": "In L AIC, a positive left [[ADT]] predicts a positive [[PART]] on which side?",
+        "stem": "In L AIC, a positive left ADT predicts a positive PART on which side?",
         "options": [
             { "key": "A", "text": "Left" },
             { "key": "B", "text": "Right" },
@@ -647,7 +647,7 @@
             { "key": "D", "text": "Neither" }
         ],
         "answer": "B",
-        "explanation": "Positive left [[ADT]] predicts positive right [[PART]]. The left inlet is stuck in IP ER (blocks left femoral adduction → +L ADT), while the right side's compensatory position (R IP IR) blocks right femoral abduction → +R PART."
+        "explanation": "Positive left ADT predicts positive right PART. The left inlet is stuck in IP ER (blocks left femoral adduction → +L ADT), while the right side's compensatory position (R IP IR) blocks right femoral abduction → +R PART."
     },
     {
         "id": "MQ-051",
@@ -834,7 +834,7 @@
     {
         "id": "MQ-065",
         "domain": "anatomy",
-        "stem": "What is the Zone of Apposition ([[ZOA]])?",
+        "stem": "What is the Zone of Apposition (ZOA)?",
         "options": [
             { "key": "A", "text": "The area of the diaphragm that apposes the inner ribcage — its dome shape allows efficient contraction" },
             { "key": "B", "text": "The space between the two innominates" },
@@ -912,7 +912,7 @@
     {
         "id": "MQ-071",
         "domain": "clinical",
-        "stem": "Which pattern is most associated with pubalgia?",
+        "stem": "Under which pattern does the manual list pubalgia?",
         "options": [
             { "key": "A", "text": "L AIC" },
             { "key": "B", "text": "B PEC" },
@@ -964,7 +964,7 @@
     {
         "id": "MQ-075",
         "domain": "clinical",
-        "stem": "A patient with bilateral positive [[ADT]]/[[PADT]] who can touch their toes easily and squat 4/5 should be suspected of:",
+        "stem": "A patient with bilateral positive ADT/PADT who can touch their toes easily and squat 4/5 should be suspected of:",
         "options": [
             { "key": "A", "text": "Good recovery — tests are normalizing" },
             { "key": "B", "text": "Standard B PEC" },
@@ -1081,7 +1081,7 @@
     {
         "id": "MQ-084",
         "domain": "treatment",
-        "stem": "After L AIC repositioning, tests show: −L [[ADT]], +L [[PADT]], +R [[PART]]. The patient should follow:",
+        "stem": "After L AIC repositioning, tests show: −L ADT, +L PADT, +R PART. The patient should follow:",
         "options": [
             { "key": "A", "text": "Myokinematic Restoration program" },
             { "key": "B", "text": "Pelvis Restoration facilitation program (maximize hemi 90-90)" },
@@ -1094,7 +1094,7 @@
     {
         "id": "MQ-085",
         "domain": "treatment",
-        "stem": "After L AIC repositioning, tests show: −L [[ADT]], −L [[PADT]], −R [[PART]]. The patient should follow:",
+        "stem": "After L AIC repositioning, tests show: −L ADT, −L PADT, −R PART. The patient should follow:",
         "options": [
             { "key": "A", "text": "Pelvis Restoration facilitation program" },
             { "key": "B", "text": "B PEC repositioning" },
@@ -1107,7 +1107,7 @@
     {
         "id": "MQ-086",
         "domain": "treatment",
-        "stem": "After B PEC repositioning, tests show: −B [[ADT]], +B [[PADT]]. The next step is:",
+        "stem": "After B PEC repositioning, tests show: −B ADT, +B PADT. The next step is:",
         "options": [
             { "key": "A", "text": "Pelvis Restoration program (maximize inlet extension via IO/TAs, forward arm reach, proximal adductors)" },
             { "key": "B", "text": "Myokinematic Restoration & Postural Respiration" },
@@ -1120,7 +1120,7 @@
     {
         "id": "MQ-087",
         "domain": "treatment",
-        "stem": "After B PEC repositioning, tests show: −B [[ADT]], −B [[PADT]]. The next step is:",
+        "stem": "After B PEC repositioning, tests show: −B ADT, −B PADT. The next step is:",
         "options": [
             { "key": "A", "text": "Pelvis Restoration program" },
             { "key": "B", "text": "Myokinematic Restoration & Postural Respiration" },
@@ -1172,7 +1172,7 @@
     {
         "id": "MQ-091",
         "domain": "treatment",
-        "stem": "At which step of the L AIC facilitation hierarchy does the right [[PART]] resolve (become negative)?",
+        "stem": "At which step of the L AIC facilitation hierarchy does the right PART resolve (become negative)?",
         "options": [
             { "key": "A", "text": "Step 1" },
             { "key": "B", "text": "Step 2" },
@@ -1185,7 +1185,7 @@
     {
         "id": "MQ-092",
         "domain": "treatment",
-        "stem": "At which step of the L AIC facilitation hierarchy does the left [[PADT]] resolve?",
+        "stem": "At which step of the L AIC facilitation hierarchy does the left PADT resolve?",
         "options": [
             { "key": "A", "text": "Step 2" },
             { "key": "B", "text": "Step 3" },
@@ -1224,7 +1224,7 @@
     {
         "id": "MQ-095",
         "domain": "treatment",
-        "stem": "What exercise is associated with Step 1 of the L AIC hierarchy?",
+        "stem": "Which exercise does Step 1 of the L AIC hierarchy use?",
         "options": [
             { "key": "A", "text": "Right Sidelying Respiratory Left Adductor Pull Back with Balloon" },
             { "key": "B", "text": "90-90 Supported Left Hip Shift with Right Rectus Femoris and Sartorius" },
@@ -1237,7 +1237,7 @@
     {
         "id": "MQ-096",
         "domain": "treatment",
-        "stem": "What exercise is associated with Step 2 of the L AIC hierarchy?",
+        "stem": "Which exercise does Step 2 of the L AIC hierarchy use?",
         "options": [
             { "key": "A", "text": "90-90 Supported Left Hip Shift with Right Rectus Femoris" },
             { "key": "B", "text": "Right Sidelying Respiratory Left Adductor Pull Back with Balloon" },
@@ -1328,7 +1328,7 @@
     {
         "id": "MQ-103",
         "domain": "treatment",
-        "stem": "In the B Patho PEC hierarchy, what is the first priority after repositioning achieves −B [[ADT]], +B [[PADT]]?",
+        "stem": "You've repositioned a B Patho PEC patient. Bilateral ADT cleared, bilateral PADT is still positive. What's the next step?",
         "options": [
             { "key": "A", "text": "Maximize inhibition of bilateral anterior inlet and bilateral posterior outlet" },
             { "key": "B", "text": "Maximize diaphragmatic respiratory function" },
@@ -1354,7 +1354,7 @@
     {
         "id": "MQ-105",
         "domain": "treatment",
-        "stem": "A retest after a repositioning intervention is used to:",
+        "stem": "Why do you retest after a repositioning intervention?",
         "options": [
             { "key": "A", "text": "Confirm the intervention changed the relevant test marker" },
             { "key": "B", "text": "Prove the pattern is permanent" },
@@ -1367,7 +1367,7 @@
     {
         "id": "MQ-106",
         "domain": "treatment",
-        "stem": "In the B PEC case study, visit 1 findings are: +B [[ADT]], +B [[PADT]], −B [[PART]], [[SRT]] 8\", Squat 1/5, [[HALT]] 1/1. The treatment is:",
+        "stem": "In the B PEC case study, visit 1 findings are: +B ADT, +B PADT, −B PART, SRT 8\", Squat 1/5, HALT 1/1. The treatment is:",
         "options": [
             { "key": "A", "text": "L AIC repositioning" },
             { "key": "B", "text": "B PEC repositioning (Standing Wall Supported Reach, 90-90 Hip Lift in Passive FA IR w/ Balloon, Stair Short Seated Balloon)" },
@@ -1380,7 +1380,7 @@
     {
         "id": "MQ-107",
         "domain": "treatment",
-        "stem": "In the B PEC case study, visit 2 shows: −B [[ADT]], +B [[PADT]]. The focus shifts to:",
+        "stem": "In the B PEC case study, visit 2 shows: −B ADT, +B PADT. The focus shifts to:",
         "options": [
             { "key": "A", "text": "Repeat repositioning" },
             { "key": "B", "text": "Mediastinum expansion and abdominals with reciprocal repositioning" },
@@ -1393,7 +1393,7 @@
     {
         "id": "MQ-108",
         "domain": "treatment",
-        "stem": "In the L AIC case study, visit 2 shows: −B [[ADT]], −B [[PADT]], +R [[PART]]. The next step is:",
+        "stem": "In the L AIC case study, visit 2 shows: −B ADT, −B PADT, +R PART. The next step is:",
         "options": [
             { "key": "A", "text": "Inhibit left posterior mediastinum, promote right inlet abduction via right glute max" },
             { "key": "B", "text": "Repeat L AIC repositioning" },
@@ -1406,7 +1406,7 @@
     {
         "id": "MQ-109",
         "domain": "treatment",
-        "stem": "In the B PEC case study, visit 5 shows: −B [[PADT]], −B [[PART]], [[HALT]] 4/4. The next goal is:",
+        "stem": "In the B PEC case study, visit 5 shows: −B PADT, −B PART, HALT 4/4. The next goal is:",
         "options": [
             { "key": "A", "text": "Integrate right outlet adduction via right inferior glute max" },
             { "key": "B", "text": "Repeat repositioning" },
@@ -1419,7 +1419,7 @@
     {
         "id": "MQ-110",
         "domain": "treatment",
-        "stem": "In the B PEC case study, visit 6 shows: [[HALT]] 5/5, Squat 4/5. The program transitions to:",
+        "stem": "In the B PEC case study, visit 6 shows: HALT 5/5, Squat 4/5. The program transitions to:",
         "options": [
             { "key": "A", "text": "Reciprocal/alternating function (retro walking, heel stair descents, reverse squatting)" },
             { "key": "B", "text": "More repositioning" },
@@ -1432,7 +1432,7 @@
     {
         "id": "MQ-111",
         "domain": "procedures",
-        "stem": "In the [[HALT]], what does the patient do at Step 1?",
+        "stem": "In the HALT, what does the patient do at Step 1?",
         "options": [
             { "key": "A", "text": "Press bottom toes into the wall to stabilize the pelvis" },
             { "key": "B", "text": "Raise the top leg off the wall" },
@@ -1445,7 +1445,7 @@
     {
         "id": "MQ-112",
         "domain": "procedures",
-        "stem": "In the [[HALT]], Step 3 requires the patient to:",
+        "stem": "In the HALT, Step 3 requires the patient to:",
         "options": [
             { "key": "A", "text": "Press bottom hip into the surface" },
             { "key": "B", "text": "Turn/raise bottom knee using IC adductor and anterior glute med while top hip stays" },
@@ -1458,7 +1458,7 @@
     {
         "id": "MQ-113",
         "domain": "procedures",
-        "stem": "During the [[PART]], the examiner should stop the test if:",
+        "stem": "During the PART, the examiner should stop the test if:",
         "options": [
             { "key": "A", "text": "The patient reports pain" },
             { "key": "B", "text": "Thoracic sidebending occurs" },
@@ -1471,7 +1471,7 @@
     {
         "id": "MQ-114",
         "domain": "procedures",
-        "stem": "What constitutes a positive [[PART]]?",
+        "stem": "What constitutes a positive PART?",
         "options": [
             { "key": "A", "text": "Top leg abduction > 45°" },
             { "key": "B", "text": "Top leg abduction < 45°" },
@@ -1588,7 +1588,7 @@
     {
         "id": "MQ-123",
         "domain": "procedures",
-        "stem": "[[HALT]] Level 4 tests the integration between:",
+        "stem": "HALT Level 4 tests the integration between:",
         "options": [
             { "key": "A", "text": "IO/TAs and inlet inhibition" },
             { "key": "B", "text": "IC adductor and anterior glute med" },
@@ -1601,7 +1601,7 @@
     {
         "id": "MQ-124",
         "domain": "procedures",
-        "stem": "[[HALT]] Level 5 requires the patient to:",
+        "stem": "HALT Level 5 requires the patient to:",
         "options": [
             { "key": "A", "text": "Press bottom toes into the wall" },
             { "key": "B", "text": "Turn/raise the bottom knee" },
@@ -1666,10 +1666,10 @@
     {
         "id": "MQ-129",
         "domain": "clinical",
-        "stem": "Decreased diaphragmatic motion combined with increased pelvic diaphragm descent and increased respiratory rate is associated with:",
+        "stem": "A patient has decreased diaphragmatic motion, increased pelvic diaphragm descent, and increased respiratory rate. This pattern is seen in:",
         "options": [
             { "key": "A", "text": "Normal respiratory mechanics" },
-            { "key": "B", "text": "Patients with painful Active Straight Leg Raise ([[ASLR]])" },
+            { "key": "B", "text": "Patients with painful Active Straight Leg Raise (ASLR)" },
             { "key": "C", "text": "Post-exercise recovery state" },
             { "key": "D", "text": "Efficient pelvic floor function" }
         ],
@@ -1731,7 +1731,7 @@
     {
         "id": "MQ-134",
         "domain": "tests",
-        "stem": "When [[ADT]] is negative bilaterally and L [[PADT]] is positive, with a positive [[SRT]], the findings are most consistent with:",
+        "stem": "When ADT is negative bilaterally and L PADT is positive, with a positive SRT, the findings are most consistent with:",
         "options": [
             { "key": "A", "text": "L AIC or B PEC pattern (standard)" },
             { "key": "B", "text": "B Patho PEC" },
@@ -1744,7 +1744,7 @@
     {
         "id": "MQ-135",
         "domain": "tests",
-        "stem": "When [[ADT]] is negative bilaterally, [[PADT]] is negative bilaterally, but R [[PART]] is positive, the next facilitation target is:",
+        "stem": "When ADT is negative bilaterally, PADT is negative bilaterally, but R PART is positive, the next facilitation target is:",
         "options": [
             { "key": "A", "text": "Right glute max" },
             { "key": "B", "text": "Left IO/TAs" },
@@ -1757,7 +1757,7 @@
     {
         "id": "MQ-136",
         "domain": "tests",
-        "stem": "The functional relationship chain shows: −L [[ADT]], +L [[PADT]], −[[SRT]]. What does the negative [[SRT]] suggest?",
+        "stem": "The functional relationship chain shows: −L ADT, +L PADT, −SRT. What does the negative SRT suggest?",
         "options": [
             { "key": "A", "text": "Standard L AIC or B PEC pattern" },
             { "key": "B", "text": "Patho PEC — long and tonic muscles, everything \"OFF\"" },
@@ -1861,7 +1861,7 @@
     {
         "id": "MQ-144",
         "domain": "treatment",
-        "stem": "Step 5 of the L AIC hierarchy requires [[HALT]] at what level?",
+        "stem": "Step 5 of the L AIC hierarchy requires HALT at what level?",
         "options": [
             { "key": "A", "text": "HALT 0/5" },
             { "key": "B", "text": "HALT 1/5" },
@@ -1978,7 +1978,7 @@
     {
         "id": "MQ-153",
         "domain": "tests",
-        "stem": "The [[PADT]] is most associated with assessing which pelvic structure's function?",
+        "stem": "What does the PADT assess?",
         "options": [
             { "key": "A", "text": "Pelvic diaphragm (pelvic floor) ascension capacity" },
             { "key": "B", "text": "Femoral head seating in the acetabulum" },
@@ -1991,7 +1991,7 @@
     {
         "id": "MQ-154",
         "domain": "tests",
-        "stem": "In the L AIC test profile, the asymmetry between [[ADT]]/[[PADT]] (positive left) and [[PART]] (positive right) is explained by:",
+        "stem": "In the L AIC test profile, the asymmetry between ADT/PADT (positive left) and PART (positive right) is explained by:",
         "options": [
             { "key": "A", "text": "The left inlet is stuck in IP ER (blocks left femoral adduction) while the right compensatory position (R IP IR) blocks right femoral abduction" },
             { "key": "B", "text": "The examiner is performing the tests incorrectly" },
@@ -2056,7 +2056,7 @@
     {
         "id": "MQ-159",
         "domain": "treatment",
-        "stem": "After the B PEC case study visit 4 shows −B [[PADT]], −L [[PART]], +R [[PART]], the next target is:",
+        "stem": "After the B PEC case study visit 4 shows −B PADT, −L PART, +R PART, the next target is:",
         "options": [
             { "key": "A", "text": "Promote right inlet abduction via right posterior glute max" },
             { "key": "B", "text": "Repeat bilateral repositioning" },
@@ -2095,7 +2095,7 @@
     {
         "id": "MQ-162",
         "domain": "tests",
-        "stem": "In the [[PADT]], the patient is sidelying with both hips and knees at 90°. What makes this test \"active\" rather than \"passive\"?",
+        "stem": "In the PADT, the patient is sidelying with both hips and knees at 90°. What makes this test \"active\" rather than \"passive\"?",
         "options": [
             { "key": "A", "text": "The examiner moves the limb" },
             { "key": "B", "text": "The patient actively brings the top knee toward the mat" },
@@ -2108,7 +2108,7 @@
     {
         "id": "MQ-163",
         "domain": "tests",
-        "stem": "The [[PART]] interpretation changes depending on [[ADT]] status. When [[ADT]] is positive on the left, a positive right [[PART]] reflects:",
+        "stem": "The PART interpretation changes depending on ADT status. When ADT is positive on the left, a positive right PART reflects:",
         "options": [
             { "key": "A", "text": "Lateral buttressing of the right femoral head against the superior acetabulum from the compensatory pelvic position" },
             { "key": "B", "text": "Right proximal iliacus overactivity blocking right glute max" },
@@ -2186,7 +2186,7 @@
     {
         "id": "MQ-169",
         "domain": "tests",
-        "stem": "For the B PEC version of the [[SRT]], how does the patient perform the reach?",
+        "stem": "For the B PEC version of the SRT, how does the patient perform the reach?",
         "options": [
             { "key": "A", "text": "Reach toward left toes with left hip shift back, then repeat toward right" },
             { "key": "B", "text": "Reach straight down toward the floor, hips move back symmetrically" },
@@ -2251,7 +2251,7 @@
     {
         "id": "MQ-174",
         "domain": "treatment",
-        "stem": "Which hierarchy step is associated with R HALT 2/5?",
+        "stem": "A patient scores R HALT 2/5. Which hierarchy step does this map to?",
         "options": [
             { "key": "A", "text": "Step 1" },
             { "key": "B", "text": "Step 2" },
