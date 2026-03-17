@@ -177,14 +177,23 @@ function handleSubmit() {
 }
 
 function buildEquivChainHTML(q) {
-  const [qs, qr] = q.given.split(' ');
-  const lines = Object.entries(q.equiv).map(([rid, d], i) => {
-    const outletClass = ['IsP', 'SI'].includes(rid) ? ' outlet' : '';
-    return '<div class="equiv-line' + (rid === qr ? ' main' : '') + outletClass + '">'
-      + (i ? '= ' : '') + qs + ' ' + rid + ' ' + d + '</div>';
-  });
+  const side = q.given.split(' ')[0];
+  const given = q.given;
+  const shown = [given, ...q.correctAnswers];
+  const lines = shown.map((pos, i) =>
+    '<div class="equiv-line' + (i === 0 ? ' main' : '')
+      + '">' + (i ? '= ' : '') + pos + '</div>'
+  );
+  const totalEquiv = Object.keys(q.equiv).length - 1;
   return '<div class="equiv-chain">'
-    + '<div class="equiv-chain-label">FULL EQUIVALENCE CHAIN:</div>'
+    + '<div class="equiv-chain-label">'
+      + 'TESTED EQUIVALENTS:</div>'
     + lines.join('')
+    + '<div class="equiv-chain-note">'
+      + 'Full equivalence chain has '
+      + totalEquiv
+      + ' positions \u2014 see Equivalence'
+      + ' Chains for complete walkthrough.'
+      + '</div>'
     + '</div>';
 }
