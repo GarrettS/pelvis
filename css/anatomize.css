@@ -196,6 +196,12 @@
 
 @media (max-width: 600px) {
 
+  .anatomize-label {
+    min-width: 0;
+    min-height: 0;
+    padding: .1rem .2rem;
+  }
+
   .anatomize-label .anatomize-label-text {
     text-overflow: ellipsis;
     overflow: hidden;
