@@ -106,45 +106,7 @@ Port from pri-study-tool.html Section 2B (cheat sheet). Three columns: Left AIC 
 Port from pri-study-tool.html Section 2A. Interactive node map. Click node → highlight connections. Keep existing implementation.
 
 ### 3C: Symptom-to-Pattern Mapping (NEW)
-Interactive matching exercise. Present a clinical condition, user picks the pattern and explains why.
-
-Data (create this):
-```javascript
-const SYMPTOM_PATTERNS = [
-  {
-    condition: "Pubalgia",
-    pattern: "Bilateral PEC",
-    explanation: "Bilateral IP ER creates eccentrically lengthened rectus abdominis and short paraspinals. Lengthened adductors from bilateral IsP IR create shearing at pubic symphysis."
-  },
-  {
-    condition: "Levator ani syndrome (left-predominant)",
-    pattern: "Left AIC",
-    explanation: "Left pelvic diaphragm descended in L AIC (L IsP IR). PRI manual: 'typically more prominent on the left side' — consistent with L AIC foundation."
-  },
-  {
-    condition: "Stress urinary incontinence",
-    pattern: "B PEC or B Patho PEC",
-    explanation: "Bilateral pelvic diaphragm descended, hypertonic, and inflexible (B PEC) or descended, bulged with high resting tone (Patho). Lost ability to cycle between descent and ascension."
-  },
-  {
-    condition: "IS instability (right side pain)",
-    pattern: "Left AIC",
-    explanation: "In L AIC: left SI joint is compressed (L IS IR = nutation). Right SI joint is distracted (R IS ER = counter-nutation). Distraction = instability on right."
-  },
-  {
-    condition: "Coccygodynia",
-    pattern: "B PEC or B Patho PEC",
-    explanation: "Bilateral outlet in IsP IR. Coccyx flexed anteriorly. Coccygeus hypertonic. Pelvic floor dysfunction at the posterior outlet."
-  },
-  {
-    condition: "Patient touches toes easily but has bilateral positive ADT and PADT",
-    pattern: "Bilateral Patho PEC",
-    explanation: "Paradoxical performance. SRT = 0 with positive ADT/PADT = Patho. Better ROM = worse pathology. Compensatory hypermobility, not motor control."
-  }
-];
-```
-
-UI: Present condition as a card. Three answer buttons (Left AIC / Bilateral PEC / B Patho PEC). After answer: show correct/incorrect + explanation. "Next" button advances. Running score.
+Interactive matching exercise. Present a clinical condition, user picks the pattern and explains why. Data: `data/symptom-patterns.json`. UI: Present condition as a card. Three answer buttons (Left AIC / Bilateral PEC / B Patho PEC). After answer: show correct/incorrect + explanation. "Next" button advances. Running score.
 
 ### 3D: Test Reference
 Port test data and display from the existing apps. Include the test profiles table (ADT, PADT, PART, SRT, Squat, HALT by pattern). Add HALT level details and Squat level details as expandable sections.
