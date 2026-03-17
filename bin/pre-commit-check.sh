@@ -59,6 +59,7 @@ check "Self-closing slash on void elements" \
   '<(img|br|hr|input|meta|link|area|base|col|embed|source|track|wbr)\b[^>]*/>' \
   '*.html'
 
+
 # ---- JS (scripts and inline <script> in HTML) ----
 
 check "fetch() in .js  [verify: caught and handled, not re-thrown]" \
@@ -109,6 +110,54 @@ check "var declaration  [prefer const/let]" \
   '(^|[^a-zA-Z])\bvar\b\s' \
   '*.js'
 
+check "console.log/error/warn in JS" \
+  '\bconsole\.(log|error|warn)\b' \
+  '*.js'
+
+check "debugger statement" \
+  '\bdebugger\b' \
+  '*.js'
+
+check "alert() / eval() / document.write()" \
+  '\b(alert|eval|document\.write)\s*\(' \
+  '*.js'
+
+check "Loose equality  [use === or !==]" \
+  '[^!<>=]==[^=]|[^!]!=[^=]' \
+  '*.js'
+
+# ---- Line length (JS and CSS) ----
+
+LONG_LINES=$(find . \( -name '*.js' -o -name '*.css' \) \
+  | grep -Ev "$EXCLUDES" \
+  | xargs awk 'length > 90 {print FILENAME ":" NR ": " $0}' \
+  2>/dev/null | head -20 || true)
+
+if [ -n "$LONG_LINES" ]; then
+  echo -e "${RED}FAIL${NC}  Line length > 90 chars"
+  echo "$LONG_LINES"
+  echo ""
+  FAIL=1
+else
+  echo -e "${GREEN}PASS${NC}  Line length (90 max)"
+fi
+
+# ---- Trailing whitespace ----
+
+TRAILING=$(find . \( -name '*.js' -o -name '*.css' -o -name '*.html' \) \
+  | grep -Ev "$EXCLUDES" \
+  | xargs grep -Pn '\s+$' 2>/dev/null \
+  | head -20 || true)
+
+if [ -n "$TRAILING" ]; then
+  echo -e "${RED}FAIL${NC}  Trailing whitespace"
+  echo "$TRAILING"
+  echo ""
+  FAIL=1
+else
+  echo -e "${GREEN}PASS${NC}  No trailing whitespace"
+fi
+
 # ---- File names (JS and CSS) ----
 # This list is not exhaustive. Any module name that describes a role instead of
 # a domain concept violates the Module Cohesion principle in code-guidelines.md.
@@ -128,6 +177,10 @@ else
 fi
 
 # ---- CSS ----
+
+check "CSS missing space after colon" \
+  '[a-z-]:[^ /]' \
+  '*.css'
 
 check "Hardcoded hex color  [only valid inside :root definitions]" \
   '#[0-9a-fA-F]{3,8}' \
