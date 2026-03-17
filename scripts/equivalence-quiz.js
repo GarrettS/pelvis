@@ -179,10 +179,17 @@ function renderQuestion() {
       data-opt="${opt}"
       aria-pressed="false">${opt}</button>`
   ).join('');
+  const size = getSessionSize();
+  const pct = ((qIdx / size) * 100) + '%';
   document.getElementById('equiv-quiz-wrap')
     .innerHTML = `<div class="card">
-      <div class="card-label">Question
-        ${qIdx + 1} of ${getSessionSize()}</div>
+      <div class="quiz-progress-row">
+        <div class="quiz-progress-track">
+          <div class="quiz-progress-fill"
+            style="width:${pct}"></div></div>
+        <span class="quiz-progress-text">Question
+          ${qIdx + 1} of ${size}</span>
+      </div>
       <div class="equiv-given">${q.given}</div>
       <p class="equiv-instruction">Select all
         equivalent positions:</p>

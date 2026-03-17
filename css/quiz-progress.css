@@ -1,0 +1,29 @@
+.quiz-progress-row {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  min-width: 0;
+}
+
+.quiz-progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.quiz-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width .2s;
+  width: 0;
+}
+
+.quiz-progress-text {
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
