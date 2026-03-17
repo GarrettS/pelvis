@@ -135,8 +135,12 @@
   text-align: center;
 }
 
-.equiv-opt:hover {
+.equiv-opt:hover:not(:disabled) {
   border-color: var(--accent-dim);
+}
+
+.equiv-opt:disabled {
+  cursor: default;
 }
 
 .equiv-opt.selected {

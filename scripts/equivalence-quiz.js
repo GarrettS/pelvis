@@ -147,28 +147,21 @@ export function initEquivalence() {
     }
   });
 
-  section.addEventListener('keydown', (e) => {
-    const opt = e.target.closest('.equiv-opt');
-    if (!opt) return;
-
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); opt.click(); }
-  });
-
   resetSession();
 }
 
 function handleOptionToggle(opt) {
-  if (isAnswered) return;
+  if (opt.disabled) return;
 
   const val = opt.dataset.opt;
   if (selected.has(val)) {
     selected.delete(val);
     opt.classList.remove('selected');
-    opt.setAttribute('aria-checked', 'false');
+    opt.setAttribute('aria-pressed', 'false');
   } else {
     selected.add(val);
     opt.classList.add('selected');
-    opt.setAttribute('aria-checked', 'true');
+    opt.setAttribute('aria-pressed', 'true');
   }
 }
 
@@ -182,9 +175,9 @@ function renderQuestion() {
   isAnswered = false;
 
   const optItems = q.options.map((opt) =>
-    `<div class="equiv-opt" data-opt="${opt}"
-      role="checkbox" aria-checked="false"
-      tabindex="0">${opt}</div>`
+    `<button type="button" class="equiv-opt"
+      data-opt="${opt}"
+      aria-pressed="false">${opt}</button>`
   ).join('');
   document.getElementById('equiv-quiz-wrap')
     .innerHTML = `<div class="card">
@@ -228,6 +221,7 @@ function handleSubmit() {
       optEl.classList.add('wrong-reveal');
     }
     optEl.classList.remove('selected');
+    optEl.disabled = true;
   }
 
   const chainHTML = buildEquivChainHTML(q);
