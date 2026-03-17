@@ -238,7 +238,11 @@
 }
 
 .mq-result-detail {
-  padding: .5rem .25rem 1rem;
+  padding: .75rem 1rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0 0 6px 6px;
+  margin-top: -1px;
 }
 
 .mq-result-stem {

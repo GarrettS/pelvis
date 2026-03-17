@@ -62,8 +62,18 @@ function generateQuestions() {
   return shuffle(qs);
 }
 
+function getSessionSize() {
+  const val = parseInt(
+    document.getElementById('equiv-count').value,
+    10
+  );
+  return val || 0;
+}
+
 function resetSession() {
-  questions = generateQuestions();
+  const all = generateQuestions();
+  const size = getSessionSize();
+  questions = size > 0 ? all.slice(0, size) : all;
   qIdx = 0;
   score = { correct: 0, total: 0 };
   sessionAnswers = [];
