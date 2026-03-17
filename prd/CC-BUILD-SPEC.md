@@ -17,7 +17,7 @@ Merge three existing apps (pri-study-tool.html, pri-decoder.jsx, pri-study-tool.
   - `1772079947458_image.png` — L AIC chain (skeleton with muscles highlighted in red)
 
 ## Output
-One self-contained HTML file. All CSS in `<style>`, all JS in `<script type="module">`, all data inlined as JS objects, all images embedded as base64 data URIs. Zero network requests after load. Fully offline.
+Vanilla JS single-page application. No frameworks, no build tools. ES modules with explicit exports. External stylesheets per domain. JSON-backed content fetched per feature. Hash-routed with lazy initialization. Service worker for offline support. Hosted on GitHub Pages. See `prd/project.md` for directory structure, `code-guidelines.md` for code standards.
 
 ---
 
@@ -28,10 +28,10 @@ Project-specific design (palette, typography, tone, breakpoints): `prd/style-gui
 
 ---
 
-## Navigation — 6 Tabs
+## Navigation — 8 Views
 
 ```
-Anatomy | Nomenclature | Patterns | Diagnose This! | Flashcards | Equivalence
+Home | Anatomy | Nomenclature | Patterns | Diagnose This! | Flashcards | Equivalence | Master Quiz
 ```
 
 SPA-style: one section visible at a time. Sticky top nav. Active tab highlighted with accent color + bottom border. Mobile: horizontal scroll, no wrapping.
