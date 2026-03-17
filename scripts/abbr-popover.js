@@ -12,6 +12,11 @@ function initAbbrPopover() {
   if (typeof document.documentElement.showPopover !== 'function') return;
 
   const popover = document.getElementById('abbr-popover');
+  
+  // CSS Hides from unsupported browsers.
+  // We revert that here, where support is known.
+  popover.style.display = "revert";
+  
   const main = document.querySelector('main');
 
   function showForAbbr(abbr) {
