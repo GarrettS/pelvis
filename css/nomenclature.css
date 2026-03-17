@@ -9,10 +9,10 @@
 }
 
 .joint-schematic {
-  display:block;
-  width:100%;
-  max-width:340px;
-  margin:.5rem auto;
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  margin: .5rem auto;
 }
 
 .joint-schematic text {
@@ -76,26 +76,26 @@
 .fill-joint-surface { fill: var(--joint-surface); }
 
 .joint-table {
-  width:100%;
-  font-size:var(--text-sm);
-  margin:1rem 0;
+  width: 100%;
+  font-size: var(--text-sm);
+  margin: 1rem 0;
 }
 
 .joint-table th {
-  white-space:nowrap;
+  white-space: nowrap;
 }
 
 .joint-table td {
-  font-size:var(--text-xs);
+  font-size: var(--text-xs);
 }
 
 .joint-table td:first-child {
-  font-weight:700;
-  font-size:var(--text-sm);
+  font-weight: 700;
+  font-size: var(--text-sm);
 }
 
 .joint-table .mono {
-  font-family:var(--mono);
+  font-family: var(--mono);
 }
 
 .col-joint { width: 14%; }
@@ -127,17 +127,17 @@
 }
 
 .decoder-table {
-  font-size:var(--text-sm);
-  width:100%;
-  margin:.5rem 0;
+  font-size: var(--text-sm);
+  width: 100%;
+  margin: .5rem 0;
 }
 
-@media(max-width:600px) {
+@media (max-width: 600px) {
   .joint-table-wrap table {
-    display:none;
+    display: none;
   }
 
   .joint-table-wrap .table-row-card {
-    display:block;
+    display: block;
   }
 }

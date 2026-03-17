@@ -179,7 +179,7 @@ fi
 # ---- CSS ----
 
 check "CSS missing space after colon" \
-  '[a-z-]:[^ /]' \
+  '^\s+[a-z-]+:[^ /]' \
   '*.css'
 
 check "Hardcoded hex color  [only valid inside :root definitions]" \
