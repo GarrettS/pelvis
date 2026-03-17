@@ -13,6 +13,7 @@ let isAnswered = false;
 let isCorrect = false;
 let selected = new Set();
 let explanations = null;
+let sessionAnswers = [];
 
 function buildDistractors(side, region, dir) {
   const otherSide = side === 'L' ? 'R' : 'L';
@@ -65,13 +66,27 @@ function resetSession() {
   questions = generateQuestions();
   qIdx = 0;
   score = { correct: 0, total: 0 };
+  sessionAnswers = [];
   isAnswered = false;
+  showQuizScreen();
   renderQuestion();
+}
+
+function showQuizScreen() {
+  document.getElementById('tab-equivalence')
+    .classList.remove('showing-results');
+}
+
+function showResultsScreen() {
+  document.getElementById('tab-equivalence')
+    .classList.add('showing-results');
 }
 
 const CLICK_DISPATCH = {
   'equiv-submit': handleSubmit,
-  'equiv-restart': resetSession
+  'equiv-restart': resetSession,
+  'equiv-new-session': resetSession,
+  'equiv-retake-missed': retakeMissed
 };
 
 async function loadExplanations() {
@@ -89,19 +104,33 @@ async function loadExplanations() {
 
 export function initEquivalence() {
   loadExplanations();
-  const wrap = document.getElementById('equiv-quiz-wrap');
+  const section = document.getElementById(
+    'tab-equivalence'
+  );
+  const wrap = document.getElementById(
+    'equiv-quiz-wrap'
+  );
 
-  wrap.addEventListener('click', (e) => {
+  section.addEventListener('click', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (opt) {
       handleOptionToggle(opt);
       return;
     }
     if (e.target.closest('.feedback-next')) {
+      sessionAnswers.push({
+        question: questions[qIdx],
+        selected: [...selected],
+        correct: isCorrect
+      });
       score.total++;
       score.correct += +isCorrect;
       qIdx++;
-      renderQuestion();
+      if (qIdx >= questions.length) {
+        renderResults();
+      } else {
+        renderQuestion();
+      }
       return;
     }
     const target = e.target.closest('[id]');
@@ -110,7 +139,7 @@ export function initEquivalence() {
     }
   });
 
-  wrap.addEventListener('keydown', (e) => {
+  section.addEventListener('keydown', (e) => {
     const opt = e.target.closest('.equiv-opt');
     if (!opt) return;
 
@@ -139,18 +168,6 @@ function renderQuestion() {
   document.getElementById('equiv-score')
     .textContent = 'Score: '
       + score.correct + ' / ' + score.total;
-
-  if (qIdx >= questions.length) {
-    document.getElementById('equiv-quiz-wrap')
-      .innerHTML = `<div class="callout">
-        <strong>Session complete.</strong>
-        Score: ${score.correct} / ${score.total}.
-        <div class="btn-row">
-          <button class="btn primary"
-            id="equiv-restart">New Session</button>
-        </div></div>`;
-    return;
-  }
 
   const q = questions[qIdx];
   selected = new Set();
@@ -286,12 +303,11 @@ function buildExplanationHTML(q) {
 }
 
 function buildEquivChainHTML(q) {
-  const side = q.given.split(' ')[0];
-  const given = q.given;
-  const shown = [given, ...q.correctAnswers];
+  const shown = [q.given, ...q.correctAnswers];
   const lines = shown.map((pos, i) =>
-    '<div class="equiv-line' + (i === 0 ? ' main' : '')
-      + '">' + (i ? '= ' : '') + pos + '</div>'
+    '<div class="equiv-line'
+      + (i === 0 ? ' main' : '') + '">'
+      + (i ? '= ' : '') + pos + '</div>'
   );
   const totalEquiv = Object.keys(q.equiv).length - 1;
   return '<div class="equiv-chain">'
@@ -305,4 +321,129 @@ function buildEquivChainHTML(q) {
       + ' Chains for complete walkthrough.'
       + '</div>'
     + '</div>';
+}
+
+function renderResults() {
+  showResultsScreen();
+  const total = sessionAnswers.length;
+  const correctCount = sessionAnswers
+    .filter((a) => a.correct).length;
+  const pct = total > 0
+    ? Math.round((correctCount / total) * 100)
+    : 0;
+
+  let scoreClass = 'mq-score-green';
+  if (pct < 60) scoreClass = 'mq-score-red';
+  else if (pct < 80) scoreClass = 'mq-score-yellow';
+
+  const resultScore = document.getElementById(
+    'equiv-result-score'
+  );
+  resultScore.className = 'mq-results-score '
+    + scoreClass;
+  resultScore.textContent = 'Session Complete: '
+    + correctCount + ' / ' + total
+    + ' correct (' + pct + '%)';
+
+  const incorrect = sessionAnswers
+    .filter((a) => !a.correct);
+  const correct = sessionAnswers
+    .filter((a) => a.correct);
+
+  renderResultsList(
+    document.getElementById('equiv-incorrect-list'),
+    incorrect
+  );
+  renderResultsList(
+    document.getElementById('equiv-correct-list'),
+    correct
+  );
+
+  document.getElementById('equiv-incorrect-section')
+    .classList.toggle('hidden', incorrect.length === 0);
+  document.getElementById('equiv-correct-section')
+    .classList.toggle('hidden', correct.length === 0);
+
+  if (incorrect.length > 0) {
+    document.getElementById(
+      'equiv-incorrect-details'
+    ).open = true;
+  }
+  if (correct.length > 0) {
+    document.getElementById(
+      'equiv-correct-details'
+    ).open = false;
+  }
+
+  document.getElementById('equiv-retake-missed')
+    .classList.toggle(
+      'hidden', incorrect.length === 0
+    );
+}
+
+function renderResultsList(container, answers) {
+  container.innerHTML = '';
+  answers.forEach((a) => {
+    const q = a.question;
+    const row = document.createElement('div');
+    row.className = 'mq-result-row';
+
+    const summary = document.createElement('button');
+    summary.type = 'button';
+    summary.className = 'mq-result-summary';
+    let summaryText = q.given;
+    if (!a.correct) {
+      const selText = a.selected.length
+        ? a.selected.join(', ') : 'none';
+      const corrText = [...q.correctAnswers].join(', ');
+      summaryText += ' \u2014 You: ' + selText
+        + ', Correct: ' + corrText;
+    }
+    summary.textContent = summaryText;
+
+    const detail = document.createElement('div');
+    detail.className = 'mq-result-detail hidden';
+
+    const optHTML = q.options.map((opt) => {
+      let cls = 'mq-result-opt';
+      if (q.correctAnswers.has(opt)
+        && a.selected.includes(opt)) {
+        cls += ' correct';
+      } else if (q.correctAnswers.has(opt)) {
+        cls += ' missed';
+      } else if (a.selected.includes(opt)) {
+        cls += ' incorrect';
+      }
+      return '<div class="' + cls + '">'
+        + opt + '</div>';
+    }).join('');
+
+    detail.innerHTML =
+      '<div class="equiv-given">' + q.given + '</div>'
+      + '<div class="mq-result-comparison">'
+        + optHTML + '</div>'
+      + buildEquivChainHTML(q)
+      + buildExplanationHTML(q);
+
+    summary.addEventListener('click', () => {
+      detail.classList.toggle('hidden');
+    });
+
+    row.appendChild(summary);
+    row.appendChild(detail);
+    container.appendChild(row);
+  });
+}
+
+function retakeMissed() {
+  const missed = sessionAnswers
+    .filter((a) => !a.correct)
+    .map((a) => a.question);
+  questions = shuffle(missed);
+  qIdx = 0;
+  score = { correct: 0, total: 0 };
+  sessionAnswers = [];
+  isAnswered = false;
+  showQuizScreen();
+  renderQuestion();
 }

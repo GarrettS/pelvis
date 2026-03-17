@@ -177,6 +177,16 @@
   margin-top: .75rem;
 }
 
+#equiv-results {
+  display: none;
+}
+
+#tab-equivalence.showing-results {
+  #equiv-quiz-wrap,
+  #equiv-score { display: none; }
+  #equiv-results { display: block; }
+}
+
 .equiv-chain-note {
   font-size: var(--text-xs);
   color: var(--text-dim);

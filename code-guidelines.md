@@ -134,6 +134,24 @@ When a data record and a DOM element represent the same entity, give them the sa
 
 To style a group of descendants, add a class to the nearest common ancestor. Define the CSS rule as `.state-class .descendant-class`. Never loop through descendants to set `element.style`.
 
+❌ Toggling visibility on each element:
+```javascript
+quizWrap.classList.add('hidden');
+scoreEl.classList.add('hidden');
+resultsEl.classList.remove('hidden');
+```
+
+✅ One class on the ancestor, CSS cascade w/nested rule does the rest:
+```javascript
+section.classList.add('showing-results');
+```
+```css
+#section.showing-results {
+  #quiz-wrap, #score { display: none; }
+  #results { display: block; }
+}
+```
+
 ### Inline Styles in Scripts
 
 Avoid inline styles — use CSS classes. When dynamic inline styles cannot be avoided (e.g. computed positions), assign multiple values via `element.style.cssText` rather than setting individual `style` properties one at a time.
