@@ -202,8 +202,14 @@
   #equiv-correct-section { display: none; }
 }
 
+#tab-equivalence.in-session {
+  .equiv-session-config,
+  #equiv-score { display: none; }
+}
+
 #tab-equivalence.showing-results {
   #equiv-quiz-wrap,
+  .equiv-session-config,
   #equiv-score { display: none; }
   #equiv-results { display: block; }
 }
