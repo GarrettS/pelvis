@@ -13,6 +13,7 @@
 .aic-chain-panel {
   overflow-y: auto;
   max-height: 80vh;
+  background: var(--surface);
 }
 
 .aic-chain-row {
