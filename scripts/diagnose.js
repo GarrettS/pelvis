@@ -17,17 +17,73 @@ export async function initDiagnose() {
     showFetchError('#tab-diagnose', 'study data');
     return;
   }
-  buildGame();
+  initGame();
   buildCaseStudies();
   buildCausalChains();
   buildDecisionTree();
   buildMuscleMap();
 }
 
-function buildGame() {
+function initGame() {
   const wrap = document.getElementById('game-wrap');
-  gameState = { scenarioIdx: 0, round: 1, round2Step: 0, score: { correct: 0, total: 0 }, isAnswered: false };
-  renderScenario(wrap);
+
+  function resetGame() {
+    gameState = {
+      scenarioIdx: 0, round: 1, round2Step: 0,
+      score: { correct: 0, total: 0 },
+      isAnswered: false, selectedOpts: new Set()
+    };
+    renderScenario(wrap);
+  }
+
+  function advanceGame() {
+    gameState.isAnswered = false;
+    const hasMoreSteps = gameState.round2Step < 2;
+    const hasMoreScenarios = gameState.scenarioIdx
+      < DATA.game.scenarios.length - 1;
+    if (gameState.round === 1) {
+      gameState.round = 2;
+      gameState.round2Step = 0;
+    } else if (hasMoreSteps) {
+      gameState.round2Step++;
+    } else if (hasMoreScenarios) {
+      gameState.scenarioIdx++;
+      gameState.round = 1;
+      gameState.round2Step = 0;
+    } else {
+      renderGameComplete();
+      return;
+    }
+    renderScenario(wrap);
+  }
+
+  function handleGameSubmit() {
+    if (gameState.isAnswered) return;
+
+    const s = DATA.game.scenarios[gameState.scenarioIdx];
+    const q = s.round2[
+      ['repositioning', 'postReposition',
+        'facilitation'][gameState.round2Step]
+    ];
+    handleMultiSelectSubmit(wrap, q);
+  }
+
+  const GAME_DISPATCH = {
+    'game-restart': resetGame,
+    'game-next': advanceGame,
+    'game-submit': handleGameSubmit
+  };
+
+  wrap.addEventListener('click', (e) => {
+    const answerBtn = e.target.closest('.answer-btn');
+    if (answerBtn) {
+      handleGameAnswer(wrap, answerBtn);
+      return;
+    }
+    GAME_DISPATCH[e.target.id]?.();
+  });
+
+  resetGame();
 }
 
 function renderScenario(wrap) {
@@ -56,66 +112,100 @@ function renderRound1(wrap, s) {
   const card = document.createElement('div');
   card.className = 'card';
 
-  // Test profile
-  let profileHTML = '<div class="card-label">Test Profile</div><div class="test-profile">';
-  Object.entries(s.testProfile).forEach(([test, val]) => {
-    const isPos = String(val).startsWith('+');
-    const isNeg = String(val).startsWith('−') || String(val).startsWith('-');
-    profileHTML += `<div class="test-item">
-      <div class="test-item-name">${test}</div>
-      <div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${val}</div>
-    </div>`;
-  });
+  let profileHTML = '<div class="card-label">'
+    + 'Test Profile</div><div class="test-profile">';
+  Object.entries(s.testProfile).forEach(
+    ([test, val]) => {
+      const isPos = String(val).startsWith('+');
+      const isNeg = String(val).startsWith('\u2212')
+        || String(val).startsWith('-');
+      profileHTML += `<div class="test-item">
+        <div class="test-item-name">${test}</div>
+        <div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${val}</div>
+      </div>`;
+    }
+  );
   profileHTML += '</div>';
   card.innerHTML = profileHTML;
 
-  // Answer options
-  const patterns = ['Left AIC', 'Bilateral PEC', 'Bilateral Patho PEC'];
+  const patterns = [
+    'Left AIC', 'Bilateral PEC',
+    'Bilateral Patho PEC'
+  ];
   const optWrap = document.createElement('div');
   optWrap.className = 'answer-opts';
-  patterns.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = 'answer-btn';
+  const btnTemplate = document.createElement('button');
+  btnTemplate.className = 'answer-btn';
+  patterns.forEach((p) => {
+    const btn = btnTemplate.cloneNode(false);
     btn.textContent = p;
-    btn.addEventListener('click', () => {
-      if (gameState.isAnswered) return;
-      handleRound1Answer({wrap, card, optWrap, scenario: s, btn, chosen: p});
-    });
     optWrap.appendChild(btn);
   });
   card.appendChild(optWrap);
   wrap.appendChild(card);
 }
 
-function handleRound1Answer({wrap, card, optWrap, scenario, btn, chosen}) {
+function handleGameAnswer(wrap, btn) {
+  if (gameState.isAnswered) return;
+  if (btn.disabled) return;
+
+  const s = DATA.game.scenarios[gameState.scenarioIdx];
+  if (gameState.round === 1) {
+    gradeAnswer(wrap, btn, s.correctPattern, s.explanation);
+    return;
+  }
+  const step = ['repositioning', 'postReposition',
+    'facilitation'][gameState.round2Step];
+  const q = s.round2[step];
+  if (Array.isArray(q.correct)) {
+    const chosen = btn.textContent;
+    if (gameState.selectedOpts.has(chosen)) {
+      gameState.selectedOpts.delete(chosen);
+      btn.classList.remove('selectedOpt');
+    } else {
+      gameState.selectedOpts.add(chosen);
+      btn.classList.add('selectedOpt');
+    }
+    return;
+  }
+  gradeAnswer(wrap, btn, q.correct, q.explanation);
+}
+
+function gradeAnswer(wrap, btn, correct, explanation) {
   gameState.isAnswered = true;
   gameState.score.total++;
-  const isCorrect = chosen === scenario.correctPattern;
+  const chosen = btn.textContent;
+  const isCorrect = chosen === correct;
   if (isCorrect) gameState.score.correct++;
-  optWrap.querySelectorAll('.answer-btn').forEach(b => {
-    if (b.textContent === scenario.correctPattern) b.classList.add('correct');
+
+  const optWrap = btn.closest('.answer-opts');
+  for (const b of optWrap.children) {
+    if (b.textContent === correct) b.classList.add('correct');
     else if (b === btn && !isCorrect) b.classList.add('incorrect');
     b.disabled = true;
-  });
+  }
+
+  const card = btn.closest('.card');
   const fb = document.createElement('div');
-  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${scenario.explanation}`;
+  fb.className = 'feedback-box'
+    + (isCorrect ? '' : ' error');
+  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${explanation}`;
   card.appendChild(fb);
-  wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+
+  const scoreEl = wrap.querySelector('.score-display');
+  if (scoreEl) {
+    scoreEl.textContent = 'Score: '
+      + gameState.score.correct + ' / '
+      + gameState.score.total;
+  }
+
   const btnRow = document.createElement('div');
   btnRow.className = 'btn-row';
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'btn primary';
-  nextBtn.textContent = 'Continue to Round 2 →';
-  nextBtn.addEventListener('click', () => {
-    gameState.round = 2;
-    gameState.round2Step = 0;
-    gameState.isAnswered = false;
-    renderScenario(wrap);
-  });
-  btnRow.appendChild(nextBtn);
+  btnRow.innerHTML = '<button class="btn primary"'
+    + ' id="game-next">Next \u2192</button>';
   card.appendChild(btnRow);
 }
+
 
 function renderRound2(wrap, s) {
   const r2 = s.round2;
@@ -123,7 +213,7 @@ function renderRound2(wrap, s) {
   const stepLabels = ['Repositioning', 'Post-Repositioning Program', 'Facilitation'];
   const step = steps[gameState.round2Step];
   const q = r2[step];
-  if (!q) { advanceScenario(wrap); return; }
+  if (!q) { renderGameComplete(); return; }
 
   const card = document.createElement('div');
   card.className = 'card';
@@ -141,51 +231,21 @@ function renderRound2(wrap, s) {
   const isMultiSelect = Array.isArray(q.correct);
   const optWrap = document.createElement('div');
   optWrap.className = 'answer-opts';
-  const selectedOpts = new Set();
-
-  q.options.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'answer-btn';
+  gameState.selectedOpts = new Set();
+  const btnTemplate = document.createElement('button');
+  btnTemplate.className = 'answer-btn';
+  q.options.forEach((opt) => {
+    const btn = btnTemplate.cloneNode(false);
     btn.textContent = opt;
-    if (isMultiSelect) {
-      btn.addEventListener('click', () => {
-        if (gameState.isAnswered) return;
-        if (selectedOpts.has(opt)) {
-          selectedOpts.delete(opt);
-          btn.classList.remove('selectedOpt');
-        } else {
-          selectedOpts.add(opt);
-          btn.classList.add('selectedOpt');
-        }
-      });
-    } else {
-      btn.addEventListener('click', () => {
-        if (gameState.isAnswered) return;
-        gameState.isAnswered = true;
-        gameState.score.total++;
-        const isCorrect = opt === q.correct;
-        if (isCorrect) gameState.score.correct++;
-        optWrap.querySelectorAll('.answer-btn').forEach(b => {
-          if (b.textContent === q.correct) b.classList.add('correct');
-          else if (b === btn && !isCorrect) b.classList.add('incorrect');
-          b.disabled = true;
-        });
-        showR2Feedback(card, wrap, isCorrect, q.explanation);
-      });
-    }
     optWrap.appendChild(btn);
   });
   card.appendChild(optWrap);
 
   if (isMultiSelect) {
     const submitBtn = document.createElement('button');
-    submitBtn.className = 'btn primary';
+    submitBtn.className = 'btn primary submit-gap';
+    submitBtn.id = 'game-submit';
     submitBtn.textContent = 'Check Answer';
-    submitBtn.classList.add('submit-gap');
-    submitBtn.addEventListener('click', () => {
-      if (gameState.isAnswered) return;
-      handleMultiSelectSubmit({card, wrap, optWrap, question: q, selectedOpts});
-    });
     card.appendChild(submitBtn);
   }
 
@@ -195,60 +255,56 @@ function renderRound2(wrap, s) {
   if (scoreEl) scoreEl.textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
 }
 
-function handleMultiSelectSubmit({card, wrap, optWrap, question, selectedOpts}) {
+function handleMultiSelectSubmit(wrap, question) {
   gameState.isAnswered = true;
   gameState.score.total++;
   const correctSet = new Set(question.correct);
-  const isCorrect = selectedOpts.size === correctSet.size &&
-    [...selectedOpts].every(o => correctSet.has(o));
+  const sel = gameState.selectedOpts;
+  const isCorrect = sel.size === correctSet.size
+    && [...sel].every((o) => correctSet.has(o));
   if (isCorrect) gameState.score.correct++;
-  optWrap.querySelectorAll('.answer-btn').forEach(b => {
-    if (correctSet.has(b.textContent)) b.classList.add('correct');
-    else if (selectedOpts.has(b.textContent)) b.classList.add('incorrect');
-    b.disabled = true;
-  });
-  showR2Feedback(card, wrap, isCorrect, question.explanation);
-}
 
-function showR2Feedback(card, wrap, isCorrect, explanation) {
-  const fb = document.createElement('div');
-  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${explanation}`;
-  card.appendChild(fb);
-  if (wrap.querySelector('.score-display')) {
-    wrap.querySelector('.score-display').textContent = `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+  const optWrap = wrap.querySelector('.answer-opts');
+  for (const b of optWrap.children) {
+    if (correctSet.has(b.textContent)) {
+      b.classList.add('correct');
+    } else if (sel.has(b.textContent)) {
+      b.classList.add('incorrect');
+    }
+    b.disabled = true;
   }
+
+  const card = optWrap.closest('.card');
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box'
+    + (isCorrect ? '' : ' error');
+  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${question.explanation}`;
+  card.appendChild(fb);
+
+  const scoreEl = wrap.querySelector('.score-display');
+  if (scoreEl) {
+    scoreEl.textContent = 'Score: '
+      + gameState.score.correct + ' / '
+      + gameState.score.total;
+  }
+
   const btnRow = document.createElement('div');
   btnRow.className = 'btn-row';
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'btn primary';
-  const hasMoreSteps = gameState.round2Step < 2;
-  const hasMoreScenarios = gameState.scenarioIdx < DATA.game.scenarios.length - 1;
-  nextBtn.textContent = hasMoreSteps ? 'Next Step →' : (hasMoreScenarios ? 'Next Scenario →' : 'Finish');
-  nextBtn.addEventListener('click', () => {
-    gameState.isAnswered = false;
-    if (hasMoreSteps) {
-      gameState.round2Step++;
-      renderScenario(wrap);
-    } else if (hasMoreScenarios) {
-      gameState.scenarioIdx++;
-      gameState.round = 1;
-      gameState.round2Step = 0;
-      renderScenario(wrap);
-    } else {
-      advanceScenario(wrap);
-    }
-  });
-  btnRow.appendChild(nextBtn);
+  btnRow.innerHTML = '<button class="btn primary"'
+    + ' id="game-next">Next \u2192</button>';
   card.appendChild(btnRow);
 }
 
-function advanceScenario(wrap) {
+function renderGameComplete() {
+  const wrap = document.getElementById('game-wrap');
   wrap.innerHTML = `<div class="callout">
-    <strong>Game complete.</strong> Final score: ${gameState.score.correct} / ${gameState.score.total}.
-    <div class="btn-row"><button class="btn primary" id="game-restart">Restart</button></div>
-  </div>`;
-  document.getElementById('game-restart').addEventListener('click', () => buildGame());
+    <strong>Game complete.</strong>
+    Final score: ${gameState.score.correct}
+    / ${gameState.score.total}.
+    <div class="btn-row">
+      <button class="btn primary"
+        id="game-restart">Restart</button>
+    </div></div>`;
 }
 
 function buildCaseStudies() {
@@ -427,17 +483,19 @@ function buildChainCard(chain, ci) {
     e.preventDefault();
     if (!activeDragItem) return;
 
-    const siblings = [...ul.children];
-    const after = siblings.find((s) => {
-      if (s === activeDragItem) return false;
-
+    let after = null;
+    for (const s of ul.children) {
+      if (s === activeDragItem) continue;
       const box = s.getBoundingClientRect();
-      return e.clientY <= box.top + box.height / 2;
-    });
+      if (e.clientY <= box.top + box.height / 2) {
+        after = s;
+        break;
+      }
+    }
     if (after) ul.insertBefore(activeDragItem, after);
     else ul.appendChild(activeDragItem);
-    order = [...ul.children]
-      .map((li) => li.dataset.step);
+    order = Array.from(ul.children,
+      (li) => li.dataset.step);
   });
 
   buildList();

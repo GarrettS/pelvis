@@ -101,11 +101,12 @@ function buildQueue(domains, count, priorityMode) {
   return ordered.slice(0, count);
 }
 
-function showScreen(screenId) {
-  document.getElementById('mq-config').classList.toggle('hidden', screenId !== 'config');
-  document.getElementById('mq-quiz').classList.toggle('hidden', screenId !== 'quiz');
-  document.getElementById('mq-results')
-    .classList.toggle('hidden', screenId !== 'results');
+let activeScreenClass = 'screen-config';
+
+function showScreen(cls) {
+  const section = document.getElementById('tab-masterquiz');
+  section.classList.replace(activeScreenClass, cls);
+  activeScreenClass = cls;
 }
 
 function getSelectedDomains() {
@@ -155,7 +156,7 @@ function handleStart() {
   qIdx = 0;
   sessionAnswers = [];
   equivPinned = false;
-  showScreen('quiz');
+  showScreen('screen-quiz');
   renderQuestion();
 }
 
@@ -389,7 +390,7 @@ function handleSaveFlashcard() {
 }
 
 function renderResults() {
-  showScreen('results');
+  showScreen('screen-results');
   const total = sessionAnswers.length;
   const correctCount = sessionAnswers.filter(a => a.correct).length;
   const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
@@ -507,12 +508,12 @@ function handleRetakeMissed() {
   qIdx = 0;
   sessionAnswers = [];
   equivPinned = false;
-  showScreen('quiz');
+  showScreen('screen-quiz');
   renderQuestion();
 }
 
 function handleNewSession() {
-  showScreen('config');
+  showScreen('screen-config');
   renderStats();
   syncStartButton();
 }
@@ -526,7 +527,7 @@ function handleResetProgress() {
 
 function handleEndSession() {
   if (sessionAnswers.length === 0) {
-    showScreen('config');
+    showScreen('screen-config');
     renderStats();
     return;
   }
