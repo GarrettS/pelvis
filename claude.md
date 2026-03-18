@@ -20,7 +20,7 @@ Apply `code-guidelines.md` to every line you write and every line you touch. If 
 - Do not write implementation when the user asked for a spec. Do not write a spec when the user asked for code.
 
 ### While Writing Code
-- Follow `code-guidelines.md` without exception.
+- Follow `code-guidelines.md`. Exceptions require a stated reason per `code-philosophy.md` §Defaults and Exceptions.
 - **Failure paths require approval.** Every time you write code that can fail at runtime (fetch, JSON.parse, storage, any async operation), stop and present the failure scenario to the user before writing the handler. State what operation can fail, what the consequence is, and list contextual handling options. Example:
   > "This fetch loads quiz data. If it fails, the quiz cannot render. Options: (1) show an error message with a retry button, (2) fall back to a cached copy of the data if available, (3) disable the quiz tab and show a status message. Which approach?"
   Do not write `console.error` and move on. Do not re-throw. Do not pick a handling strategy without presenting it.

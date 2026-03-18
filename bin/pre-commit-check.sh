@@ -248,6 +248,46 @@ else
   echo -e "${GREEN}PASS${NC}  All img/ and data/ assets referenced"
 fi
 
+# ---- Doctrine integrity ----
+
+# Forbidden directories
+if [ -d "prd/archive" ]; then
+  echo -e "${RED}FAIL${NC}  prd/archive/ exists — delete stale PRDs, git has history"
+  FAIL=1
+else
+  echo -e "${GREEN}PASS${NC}  No prd/archive/"
+fi
+
+# Stale authority references
+check "Reference to removed LEARN-PRI.md" \
+  'LEARN-PRI' \
+  '*.md'
+
+check "Reference to removed LEARN-PRI.md in data" \
+  'LEARN-PRI' \
+  '*.json'
+
+# Unreferenced active PRDs (must be linked from project.md or another active PRD)
+ORPHAN_PRDS=""
+for prd in prd/*.md; do
+  [ -f "$prd" ] || continue
+  prdname=$(basename "$prd")
+  [ "$prdname" = "project.md" ] && continue
+  refs=$(grep -rl "$prdname" prd/ 2>/dev/null \
+    | grep -v "$prd" \
+    || true)
+  if [ -z "$refs" ]; then
+    ORPHAN_PRDS="${ORPHAN_PRDS}  ${prd} — not referenced by any active PRD\n"
+  fi
+done
+
+if [ -n "$ORPHAN_PRDS" ]; then
+  echo -e "${YELLOW}WARN${NC}  Unreferenced PRDs  [verify: still active or delete]"
+  echo -e "$ORPHAN_PRDS"
+else
+  echo -e "${GREEN}PASS${NC}  All PRDs referenced"
+fi
+
 # ---- Summary ----
 
 echo ""

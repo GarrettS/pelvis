@@ -1,124 +1,0 @@
-Triage
-
- 
-1A — Interactive Anatomy
-This has four sub-tabs, but each sub tab also contains SVG Pelvis Decoder. 1B needs its own subtab, and to be renamed for user perspective, from "SVG Pelvis Decoder" to "Pelvis Decoder". 
-
-However, visual depiction here is so bad that it warrants removal until it can be rectified to be less bad. For example, the pubic symphasis is shown too far inferior to the acetabulum, but rendered 2d, it also appears as if it is locted more distally. It's hard to mentally map those squiggly lines to a hip.
-
-Images with labels that don't line up positionally with the hip, or point to the wrong part of the hip image. The hip images already have labels, creating clutter. If this feature is to be salvaged, it'll need labels that match correctly. And the images have be clear of its own labels, either by programmatically covering or editing them out. Or by me finding new images. 
-
-The final tab, Hip Overview, could do some magic hide the text and then reveal the text on click. 
-
-Weigh the cost benefits.
-
-L AIC Chain
-1B — SVG Pelvis Decoder
-
-
-2A — The Two Real Joints Verbiage:
-"Structure — The Two Real Joints" still wrong. The button was retained. 
-
-The "next / start over" button has poor usability, as it moves. This is now spec'd as a tab pane wizard, but the wizard next/start over button moves as the tab grows. In
-
-Patterns Tab
-This tries to put four things — 3A, 3B, 3C, 3D — in one page. Each of these needs its own page (or sub-tab) for user focus. 
-
-Flashcards:
-Flashcards spell out the initialisms on the front of the card. This is not correct for this feature. Here, the initialisms must appear on the back of the card.
-
-Replace the three button interactivity — [Flip] [Got It] [Again]  — with  two buttons: [Flip] [Next].
- 
-Equivalence Tab
-Master Rule is a cheat sheet. This should not be prominently displayed at the top of the page. Instead, it could be revealable.
-
-The answer should:
-1. explain expositorily, such as "When the ilio-sacral joint externally rotates, the ipsilateral ischio-pubal joint also externally rotates.
-2. Explain the muscles involved and their attachments on that relative bone
-3. Explain the greater movement, pathology, and/or corrective exercises it represents (e.g. shifting to left stance. This is seen in treatments Right Sidelying Respiratory Left Adductor Pull Back, […]).
-
-It should not repeat the FULL EQUIVALENCE CHAIN.
-
-
-Code smells:
-Not cleanly formatted; no whitespace around operators, brackets, etc. Does not follow typical javascript coding styling. Follow Google JavaScript Style Guide. Should favor script type=module where possible. Favor readability and code modularity, replacing code map comment markers like "/* ─── SECTION 1B: ACRONYM TABLE ──────────────────────────────── */" with modular code using good names, putting them in their own script elements wherever appropriate. Comments are a failure of the code to explain itself. There are a lot of global variables. Module-defined variables are scoped to the module unless explicitly attached to the global object. 
-What other code smells do you see?
-
-
-Diagnose This! Tries to shoehorn five things into one tab.
-This needs subtabs for each feature.
-
-4A — Pattern Identifier
-
-4C — Causal Chains
-
-The feature should not correspond with what was learned, for greater comprehension and applicability. How effectively does it achieve this goal?
-
-Usability:
-Dragged elements's numbers do not change after dragging (this is OK), however in the answer, it's labeled with the correct sequential order, using an OL. FIX: The numbers on the answer must match.   I don't recall ever hearing a symptom or initial diagnosis of "Left diaphragm flattens, becomes postural instead of respiratory", which departs from my understanding of initial reported problem.  
-4D — Decision Tree:  Initialisms need some sort of tooltip (PART, SRT, etc)
-
-4E — Muscle-to-Exercise Map
-This could be more interactive, or quizzical. 
-"By Finding" feature should not provide the answer, but be a multi-select quiz. Due to my lack of comprehension, I will defer to you for the best approach to test this, as needed for relevant practical application and exam relevance. 
-
-Example we have:
-``` + L ADT  Left innominate anteriorly rotated. Femur can't adduct.
-Hierarchy: Repositioning (pre-hierarchy)
-Muscles: Not a muscle problem — positional. Requires repositioning. ```
-Users might not know what "Hierarchy: Repositioning (pre-hierarchy)" means, or what to do with + L ADT (I don't know these things) — so the app should help him learn these things. User should be quizzed on this, and when checking my answer, user should be given a more comprehensive explanation with reasoned explanation.
-
-The answer should explain what is correct, why it is correct, what is wrong, and what the wrong thing diagnoses instead. It must do so understandably. (Currently, it's a bit terse.) For example:
-
-```
-In the Postural Restoration Institute® (PRI) framework, corrective exercises for the Left AIC pattern are organized into a strict hierarchical sequence. The goal is to move the pelvis from a state of Left AF ER (patterned) to Left AF IR (neutral/restored).
-+3
-
-Below is the established treatment sequence according to the Pelvis Restoration manual:
-
-
-1. Initial Repositioning (The "Big Three")
-Before advanced work, the pelvis must be repositioned out of the forward/anteriorly tipped state on the left.
-+1
-
-*  90-90 Supported Hip Lift with Hemibridge: This is the baseline repositioning technique used to engage the Left Hamstring to pull the left hemi-pelvis posteriorly. +1 
-*  Right Sidelying Respiratory Left Adductor Pull Back: This targets the Left Adductor Magnus and Left Proximal Obturator to facilitate internal rotation of the left hip socket (AF IR). +1 
-*  Left Sidelying Right Glute Max: This facilitates the Right Gluteus Maximus to assist in rotating the sacrum back toward the left. +2 
-2. Inhibition of Patterned Muscles
-To achieve neutrality, the "overactive" muscles of the Left AIC must be quieted:
-
-
-*  Inhibit: Left TFL, Left Psoas Major, Right Adductor Magnus, and Right Hamstrings. +1 
-*  Technique Example: 90-90 Respiratory Left Hip Shift is used specifically for Left Anterior Inlet Inhibition to stop the TFL from pulling the pelvis into an anterior tilt. +1 
-3. Progressive Facilitation (Hierarchy)
-If tests like the Left PADT or Right PART remain positive after repositioning, the program advances through these specific muscle groups:
-
-
-Goal	Primary Muscle(s)	Example Exercise
-Turn "on" Right Anterior Pelvic Inlet	Right Rectus Femoris, Right Sartorius	90-90 Supported Left Hip Shift with Right Rectus Femoris
-Turn "on" Left Anterior Pelvic Outlet	Left Puborectalis, Left Pubococcygeus	Right Sidelying Respiratory Left Adductor Pull Back with Balloon
-Left Inlet Adduction	Left Proximal Iliacus (Anterior Glute Med)	Standing Respiratory Left FA IR with Resisted Left Arm Pull Down
-+1
-Right Pelvic Inlet Abduction	Right Posterior Gluteus Maximus	Standing Supported Right Glute Max with Left Hip Approximation
-4. Integration and Functional Control
-Once the pelvis is neutral, exercises focus on maintaining that neutrality during movement:
-
-
-*  Sidelying Frontal Plane Integration: Left Sidelying Hemi 90-90 with Left IO/TA, Right Glute Max, and Left Adductor.  
-*  Standing AF IR Control: Standing Wall Supported Respiratory Left AF IR with Left IO/TA Integration.  
-*  Reciprocal Alternating Activity: Techniques like the Left Stance Interrupted Reciprocal Step Through or the Two Point Gait with Right Glute Max to integrate the new position into walking. +1 
-Summary for "Left AIC" Corrections:
-Corrective work focuses on facilitating the "Violet" (Internal Rotation) and "Yellow" (Integration/Abdominals) families on the left, while inhibiting the "Brown" (Sagittal/Extension) muscles that pull the pelvis forward.
-```
-
-
-How to perform these tests stepwise, and their corrections in order, should be drilled, or at least clearly framed and highlighted in the app for memorization.
-
-====
-
-
-New feature request: Master Quiz.
-
-Taking all that you can gather from the course material and from online available information, create a quiz with a question bank that best approximates a simulation of the PRI exam. This might likely include how to perform the tests.
-
-
