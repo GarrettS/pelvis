@@ -64,6 +64,30 @@ The Shared Key pattern uses a unique `id` as a single-token address across every
 
 **Collision control as a simple contract.** Critics fear ID collisions, but module-owned prefixes make collisions a failure to follow the grep protocol, not a failure of the architecture. It is a social and technical contract that scales because it is simple, not because it is wrapped in a library. If two developers both use `edge-` for different features, the collision is visible in a single grep — not hidden behind framework-managed component scoping.
 
+**The triple-threat.** The ID is the universal coordinate across all three layers:
+
+| Layer | Implementation | Doctrine |
+|---|---|---|
+| JS | `CLICK_DISPATCH['prefix-id']` | O(1) Dispatch |
+| DOM | `id="prefix-id-3"` | Namespaced Address |
+| CSS | `.anatomize-label`, `.equiv-opt` | Module-prefixed classes |
+
+## Good Names
+
+Identifiers with material accuracy — `pelvisRotationDegrees` instead of `val`, `activeDragItem` instead of `dragging`, `ABBR_TITLES` instead of `MAP`. The name describes the domain reality, not the programming artifact.
+
+Module-scoped variables in ES modules are not globals. Even if they were, a unique name with a descriptive prefix provides a logical namespace that the human brain (and grep) can navigate effortlessly. The "fear of globals" is a framework-era anxiety that does not apply to module-scoped state with material-accuracy naming. Name it well, scope it to the module, and move on.
+
+## The CSS Engine as a State Machine
+
+The browser's CSS engine is a declarative partner to the JS logic, not just a painting tool.
+
+**Zero-iteration styling.** The Ancestor Class pattern (e.g., `#tab-equivalence.showing-results .equiv-quiz-wrap`) offloads state-based visual changes to the browser's C++ style-recalc pass. No JS loops toggling classes on descendants — one class on the ancestor, the cascade does the rest.
+
+**Attribute-driven targeting.** Attribute selectors like `[id^="prefix"]` target dynamic elements natively without manually adding classes to every `cmap-edge-0`, `cmap-edge-1`, etc. The browser's selector engine matches these in O(1).
+
+**Predictable collision guard.** A collision in CSS is a violation of the Module Ownership contract. If two modules' styles conflict, it means they didn't grep for the prefix before implementation. The same contract that prevents ID collisions in JS prevents selector collisions in CSS.
+
 ## Defaults and Exceptions
 
 The guidelines use "avoid," "prefer," and "where possible" to signal defaults. A default is not a suggestion — it is the expected behavior in the common case. Taking an exception requires a stated reason.

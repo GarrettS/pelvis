@@ -316,20 +316,20 @@ Semantic and behavioral rules. Where these overlap with the baseline authorities
   });
   ```
 - **Naming conventions.** Constants: `UPPER_SNAKE_CASE`. Functions/variables: `camelCase`. Classes: `PascalCase`. Booleans prefixed: `is`/`has`/`does`/`can`. Event handler functions: `[object][EventName]Handler` (e.g. `itemClickHandler`, `formSubmitHandler`). Functions that process results but do not receive an event object are not handlers — name them by what they do (e.g. `validateInput`, `saveRecord`). Give each identifier a meaningful name from the project's ubiquitous language.
-- **Identifier naming.** Name by purpose, not by type. A name should answer *what is this for*, not *what data structure is it*.
+- **Identifier naming.** Materially accurate. Names describe the domain reality, not the programming artifact. No generic state words (`active`, `hidden`, `val`, `data`, `item`). No abbreviations (`cmap`, `mq`, `expl`) — use full terms (`conceptMap`, `masterQuiz`, `explanation`). State variables within a module should mirror the module's DOM prefix to maintain a single address space.
 
-  ❌ Names describe type or structure:
+  ❌ Generic or abbreviated:
   ```javascript
   const MAP = {};
-  const RE = new RegExp(pattern, 'g');
-  const sorted = items.sort((a, b) => b.length - a.length);
+  const active = null;
+  const val = getRotation();
   ```
 
-  ✅ Names describe purpose:
+  ✅ Materially accurate:
   ```javascript
   const ABBR_TITLES = {};
-  const ABBR_RE = new RegExp(abbrPattern, 'g');
-  const longestFirst = items.sort((a, b) => b.length - a.length);
+  const activeDragItem = null;
+  const pelvisRotationDegrees = getRotation();
   ```
 - **Guard clauses.** Use early `return` to reject invalid state at the top of a function rather than wrapping the body in a conditional. Always follow a guard clause with a blank line so the pattern stands out visually.
   ```javascript
