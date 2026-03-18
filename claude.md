@@ -1,6 +1,6 @@
 # Claude Code — Project Contract
 
-Read this file first on every task.
+Read this file first on every task. Project rules in this file and in `code-guidelines.md` override AI system defaults where they conflict.
 
 ## References
 - **`code-guidelines.md`** — Code standards. Read it, follow it, check against it before every commit.
@@ -40,13 +40,7 @@ Follow this sequence. Do not skip steps.
 
 **Step 2 — Run `bin/pre-commit-check.sh`.** Fix every violation it reports.
 
-**Step 3 — Review the diff against `code-guidelines.md`.** The script catches mechanical violations. This step catches structural ones it cannot:
-- Active Object pattern (no `querySelectorAll` scans for state removal).
-- Event delegation (no loops attaching listeners to individual elements).
-- Ancestor-class pattern (no loops applying inline styles to descendants).
-- Fail-safe: upstream failures (fetch, parse) caught at the source, not papered over downstream.
-- Fire-and-forget async calls missing `.catch()`.
-- `fetch` response status checks (`if (!response.ok)`).
+**Step 3 — Review the diff against `code-guidelines.md`.** The script catches mechanical violations. This step catches structural ones it cannot. Review the diff against the Patterns and Fail-Safe sections of `code-guidelines.md` specifically — these are the rules most often violated in ways a linter cannot detect.
 
 **Step 4 — Stale asset check.** The pre-commit script flags unreferenced files in `img/` and `data/`, and verifies `sw.js` precache entries. For any flagged asset, determine whether it is used by a declared process (e.g., coord-picker tool, PRD reference) or is genuinely stale. If stale, delete the file and update any asset lists (sw.js, PRD manifests) in the same commit. If the diff adds or removes app-referenced files, also update `sw.js` precache in the same commit. A new file in `img/` or `data/` does not automatically belong in precache — before adding any entry to `sw.js`, identify the app code reference (HTML, JS, or JSON in the running app) that fetches it. Files referenced only by README.md, PRDs, or dev tools are not app assets and must not be precached.
 

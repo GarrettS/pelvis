@@ -373,7 +373,7 @@ If the illustration contains identifiable structures beyond these 14, add them. 
 
 ### PRI Detail Data
 
-All 10 muscles/ligaments have PRI detail data (color family, chain, pattern role, treatment). Author this data aligned to LEARN-PRI.md and the Pelvis Restoration manual. The 4 bony landmarks get minimal panels (name + anatomical description, no PRI layers).
+All 10 muscles/ligaments have PRI detail data (color family, chain, pattern role, treatment). Author this data aligned to the Pelvis Restoration manual. The 4 bony landmarks get minimal panels (name + anatomical description, no PRI layers).
 
 ---
 
@@ -604,7 +604,7 @@ Measure carefully — dense regions (inferior pubic area) have labels close toge
 
 For each structure with PRI relevance:
 - Port existing data from MUSCLE_HOTSPOTS and LANDMARK_HOTSPOTS.
-- Verify against LEARN-PRI.md. LEARN-PRI.md wins on any conflict.
+- Verify against the Pelvis Restoration manual. The manual wins on any conflict.
 - Structure the data for the 3-layer progressive disclosure format.
 - Apply the Color-as-UI Rule: use PRI hues as colored bullets, panel borders, and tints — never as written color names in the UI text.
 

@@ -4,6 +4,8 @@ Standards for web application development. Vanilla JavaScript, no frameworks, no
 
 Baseline authorities for formatting: [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html), [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html), and [Code Guidelines for Rich Internet Application Development](https://web.archive.org/web/20240805191807/http://jibbering.com/faq/notes/code-guidelines/) by Garrett Smith et al. The Formatting section below overrides and extends those guides. Where both this document and the Formatting section are silent, defer to the baseline authorities.
 
+Tool-specific workflow rules (commit process, verification, tool constraints) are in `claude.md`. That file governs how work is done; this file governs what the code looks like.
+
 ---
 
 ## Design Principles
@@ -12,7 +14,10 @@ These principles govern judgment calls. They are not suggestions.
 
 ### Fail-Safe
 
-**No unhandled exceptions and no silent failure paths. Every failure must resolve to a defined, user-visible outcome.**
+**No unhandled exceptions and no silent failure paths. Every failure must resolve to a defined safe outcome.**
+
+- When the failure affects the user's task or understanding, that outcome must be **user-visible**: a message, a retry option, a fallback, or a graceful degradation.
+- When a feature is optional and the app functions without it, **intentional degradation** is acceptable — but it must be a deliberate design decision, not an accident. Comment the code stating what is degraded and why.
 
 Three failure modes violate this:
 

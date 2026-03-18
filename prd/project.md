@@ -5,14 +5,14 @@ https://garretts.github.io/pelvis
 An interactive study tool for the PRI Pelvis Restoration certification exam. Single-page vanilla JS application, GitHub Pages, works offline.
 
 ## Content Authority
-- **`Pelvis_Restoration_2026_Complete_Manual.md`** — the course manual. Authoritative for all PRI content. If app data contradicts this file, the manual wins. If Claude's training data contradicts this file, the manual wins.
-- **`LEARN-PRI.md`** — supplementary course knowledge.
+- **`Pelvis Restoration 2026 Complete Manual.md`** (parent directory) — the course manual. Authoritative for all PRI content. If app data contradicts this file, the manual wins. If Claude's training data contradicts this file, the manual wins.
 
 ## Design
 - **`prd/style-guide.md`** — theme palette, typography, tone, responsive breakpoints.
 
 ## Feature PRDs
-- `prd/CC-BUILD-SPEC.md` — build spec (feature inventory, navigation, data strategy, build order)
+- `prd/CC-BUILD-SPEC.md` — feature spec (all tabs, content requirements, data strategy)
+- `prd/CC-BUILD-SPEC-equiv-quiz.md` — equivalence quiz detail spec (bug fixes, enriched feedback, review screen)
 - `prd/anatomize-this.md` — Anatomize This interactive anatomy feature
 - `prd/coord-picker-workflow.md` — coordinate picker tools and image data workflow
 
