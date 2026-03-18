@@ -74,17 +74,19 @@ The Shared Key pattern uses a unique `id` as a single-token address across every
 
 ## Good Names
 
-Identifiers with material accuracy — `pelvisRotationDegrees` instead of `val`, `activeDragItem` instead of `dragging`, `ABBR_TITLES` instead of `MAP`. The name describes the domain reality, not the programming artifact.
+Correct terminology is not cosmetic. When code, data, selectors, and documentation use the same domain terms, moving from user terminology to implementation requires no translation. That reduces debugging cost, improves grepability, and lowers the risk of model drift.
+
+Identifiers with material accuracy — `pelvisRotationDegrees` instead of `val`, `activeDragItem` instead of `dragging`, `ABBR_TITLES` instead of `MAP`. The name describes the domain reality, not the programming artifact. If the user calls it a "concept map," the code says `conceptMap` — not `cmap`. Programmer shorthand (`mq`, `expl`, `btn`) forces a translation in the reader's head; domain abbreviations (`ADT`, `AIC`, `IsP`) do not, because they are the language of the domain itself.
 
 Module-scoped variables in ES modules are not globals. Even if they were, a unique name with a descriptive prefix provides a logical namespace that the human brain (and grep) can navigate effortlessly. The "fear of globals" is a framework-era anxiety that does not apply to module-scoped state with material-accuracy naming. Name it well, scope it to the module, and move on.
+
+The grep test: if you can find a feature by searching for the same word the user uses, the naming is correct. If you have to know that the user's "concept map" is `cmap` in the code, the naming has failed. Generic frameworks reward generic naming; this doctrine prefers custom-fit domain naming that makes the code an explicit map of the system it models.
 
 ## The CSS Engine as a State Machine
 
 The browser's CSS engine is a declarative partner to the JS logic, not just a painting tool.
 
 **Zero-iteration styling.** The Ancestor Class pattern (e.g., `#tab-equivalence.showing-results .equiv-quiz-wrap`) offloads state-based visual changes to the browser's C++ style-recalc pass. No JS loops toggling classes on descendants — one class on the ancestor, the cascade does the rest.
-
-**Attribute-driven targeting.** Attribute selectors like `[id^="prefix"]` target dynamic elements natively without manually adding classes to every `cmap-edge-0`, `cmap-edge-1`, etc. The browser's selector engine matches these in O(1).
 
 **Predictable collision guard.** A collision in CSS is a violation of the Module Ownership contract. If two modules' styles conflict, it means they didn't grep for the prefix before implementation. The same contract that prevents ID collisions in JS prevents selector collisions in CSS.
 

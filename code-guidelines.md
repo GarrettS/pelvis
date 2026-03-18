@@ -4,7 +4,7 @@ Standards for web application development. Vanilla JavaScript, no frameworks, no
 
 Baseline authorities for formatting: [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html), [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html), and [Code Guidelines for Rich Internet Application Development](https://web.archive.org/web/20240805191807/http://jibbering.com/faq/notes/code-guidelines/) by Garrett Smith et al. The Formatting section below overrides and extends those guides. Where both this document and the Formatting section are silent, defer to the baseline authorities.
 
-Tool-specific workflow rules (commit process, verification, tool constraints) are in `claude.md`. That file governs how work is done; this file governs what the code looks like.
+Tool-specific workflow rules (commit process, verification, tool constraints) are in `CLAUDE.md`. That file governs how work is done; this file governs what the code looks like.
 
 ---
 
@@ -49,6 +49,18 @@ Specific operations that require guarded handling:
 - `JSON.parse()` — malformed data must not crash the app. Wrap in `try/catch` with a user-visible response on failure.
 - `localStorage` / `sessionStorage` — browsers throw in private mode or when quota is exceeded. Wrap access in `try/catch` with a user-visible response or silent degradation (feature works without persistence).
 - Fire-and-forget async — any `async` function called without `await` must have `.catch()` at the call site with a user-visible response.
+
+### Ubiquitous Language
+
+Variables, class names, CSS selectors, function names, DOM IDs, JSON keys, and documentation use the same terms the domain uses. If the user says "concept map," the code says `conceptMap` — not `cmap`, `graph`, or `diagram`. If the authoritative domain reference uses an abbreviation, the data may store it and the UI expands it at render time. Use domain abbreviations, not programmer shorthand.
+
+This principle unifies:
+- **Identifier naming** — materially accurate names from the domain
+- **CSS selectors** — semantic names from the domain
+- **Shared Key** — module-owned prefixes and IDs that name the domain concept
+- **Module Cohesion** — file names that describe the domain responsibility
+
+Mismatch between domain language and code language is a defect. It inserts a translation layer into reading, debugging, and maintenance, increasing the chance that the developer's mental model drifts from the actual system. Features must be discoverable by searching for the same words the user, PRD, and authoritative domain reference use.
 
 ### Module Cohesion
 
