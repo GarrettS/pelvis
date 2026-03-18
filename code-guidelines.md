@@ -124,10 +124,10 @@ For exclusive-active state (tabs, selections, panels): hold a reference to the c
 
 ### Shared Key
 
-When a data record and a DOM element represent the same entity, give them the same `id`. This single key indexes both — data by object property, DOM by `getElementById`. Do not search either collection for a known key.
+When a data record and a DOM element represent the same entity, give them the same `id`. This single key indexes both — data by object property, DOM by `getElementById`, dispatch table by action route. Do not search either collection for a known key.
 
 - **Data format**: structure JSON as a keyed object (`{"item-foo": {...}}`) instead of an array of objects with `id` fields (`[{"id": "foo", ...}]`). When data is looked up by key, the source format should be keyed — no runtime indexing step needed.
-- **Namespaced keys**: prefix keys with the module name (e.g. `item-`). This makes the key unique across the DOM, self-documenting (which module owns it), and greppable across all layers without false matches.
+- **Module ownership**: if a module generates IDs, it owns a unique prefix (`cmap-`, `equiv-`, `mq-`). Two modules cannot share a prefix. Dynamic elements use prefix + index (`cmap-edge-0`, `equiv-elabel-3`). Grep `id="` to see what's taken.
 - **DOM side**: use the namespaced key as the element's `id` attribute. Lookup is `getElementById(id)`. Related elements use convention-based suffixes (e.g. `id + "-detail"`), each directly addressable.
 - **One key across all layers**: the same string appears in JSON keys, element `id` attributes, SVG element `id` attributes, and JS lookups. No translation between layers.
 - **Access pattern (getById)**: event delegation derives the key from the target element's `id`, then addresses both data (`map[id]`) and DOM (`getElementById(id)`) directly. When construction is expensive, use create-on-first-access: `pool[id] || (pool[id] = create(id))`.

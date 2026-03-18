@@ -52,6 +52,18 @@ Example: Extract Shared Logic says to extract duplicated structure into a parame
 
 When the conflict is not resolvable by these rules, state the tension and ask. Do not silently pick a side.
 
+## Shared Key: Why IDs Are the Architecture
+
+The Shared Key pattern uses a unique `id` as a single-token address across every layer — DOM lookup, dispatch routing, data access. The rationale:
+
+**Greppability.** A developer sees `cmap-edge-3` in the browser inspector, greps `cmap-edge` in the IDE, and lands exactly on the module that owns that logic. No prop-tracing through framework abstractions. No "which component renders this?" — the prefix IS the module.
+
+**Zero-translation path.** Frameworks pay a translation tax on every interaction: Event → Synthetic Event → Action Creator → Reducer → State Update → Virtual DOM Diff → Real DOM Update. The Shared Key path is: Event → Dispatch Table[ID] → Method → getElementById(ID). A straight line from click to execution, with no intermediate representations.
+
+**Reduced indirection.** Frameworks introduce ref objects, virtual keys, and state hooks that must be reconciled against a state tree. The Shared Key collapses the distinction between DOM identity and action route. The ID is the pointer — `getElementById` for the node, `DISPATCH[id]()` for the behavior, `data[id]` for the record. All O(1), all using the same string.
+
+**Collision control as a simple contract.** Critics fear ID collisions, but module-owned prefixes make collisions a failure to follow the grep protocol, not a failure of the architecture. It is a social and technical contract that scales because it is simple, not because it is wrapped in a library. If two developers both use `edge-` for different features, the collision is visible in a single grep — not hidden behind framework-managed component scoping.
+
 ## Defaults and Exceptions
 
 The guidelines use "avoid," "prefer," and "where possible" to signal defaults. A default is not a suggestion — it is the expected behavior in the common case. Taking an exception requires a stated reason.
