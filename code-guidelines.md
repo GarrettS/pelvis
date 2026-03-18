@@ -66,6 +66,15 @@ Mismatch between domain language and code language is a defect. It inserts a tra
 
 Each module owns one domain concept. Name the module after what it does: `quiz.js`, `flashcards.js`, `navigation.js`. If the name describes a role instead of a domain concept, it is a junk drawer — `utils.js`, `helpers.js`, `tools.js`, `misc.js`, `common.js` are common examples, but any name that could apply to any project instead of *this* project violates the principle. If a function does not belong in an existing module, create a new module with a specific name. When a module grows to cover multiple concerns, split it.
 
+### Minimize Traversal Scope
+
+Do not search a broader part of the DOM than the task requires. When the element, ancestor, or key is already known, address it directly instead of scanning. When search is necessary, constrain it to the smallest subtree or event path that can contain the answer.
+
+- **[Active Object](#active-object)** — the element is known; address it directly.
+- **[Event Delegation](#event-delegation)** — the ancestor is known; resolve within the event path.
+- **[Shared Key](#shared-key)** — the key is known; look up by ID, not by query.
+- **[DOM-Light](#dom-light)** — fewer nodes means shorter traversals.
+
 ### DOM-Light
 
 Favor source HTML over JS-generated markup. Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`.
@@ -91,6 +100,8 @@ Implementation patterns for DOM-heavy vanilla JS applications.
 ### Event Delegation
 
 Attach one handler to a stable ancestor and inspect `event.target`. This scales, avoids initialization loops, and works for dynamically added elements.
+
+Know the event target ([Minimize Traversal Scope](#minimize-traversal-scope)). Use `event.target` when the event fires on the actionable element. For events such as `dragstart` that fire on the actionable element itself, use `event.target` directly when no nested draggable descendant can be the target. When nested markup can receive the event and upward resolution is needed, use `closest()` to find the actionable ancestor. Attach the listener to the nearest common ancestor, not a distant parent. The event path defines the search space; do not expand it.
 
 ❌ Per-element listeners in a build function — accumulate on reset, create N identical closures:
 ```javascript
@@ -132,11 +143,11 @@ Do not speculatively cache DOM references the code may never use. `getElementByI
 
 ### Active Object
 
-For exclusive-active state (tabs, selections, panels): hold a reference to the currently active element. On switch, deactivate it directly, then activate the new one. Never `querySelectorAll` to scan siblings and remove a class.
+For exclusive-active state (tabs, selections, panels): hold a reference to the currently active element. On switch, deactivate it directly, then activate the new one. Never `querySelectorAll` to scan siblings and remove a class. This is the same principle as [Minimize Traversal Scope](#minimize-traversal-scope): do not scan a set when you already have the element you need.
 
 ### Shared Key
 
-When a data record and a DOM element represent the same entity, give them the same `id`. This single key indexes both — data by object property, DOM by `getElementById`, dispatch table by action route. Do not search either collection for a known key.
+When a data record and a DOM element represent the same entity, give them the same `id`. This single key indexes both — data by object property, DOM by `getElementById`, dispatch table by action route. Do not search either collection for a known key. This is the keyed form of [Minimize Traversal Scope](#minimize-traversal-scope): when the key is known, address directly instead of searching.
 
 - **Data format**: structure JSON as a keyed object (`{"item-foo": {...}}`) instead of an array of objects with `id` fields (`[{"id": "foo", ...}]`). When data is looked up by key, the source format should be keyed — no runtime indexing step needed.
 - **Module ownership**: if a module generates IDs, it owns a unique prefix (`cmap-`, `equiv-`, `mq-`). Two modules cannot share a prefix. Dynamic elements use prefix + index (`cmap-edge-0`, `equiv-elabel-3`). Grep `id="` to see what's taken.

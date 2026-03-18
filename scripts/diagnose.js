@@ -1,5 +1,6 @@
 import {showFetchError} from './fetch-feedback.js';
 import {getStudyData} from './study-data-cache.js';
+import {shuffle} from './shuffle.js';
 
 let DATA = {};
 let gameState = {
@@ -9,7 +10,10 @@ let gameState = {
   score: { correct: 0, total: 0 },
   isAnswered: false
 };
-let caseState = { active: 0, visitIdx: [0, 0] };
+let caseState = {
+  visitIdx: [], isAnswered: [],
+  selectedTreatments: []
+};
 
 export async function initDiagnose() {
   DATA = await getStudyData();
@@ -310,170 +314,323 @@ function renderGameComplete() {
 function buildCaseStudies() {
   const wrap = document.getElementById('case-study-wrap');
   wrap.innerHTML = '';
+
   DATA.caseStudies.forEach((cs, ci) => {
     const div = document.createElement('div');
     div.className = 'card';
     div.innerHTML = `<h3 class="case-title">${cs.title}</h3>`;
     const inner = document.createElement('div');
-    inner.id = `cs-${ci}`;
+    inner.id = 'case-study-' + ci;
     div.appendChild(inner);
     wrap.appendChild(div);
-    renderCaseVisit(ci, 0, inner);
+    caseState.visitIdx[ci] = 0;
+    caseState.isAnswered[ci] = false;
+    caseState.selectedTreatments[ci] = new Set();
+    renderCaseVisit(ci);
+  });
+
+  wrap.addEventListener('click', (e) => {
+    const answerBtn = e.target.closest('.answer-btn');
+    if (answerBtn) {
+      handleCaseAnswer(answerBtn);
+      return;
+    }
+    const id = e.target.id;
+    if (id.startsWith('case-study-restart-')) {
+      const ci = +id.split('-').pop();
+      caseState.visitIdx[ci] = 0;
+      caseState.isAnswered[ci] = false;
+      renderCaseVisit(ci);
+    } else if (id.startsWith('case-study-next-')) {
+      const ci = +id.split('-').pop();
+      caseState.visitIdx[ci]++;
+      caseState.isAnswered[ci] = false;
+      renderCaseVisit(ci);
+    } else if (id.startsWith('case-study-submit-')) {
+      const ci = +id.split('-').pop();
+      gradeTreatment(ci);
+    }
   });
 }
 
-function renderCaseVisit(ci, vi, container) {
+function getCaseIndex(el) {
+  const container = el.closest('[id^="case-study-"]');
+  return +container.id.split('-').pop();
+}
+
+function renderCaseVisit(ci) {
   const cs = DATA.caseStudies[ci];
+  const vi = caseState.visitIdx[ci];
+  const container = document.getElementById(
+    'case-study-' + ci
+  );
+
   if (vi >= cs.visits.length) {
-    container.innerHTML = `<div class="callout"><strong>Case complete.</strong><div class="btn-row"><button class="btn" id="cs-restart-${ci}">Restart Case</button></div></div>`;
-    document.getElementById(`cs-restart-${ci}`).addEventListener('click', () => renderCaseVisit(ci, 0, container));
+    container.innerHTML =
+      `<div class="callout">
+        <strong>Case complete.</strong>
+        <div class="btn-row">
+          <button class="btn"
+            id="case-study-restart-${ci}">
+            Restart Case</button>
+        </div></div>`;
     return;
   }
-  const visit = cs.visits[vi];
-  let html = `<div class="visit-badge">Visit ${visit.visit}</div>`;
-  // Test results
-  if (visit.testResults) {
-    html += `<div class="test-profile">`;
-    Object.entries(visit.testResults).forEach(([k, v]) => {
-      const isPos = String(v).startsWith('+');
-      const isNeg = String(v).startsWith('−') || String(v).startsWith('-');
-      html += `<div class="test-item"><div class="test-item-name">${k}</div><div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${v}</div></div>`;
-    });
-    html += `</div>`;
-  }
-  html += `<p class="question-stem">${visit.question}</p>`;
-  container.innerHTML = html;
 
-  const opts = visit.options || [];
+  const visit = cs.visits[vi];
+  const testHTML = visit.testResults
+    ? '<div class="test-profile">'
+      + Object.entries(visit.testResults).map(
+        ([k, v]) => {
+          const isPos = String(v).startsWith('+');
+          const isNeg = String(v).startsWith('\u2212')
+            || String(v).startsWith('-');
+          const cls = isPos ? 'positive'
+            : isNeg ? 'negative' : '';
+          return '<div class="test-item">'
+            + '<div class="test-item-name">'
+            + k + '</div>'
+            + '<div class="test-item-val '
+            + cls + '">' + v + '</div></div>';
+        }
+      ).join('') + '</div>'
+    : '';
+
+  const btnTemplate = document.createElement('button');
+  btnTemplate.className = 'answer-btn';
   const optWrap = document.createElement('div');
   optWrap.className = 'answer-opts';
-  let answered = false;
-
-  opts.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className = 'answer-btn';
+  (visit.options || []).forEach((opt) => {
+    const btn = btnTemplate.cloneNode(false);
     btn.textContent = opt;
-    btn.addEventListener('click', () => {
-      if (answered) return;
-      answered = true;
-      const isCorrect = opt === visit.correct;
-      optWrap.querySelectorAll('.answer-btn').forEach(b => {
-        if (b.textContent === visit.correct) b.classList.add('correct');
-        else if (b === btn && !isCorrect) b.classList.add('incorrect');
-        b.disabled = true;
-      });
-      const fb = document.createElement('div');
-      fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-      fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${visit.explanation}`;
-      container.appendChild(fb);
-
-      if (visit.treatmentQuestion && isCorrect) {
-        renderTreatmentSubQuestion({visit, container, caseIdx: ci, visitIdx: vi});
-      } else {
-        addNextVisitBtn(container, ci, vi, container);
-      }
-    });
     optWrap.appendChild(btn);
   });
+
+  container.innerHTML =
+    `<div class="visit-badge">Visit ${visit.visit}</div>`
+    + testHTML
+    + `<p class="question-stem">${visit.question}</p>`;
   container.appendChild(optWrap);
 }
 
-function renderTreatmentSubQuestion({visit, container, caseIdx, visitIdx}) {
-  const tq = document.createElement('div');
-  tq.classList.add('treatment-subquestion');
-  tq.innerHTML = `<p class="question-stem">${visit.treatmentQuestion}</p>`;
-  const topts = visit.treatmentOptions || [];
-  const tOptWrap = document.createElement('div');
-  tOptWrap.className = 'answer-opts';
-  const selectedT = new Set();
-  let tAnswered = false;
-  topts.forEach(topt => {
-    const tb = document.createElement('button');
-    tb.className = 'answer-btn';
-    tb.textContent = topt;
-    tb.addEventListener('click', () => {
-      if (tAnswered) return;
-      if (selectedT.has(topt)) { selectedT.delete(topt); tb.classList.remove('selectedOpt'); }
-      else { selectedT.add(topt); tb.classList.add('selectedOpt'); }
-    });
-    tOptWrap.appendChild(tb);
-  });
-  tq.appendChild(tOptWrap);
-  const tSubmit = document.createElement('button');
-  tSubmit.className = 'btn primary';
-  tSubmit.textContent = 'Check';
-  tSubmit.classList.add('submit-gap');
-  tSubmit.addEventListener('click', () => {
-    if (tAnswered) return;
-    tAnswered = true;
-    const correctSet = new Set(visit.correctTreatment || []);
-    const isT = selectedT.size === correctSet.size && [...selectedT].every(o => correctSet.has(o));
-    tOptWrap.querySelectorAll('.answer-btn').forEach(b => {
-      if (correctSet.has(b.textContent)) b.classList.add('correct');
-      else if (selectedT.has(b.textContent)) b.classList.add('incorrect');
-      b.disabled = true;
-    });
-    const tfb = document.createElement('div');
-    tfb.className = 'feedback-box' + (isT ? '' : ' error');
-    tfb.innerHTML = `<strong>${isT ? 'Correct.' : 'Incorrect.'}</strong> ${visit.treatmentExplanation || ''}`;
-    tq.appendChild(tfb);
-    addNextVisitBtn(tq, caseIdx, visitIdx, container);
-  });
-  tq.appendChild(tSubmit);
-  container.appendChild(tq);
+function handleCaseAnswer(btn) {
+  const ci = getCaseIndex(btn);
+  if (caseState.isAnswered[ci]) {
+    handleTreatmentToggle(ci, btn);
+    return;
+  }
+  if (btn.disabled) return;
+
+  caseState.isAnswered[ci] = true;
+  const cs = DATA.caseStudies[ci];
+  const vi = caseState.visitIdx[ci];
+  const visit = cs.visits[vi];
+
+  const optWrap = btn.closest('.answer-opts');
+  for (const b of optWrap.children) {
+    if (b.textContent === visit.correct) {
+      b.classList.add('correct');
+    } else if (b === btn) {
+      b.classList.add('incorrect');
+    }
+    b.disabled = true;
+  }
+
+  const isCorrect = btn.textContent === visit.correct;
+  const container = document.getElementById(
+    'case-study-' + ci
+  );
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box'
+    + (isCorrect ? '' : ' error');
+  fb.innerHTML = '<strong>'
+    + (isCorrect ? 'Correct.' : 'Incorrect.')
+    + '</strong> ' + visit.explanation;
+  container.appendChild(fb);
+
+  if (visit.treatmentQuestion && isCorrect) {
+    renderTreatmentQuestion(ci, visit);
+  } else {
+    appendNextButton(ci, container);
+  }
 }
 
-function addNextVisitBtn(parent, ci, vi, container) {
+function renderTreatmentQuestion(ci, visit) {
+  const container = document.getElementById(
+    'case-study-' + ci
+  );
+  caseState.selectedTreatments[ci] = new Set();
+
+  const treatmentDiv = document.createElement('div');
+  treatmentDiv.className = 'treatment-subquestion';
+  treatmentDiv.innerHTML =
+    `<p class="question-stem">${visit.treatmentQuestion}</p>`;
+
+  const optWrap = document.createElement('div');
+  optWrap.className = 'answer-opts treatment-opts';
+  const btnTemplate = document.createElement('button');
+  btnTemplate.className = 'answer-btn';
+  (visit.treatmentOptions || []).forEach((opt) => {
+    const btn = btnTemplate.cloneNode(false);
+    btn.textContent = opt;
+    optWrap.appendChild(btn);
+  });
+  treatmentDiv.appendChild(optWrap);
+
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'btn primary submit-gap';
+  submitBtn.id = 'case-study-submit-' + ci;
+  submitBtn.textContent = 'Check';
+  treatmentDiv.appendChild(submitBtn);
+
+  container.appendChild(treatmentDiv);
+}
+
+function handleTreatmentToggle(ci, btn) {
+  if (!btn.closest('.treatment-opts')) return;
+  if (btn.disabled) return;
+
+  const sel = caseState.selectedTreatments[ci];
+  const val = btn.textContent;
+  if (sel.has(val)) {
+    sel.delete(val);
+    btn.classList.remove('selectedOpt');
+  } else {
+    sel.add(val);
+    btn.classList.add('selectedOpt');
+  }
+}
+
+function gradeTreatment(ci) {
   const cs = DATA.caseStudies[ci];
+  const vi = caseState.visitIdx[ci];
+  const visit = cs.visits[vi];
+  const correctSet = new Set(
+    visit.correctTreatment || []
+  );
+  const sel = caseState.selectedTreatments[ci];
+  const isCorrect = sel.size === correctSet.size
+    && [...sel].every((o) => correctSet.has(o));
+
+  const container = document.getElementById(
+    'case-study-' + ci
+  );
+  const optWrap = container.querySelector(
+    '.treatment-opts'
+  );
+  for (const b of optWrap.children) {
+    if (correctSet.has(b.textContent)) {
+      b.classList.add('correct');
+    } else if (sel.has(b.textContent)) {
+      b.classList.add('incorrect');
+    }
+    b.disabled = true;
+  }
+
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box'
+    + (isCorrect ? '' : ' error');
+  fb.innerHTML = '<strong>'
+    + (isCorrect ? 'Correct.' : 'Incorrect.')
+    + '</strong> '
+    + (visit.treatmentExplanation || '');
+  const treatmentDiv = container.querySelector(
+    '.treatment-subquestion'
+  );
+  treatmentDiv.appendChild(fb);
+  appendNextButton(ci, treatmentDiv);
+}
+
+function appendNextButton(ci, parent) {
+  const cs = DATA.caseStudies[ci];
+  const vi = caseState.visitIdx[ci];
+  const hasMore = vi + 1 < cs.visits.length;
   const btnRow = document.createElement('div');
   btnRow.className = 'btn-row';
-  const nv = document.createElement('button');
-  nv.className = 'btn primary';
-  nv.textContent = vi + 1 < cs.visits.length ? `Next Visit (Visit ${vi + 2}) →` : 'Case Complete';
-  nv.addEventListener('click', () => renderCaseVisit(ci, vi + 1, container));
-  btnRow.appendChild(nv);
+  const btn = document.createElement('button');
+  btn.className = 'btn primary';
+  btn.id = 'case-study-next-' + ci;
+  btn.textContent = hasMore
+    ? 'Next Visit (Visit ' + (vi + 2) + ') \u2192'
+    : 'Case Complete';
+  btnRow.appendChild(btn);
   parent.appendChild(btnRow);
 }
 
 function buildCausalChains() {
   const wrap = document.getElementById('chains-wrap');
   wrap.innerHTML = '';
+  const chainState = [];
+
   DATA.causalChains.forEach((chain, ci) => {
+    const steps = [...chain.steps];
+    chainState[ci] = { steps, order: shuffle(steps) };
     wrap.appendChild(buildChainCard(chain, ci));
+    renderChainList(ci, chainState[ci]);
+    initChainDrag(ci, chainState[ci]);
+  });
+
+  wrap.addEventListener('click', (e) => {
+    const id = e.target.id;
+    if (id.startsWith('chain-check-')) {
+      const ci = +id.split('-').pop();
+      checkChainOrder(ci, chainState[ci]);
+    } else if (id.startsWith('chain-reset-')) {
+      const ci = +id.split('-').pop();
+      chainState[ci].order = shuffle(
+        chainState[ci].steps
+      );
+      renderChainList(ci, chainState[ci]);
+      document.getElementById(
+        'chain-feedback-' + ci
+      ).innerHTML = '';
+    }
   });
 }
 
 function buildChainCard(chain, ci) {
   const div = document.createElement('div');
   div.className = 'card';
-  div.innerHTML = `<h3 class="chain-title">${chain.title}</h3>
-    <div class="chain-subtitle">${chain.start} → ${chain.end}</div>`;
+  div.innerHTML =
+    `<h3 class="chain-title">${chain.title}</h3>
+    <div class="chain-subtitle">
+      ${chain.start} \u2192 ${chain.end}</div>
+    <ul class="chain-list"
+      id="chain-${ci}"></ul>
+    <div class="btn-row">
+      <button class="btn primary"
+        id="chain-check-${ci}">Check Order</button>
+      <button class="btn"
+        id="chain-reset-${ci}">Reset</button>
+    </div>
+    <div class="feedback-gap"
+      id="chain-feedback-${ci}"></div>`;
+  return div;
+}
 
-  const steps = [...chain.steps];
-  let order = [...steps].sort(() => Math.random() - 0.5);
-  const ul = document.createElement('ul');
-  ul.className = 'chain-list';
-  ul.id = `chain-${ci}`;
+function renderChainList(ci, state) {
+  const ul = document.getElementById('chain-' + ci);
+  ul.innerHTML = '';
+  const liTemplate = document.createElement('li');
+  liTemplate.className = 'chain-item';
+  liTemplate.setAttribute('draggable', 'true');
+  state.order.forEach((step, i) => {
+    const li = liTemplate.cloneNode(false);
+    li.dataset.step = step;
+    li.innerHTML =
+      `<span class="chain-step-num">${i + 1}.</span>`
+      + `<span>${step}</span>`;
+    ul.appendChild(li);
+  });
+}
 
-  function buildList() {
-    ul.innerHTML = '';
-    order.forEach((step, i) => {
-      const li = document.createElement('li');
-      li.className = 'chain-item';
-      li.setAttribute('draggable', 'true');
-      li.dataset.step = step;
-      li.innerHTML =
-        `<span class="chain-step-num">${i + 1}.</span>`
-        + `<span>${step}</span>`;
-      ul.appendChild(li);
-    });
-  }
-
+function initChainDrag(ci, state) {
+  const ul = document.getElementById('chain-' + ci);
   let activeDragItem = null;
 
   ul.addEventListener('dragstart', (e) => {
-    activeDragItem = e.target.closest('.chain-item');
-    activeDragItem?.classList.add('dragging');
+    activeDragItem = e.target;
+    activeDragItem.classList.add('dragging');
   });
   ul.addEventListener('dragend', () => {
     activeDragItem?.classList.remove('dragging');
@@ -483,63 +640,51 @@ function buildChainCard(chain, ci) {
     e.preventDefault();
     if (!activeDragItem) return;
 
-    let after = null;
-    for (const s of ul.children) {
-      if (s === activeDragItem) continue;
-      const box = s.getBoundingClientRect();
+    let insertBeforeItem = null;
+    for (const sibling of ul.children) {
+      if (sibling === activeDragItem) continue;
+      const box = sibling.getBoundingClientRect();
       if (e.clientY <= box.top + box.height / 2) {
-        after = s;
+        insertBeforeItem = sibling;
         break;
       }
     }
-    if (after) ul.insertBefore(activeDragItem, after);
-    else ul.appendChild(activeDragItem);
-    order = Array.from(ul.children,
-      (li) => li.dataset.step);
+    if (insertBeforeItem) {
+      ul.insertBefore(
+        activeDragItem, insertBeforeItem
+      );
+    } else {
+      ul.appendChild(activeDragItem);
+    }
+    state.order = Array.from(
+      ul.children, (li) => li.dataset.step
+    );
   });
-
-  buildList();
-  div.appendChild(ul);
-
-  const feedbackEl = document.createElement('div');
-  feedbackEl.classList.add('feedback-gap');
-
-  const btnRow = document.createElement('div');
-  btnRow.className = 'btn-row';
-  const checkBtn = document.createElement('button');
-  checkBtn.className = 'btn primary';
-  checkBtn.textContent = 'Check Order';
-  checkBtn.addEventListener('click', () => {
-    checkChainOrder(ul, steps, feedbackEl);
-  });
-
-  const resetBtn = document.createElement('button');
-  resetBtn.className = 'btn';
-  resetBtn.textContent = 'Reset';
-  resetBtn.addEventListener('click', () => {
-    order = [...steps].sort(() => Math.random() - 0.5);
-    buildList();
-    feedbackEl.innerHTML = '';
-  });
-
-  btnRow.appendChild(checkBtn);
-  btnRow.appendChild(resetBtn);
-  div.appendChild(btnRow);
-  div.appendChild(feedbackEl);
-  return div;
 }
 
-function checkChainOrder(ul, steps, feedbackEl) {
+function checkChainOrder(ci, state) {
+  const ul = document.getElementById('chain-' + ci);
   let allCorrect = true;
-  ul.querySelectorAll('.chain-item').forEach((li, i) => {
-    const isCorrect = li.dataset.step === steps[i];
+  for (let i = 0; i < ul.children.length; i++) {
+    const li = ul.children[i];
+    const isCorrect = li.dataset.step
+      === state.steps[i];
     li.classList.toggle('correct', isCorrect);
     li.classList.toggle('incorrect', !isCorrect);
     if (!isCorrect) allCorrect = false;
-  });
+  }
+  const feedbackEl = document.getElementById(
+    'chain-feedback-' + ci
+  );
   feedbackEl.innerHTML = allCorrect
-    ? `<div class="feedback-box">Correct order.</div>`
-    : `<div class="feedback-box error">Not quite. Correct order: <ol class="chain-correct-list">${steps.map(s => `<li>${s}</li>`).join('')}</ol></div>`;
+    ? '<div class="feedback-box">'
+      + 'Correct order.</div>'
+    : '<div class="feedback-box error">'
+      + 'Not quite. Correct order:'
+      + ' <ol class="chain-correct-list">'
+      + state.steps.map(
+        (s) => '<li>' + s + '</li>'
+      ).join('') + '</ol></div>';
 }
 
 function buildDecisionTree() {
