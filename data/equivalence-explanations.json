@@ -44,7 +44,7 @@
     "si": {
       "name": "Sacro-Ilio",
       "anatomicalName": "Posterior Outlet",
-      "manualRef": "Manual p.10",
+      "manualRef": "Manual p.9",
       "ir": {
         "pri": "Sacrum nutating on the ilium. PRI chains this with IS IR because both bones are displaced in the L AIC pattern.",
         "biomechanics": "IS IR and SI IR describe positions of two different bones at the same joint. IS IR = ilium anteriorly rotated. SI IR = sacrum nutated (base forward). PRI names both because both are displaced in L AIC, and chains them as equivalent because they co-occur when the whole pelvis tips as a unit. But they are mechanically distinguishable: the ilium can tip without the sacrum nutating, and vice versa."
@@ -57,7 +57,7 @@
     "af": {
       "name": "Acetabulo-Femoral",
       "anatomicalName": "Hip (pelvis-on-femur)",
-      "manualRef": "Manual p.5",
+      "manualRef": "Manual p.10",
       "er": {
         "pri": "Acetabulum rotating externally on the femur. Closed-chain perspective: the pelvis moved forward over a planted femur.",
         "biomechanics": "Standard anatomy describes this joint as femoral-acetabular (femur moves on pelvis). PRI reverses the convention to encode that the pelvis is the displaced segment. The description is valid in closed chain (standing), where the femur is fixed and the pelvis tilts. AF ER = anterior pelvic tilt viewed from the hip joint."
