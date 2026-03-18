@@ -4,17 +4,28 @@ import { shuffle } from './shuffle.js';
 
 let FLASHCARD_DECK = [];
 
-function getUserCards() {
+// Background storage — not user-initiated. Flashcards
+// function without persistence; user loses custom cards only.
+const NO_USER_CARDS = [];
+
+function tryGetUserCards() {
   try {
     const raw = localStorage.getItem('userFlashcards');
-    return raw ? JSON.parse(raw) : [];
-  } catch (storageErr) { return []; }
+    return raw ? JSON.parse(raw) : NO_USER_CARDS;
+  } catch (storageErr) { return NO_USER_CARDS; }
 }
 
 function saveUserCard(card) {
-  const existing = getUserCards();
+  const existing = tryGetUserCards();
   existing.push(card);
-  localStorage.setItem('userFlashcards', JSON.stringify(existing));
+  try {
+    localStorage.setItem(
+      'userFlashcards', JSON.stringify(existing)
+    );
+    return true;
+  } catch (storageErr) {
+    return false;
+  }
 }
 
 let allCards = [];
@@ -167,7 +178,7 @@ export async function initFlashcards() {
     showFetchError('#fc-card-wrap', 'flashcard deck');
     return;
   }
-  const userCards = getUserCards().map(c => ({
+  const userCards = tryGetUserCards().map(c => ({
     ...c,
     category: c.category || 'user_created',
     examWeight: c.examWeight || 'high',
@@ -180,23 +191,30 @@ export async function initFlashcards() {
 
   document.getElementById('fc-reset').addEventListener('click', resetDeck);
 
+  let activeCatBtn = document.querySelector('#fc-cat-filters .fc-filter-btn.active');
+  let activeWeightBtn = document.querySelector(
+    '#fc-weight-filters .fc-filter-btn.active'
+  );
+
   document.getElementById('fc-cat-filters').addEventListener('click', e => {
     const btn = e.target.closest('[data-cat]');
     if (!btn) return;
+
     activeCat = btn.dataset.cat;
-    document.querySelectorAll('#fc-cat-filters .fc-filter-btn').forEach(b => {
-      b.classList.toggle('active', b === btn);
-    });
+    activeCatBtn?.classList.remove('active');
+    btn.classList.add('active');
+    activeCatBtn = btn;
     resetDeck();
   });
 
   document.getElementById('fc-weight-filters').addEventListener('click', e => {
     const btn = e.target.closest('[data-weight]');
     if (!btn) return;
+
     activeWeight = btn.dataset.weight;
-    document.querySelectorAll('#fc-weight-filters .fc-filter-btn').forEach(b => {
-      b.classList.toggle('active', b === btn);
-    });
+    activeWeightBtn?.classList.remove('active');
+    btn.classList.add('active');
+    activeWeightBtn = btn;
     resetDeck();
   });
 
@@ -267,6 +285,7 @@ export async function initFlashcards() {
       backDetail: detailInput.value.trim() || null,
     };
 
+    // TODO: show inline feedback if save fails
     saveUserCard(newCard);
     allCards.push(newCard);
 

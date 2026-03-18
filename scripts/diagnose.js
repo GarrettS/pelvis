@@ -567,19 +567,27 @@ function annotateOutOfScope(content) {
 }
 
 function buildMuscleMap() {
-  const tabs = document.querySelectorAll('#muscle-view-tabs .subview-tab');
   let currentMView = 'byMuscle';
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentMView = tab.dataset.mview;
-      renderMuscleView(currentMView, '');
-    });
+  let activeTab = document.querySelector('#muscle-view-tabs .subview-tab.active');
+
+  document.getElementById('muscle-view-tabs').addEventListener('click', (e) => {
+    const tab = e.target.closest('.subview-tab');
+    if (!tab) return;
+
+    activeTab?.classList.remove('active');
+    tab.classList.add('active');
+    activeTab = tab;
+    currentMView = tab.dataset.mview;
+    renderMuscleView(currentMView, '');
   });
+
   const search = document.getElementById('muscle-search');
-  search.addEventListener('input', () => renderMuscleView(currentMView, search.value.toLowerCase()));
-  search.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+  search.addEventListener('input', () =>
+    renderMuscleView(currentMView, search.value.toLowerCase())
+  );
+  search.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') e.preventDefault();
+  });
   renderMuscleView('byMuscle', '');
 }
 

@@ -18,22 +18,27 @@ let selectedKey = null;
 let submitted = false;
 let equivPinned = false;
 
-function loadProgress() {
+// Background storage — not user-initiated. Quiz functions
+// without persistence; user loses streak data only.
+const EMPTY_PROGRESS = {};
+
+function tryLoadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch (storageErr) { return {}; }
+    return raw ? JSON.parse(raw) : EMPTY_PROGRESS;
+  } catch (storageErr) { return EMPTY_PROGRESS; }
 }
 
-function saveProgress(progress) {
-  // TODO: show user-visible feedback on storage failure
+function trySaveProgress(progress) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  } catch (storageErr) { /* silent: quiz continues without persisted progress */ }
+  } catch (storageErr) {
+    // Background save — not user-initiated, no alert
+  }
 }
 
 function updateProgress(qId, correct) {
-  const progress = loadProgress();
+  const progress = tryLoadProgress();
   const entry = progress[qId] || {
     correctStreak: 0, totalCorrect: 0,
     totalAttempts: 0, lastSeen: ''
@@ -47,11 +52,11 @@ function updateProgress(qId, correct) {
   entry.totalAttempts++;
   entry.lastSeen = new Date().toISOString().slice(0, 10);
   progress[qId] = entry;
-  saveProgress(progress);
+  trySaveProgress(progress);
 }
 
 function getStats(questions) {
-  const progress = loadProgress();
+  const progress = tryLoadProgress();
   let attempted = 0;
   let missed = 0;
   let mastered = 0;
@@ -71,7 +76,7 @@ function buildQueue(domains, count, priorityMode) {
     const shuffled = shuffle(eligible);
     return shuffled.slice(0, count);
   }
-  const progress = loadProgress();
+  const progress = tryLoadProgress();
   const missedQs = [];
   const unseen = [];
   const inProgress = [];
@@ -334,15 +339,17 @@ function clearEquivHighlights() {
   }
 }
 
-function getUserCards() {
+const NO_SAVED_CARDS = [];
+
+function tryGetUserCards() {
   try {
     const raw = localStorage.getItem(USER_FC_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (storageErr) { return []; }
+    return raw ? JSON.parse(raw) : NO_SAVED_CARDS;
+  } catch (storageErr) { return NO_SAVED_CARDS; }
 }
 
 function isAlreadySaved(qId) {
-  const cards = getUserCards();
+  const cards = tryGetUserCards();
   return cards.some(c => c.id === 'user-mq-' + qId);
 }
 
@@ -365,7 +372,7 @@ function saveAsFlashcard(q) {
     back: back,
     backDetail: backDetail
   };
-  const existing = getUserCards();
+  const existing = tryGetUserCards();
   existing.push(card);
   localStorage.setItem(USER_FC_KEY, JSON.stringify(existing));
   return true;
