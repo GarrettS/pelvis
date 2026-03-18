@@ -1,6 +1,7 @@
 import {showFetchError} from './fetch-feedback.js';
 import {getStudyData} from './study-data-cache.js';
 import {shuffle} from './shuffle.js';
+import {expandAbbr} from './abbr-expand.js';
 
 let DATA = {};
 let gameState = {
@@ -123,10 +124,13 @@ function renderRound1(wrap, s) {
       const isPos = String(val).startsWith('+');
       const isNeg = String(val).startsWith('\u2212')
         || String(val).startsWith('-');
-      profileHTML += `<div class="test-item">
-        <div class="test-item-name">${test}</div>
-        <div class="test-item-val ${isPos ? 'positive' : isNeg ? 'negative' : ''}">${val}</div>
-      </div>`;
+      const cls = isPos ? 'positive'
+        : isNeg ? 'negative' : '';
+      profileHTML += '<div class="test-item">'
+        + '<div class="test-item-name">'
+        + expandAbbr(test) + '</div>'
+        + '<div class="test-item-val ' + cls + '">'
+        + expandAbbr(String(val)) + '</div></div>';
     }
   );
   profileHTML += '</div>';
@@ -193,7 +197,9 @@ function gradeAnswer(wrap, btn, correct, explanation) {
   const fb = document.createElement('div');
   fb.className = 'feedback-box'
     + (isCorrect ? '' : ' error');
-  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${explanation}`;
+  const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
+  fb.innerHTML = '<strong>' + verdict + '</strong> '
+    + expandAbbr(explanation);
   card.appendChild(fb);
 
   const scoreEl = wrap.querySelector('.score-display');
@@ -229,7 +235,7 @@ function renderRound2(wrap, s) {
 
   const qText = document.createElement('p');
   qText.className = 'question-stem';
-  qText.textContent = q.question;
+  qText.innerHTML = expandAbbr(q.question);
   card.appendChild(qText);
 
   const isMultiSelect = Array.isArray(q.correct);
@@ -282,7 +288,9 @@ function handleMultiSelectSubmit(wrap, question) {
   const fb = document.createElement('div');
   fb.className = 'feedback-box'
     + (isCorrect ? '' : ' error');
-  fb.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong> ${question.explanation}`;
+  const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
+  fb.innerHTML = '<strong>' + verdict + '</strong> '
+    + expandAbbr(question.explanation);
   card.appendChild(fb);
 
   const scoreEl = wrap.querySelector('.score-display');
@@ -389,9 +397,9 @@ function renderCaseVisit(ci) {
             : isNeg ? 'negative' : '';
           return '<div class="test-item">'
             + '<div class="test-item-name">'
-            + k + '</div>'
+            + expandAbbr(k) + '</div>'
             + '<div class="test-item-val '
-            + cls + '">' + v + '</div></div>';
+            + cls + '">' + expandAbbr(String(v)) + '</div></div>';
         }
       ).join('') + '</div>'
     : '';
@@ -409,7 +417,7 @@ function renderCaseVisit(ci) {
   container.innerHTML =
     `<div class="visit-badge">Visit ${visit.visit}</div>`
     + testHTML
-    + `<p class="question-stem">${visit.question}</p>`;
+    + '<p class="question-stem">' + expandAbbr(visit.question) + '</p>';
   container.appendChild(optWrap);
 }
 
@@ -445,7 +453,7 @@ function handleCaseAnswer(btn) {
     + (isCorrect ? '' : ' error');
   fb.innerHTML = '<strong>'
     + (isCorrect ? 'Correct.' : 'Incorrect.')
-    + '</strong> ' + visit.explanation;
+    + '</strong> ' + expandAbbr(visit.explanation);
   container.appendChild(fb);
 
   if (visit.treatmentQuestion && isCorrect) {
@@ -464,7 +472,7 @@ function renderTreatmentQuestion(ci, visit) {
   const treatmentDiv = document.createElement('div');
   treatmentDiv.className = 'treatment-subquestion';
   treatmentDiv.innerHTML =
-    `<p class="question-stem">${visit.treatmentQuestion}</p>`;
+    '<p class="question-stem">' + expandAbbr(visit.treatmentQuestion) + '</p>';
 
   const optWrap = document.createElement('div');
   optWrap.className = 'answer-opts treatment-opts';
@@ -533,7 +541,7 @@ function gradeTreatment(ci) {
   fb.innerHTML = '<strong>'
     + (isCorrect ? 'Correct.' : 'Incorrect.')
     + '</strong> '
-    + (visit.treatmentExplanation || '');
+    + expandAbbr(visit.treatmentExplanation || '');
   const treatmentDiv = container.querySelector(
     '.treatment-subquestion'
   );
@@ -592,9 +600,11 @@ function buildChainCard(chain, ci) {
   const div = document.createElement('div');
   div.className = 'card';
   div.innerHTML =
-    `<h3 class="chain-title">${chain.title}</h3>
-    <div class="chain-subtitle">
-      ${chain.start} \u2192 ${chain.end}</div>
+    '<h3 class="chain-title">'
+      + expandAbbr(chain.title) + '</h3>'
+    + '<div class="chain-subtitle">'
+      + expandAbbr(chain.start) + ' \u2192 '
+      + expandAbbr(chain.end) + '</div>
     <ul class="chain-list"
       id="chain-${ci}"></ul>
     <div class="btn-row">
@@ -618,8 +628,9 @@ function renderChainList(ci, state) {
     const li = liTemplate.cloneNode(false);
     li.dataset.step = step;
     li.innerHTML =
-      `<span class="chain-step-num">${i + 1}.</span>`
-      + `<span>${step}</span>`;
+      '<span class="chain-step-num">'
+      + (i + 1) + '.</span>'
+      + '<span>' + expandAbbr(step) + '</span>';
     ul.appendChild(li);
   });
 }
@@ -683,7 +694,7 @@ function checkChainOrder(ci, state) {
       + 'Not quite. Correct order:'
       + ' <ol class="chain-correct-list">'
       + state.steps.map(
-        (s) => '<li>' + s + '</li>'
+        (s) => '<li>' + expandAbbr(s) + '</li>'
       ).join('') + '</ol></div>';
 }
 
@@ -714,13 +725,13 @@ function renderTreeNode(node, parent) {
   if (node.terminal) {
     const el = document.createElement('div');
     el.className = 'tree-terminal';
-    el.textContent = annotateOutOfScope(node.content || '');
+    el.innerHTML = expandAbbr(annotateOutOfScope(node.content || ''));
     parent.appendChild(el);
     return;
   }
   const qEl = document.createElement('div');
   qEl.className = 'tree-question';
-  qEl.textContent = node.question || node.id;
+  qEl.innerHTML = expandAbbr(node.question || node.id);
   parent.appendChild(qEl);
 
   if (!node.branches) return;
@@ -803,14 +814,27 @@ function renderMuscleView(view, query) {
     const div = document.createElement('div');
     div.className = 'muscle-entry';
     const exercises = (entry.exercises || []).map(e => `<span class="exercise-tag">${e}</span>`).join('');
-    div.innerHTML = `
-      <div class="muscle-name">${nameKey}</div>
-      <div class="muscle-meta">${entry.action || entry.meaning || ''}</div>
-      ${entry.pattern ? `<div class="muscle-meta">Pattern: ${entry.pattern}</div>` : ''}
-      ${entry.hierarchyStep ? `<div class="muscle-meta">Hierarchy: ${entry.hierarchyStep}</div>` : ''}
-      ${entry.muscles ? `<div class="muscle-meta">Muscles: ${entry.muscles}</div>` : ''}
-      <div class="exercise-tags">${exercises}</div>
-    `;
+    const meta = entry.action || entry.meaning || '';
+    const patternLine = entry.pattern
+      ? '<div class="muscle-meta">Pattern: '
+        + expandAbbr(entry.pattern) + '</div>'
+      : '';
+    const hierarchyLine = entry.hierarchyStep
+      ? '<div class="muscle-meta">Hierarchy: '
+        + expandAbbr(entry.hierarchyStep) + '</div>'
+      : '';
+    const musclesLine = entry.muscles
+      ? '<div class="muscle-meta">Muscles: '
+        + expandAbbr(entry.muscles) + '</div>'
+      : '';
+    div.innerHTML =
+      '<div class="muscle-name">'
+        + expandAbbr(nameKey) + '</div>'
+      + '<div class="muscle-meta">'
+        + expandAbbr(meta) + '</div>'
+      + patternLine + hierarchyLine + musclesLine
+      + '<div class="exercise-tags">'
+        + exercises + '</div>';
     wrap.appendChild(div);
   });
   if (!wrap.children.length) wrap.innerHTML = '<div class="empty-message">No entries match.</div>';
