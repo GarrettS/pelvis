@@ -66,29 +66,29 @@ function buildCheatSheet() {
   });
 }
 
-const CMAP_W = 500, CMAP_H = 340;
-const CMAP_PAD = 20;
+const CONCEPT_MAP_W = 500, CONCEPT_MAP_H = 340;
+const CONCEPT_MAP_PAD = 20;
 const LABEL_PAD = 4;
 const OFF_DIST = 18;
 const NODE_CHAR_W = 5.2;
 const NODE_PAD = 12;
 const NODE_MIN_W = 60;
 
-function cmapPx(node) {
+function pxToViewBox(node) {
   return {
-    cx: CMAP_PAD
-      + node.x / 100 * (CMAP_W - 2 * CMAP_PAD),
-    cy: CMAP_PAD
-      + node.y / 100 * (CMAP_H - 2 * CMAP_PAD)
+    cx: CONCEPT_MAP_PAD
+      + node.x / 100 * (CONCEPT_MAP_W - 2 * CONCEPT_MAP_PAD),
+    cy: CONCEPT_MAP_PAD
+      + node.y / 100 * (CONCEPT_MAP_H - 2 * CONCEPT_MAP_PAD)
   };
 }
 
 function buildEdgeLines() {
   return MAP_EDGES.map((edge, i) => {
-    const f = cmapPx(MAP_NODES[edge.from]);
-    const t = cmapPx(MAP_NODES[edge.to]);
+    const f = pxToViewBox(MAP_NODES[edge.from]);
+    const t = pxToViewBox(MAP_NODES[edge.to]);
     return `<line class="map-edge"
-      id="cmap-edge-${i}"
+      id="concept-map-edge-${i}"
       x1="${f.cx}" y1="${f.cy}"
       x2="${t.cx}" y2="${t.cy}"
       marker-end="url(#arrow-map)"/>`;
@@ -97,8 +97,8 @@ function buildEdgeLines() {
 
 function buildEdgeLabels() {
   return MAP_EDGES.map((edge, i) => {
-    const f = cmapPx(MAP_NODES[edge.from]);
-    const t = cmapPx(MAP_NODES[edge.to]);
+    const f = pxToViewBox(MAP_NODES[edge.from]);
+    const t = pxToViewBox(MAP_NODES[edge.to]);
     const mx = (f.cx + t.cx) / 2;
     const my = (f.cy + t.cy) / 2;
     let ox, oy;
@@ -115,7 +115,7 @@ function buildEdgeLabels() {
       oy = my + (dx / len) * OFF_DIST;
     }
     return `<g class="map-edge-label-group"
-      id="cmap-elabel-${i}">
+      id="concept-map-label-${i}">
       <line class="map-edge-leader"
         x1="${mx}" y1="${my}"
         x2="${ox}" y2="${oy}"/>
@@ -130,7 +130,7 @@ function buildEdgeLabels() {
 function buildNodes() {
   return Object.keys(MAP_NODES).map((id) => {
     const node = MAP_NODES[id];
-    const p = cmapPx(node);
+    const p = pxToViewBox(node);
     const lines = node.label.split('\n');
     const maxLen = Math.max(
       ...lines.map((l) => l.length)
@@ -158,7 +158,7 @@ function buildNodes() {
 function sizeEdgeLabelBoxes() {
   MAP_EDGES.forEach((edge, i) => {
     const g = document.getElementById(
-      'cmap-elabel-' + i
+      'concept-map-label-' + i
     );
     const text = g.querySelector('text');
     const rect = g.querySelector('rect');
@@ -205,7 +205,7 @@ function initNodeHighlight(svg) {
         && edge.to !== nodeId) return;
 
       const edgeEl = document.getElementById(
-        'cmap-edge-' + i
+        'concept-map-edge-' + i
       );
       if (edgeEl) {
         edgeEl.classList.add('highlighted');

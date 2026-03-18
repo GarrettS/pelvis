@@ -1,47 +1,47 @@
 {
   "nodes": {
-    "cmap-diaphragm": {
+    "concept-map-diaphragm": {
       "label": "L Hemidiaphragm\nWeakness",
       "x": 22,
       "y": 9
     },
-    "cmap-iotas": {
+    "concept-map-iotas": {
       "label": "L IO/TA\nWeakness",
       "x": 7,
       "y": 44
     },
-    "cmap-psoas": {
+    "concept-map-psoas": {
       "label": "L Psoas/Iliacus\nShortening",
       "x": 46,
       "y": 21
     },
-    "cmap-aic": {
+    "concept-map-aic": {
       "label": "L Innominate\nAnterior Tilt\n(IP ER)",
       "x": 60,
       "y": 49,
       "central": true
     },
-    "cmap-nutat": {
+    "concept-map-nutat": {
       "label": "L SI Joint\nNutation\n(IS IR)",
       "x": 82,
       "y": 27
     },
-    "cmap-outlet": {
+    "concept-map-outlet": {
       "label": "L Outlet\nClosure\n(IsP IR)",
       "x": 82,
       "y": 65
     },
-    "cmap-floor": {
+    "concept-map-floor": {
       "label": "L Pelvic Floor\nDescent",
       "x": 92,
       "y": 82
     },
-    "cmap-spine": {
+    "concept-map-spine": {
       "label": "Spine Rightward\nOrientation",
       "x": 33,
       "y": 76
     },
-    "cmap-right": {
+    "concept-map-right": {
       "label": "R Compensatory\nPosition",
       "x": 12,
       "y": 89
@@ -49,64 +49,64 @@
   },
   "edges": [
     {
-      "from": "cmap-diaphragm",
-      "to": "cmap-psoas",
+      "from": "concept-map-diaphragm",
+      "to": "concept-map-psoas",
       "label": "crural pull / ZOA loss",
       "labelDx": 58.4,
       "labelDy": -17.4
     },
     {
-      "from": "cmap-diaphragm",
-      "to": "cmap-iotas",
+      "from": "concept-map-diaphragm",
+      "to": "concept-map-iotas",
       "label": "no abdominal counter-pressure",
       "labelDx": -17.8,
       "labelDy": -21.8
     },
     {
-      "from": "cmap-iotas",
-      "to": "cmap-aic",
+      "from": "concept-map-iotas",
+      "to": "concept-map-aic",
       "label": "no posterior tilt opposition",
       "labelDx": -21.5,
       "labelDy": 14.1
     },
     {
-      "from": "cmap-psoas",
-      "to": "cmap-aic",
+      "from": "concept-map-psoas",
+      "to": "concept-map-aic",
       "label": "pulls ilium forward",
       "labelDx": -66.4,
       "labelDy": -1.5
     },
     {
-      "from": "cmap-aic",
-      "to": "cmap-nutat",
+      "from": "concept-map-aic",
+      "to": "concept-map-nutat",
       "label": "ilium fwd → nutation",
       "labelDx": -36.7,
       "labelDy": -24
     },
     {
-      "from": "cmap-aic",
-      "to": "cmap-outlet",
+      "from": "concept-map-aic",
+      "to": "concept-map-outlet",
       "label": "inlet/outlet reciprocal",
       "labelDx": -49.6,
       "labelDy": 22
     },
     {
-      "from": "cmap-outlet",
-      "to": "cmap-floor",
+      "from": "concept-map-outlet",
+      "to": "concept-map-floor",
       "label": "outlet closed → floor descends",
       "labelDx": -89.9,
       "labelDy": 13.2
     },
     {
-      "from": "cmap-aic",
-      "to": "cmap-spine",
+      "from": "concept-map-aic",
+      "to": "concept-map-spine",
       "label": "sacrum follows",
       "labelDx": -48.9,
       "labelDy": -8.8
     },
     {
-      "from": "cmap-spine",
-      "to": "cmap-right",
+      "from": "concept-map-spine",
+      "to": "concept-map-right",
       "label": "weight shift right",
       "labelDx": -41.8,
       "labelDy": -18.4

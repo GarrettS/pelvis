@@ -453,7 +453,6 @@ function buildChainCard(chain, ci) {
   checkBtn.textContent = 'Check Order';
   checkBtn.addEventListener('click', () => {
     checkChainOrder(ul, steps, feedbackEl);
-    btnRow.appendChild(feedbackEl);
   });
 
   const resetBtn = document.createElement('button');
