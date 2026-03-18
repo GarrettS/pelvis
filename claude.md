@@ -47,6 +47,7 @@ Follow this sequence. Do not skip steps.
 Fix anything found in steps 2–4 before proceeding. Do not commit until all steps pass clean.
 
 ### Committing
+- **Ask before pushing.** Do not push to remote without explicit approval.
 - Prompt the user toward cohesive commits and discrete chunks of work.
 - Commit messages: imperative mood, concise, scoped.
 
