@@ -175,6 +175,29 @@ When two or more code blocks follow the same structure but differ in specific va
 
 When a chain of conditionals maps a value to an action, replace it with a keyed object. The table makes the mapping visible at a glance, is trivial to extend, and separates routing from logic.
 
+❌ Conditional chain:
+```javascript
+if (id === 'submit') handleSubmit();
+else if (id === 'new-session') resetSession();
+else if (id === 'end-session') renderResults();
+else if (id === 'retake-missed') retakeMissed();
+```
+
+✅ Dispatch table — pairs naturally with event delegation:
+```javascript
+const CLICK_DISPATCH = {
+  'equiv-submit': handleSubmit,
+  'equiv-new-session': resetSession,
+  'equiv-end-session': renderResults,
+  'equiv-retake-missed': retakeMissed
+};
+
+section.addEventListener('click', (e) => {
+  const target = e.target.closest('[id]');
+  CLICK_DISPATCH[target?.id]?.();
+});
+```
+
 ### Functions
 
 Functions must do one thing. The name must clearly reflect what that thing is. Consistent return type — callers should not need to check which shape came back. Pure where possible. Three or fewer parameters; use an options object when more context is needed. Within a function, each step operates at the same level of abstraction — the body reads as a table of contents for the operation. When a chain of conditionals routes to different actions, consider a dispatch table or function redefinition.
