@@ -604,17 +604,19 @@ function buildChainCard(chain, ci) {
       + expandAbbr(chain.title) + '</h3>'
     + '<div class="chain-subtitle">'
       + expandAbbr(chain.start) + ' \u2192 '
-      + expandAbbr(chain.end) + '</div>
-    <ul class="chain-list"
-      id="chain-${ci}"></ul>
-    <div class="btn-row">
-      <button class="btn primary"
-        id="chain-check-${ci}">Check Order</button>
-      <button class="btn"
-        id="chain-reset-${ci}">Reset</button>
-    </div>
-    <div class="feedback-gap"
-      id="chain-feedback-${ci}"></div>`;
+      + expandAbbr(chain.end) + '</div>'
+    + '<ul class="chain-list" id="chain-'
+      + ci + '"></ul>'
+    + '<div class="btn-row">'
+      + '<button class="btn primary"'
+      + ' id="chain-check-' + ci
+      + '">Check Order</button>'
+      + '<button class="btn"'
+      + ' id="chain-reset-' + ci
+      + '">Reset</button></div>'
+    + '<div class="feedback-gap"'
+      + ' id="chain-feedback-' + ci
+      + '"></div>';
   return div;
 }
 
