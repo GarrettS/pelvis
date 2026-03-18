@@ -63,14 +63,14 @@ const ANATOMIZE_IMAGES = [
     id: "pelvic_outlet",
     label: "Pelvic Outlet",
     mechanic: "blank_panels",
-    imageSrc: "PRI1Pelvic_Outlet2.jpg",  // embedded as base64
+    imageSrc: "img/PRI-1-Pelvic-Outlet2.jpg",
     structures: [ /* ... */ ]
   },
   {
     id: "lateral_hip",
     label: "Lateral Hip",
     mechanic: "label_hunt",
-    imageSrc: "1772049358465_image.png",  // embedded as base64
+    imageSrc: "img/anatomize-this.png",
     structures: [ /* ... */ ]
   }
 ];
@@ -337,9 +337,8 @@ Both are included in the game. The structure filter (All / Muscles / Landmarks) 
 
 ## Image Set 1: Pelvic Outlet
 
-- **Image:** `PRI1Pelvic_Outlet2.jpg` (page 6 pelvic outlet, Elizabeth Noble illustration). Clean, no printed labels.
+- **Image:** `img/PRI-1-Pelvic-Outlet2.jpg` (page 6 pelvic outlet, Elizabeth Noble illustration). Clean, no printed labels.
 - **Mechanic:** `blank_panels`
-- **Base64:** Embed per CC-BUILD-SPEC.md.
 
 ### Structure Set (14 minimum)
 
@@ -379,9 +378,8 @@ All 10 muscles/ligaments have PRI detail data (color family, chain, pattern role
 
 ## Image Set 2: Lateral Hip
 
-- **Image:** `1772049358465_image.png` (lateral hip bone with muscle attachment sites and bony landmarks). Pre-labeled with text + leader lines.
+- **Image:** `img/anatomize-this.png` (lateral hip bone with muscle attachment sites and bony landmarks). Pre-labeled with text + leader lines.
 - **Mechanic:** `label_hunt`
-- **Base64:** Embed per CC-BUILD-SPEC.md.
 
 ### Structure Set (all visible labels)
 
@@ -596,7 +594,7 @@ Verify adjacent muscles share boundary edges where they meet (no gaps, no overla
 
 ### Step 2: Author Hitbox Data for Lateral Hip
 
-Examine `1772049358465_image.png` and author `hitbox` coordinates (percentage-based bounding boxes) for every visible label. Each hitbox should tightly wrap the printed text.
+Examine `img/anatomize-this.png` and author `hitbox` coordinates (percentage-based bounding boxes) for every visible label. Each hitbox should tightly wrap the printed text.
 
 Measure carefully — dense regions (inferior pubic area) have labels close together. Hitboxes must not overlap.
 
