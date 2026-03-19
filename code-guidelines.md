@@ -4,7 +4,7 @@ Standards for web application development. Vanilla JavaScript, no frameworks, no
 
 Baseline authorities for formatting: [Google JavaScript Style Guide](https://google.github.io/styleguide/jsguide.html), [Google HTML/CSS Style Guide](https://google.github.io/styleguide/htmlcssguide.html), and [Code Guidelines for Rich Internet Application Development](https://web.archive.org/web/20240805191807/http://jibbering.com/faq/notes/code-guidelines/) by Garrett Smith et al. The Formatting section below overrides and extends those guides. Where both this document and the Formatting section are silent, defer to the baseline authorities.
 
-Tool-specific workflow rules (commit process, verification, tool constraints) are in `CLAUDE.md`. That file governs how work is done; this file governs what the code looks like.
+Tool-specific workflow rules (commit process, verification, tool constraints) belong in the project's workflow contract (e.g. `CLAUDE.md` for Claude Code, `.cursor/rules` for Cursor, or a team runbook). That file governs how work is done; this file governs what the code looks like.
 
 ---
 
@@ -77,7 +77,12 @@ Do not search a broader part of the DOM than the task requires. When the element
 
 ### DOM-Light
 
-Favor source HTML over JS-generated markup. Do not use JavaScript to solve what HTML does natively — use `<form>` and `.reset()` instead of looping through inputs, `<button type="button">` instead of `preventDefault`, `<details>` instead of toggle logic. Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`.
+Favor source HTML over JS-generated markup. Do not use JavaScript to solve what HTML already does natively. Examples:
+- `<form>` with `.reset()` instead of looping through inputs to clear them manually
+- `<button type="button">` instead of `<button>` with `preventDefault` to avoid submission
+- `<details>` instead of a `div` with JS toggle logic
+
+Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`.
 
 ### Directory Structure
 
@@ -150,7 +155,7 @@ For exclusive-active state (tabs, selections, panels): hold a reference to the c
 When a data record and a DOM element represent the same entity, give them the same `id`. This single key indexes both — data by object property, DOM by `getElementById`, dispatch table by action route. Do not search either collection for a known key. This is the keyed form of [Minimize Traversal Scope](#minimize-traversal-scope): when the key is known, address directly instead of searching.
 
 - **Data format**: structure JSON as a keyed object (`{"item-foo": {...}}`) instead of an array of objects with `id` fields (`[{"id": "foo", ...}]`). When data is looked up by key, the source format should be keyed — no runtime indexing step needed.
-- **Module ownership**: if a module generates IDs, it owns a unique prefix (`cmap-`, `equiv-`, `mq-`). Two modules cannot share a prefix. Dynamic elements use prefix + index (`cmap-edge-0`, `equiv-elabel-3`). Grep `id="` to see what's taken.
+- **Module ownership**: modules that generate IDs use a prefix or parameterized name to keep them unique. Dynamic elements use prefix + index (e.g. `order-item-0`, `search-result-3`). Widgets that can have multiple instances (resize bar, drag handle, calendar) take an ID parameter from the caller — each instance gets a unique ID derived from that parameter (e.g. `salon-calendar`, `deliveries-calendar`). Two elements with the same ID is a bug. Framework-era advice to avoid `id` attributes does not apply here — see `code-philosophy.md` §Shared Key.
 - **DOM side**: use the namespaced key as the element's `id` attribute. Lookup is `getElementById(id)`. Related elements use convention-based suffixes (e.g. `id + "-detail"`), each directly addressable.
 - **One key across all layers**: the same string appears in JSON keys, element `id` attributes, SVG element `id` attributes, and JS lookups. No translation between layers.
 - **Access pattern (getById)**: event delegation derives the key from the target element's `id`, then addresses both data (`map[id]`) and DOM (`getElementById(id)`) directly. When construction is expensive, use create-on-first-access: `pool[id] || (pool[id] = create(id))`.
@@ -299,9 +304,9 @@ Semantic and behavioral rules. Where these overlap with the baseline authorities
 - Class and id selectors must have semantic meaning. `.redButton` is meaningless; `.errorAction` represents a state. See: [Use class with semantics in mind](https://www.w3.org/QA/Tips/goodclassnames). Use unambiguous names from the project's ubiquitous language: `activeTab`, `activeSubtab` — not `.active`.
 - Modular CSS: each file groups conceptually-related functionality, does one thing, and minimizes dependence on other CSS files.
 - All colors via CSS custom properties. Never hardcode hex or rgb in rules. Define custom properties on `:root` in the CSS file that owns the concept. If a dark mode override is needed, define it in `@media (prefers-color-scheme: dark)` in the same file.
-- System font stacks. No CDN fonts, no Google Fonts. Scalable font sizes using `clamp()` — define a font scale as custom properties on `:root` and use those for all `font-size` declarations. No fixed `px` or bare `rem` font sizes in rules.
-- Mobile-first. Base styles target small screens; widen with `min-width` media queries. Images: `max-width: 100%; height: auto`. Overlay positioning uses percentages. No layout element should require horizontal scrolling on a 320px-wide viewport.
-- Light/dark theme via `prefers-color-scheme`. Define light as `:root` default, dark in the media query. No manual toggle unless the project spec requires one.
+- System font stacks by default. No CDN fonts unless the project spec requires a brand typeface — and if it does, self-host; do not load from third-party CDNs at runtime. Scalable font sizes using `clamp()` — define a font scale as custom properties on `:root` and use those for all `font-size` declarations. No fixed `px` or bare `rem` font sizes in rules.
+- Mobile-first. Base styles target small screens; widen with `min-width` media queries. Images: `max-width: 100%; height: auto`. Overlay positioning uses percentages. No layout element should require horizontal scrolling at the project's minimum target viewport width (typically 320px).
+- Light/dark theme via `prefers-color-scheme` when the project supports theming. Define light as `:root` default, dark in the media query. No manual toggle unless the project spec requires one.
 
 ### JavaScript
 

@@ -64,7 +64,9 @@ The Shared Key pattern uses a unique `id` as a single-token address across every
 
 **Collision control as a simple contract.** Critics fear ID collisions, but module-owned prefixes make collisions a failure to follow the grep protocol, not a failure of the architecture. It is a social and technical contract that scales because it is simple, not because it is wrapped in a library. If two developers both use `edge-` for different features, the collision is visible in a single grep — not hidden behind framework-managed component scoping.
 
-**The triple-threat.** The ID is the universal coordinate across all three layers:
+**Why frameworks avoid IDs.** React discourages `id` attributes because components may be rendered multiple times, producing duplicate IDs that break `getElementById` and accessibility associations. React provides `useId()` for accessibility attributes and `useRef()` for imperative DOM access — abstractions that solve a problem the framework created by taking DOM control away from the developer. Worse, `useId()` generates opaque tokens (`:r1:`, `:r2:`) that are meaningless to human readers, invisible to grep, and useless in the browser inspector — far from "give each identifier a meaningful name from the project's ubiquitous language." React could have encouraged unique, developer-chosen IDs scoped to component instances; instead it chose disposable machine-generated tokens. In vanilla JS, the developer controls instantiation. If you need two calendars, you parameterize the ID from the caller (`salon-calendar`, `deliveries-calendar`) and there is no duplication because you decided how many instances exist and what each one is called. The Shared Key pattern works because the developer manages DOM identity directly — no reconciliation layer can invalidate an ID the developer explicitly created and maintains.
+
+**The triple-threat.** A meaningful, human-readable ID — named from the project's ubiquitous language — is the universal coordinate across JS dispatch, DOM lookup, and CSS styling. See it in the inspector, find it in the code, know what it represents. No translation layer to hide bugs.
 
 | Layer | Implementation | Doctrine |
 |---|---|---|
@@ -76,7 +78,7 @@ The Shared Key pattern uses a unique `id` as a single-token address across every
 
 Correct terminology is not cosmetic. When code, data, selectors, and documentation use the same domain terms, moving from user terminology to implementation requires no translation. That reduces debugging cost, improves grepability, and lowers the risk of model drift.
 
-Identifiers with material accuracy — `pelvisRotationDegrees` instead of `val`, `activeDragItem` instead of `dragging`, `ABBR_TITLES` instead of `MAP`. The name describes the domain reality, not the programming artifact. If the user calls it a "concept map," the code says `conceptMap` — not `cmap`. Programmer shorthand (`mq`, `expl`, `btn`) forces a translation in the reader's head; domain abbreviations (`ADT`, `AIC`, `IsP`) do not, because they are the language of the domain itself.
+Identifiers with material accuracy — `pelvisRotationDegrees` instead of `val`, `activeDragItem` instead of `dragging`, `ABBR_TITLES` instead of `MAP`. The name describes the domain reality, not the programming artifact. If the user calls it a "concept map," the code says `conceptMap` — not `cmap`. Programmer shorthand (`mq`, `expl`, `btn`) forces a translation in the reader's head; domain abbreviations do not, because they are the language of the domain itself. A medical app uses `ADT` and `PADT` because the clinicians do. A trading app uses `WTI` and `EUR` because the traders do. A dental app uses `FMX` and `BW` because the hygienists do. These are not programmer abbreviations — they are the vocabulary of the people the software serves.
 
 Module-scoped variables in ES modules are not globals. Even if they were, a unique name with a descriptive prefix provides a logical namespace that the human brain (and grep) can navigate effortlessly. The "fear of globals" is a framework-era anxiety that does not apply to module-scoped state with material-accuracy naming. Name it well, scope it to the module, and move on.
 
@@ -86,7 +88,7 @@ The grep test: if you can find a feature by searching for the same word the user
 
 The browser's CSS engine is a declarative partner to the JS logic, not just a painting tool.
 
-**Zero-iteration styling.** The Ancestor Class pattern (e.g., `#tab-equivalence.showing-results .equiv-quiz-wrap`) offloads state-based visual changes to the browser's C++ style-recalc pass. No JS loops toggling classes on descendants — one class on the ancestor, the cascade does the rest.
+**Zero-iteration styling.** The Ancestor Class pattern — one state class on a common ancestor, descendant rules in CSS — offloads state-based visual changes to the browser's C++ style-recalc pass. No JS loops toggling classes on descendants. Example: `#tab-equivalence.showing-results .equiv-quiz-wrap` — the ancestor gets the class, the cascade hides/shows the descendants.
 
 **Predictable collision guard.** A collision in CSS is a violation of the Module Ownership contract. If two modules' styles conflict, it means they didn't grep for the prefix before implementation. The same contract that prevents ID collisions in JS prevents selector collisions in CSS.
 
@@ -106,27 +108,18 @@ Invalid reasons:
 
 When taking an exception, comment the code stating which default is overridden and why. This prevents a future reader from "fixing" the code back to the default and breaking the design.
 
-## Transferability
+## Adopting the Doctrine
 
-The guidelines are designed to be project-agnostic where possible. Not all of them are.
+The guidelines are the canonical doctrine. They are not a project-specific document with transfer notes — they are the standard, and individual projects overlay their own decisions on top.
 
-**Universal** — these transfer to any vanilla JS project without modification:
-- Design Principles (Fail-Safe, Module Cohesion, DOM-Light)
-- Patterns (Event Delegation, Active Object, Shared Key, Ancestor Class, Dispatch Table)
-- Language Rules (modules, functions, variables, naming, strict equality, string building)
-- Formatting conventions
-- Comments policy
+**The doctrine** — principles, patterns, language rules, formatting, and comments policy — applies to any vanilla JS browser application without modification. The examples in `code-guidelines.md` are drawn from real projects (anatomy tools, quiz systems, interactive maps). They illustrate the rules; they are not requirements. A dental scheduling app, a commodity trading dashboard, and a medical reference tool all follow the same Fail-Safe, Shared Key, and Event Delegation rules — with different domain vocabulary, different data shapes, and different UI concerns.
 
-**DOM-specific** — these transfer to any DOM-heavy vanilla JS application:
-- CSS over JS for state presentation
-- `hidden` attribute for visibility
-- Inline styles policy
-- Template and cloneNode
+**Project overlays** handle decisions that vary by project:
+- Directory names and structure (app/dev separation is doctrine; specific directory names are overlay)
+- Asset management strategy (service worker precache, build tool manifests, or neither)
+- Typography (system font stacks are the default; brand typefaces are an overlay decision)
+- Minimum target viewport width (320px is typical; the project spec may set a different floor)
+- Theming (light/dark is doctrine when theming is needed; whether theming is needed is a project decision)
+- Color system (CSS custom properties for all colors is a strong default; a two-color utility app may not need the indirection)
 
-**Project-specific** — these reflect decisions made for this project and may need adaptation elsewhere:
-- Directory Structure (app/dev separation is universal; the specific directory names are not)
-- Explicit Asset Lists (relevant when using a service worker or manual precache; irrelevant otherwise)
-- CSS custom properties for all colors (a strong default, but a project with two colors may not need the indirection)
-- Mobile-first / 320px viewport rule (depends on the target audience)
-
-Adopting this document for a new project means understanding the principles well enough to distinguish the rules that serve *your* project from the rules that are artifacts of *this* one. Copy the principles. Evaluate the rules. Do not cargo-cult the specifics.
+A project overlay is a separate file — not a fork of the doctrine. The PRI Pelvis Restoration study tool uses [`prd/project.md`](prd/project.md) as its overlay — directory structure, asset rules, content authority, and architecture decisions live there. The doctrine evolves; overlays track project-specific decisions that the doctrine intentionally leaves open. When the overlay contradicts the doctrine, the overlay must state which rule it overrides and why, per §Defaults and Exceptions.
