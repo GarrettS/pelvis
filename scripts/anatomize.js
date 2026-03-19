@@ -146,6 +146,17 @@ function initListeners() {
       }
     });
   }
+
+  document.getElementById('anat-detail')
+    .addEventListener('click', (e) => {
+      const btn = e.target.closest(
+        '.anatomize-detail-btn'
+      );
+      if (!btn) return;
+
+      btn.hidden = true;
+      btn.nextElementSibling.hidden = false;
+    });
 }
 
 async function initAnatomize() {
@@ -441,7 +452,8 @@ function renderBlankPanels(imgSet) {
 }
 
 function drawArrows() {
-  const wrap = document.getElementById('anat-arena').querySelector('.anatomize-arena-wrap');
+  const wrap = document.getElementById('anat-arena')
+    ?.querySelector('.anatomize-arena-wrap');
   const svg = wrap?.querySelector('.anatomize-svg-overlay');
   if (!wrap || !svg) return;
   
@@ -614,10 +626,6 @@ const createRevealLayer = (() => {
     });
     const btn = btnTpl.cloneNode(false);
     btn.textContent = buttonLabel;
-    btn.addEventListener('click', () => {
-      wrapper.hidden = false;
-      btn.hidden = true;
-    });
     panel.appendChild(btn);
     panel.appendChild(wrapper);
   };
@@ -626,8 +634,8 @@ const createRevealLayer = (() => {
 function renderPromptPanel(structure) {
   document.getElementById('anat-detail').textContent = '';
   const panel = document.createElement('div');
-  panel.className = 'anatomize-detail-panel';
-  panel.classList.add(priColorClass(structure.priColor));
+  panel.className = 'anatomize-detail-panel '
+    + priColorClass(structure.priColor);
   panel.appendChild(createNameRow(structure.label));
 
   const hint = document.createElement('p');
@@ -772,8 +780,8 @@ function renderDetailPanel(structure) {
   document.getElementById('anat-detail').textContent = '';
 
   const panel = document.createElement('div');
-  panel.className = 'anatomize-detail-panel';
-  panel.classList.add(priColorClass(structure.priColor));
+  panel.className = 'anatomize-detail-panel '
+    + priColorClass(structure.priColor);
 
   const priDetail = structure.priDetail;
   const hasLayers = priDetail && (priDetail.layer2 || priDetail.layer3);
@@ -877,8 +885,10 @@ function endSession() {
 }
 
 function updateScore() {
-  document.getElementById('anat-score-text').textContent = `Score: ${state.score} \u00b7 ` +
-      `${state.identified.size} of ${state.structureCount}`;
+  document.getElementById('anat-score-text')
+    .textContent = 'Score: ' + state.score
+      + ' \u00b7 ' + state.identified.size
+      + ' of ' + state.structureCount;
 }
 
 function initResizeHandle() {
