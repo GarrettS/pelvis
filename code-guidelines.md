@@ -77,7 +77,7 @@ Do not search a broader part of the DOM than the task requires. When the element
 
 ### DOM-Light
 
-Favor source HTML over JS-generated markup. Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`.
+Favor source HTML over JS-generated markup. Do not use JavaScript to solve what HTML does natively — use `<form>` and `.reset()` instead of looping through inputs, `<button type="button">` instead of `preventDefault`, `<details>` instead of toggle logic. Keep the DOM to the simplest semantic structure necessary — more markup means more bytes, more parsing, and a larger tree for scripts to traverse. When creating elements dynamically, use `createElement`.
 
 ### Directory Structure
 

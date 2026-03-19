@@ -62,7 +62,7 @@ function buildCardDOM(card) {
   if (card.frontHint) {
     const hintEl = document.createElement('div');
     hintEl.className = 'fc-front-hint';
-    hintEl.textContent = card.frontHint;
+    hintEl.innerHTML = expandAbbr(card.frontHint);
     cardDiv.appendChild(hintEl);
   }
 
@@ -71,13 +71,12 @@ function buildCardDOM(card) {
 
   const backMain = document.createElement('div');
   backMain.className = 'fc-back-main';
-  backMain.textContent = card.back;
+  backMain.innerHTML = expandAbbr(card.back);
   backArea.appendChild(backMain);
 
   if (card.backDetail) {
     const showMoreBtn = document.createElement('button');
-    showMoreBtn.className = 'btn';
-    showMoreBtn.style.cssText = 'font-size:var(--text-xs);padding:.25rem .6rem;margin-top:.5rem;';
+    showMoreBtn.className = 'btn fc-show-more';
     showMoreBtn.textContent = 'Show More';
     backArea.appendChild(showMoreBtn);
 
@@ -115,13 +114,11 @@ function buildCardDOM(card) {
 }
 
 function clearForm() {
-  ['fc-input-front', 'fc-input-hint', 'fc-input-back', 'fc-input-detail'].forEach(id => {
-    const el = document.getElementById(id);
-    el.value = '';
-    el.style.borderColor = '';
-  });
-  document.getElementById('fc-detail-count').textContent = '0 / 380';
-  document.getElementById('fc-form-preview').disabled = true;
+  document.getElementById('fc-add-form').reset();
+  document.getElementById('fc-detail-count')
+    .textContent = '0 / 380';
+  document.getElementById('fc-form-preview')
+    .disabled = true;
 }
 
 function showEditStep() {

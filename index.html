@@ -532,7 +532,7 @@
       <div class="fc-progress" id="fc-progress">0 of 0 remaining</div>
       <button class="btn" id="fc-add-btn">+ Add Card</button>
     </div>
-    <div id="fc-add-form" class="fc-add-form hidden">
+    <form id="fc-add-form" class="fc-add-form hidden">
       <h3 id="fc-form-title">New Card</h3>
       <div id="fc-edit-section">
         <div class="fc-form-row">
@@ -553,18 +553,18 @@
           <div class="fc-char-count" id="fc-detail-count">0 / 380</div>
         </div>
         <div class="fc-form-actions">
-          <button class="btn" id="fc-form-cancel">Cancel</button>
-          <button class="btn primary" id="fc-form-preview" disabled>Preview</button>
+          <button type="button" class="btn" id="fc-form-cancel">Cancel</button>
+          <button type="button" class="btn primary" id="fc-form-preview" disabled>Preview</button>
         </div>
       </div>
       <div id="fc-preview-section" class="hidden">
         <div id="fc-preview-card"></div>
         <div class="fc-form-actions fc-preview-actions">
-          <button class="btn" id="fc-form-edit-back">← Edit</button>
-          <button class="btn primary" id="fc-form-save">Save</button>
+          <button type="button" class="btn" id="fc-form-edit-back">&larr; Edit</button>
+          <button type="button" class="btn primary" id="fc-form-save">Save</button>
         </div>
       </div>
-    </div>
+    </form>
     <div class="fc-filters" id="fc-cat-filters" role="group" aria-label="Category filter">
       <button class="fc-filter-btn active" data-cat="all">All</button>
       <button class="fc-filter-btn" data-cat="test_procedure">Tests</button>
