@@ -258,10 +258,9 @@
             <col class="col-motion">
             <col class="col-positions">
             <col class="col-role">
-            <col class="col-scope">
           </colgroup>
           <thead>
-            <tr><th>Joint</th><th>Type</th><th>Motion</th><th>PRI Positions</th><th>PRI Role</th><th>Scope</th></tr>
+            <tr><th>Joint</th><th>Type</th><th>Motion</th><th>PRI Positions</th><th>PRI Role</th></tr>
           </thead>
           <tbody id="joints-tbody"></tbody>
         </table>
@@ -331,6 +330,7 @@
     <div class="callout">
       <p>PRI creates new joint names to encode treatment targets. <strong>IS</strong> vs. <strong>SI</strong> is the same sacroiliac joint — the name tells you which bone PRI considers displaced. <strong>IP</strong> and <strong>IsP</strong> describe innominate movement relative to the pubic symphysis — a real joint (amphiarthrosis) with minimal motion that PRI uses as a positional reference, not a treatment target.</p>
     </div>
+    <h3 class="subsection-title">Translation Breakdown</h3>
     <div class="search-wrap">
       <input class="search-input" id="translation-search" type="text" placeholder="Filter by term, structure, or direction…" autocomplete="off">
     </div>
@@ -355,7 +355,6 @@
     <td></td>
     <td class="mono"></td>
     <td></td>
-    <td></td>
   </tr>
 </template>
 
@@ -366,7 +365,6 @@
     <div class="trc-field"><span class="trc-label">Motion</span><span class="trc-val"></span></div>
     <div class="trc-field"><span class="trc-label">PRI Positions</span><span class="trc-val mono"></span></div>
     <div class="trc-field"><span class="trc-label">PRI Role</span><span class="trc-val"></span></div>
-    <div class="trc-field"><span class="trc-label">Scope</span><span class="trc-val"></span></div>
   </div>
 </template>
 

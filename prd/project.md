@@ -4,6 +4,13 @@ https://garretts.github.io/pelvis
 
 An interactive study tool for the PRI Pelvis Restoration certification exam. Single-page vanilla JS application, GitHub Pages, works offline.
 
+## Doctrine
+This project follows the canonical code doctrine from [`GarrettS/code-guidelines`](https://github.com/GarrettS/code-guidelines):
+- **`code-guidelines.md`** — what the code looks like. Principles, patterns, language rules, formatting.
+- **`code-philosophy.md`** — why the doctrine is structured this way.
+
+This file (`project.md`) is the project overlay. Project-specific decisions live here, not in a fork of the doctrine. When this overlay overrides a doctrine default, it states which rule is overridden and why.
+
 ## Content Authority
 - **`Pelvis Restoration 2026 Complete Manual.md`** (parent directory) — the course manual. Authoritative for all PRI content. If app data contradicts this file, the manual wins. If Claude's training data contradicts this file, the manual wins.
 

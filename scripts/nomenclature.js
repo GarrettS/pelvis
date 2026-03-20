@@ -1,9 +1,10 @@
 import { showFetchError } from './fetch-feedback.js';
 import { getStudyData } from './study-data-cache.js';
+import { expandAbbr } from './abbr-expand.js';
 
 let JOINTS = [];
 let DATA = {};
-const KEYS = ['joint', 'type', 'motion', 'positions', 'role', 'scope'];
+const KEYS = ['joint', 'type', 'motion', 'positions', 'role'];
 
 function buildJointsView() {
   const tbody = document.getElementById('joints-tbody');
@@ -19,15 +20,14 @@ function buildJointsView() {
     cells[0].firstElementChild.textContent = j.joint;
     cells[1].textContent = j.type;
     cells[2].textContent = j.motion;
-    cells[3].textContent = j.positions;
-    cells[4].textContent = j.role;
-    cells[5].textContent = j.scope;
+    cells[3].innerHTML = expandAbbr(j.positions);
+    cells[4].innerHTML = expandAbbr(j.role);
     tbody.appendChild(row);
 
     const card = cardTpl.cloneNode(true);
     const vals = card.querySelectorAll('.trc-val');
     for (let k = 0; k < KEYS.length; k++) {
-      vals[k].textContent = j[KEYS[k]];
+      vals[k].innerHTML = expandAbbr(j[KEYS[k]]);
     }
     cards.appendChild(card);
   }
@@ -54,14 +54,14 @@ function buildTranslationTable() {
       const row = rowTpl.cloneNode(true);
       const cells = row.querySelector('tr').cells;
       for (let k = 0; k < ROW_KEYS.length; k++) {
-        cells[k].textContent = d[ROW_KEYS[k]];
+        cells[k].innerHTML = expandAbbr(d[ROW_KEYS[k]]);
       }
       tbody.appendChild(row);
 
       const card = cardTpl.cloneNode(true);
       const vals = card.querySelectorAll('.trc-val');
       for (let k = 0; k < ROW_KEYS.length; k++) {
-        vals[k].textContent = d[ROW_KEYS[k]];
+        vals[k].innerHTML = expandAbbr(d[ROW_KEYS[k]]);
       }
       cards.appendChild(card);
     }

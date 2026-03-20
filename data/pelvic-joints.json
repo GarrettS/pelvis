@@ -3,40 +3,36 @@
     "joint": "Sacroiliac (SI)",
     "type": "Synovial plane / fibrocartilaginous",
     "motion": "Nutation, counter-nutation. A few degrees of rotation.",
-    "positions": "IS IR/ER (ilium on sacrum), SI IR/ER (sacrum on ilium)",
-    "role": "Posterior inlet + posterior outlet. PRI creates two names for this single joint to encode which bone is the treatment target: IS = move the ilium, SI = move the sacrum.",
-    "scope": "Core joint. 4 of PRI\u2019s 12 position codes reference it."
+    "positions": "IS IR/ER (posterior inlet, p.5), SI IR/ER (posterior outlet, p.5)",
+    "role": "IS describes ilium moving on sacrum (posterior inlet, p.8). SI describes sacrum moving on ilium (posterior outlet, p.10). Same physical joint, two PRI reference frames.",
+    "manualRef": "Manual pp.5, 8, 10"
   },
   {
     "joint": "Pubic symphysis",
     "type": "Secondary cartilaginous (amphiarthrosis)",
     "motion": "Minimal \u2014 a few mm of shear and compression during gait, pregnancy, single-leg stance.",
-    "positions": "IP IR/ER (ilium-to-pubis), IsP IR/ER (ischium-to-pubis)",
-    "role": "Anterior inlet + anterior outlet. PRI uses the pubic symphysis as a positional landmark \u2014 the midline reference for describing how the ilium (inlet) and ischium (outlet) orient. IP and IsP describe innominate motion relative to this midline, not motion of the symphysis itself.",
-    "scope": "Positional reference. 4 of PRI\u2019s 12 position codes reference it. Despite minimal independent motion, it borders both the inlet and the outlet."
+    "positions": "IP IR/ER (anterior inlet, p.5), IsP IR/ER (anterior outlet, p.5)",
+    "role": "PRI uses the pubic symphysis as a positional landmark. IP describes ilium relative to pubis (inlet). IsP describes ischium relative to pubis (outlet)."
   },
   {
     "joint": "Hip (acetabulofemoral)",
     "type": "Synovial ball-and-socket",
     "motion": "Large ROM: flexion/extension, abduction/adduction, IR/ER.",
-    "positions": "AF IR/ER (pelvis on femur), FA IR/ER (femur on pelvis)",
-    "role": "PRI splits the standard hip joint into two names. AF = closed chain (stance leg, pelvis moves on planted femur). FA = open chain (swing leg, femur moves on pelvis). Standard anatomy calls both \u201chip joint motion\u201d.",
-    "scope": "Core joint. 4 of PRI\u2019s 12 position codes reference it. AF/FA distinction encodes which bone to target."
+    "positions": "AF IR/ER (pelvis on femur, p.5), FA IR/ER (femur on pelvis, p.5)",
+    "role": "AF = closed chain (stance leg, pelvis moves on planted femur). FA = open chain (swing leg, femur moves on pelvis)."
   },
   {
     "joint": "Lumbosacral (L5\u2013S1)",
     "type": "Intervertebral disc + zygapophyseal facets",
     "motion": "Flexion/extension, limited rotation",
     "positions": "(none in Pelvis Restoration)",
-    "role": "Not named. The psoas and diaphragmatic crura attach here \u2014 both are mechanically relevant to the L AIC pattern \u2014 but the joint itself involves spinal motion, not innominate displacement.",
-    "scope": "Excluded. PRI\u2019s system describes innominate and sacral motion only. Covered in Myokinematic Restoration and Postural Respiration."
+    "role": "Not named in PRI\u2019s position system. Psoas and diaphragmatic crura attach here but the joint involves spinal motion, not innominate displacement."
   },
   {
     "joint": "Sacrococcygeal",
     "type": "Symphysis (variably fused)",
     "motion": "Flexion/extension of coccyx",
     "positions": "(none named directly)",
-    "role": "Not named. Coccygeus muscle acts here, and coccyx position is implicit in outlet mechanics (SI IR/ER). PRI folds coccygeal motion into the sacrum-on-ilium description rather than isolating it.",
-    "scope": "Excluded from naming. Functionally present in outlet descriptions."
+    "role": "Not named. Coccyx position is implicit in outlet mechanics (SI IR/ER)."
   }
 ]

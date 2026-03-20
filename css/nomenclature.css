@@ -98,12 +98,11 @@
   font-family: var(--mono);
 }
 
-.col-joint { width: 14%; }
-.col-type { width: 12%; }
-.col-motion { width: 14%; }
-.col-positions { width: 16%; }
-.col-role { width: 28%; }
-.col-scope { width: 16%; }
+.col-joint { width: 15%; }
+.col-type { width: 15%; }
+.col-motion { width: 15%; }
+.col-positions { width: 25%; }
+.col-role { width: 30%; }
 
 .translation-detail {
   font-size: var(--text-xs);
