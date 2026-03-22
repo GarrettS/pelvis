@@ -202,6 +202,10 @@ check "Banner/landmark comments in CSS" \
   '[═─━]{3,}|[*]{4,}' \
   '*.css'
 
+check "Leading zero on decimal  [use .5 not 0.5]" \
+  '[ ,:;(]0\.[0-9]' \
+  '*.css'
+
 # ---- Asset integrity ----
 
 # Verify every sw.js precache entry exists as a file

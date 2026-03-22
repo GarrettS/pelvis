@@ -16,8 +16,8 @@
   --outlet: #9a5a2a;
   --green: #2a7a4a;
   --red: #a03030;
-  --box-shadow-sm: 0 0.05rem 0.2rem rgba(0, 0, 0, 0.12);
-  --box-shadow-md: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.14);
+  --box-shadow-sm: 0 .05rem .2rem rgba(0, 0, 0, .12);
+  --box-shadow-md: 0 .15rem .5rem rgba(0, 0, 0, .14);
   --dur-fast: 120ms;
   --dur-normal: 200ms;
   --text-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
@@ -75,8 +75,8 @@
     --outlet: #d4815e;
     --green: #5a9a5a;
     --red: #b05555;
-    --box-shadow-sm: 0 0.05rem 0.15rem rgba(0, 0, 0, 0.25);
-    --box-shadow-md: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.3);
+    --box-shadow-sm: 0 .05rem .15rem rgba(0, 0, 0, .25);
+    --box-shadow-md: 0 .2rem .6rem rgba(0, 0, 0, .3);
   }
 }
 

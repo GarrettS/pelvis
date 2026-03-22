@@ -17,7 +17,7 @@ abbr[data-title] {
   color: var(--text);
   font-size: var(--text-sm);
   white-space: nowrap;
-  box-shadow: var(--box-shadow-md);
+  box-shadow: 0 .2rem .8rem rgba(0, 0, 0, .22);
 }
 
 @keyframes abbrFadeIn {
@@ -27,6 +27,7 @@ abbr[data-title] {
 
 #abbr-popover:popover-open {
   animation: abbrFadeIn var(--dur-normal);
+  box-shadow: 0 .2rem .8rem rgba(0, 0, 0, .22);
 }
 
 @supports (anchor-name: --x) {
