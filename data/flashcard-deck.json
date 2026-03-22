@@ -203,8 +203,8 @@
         "examWeight": "high",
         "front": "What does IS IR describe?",
         "frontHint": "IS names the posterior inlet bones. This describes what the sacrum does relative to the ilium.",
-        "back": "Ilio-Sacral Internal Rotation — sacral nutation. The sacral base tips anterior relative to the ilium on that side.",
-        "backDetail": "IS names the ilium as the treatment target (inlet perspective). The physical motion is sacral nutation — sacral base tips anterior relative to the ilium. Unlike AF/FA where the first letter names the moving bone, IS/SI names the bone PRI intends to reposition: IS IR = reposition the ilium at the inlet; SI IR = reposition the sacrum at the outlet. Same nutation, different clinical question."
+        "back": "Ilio-Sacral Internal Rotation — the ilium internally rotates on the sacrum at the posterior inlet (Manual p.7). The manual never uses the word 'nutation.'",
+        "backDetail": "IS names the ilium as the treatment target (inlet perspective). Unlike AF/FA where the first letter names the moving bone, IS/SI names the bone PRI intends to reposition: IS IR = reposition the ilium at the inlet; SI IR = reposition the sacrum at the outlet. Whether IS IR corresponds to standard nutation or counternutation is unresolved — the manual defines it only as 'internal rotation' without mapping to either term. For the exam: use PRI's terms (IS IR, IS ER), not nutation/counternutation."
     },
     {
         "id": "init-004",
@@ -213,7 +213,7 @@
         "front": "What does SI IR describe?",
         "frontHint": "SI names the posterior outlet bones. Same joint as IS, but reversed — different treatment target.",
         "back": "Sacro-Iliac Internal Rotation — the sacrum internally rotates on the ilium, viewed from the outlet perspective. Same motion as IS IR but names the sacrum as the moving bone.",
-        "backDetail": "SI names the sacrum as the treatment target (outlet perspective). Same nutation as IS IR, but the clinical question flips: instead of moving the ilium on the sacrum (inlet work), you're targeting the sacrum directly (outlet work). The naming reversal encodes that distinction — not a different motion, a different treatment approach."
+        "backDetail": "SI names the sacrum as the treatment target (outlet perspective). Same physical motion as IS IR, but the clinical question flips: instead of moving the ilium on the sacrum (inlet work), you're targeting the sacrum directly (outlet work). The naming reversal encodes that distinction — not a different motion, a different treatment approach."
     },
     {
         "id": "init-005",
@@ -285,7 +285,7 @@
         "front": "What does the right gluteus maximus do in the L AIC correction?",
         "frontHint": "Works at both inlet and outlet. Facilitated in repositioning AND in Step 4.",
         "back": "Right glute max rotates the sacrum back toward the left (countering L AIC forward rotation). It abducts the right inlet and adducts the right outlet.",
-        "backDetail": "Standard action: hip extension, external rotation, lower-fiber adduction. In PRI closed chain: right glute max produces right SI IR (sacral nutation on right) and right posterior outlet closure. 'Left Sidelying Right Glute Max' is one of three L AIC repositioning exercises. Superior fibers work at inlet; inferior fibers at outlet. Step 4 of facilitation. (Manual p.25, 76)"
+        "backDetail": "Standard action: hip extension, external rotation, lower-fiber adduction. In PRI closed chain: right glute max produces right SI IR and right posterior outlet closure. 'Left Sidelying Right Glute Max' is one of three L AIC repositioning exercises. Superior fibers work at inlet; inferior fibers at outlet. Step 4 of facilitation. (Manual p.25, 76)"
     },
     {
         "id": "muscle-005",
@@ -293,8 +293,8 @@
         "examWeight": "high",
         "front": "What does the left gluteus medius do in the L AIC correction?",
         "frontHint": "Works at the left posterior inlet. Facilitated in Step 3.",
-        "back": "Left gluteus medius produces counter-nutation on the left (IS ER) — the left sacral base tips posterior relative to the left ilium. It helps close the left posterior inlet.",
-        "backDetail": "Standard action: hip abduction, medial rotation (anterior fibers). PRI assigns it to left posterior inlet. In closed chain, left glute med pulls ilium laterally relative to sacrum, promoting IS ER (counter-nutation). Facilitated in Step 3 with left proximal iliacus. Test marker: +L PADT persists, −R PART achieved, R HALT 2/5. (Manual p.76)"
+        "back": "Left gluteus medius produces left IS ER — it helps close the left posterior inlet.",
+        "backDetail": "Standard action: hip abduction, medial rotation (anterior fibers). PRI assigns it to left posterior inlet. In closed chain, left glute med pulls ilium laterally relative to sacrum, promoting IS ER. Facilitated in Step 3 with left proximal iliacus. Test marker: +L PADT persists, −R PART achieved, R HALT 2/5. (Manual p.76)"
     },
     {
         "id": "muscle-006",
@@ -409,9 +409,9 @@
         "category": "facilitation",
         "examWeight": "high",
         "front": "What is facilitated in Step 3 of the Left AIC hierarchy, and what are the test markers?",
-        "frontHint": "Left posterior inlet. Counter-nutation on the left side.",
-        "back": "Step 3: Turn ON left posterior inlet via IP IR / IS ER — left proximal iliacus and left gluteus medius. Counter-nutation of the left sacrum. Test markers: +L PADT, −R PART, R HALT 2/5.",
-        "backDetail": "R PART resolves at this step (becomes negative) — a key milestone. The left iliacus adducts the left inlet while left glute med produces left IS ER (counter-nutation). Exercises: Right Sidelying Supported Left Glute Med, Right Sidelying Hemi 90-90 with Left FA IR variations. (Manual p.76)"
+        "frontHint": "Left posterior inlet. IS ER on the left side.",
+        "back": "Step 3: Turn ON left posterior inlet via IP IR / IS ER — left proximal iliacus and left gluteus medius. Test markers: +L PADT, −R PART, R HALT 2/5.",
+        "backDetail": "R PART resolves at this step (becomes negative) — a key milestone. The left iliacus adducts the left inlet while left glute med produces left IS ER. Exercises: Right Sidelying Supported Left Glute Med, Right Sidelying Hemi 90-90 with Left FA IR variations. (Manual p.76)"
     },
     {
         "id": "treat-007",
@@ -454,9 +454,9 @@
         "category": "muscle_action",
         "examWeight": "medium",
         "front": "What role does the sacrotuberous ligament play in SI joint stability?",
-        "frontHint": "Its tension depends on sacral position — nutation vs. counter-nutation.",
-        "back": "Passive restraint to sacral nutation. Becomes taut when the sacrum nutates (IS IR) and slack when it counter-nutates (IS ER).",
-        "backDetail": "Runs from posterior sacrum and coccyx to ischial tuberosity. In L AIC, the left SI is nutated (L IS IR) — this ligament is taut on the left. On the right, the SI is counter-nutated (R IS ER) and the ligament is relatively slack. This asymmetric tension contributes to right-side SI instability complaints in L AIC patients, because the right SI lacks passive restraint."
+        "frontHint": "Its tension depends on sacral position — IS IR vs. IS ER.",
+        "back": "Passive restraint to sacral nutation. Becomes taut when the sacrum nutates and slack when it counter-nutates. In L AIC, PRI describes the left side as IS IR (taut) and the right as IS ER (slack).",
+        "backDetail": "Runs from posterior sacrum and coccyx to ischial tuberosity. In L AIC, this ligament is taut on the left (L IS IR) and slack on the right (R IS ER). This asymmetric tension contributes to right-side SI instability complaints in L AIC patients, because the right SI lacks passive restraint. Note: the manual never uses 'nutation' or 'counternutation' — whether IS IR maps to nutation or counternutation is unresolved."
     },
     {
         "id": "anat-002",
@@ -464,8 +464,8 @@
         "examWeight": "medium",
         "front": "What does the sacrospinous ligament connect, and what does it resist?",
         "frontHint": "Connects sacrum to ischial spine. Relevant to outlet mechanics.",
-        "back": "Connects the lateral sacrum/coccyx to the ischial spine. Resists sacral nutation (like the sacrotuberous ligament) and helps form the boundary between the greater and lesser sciatic foramina.",
-        "backDetail": "Taut during nutation, slack during counter-nutation. Obturator internus exits through the lesser sciatic foramen, bounded inferiorly by sacrospinous ligament. Both sacrotuberous and sacrospinous ligaments provide passive SI stability — relevant to why nutated (L AIC left) vs. counter-nutated (L AIC right) SI joints present differently."
+        "back": "Connects the lateral sacrum/coccyx to the ischial spine. Resists sacral nutation and helps form the boundary between the greater and lesser sciatic foramina.",
+        "backDetail": "Taut during nutation, slack during counter-nutation. Obturator internus exits through the lesser sciatic foramen, bounded inferiorly by sacrospinous ligament. Both sacrotuberous and sacrospinous ligaments provide passive SI stability. Note: the manual never uses 'nutation' or 'counternutation' — the ligament tension facts are standard anatomy, but the mapping to PRI's IS IR/IS ER is interpretive."
     },
     {
         "id": "anat-003",
@@ -483,7 +483,7 @@
         "front": "Origin and insertion of the gluteus medius?",
         "frontHint": "In PRI, the left glute med works at the left posterior inlet. Step 3 muscle.",
         "back": "Origin: outer surface of ilium between anterior and posterior gluteal lines. Insertion: lateral surface of greater trochanter.",
-        "backDetail": "Standard actions: hip abduction (all fibers), medial rotation (anterior), lateral rotation (posterior). In PRI, left glute med promotes left IS ER (counter-nutation) — pulls left ilium laterally relative to sacrum, closing left posterior inlet. Facilitated in Step 3. Not the same as PRI's 'anterior glute med' (which refers to proximal iliacus)."
+        "backDetail": "Standard actions: hip abduction (all fibers), medial rotation (anterior), lateral rotation (posterior). In PRI, left glute med promotes left IS ER — pulls left ilium laterally relative to sacrum, closing left posterior inlet. Facilitated in Step 3. Not the same as PRI's 'anterior glute med' (which refers to proximal iliacus)."
     },
     {
         "id": "pattern-001",
@@ -492,7 +492,7 @@
         "front": "In L AIC, what is the position of the left pelvic inlet and left pelvic outlet?",
         "frontHint": "Inlet opens, outlet closes — on the same side.",
         "back": "Left inlet: IP ER (open — flexion, abduction, external rotation). Left outlet: IsP IR (closed — extension, adduction, internal rotation).",
-        "backDetail": "The left pelvis is anteriorly tilted and forwardly rotated. Viewing from above (inlet): the left ASIS drops forward, the ring widens (IP ER). Viewing from below (outlet): the left ischial tuberosities come together, the ring narrows (IsP IR). The left pelvic diaphragm is descended. Left IS IR (nutation) at the posterior inlet. Left SI IR at the posterior outlet. (Manual pp.5-6)"
+        "backDetail": "The left pelvis is anteriorly tilted and forwardly rotated. Viewing from above (inlet): the left ASIS drops forward, the ring widens (IP ER). Viewing from below (outlet): the left ischial tuberosities come together, the ring narrows (IsP IR). The left pelvic diaphragm is descended. Left IS IR at the posterior inlet. Left SI IR at the posterior outlet. (Manual pp.5-6)"
     },
     {
         "id": "pattern-002",
@@ -500,8 +500,8 @@
         "examWeight": "high",
         "front": "In L AIC, what is the compensatory position of the RIGHT side?",
         "frontHint": "Everything is opposite the left. The right inlet closes while the right outlet opens.",
-        "back": "Right inlet: IP IR (closed — extension, adduction, internal rotation). Right outlet: IsP ER (open — flexion, abduction, external rotation). Right IS ER (counter-nutation). Right SI ER.",
-        "backDetail": "The right side compensates: R IP IR (inlet closes), R IsP ER (outlet opens), R IS ER (counter-nutation), R SI ER, R AF IR. Right side equivalence chain is the inverse of the left (Manual p.20)."
+        "back": "Right inlet: IP IR (closed — extension, adduction, internal rotation). Right outlet: IsP ER (open — flexion, abduction, external rotation). Right IS ER. Right SI ER.",
+        "backDetail": "The right side compensates: R IP IR (inlet closes), R IsP ER (outlet opens), R IS ER, R SI ER, R AF IR. Right side equivalence chain is the inverse of the left (Manual p.20)."
     },
     {
         "id": "pattern-003",
@@ -573,7 +573,7 @@
         "front": "What does the master equivalence rule state?",
         "frontHint": "Inlet and femur go one way. Outlet goes the other. Five joint names, one bone position.",
         "back": "Inlet direction matches femur direction (both ER or both IR). Outlet direction is always opposite. All five PRI joint names (IP, IS, IsP, SI, AF) describe the same bone position from different reference frames.",
-        "backDetail": "Example — left side in L AIC: IP ER (inlet opens) = IS IR (nutation) = IsP IR (outlet closes) = SI IR (sacral nutation from outlet view) = AF ER (pelvis tilts anteriorly on femur). Inlet and AF share the same direction (ER). Outlet names (IsP, SI) are always opposite. IS follows inlet direction. This rule lets you convert between any PRI joint name."
+        "backDetail": "Example — left side in L AIC: IP ER (inlet opens) = IS IR = IsP IR (outlet closes) = SI IR = AF ER (pelvis tilts anteriorly on femur). Inlet and AF share the same direction (ER). Outlet names (IsP, SI) are always opposite. IS follows inlet direction. This rule lets you convert between any PRI joint name. (Manual p.20)"
     },
     {
         "id": "muscle-013",
@@ -598,9 +598,9 @@
         "category": "bridging_term",
         "examWeight": "high",
         "front": "What is nutation? What is counter-nutation?",
-        "frontHint": "Sacral base and coccyx tip in opposite directions. PRI gives these IS designations.",
-        "back": "Nutation: sacral base tips anterior, coccyx tips posterior. Compresses the SI joint. PRI calls this IS IR. Counter-nutation: sacral base tips posterior, coccyx tips anterior. Decompresses the SI joint. PRI calls this IS ER.",
-        "backDetail": "Nutation is the normal sacral position during single-leg stance on the ipsilateral side. In L AIC, the left sacrum is nutated (L IS IR) — left SI compressed, sacrotuberous ligament taut on left. The right sacrum is counter-nutated (R IS ER) — right SI decompressed, ligaments lax. Treatment restores the ability to move between nutation and counter-nutation bilaterally."
+        "frontHint": "Sacral base and coccyx tip in opposite directions. The manual never uses these terms.",
+        "back": "Nutation: sacral base tips anterior, coccyx tips posterior. Compresses the SI joint. Counter-nutation: sacral base tips posterior, coccyx tips anterior. Decompresses the SI joint. The Pelvis Restoration manual never uses either term.",
+        "backDetail": "Standard anatomy: nutation compresses the SI, tautens sacrotuberous and sacrospinous ligaments. Counter-nutation decompresses the SI, slackens those ligaments. PRI uses IS IR and IS ER for posterior inlet positions but never maps them to nutation/counternutation. Whether IS IR = nutation or IS IR = counternutation is unresolved — both interpretations are geometrically defensible. For the exam: use PRI's terms (IS IR, IS ER), not nutation/counternutation."
     },
     {
         "id": "clinical-003",
