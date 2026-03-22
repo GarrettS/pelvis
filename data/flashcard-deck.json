@@ -492,7 +492,7 @@
         "front": "In L AIC, what is the position of the left pelvic inlet and left pelvic outlet?",
         "frontHint": "Inlet opens, outlet closes — on the same side.",
         "back": "Left inlet: IP ER (open — flexion, abduction, external rotation). Left outlet: IsP IR (closed — extension, adduction, internal rotation).",
-        "backDetail": "The left pelvis is anteriorly tilted and forwardly rotated. Viewing from above (inlet): the left ASIS drops forward, the ring widens (IP ER). Viewing from below (outlet): the left ischial tuberosities come together, the ring narrows (IsP IR). The left pelvic diaphragm is descended. Left IS IR (nutation) at the posterior inlet. Left SI IR at the posterior outlet. (Manual p.21)"
+        "backDetail": "The left pelvis is anteriorly tilted and forwardly rotated. Viewing from above (inlet): the left ASIS drops forward, the ring widens (IP ER). Viewing from below (outlet): the left ischial tuberosities come together, the ring narrows (IsP IR). The left pelvic diaphragm is descended. Left IS IR (nutation) at the posterior inlet. Left SI IR at the posterior outlet. (Manual pp.5-6)"
     },
     {
         "id": "pattern-002",
@@ -501,7 +501,7 @@
         "front": "In L AIC, what is the compensatory position of the RIGHT side?",
         "frontHint": "Everything is opposite the left. The right inlet closes while the right outlet opens.",
         "back": "Right inlet: IP IR (closed — extension, adduction, internal rotation). Right outlet: IsP ER (open — flexion, abduction, external rotation). Right IS ER (counter-nutation). Right SI ER.",
-        "backDetail": "The right side compensates: the right pelvis is relatively posteriorly tilted and rotated back. Right inlet narrows, right outlet widens. Right SI is counter-nutated and relatively lax — the sacrotuberous and sacrospinous ligaments are slack on the right, contributing to right SI instability complaints. (Manual p.21)"
+        "backDetail": "The right side compensates: R IP IR (inlet closes), R IsP ER (outlet opens), R IS ER (counter-nutation), R SI ER, R AF IR. Right side equivalence chain is the inverse of the left (Manual p.20)."
     },
     {
         "id": "pattern-003",

@@ -933,7 +933,7 @@
             { "key": "D", "text": "Right AIC compensatory findings" }
         ],
         "answer": "A",
-        "explanation": "The manual lists levator ani syndrome under the Pubalgia appendix (Bilateral PEC context, p.76) and defines it as a pelvic floor disorder (p.80). The manual notes it is 'typically more prominent on the left side,' which is consistent with L AIC mechanics, but the manual does not assign it to L AIC. The structural placement is under B PEC."
+        "explanation": "The manual lists levator ani syndrome under the Pubalgia appendix (Bilateral PEC context, Appendix p.76) and defines it as a pelvic floor disorder (Appendix p.80). The manual notes it is 'typically more prominent on the left side,' which is consistent with L AIC mechanics, but the manual does not assign it to L AIC. The structural placement is under B PEC."
     },
     {
         "id": "MQ-073",
@@ -959,7 +959,7 @@
             { "key": "D", "text": "B Patho PEC diagnostic criteria" }
         ],
         "answer": "B",
-        "explanation": "The manual defines coccygodynia as 'pain in the coccyx or gluteal when sitting. Spasm of piriformis or coccygeus muscle' (p.79) and lists it under the Pubalgia appendix (Bilateral PEC context, p.76). The manual does not assign it to B Patho PEC specifically."
+        "explanation": "The manual defines coccygodynia as 'pain in the coccyx or gluteal when sitting. Spasm of piriformis or coccygeus muscle' (Appendix p.79) and lists it under the Pubalgia appendix (Bilateral PEC context, Appendix p.76). The manual does not assign it to B Patho PEC specifically."
     },
     {
         "id": "MQ-075",

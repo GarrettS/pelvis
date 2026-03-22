@@ -5,7 +5,7 @@
     "motion": "Nutation, counter-nutation. A few degrees of rotation.",
     "positions": "IS IR/ER (posterior inlet, p.5), SI IR/ER (posterior outlet, p.5)",
     "role": "IS describes ilium moving on sacrum (posterior inlet, p.8). SI describes sacrum moving on ilium (posterior outlet, p.10). Same physical joint, two PRI reference frames.",
-    "manualRef": "Manual pp.5, 8, 10"
+    "manualRef": "Manual pp.4, 7, 9"
   },
   {
     "joint": "Pubic symphysis",

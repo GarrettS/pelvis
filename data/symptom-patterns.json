@@ -7,12 +7,12 @@
   {
     "condition": "Levator ani syndrome",
     "pattern": "Bilateral PEC (Pubalgia appendix)",
-    "explanation": "Manual lists levator ani syndrome under the Pubalgia appendix (Bilateral PEC context, p.76) and defines it as a pelvic floor disorder (p.80). The manual notes it is 'typically more prominent on the left side' but does not assign it to L AIC. The left-predominance observation is consistent with L AIC mechanics, but the manual's placement is under B PEC."
+    "explanation": "Manual lists levator ani syndrome under the Pubalgia appendix (Bilateral PEC context, Appendix p.76) and defines it as a pelvic floor disorder (Appendix p.80). The manual notes it is 'typically more prominent on the left side' but does not assign it to L AIC. The left-predominance observation is consistent with L AIC mechanics, but the manual's placement is under B PEC."
   },
   {
     "condition": "Stress urinary incontinence",
     "pattern": "No explicit pattern assignment",
-    "explanation": "Manual defines SUI as a pelvic floor disorder (p.79): 'involuntary loss of urine following an abrupt elevation of the intra-abdominal pressure.' No pattern (L AIC, B PEC, B Patho PEC) is assigned in the manual. The pelvic floor is involved in all three patterns, so SUI could present in any of them."
+    "explanation": "Manual defines SUI as a pelvic floor disorder (Appendix p.79): 'involuntary loss of urine following an abrupt elevation of the intra-abdominal pressure.' No pattern (L AIC, B PEC, B Patho PEC) is assigned in the manual. The pelvic floor is involved in all three patterns, so SUI could present in any of them."
   },
   {
     "condition": "IS instability (right side pain)",
@@ -22,7 +22,7 @@
   {
     "condition": "Coccygodynia",
     "pattern": "Bilateral PEC (Pubalgia appendix)",
-    "explanation": "Manual defines coccygodynia as 'pain in the coccyx or gluteal when sitting. Spasm of piriformis or coccygeus muscle' (p.79). Listed under the Pubalgia appendix (Bilateral PEC context, p.76). The manual does not assign it to B Patho PEC specifically."
+    "explanation": "Manual defines coccygodynia as 'pain in the coccyx or gluteal when sitting. Spasm of piriformis or coccygeus muscle' (Appendix p.79). Listed under the Pubalgia appendix (Bilateral PEC context, Appendix p.76). The manual does not assign it to B Patho PEC specifically."
   },
   {
     "condition": "Patient touches toes easily but has bilateral positive ADT and PADT",
