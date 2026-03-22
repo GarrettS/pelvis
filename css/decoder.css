@@ -131,7 +131,7 @@
   border-radius: 4px;
   padding: .5rem .75rem;
   cursor: pointer;
-  transition: all .12s;
+  transition: all var(--dur-fast);
   text-align: center;
 }
 

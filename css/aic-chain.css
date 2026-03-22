@@ -24,7 +24,7 @@
   border-left: 3px solid transparent;
   border-radius: 0 4px 4px 0;
   cursor: pointer;
-  transition: background .12s, border-color .12s;
+  transition: all var(--dur-fast);
 }
 
 .aic-chain-row:hover {

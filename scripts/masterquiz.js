@@ -2,12 +2,14 @@ import { getAllEquivalent } from './equivalence.js';
 import { showFetchError } from './fetch-feedback.js';
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
+import { tryLoad as tryLoadProgress, updateEntry as updateProgress,
+  getStats, clearAll as clearProgress, MASTERY_STREAK
+} from './master-quiz-progress.js';
 
 const DOMAINS = [
   'nomenclature', 'tests', 'treatment',
   'anatomy', 'procedures', 'clinical'
 ];
-const STORAGE_KEY = 'masterQuiz_progress';
 const USER_FC_KEY = 'userFlashcards';
 
 let QUESTIONS = [];
@@ -18,57 +20,6 @@ let selectedKey = null;
 let submitted = false;
 let equivPinned = false;
 
-// Background storage — not user-initiated. Quiz functions
-// without persistence; user loses streak data only.
-const EMPTY_PROGRESS = {};
-
-function tryLoadProgress() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : EMPTY_PROGRESS;
-  } catch (storageErr) { return EMPTY_PROGRESS; }
-}
-
-function trySaveProgress(progress) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  } catch (storageErr) {
-    // Background save — not user-initiated, no alert
-  }
-}
-
-function updateProgress(qId, correct) {
-  const progress = tryLoadProgress();
-  const entry = progress[qId] || {
-    correctStreak: 0, totalCorrect: 0,
-    totalAttempts: 0, lastSeen: ''
-  };
-  if (correct) {
-    entry.correctStreak++;
-    entry.totalCorrect++;
-  } else {
-    entry.correctStreak = 0;
-  }
-  entry.totalAttempts++;
-  entry.lastSeen = new Date().toISOString().slice(0, 10);
-  progress[qId] = entry;
-  trySaveProgress(progress);
-}
-
-function getStats(questions) {
-  const progress = tryLoadProgress();
-  let attempted = 0;
-  let missed = 0;
-  let mastered = 0;
-  for (const q of questions) {
-    const p = progress[q.id];
-    if (!p) continue;
-    if (p.totalAttempts > 0) attempted++;
-    if (p.correctStreak === 0 && p.totalAttempts > 0) missed++;
-    if (p.correctStreak >= 3) mastered++;
-  }
-  return { attempted, missed, mastered, total: questions.length };
-}
 
 function buildQueue(domains, count, priorityMode) {
   const eligible = QUESTIONS.filter(q => domains.includes(q.domain));
@@ -84,7 +35,7 @@ function buildQueue(domains, count, priorityMode) {
     const p = progress[q.id];
     if (!p || p.totalAttempts === 0) {
       unseen.push(q);
-    } else if (p.correctStreak >= 3) {
+    } else if (p.correctStreak >= MASTERY_STREAK) {
       continue;
     } else if (p.correctStreak === 0) {
       missedQs.push(q);
@@ -521,7 +472,7 @@ function handleNewSession() {
 function handleResetProgress() {
   if (!confirm('Reset all Master Quiz progress? This cannot be undone.')) return;
 
-  localStorage.removeItem(STORAGE_KEY);
+  clearProgress();
   renderStats();
 }
 

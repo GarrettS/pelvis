@@ -105,7 +105,7 @@
   border-radius: 4px;
   cursor: pointer;
   border: 1px solid var(--accent);
-  transition: opacity .15s;
+  transition: opacity var(--dur-normal);
   flex-shrink: 0;
   margin-left: auto;
   user-select: none;
@@ -171,7 +171,7 @@
   overflow: hidden;
   z-index: 1;
   white-space: nowrap;
-  transition: border-color .15s, background-color .15s;
+  transition: all var(--dur-normal);
 }
 
 .anatomize-label .anatomize-label-text {
@@ -274,7 +274,7 @@ g.correct .anatomize-target-circle {
   position: absolute;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: border-color .12s, background .12s;
+  transition: all var(--dur-fast);
 }
 
 .anatomize-hitbox:hover:not(.correct) {
@@ -397,7 +397,7 @@ g.correct .anatomize-target-circle {
 
 .anatomize-mobile-btn {
   text-align: left;
-  transition: border-color .12s, background .12s, color .12s;
+  transition: all var(--dur-fast);
 }
 
 .anatomize-mobile-btn.wrong {

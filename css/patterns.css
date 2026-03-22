@@ -63,7 +63,7 @@
   fill: var(--surface);
   stroke: var(--border);
   stroke-width: 1.5;
-  transition: fill .15s, stroke .15s;
+  transition: fill var(--dur-normal), stroke var(--dur-normal);
 }
 
 .map-node.central rect {

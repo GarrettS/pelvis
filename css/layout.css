@@ -16,6 +16,10 @@
   --outlet: #9a5a2a;
   --green: #2a7a4a;
   --red: #a03030;
+  --box-shadow-sm: 0 0.05rem 0.15rem rgba(0, 0, 0, 0.06);
+  --box-shadow-md: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.08);
+  --dur-fast: 120ms;
+  --dur-normal: 200ms;
   --text-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
   --text-sm: clamp(0.875rem, 0.82rem + 0.25vw, 1.0625rem);
   --text-base: clamp(1rem, 0.92rem + 0.35vw, 1.1875rem);
@@ -71,6 +75,8 @@
     --outlet: #d4815e;
     --green: #5a9a5a;
     --red: #b05555;
+    --box-shadow-sm: 0 0.05rem 0.15rem rgba(0, 0, 0, 0.25);
+    --box-shadow-md: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -142,7 +148,7 @@ nav {
   display: flex;
 }
 
-.nav-tabs {
+#nav-tabs {
   display: flex;
   overflow: visible;
   list-style: none;
@@ -152,18 +158,25 @@ nav {
 
 @media (max-width: 600px) {
 
-  .nav-tabs {
+  #nav-tabs {
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 2rem), transparent);
   }
 
-  .nav-tabs::-webkit-scrollbar {
+  #nav-tabs.scrolled-end {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  #nav-tabs::-webkit-scrollbar {
     display: none;
   }
 }
 
-.nav-tabs > li {
+#nav-tabs > li {
   list-style: none;
 }
 
@@ -176,7 +189,7 @@ nav {
   color: var(--text-dim);
   padding: 0.5rem .75rem;
   white-space: nowrap;
-  transition: color .15s, background .15s;
+  transition: color var(--dur-normal), background var(--dur-normal);
   text-decoration: none;
   cursor: pointer;
   display: block;
@@ -189,6 +202,19 @@ nav {
 .nav-tab.active {
   color: var(--accent);
   background: var(--surface2);
+}
+
+.location-bar {
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  background: var(--surface);
+  padding: .25rem .75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.location-sep {
+  margin: 0 .25rem;
 }
 
 main {
@@ -207,7 +233,7 @@ section.tab {
 
 section.tab.active {
   display: block;
-  animation: fadeIn 150ms ease-out;
+  animation: fadeIn var(--dur-normal) ease-out;
 }
 
 .tab-section {
@@ -231,6 +257,8 @@ section.tab.active {
   font-weight: 600;
   margin-bottom: .8rem;
   margin-top: 1.5rem;
+  border-left: 2px solid var(--warn);
+  padding-left: .5rem;
 }
 
 .subview-tabs {
@@ -249,7 +277,7 @@ section.tab.active {
   padding: .4rem .8rem;
   border-radius: 4px;
   cursor: pointer;
-  transition: all .12s;
+  transition: all var(--dur-fast);
 }
 
 .subview-tab.active {
@@ -392,7 +420,7 @@ p:last-child {
   padding: .35rem .6rem;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
-  transition: color .15s,border-color .15s;
+  transition: color var(--dur-normal),border-color var(--dur-normal);
   text-decoration: none;
   cursor: pointer;
 }
@@ -414,7 +442,7 @@ p:last-child {
 
 .subtab-content.active {
   display: block;
-  animation: fadeIn 150ms ease-out;
+  animation: fadeIn var(--dur-normal) ease-out;
 }
 
 @keyframes fadeIn {
@@ -463,9 +491,41 @@ p:last-child {
 
 .tab-loading {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 8rem;
+  flex-direction: column;
+  gap: .75rem;
+  padding: 2rem 0;
+  max-width: 400px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface) 25%,
+    var(--surface2) 50%,
+    var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-heading {
+  width: 40%;
+  height: .8rem;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: .6rem;
+}
+
+.skeleton-line-short {
+  width: 75%;
+  height: .6rem;
 }
 
 .btn {
@@ -476,7 +536,7 @@ p:last-child {
   color: var(--text);
   padding: .45rem .9rem;
   border-radius: 4px;
-  transition: border-color .12s,color .12s,background .12s;
+  transition: all var(--dur-fast);
   cursor: pointer;
 }
 
@@ -491,6 +551,8 @@ p:last-child {
 }
 
 .btn.primary {
+  font-size: var(--text-sm);
+  padding: .55rem 1.2rem;
   background: var(--accent-bg);
   border-color: var(--accent);
   color: var(--accent);
@@ -592,7 +654,7 @@ p:last-child {
       transparent 1px,
       transparent 4px);
   border-radius: 1px;
-  transition: background .12s;
+  transition: background var(--dur-fast);
 }
 
 .resize-handle:hover {
@@ -683,7 +745,8 @@ p:last-child {
   border-radius: 4px;
   text-align: left;
   cursor: pointer;
-  transition: all .12s;
+  box-shadow: var(--box-shadow-sm);
+  transition: all var(--dur-fast);
 }
 
 .answer-btn:hover {

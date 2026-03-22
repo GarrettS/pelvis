@@ -36,6 +36,8 @@ const PRECACHE_URLS = [
   './scripts/shuffle.js',
   './scripts/resize-handle.js',
   './scripts/study-data-cache.js',
+  './scripts/master-quiz-progress.js',
+  './scripts/home-progress.js',
   './data/aic-chain.json',
   './data/anatomize-data.json',
   './data/causal-map.json',

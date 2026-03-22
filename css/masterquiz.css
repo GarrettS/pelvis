@@ -36,7 +36,7 @@
   padding: .45rem .75rem;
   min-height: 44px;
   cursor: pointer;
-  transition: border-color .12s, background .12s;
+  transition: all var(--dur-fast);
 }
 
 .mq-domain-filters > label:has(input:checked) {
@@ -100,6 +100,8 @@
   font-size: var(--text-lg);
   line-height: 1.6;
   margin-bottom: 1rem;
+  border-left: 3px solid var(--accent);
+  padding-left: .7rem;
 }
 
 .mq-options {
@@ -119,7 +121,8 @@
   border-radius: 6px;
   text-align: left;
   cursor: pointer;
-  transition: border-color .12s, background .12s;
+  box-shadow: var(--box-shadow-sm);
+  transition: all var(--dur-fast);
   min-height: 44px;
 }
 
@@ -209,7 +212,7 @@
   color: var(--text);
   padding: .5rem .25rem;
   cursor: pointer;
-  transition: color .12s;
+  transition: color var(--dur-fast);
 }
 
 .mq-result-summary:hover {

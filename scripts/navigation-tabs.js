@@ -1,5 +1,6 @@
 import {initAnatomize, loadImageSet} from './anatomize.js';
 import {showFetchError} from './fetch-feedback.js';
+import {renderHomeProgress} from './home-progress.js';
 
 const TAB_MAP = {
   home: 'tab-home',
@@ -94,10 +95,13 @@ const LAZY_INIT = {
   }
 };
 
-function showTabLoading(container, label) {
+function showTabLoading(container) {
   const div = document.createElement('div');
-  div.className = 'tab-loading callout';
-  div.textContent = 'Loading ' + label + '\u2026';
+  div.className = 'tab-loading';
+  div.innerHTML =
+    '<div class="skeleton skeleton-heading"></div>'
+    + '<div class="skeleton skeleton-line"></div>'
+    + '<div class="skeleton skeleton-line-short"></div>';
   container.appendChild(div);
 }
 
@@ -115,9 +119,8 @@ function lazyInit(key) {
   const container = document.getElementById(key);
   if (!container) return;
 
-  showTabLoading(container, entry.label);
-  entry.load()
-    .then((initFn) => {
+  showTabLoading(container);
+  entry.load().then((initFn) => {
       clearTabLoading(container);
       return initFn();
     })
@@ -130,6 +133,26 @@ function lazyInit(key) {
 
 function getSubtabRow(sectionId) {
   return document.querySelector('.subtab-row[data-for-tab="' + sectionId + '"]');
+}
+
+function updateLocationBar() {
+  const bar = document.getElementById('location-bar');
+  if (!bar) return;
+
+  const subtabLink = activeSubtabRow
+    ? activeSubtabRow.querySelector('.subtab.active')
+    : null;
+
+  if (!subtabLink || !activeNavTab) {
+    bar.classList.add('hidden');
+    return;
+  }
+
+  document.getElementById('location-tab').textContent =
+    activeNavTab.textContent;
+  document.getElementById('location-subtab').textContent =
+    subtabLink.textContent;
+  bar.classList.remove('hidden');
 }
 
 function activateTab(sectionId) {
@@ -145,6 +168,8 @@ function activateTab(sectionId) {
   activeSection?.classList.add('active');
   activeSubtabRow?.classList.add('active');
 
+  if (sectionId === 'tab-home') renderHomeProgress();
+  updateLocationBar();
   lazyInit(sectionId);
 }
 
@@ -180,6 +205,7 @@ function activateSubtab(sectionId, subtabContentId) {
   const tabName = REV_TAB[sectionId];
   if (tabName) lastSubtab[tabName] = subtabContentId;
 
+  updateLocationBar();
   lazyInit(subtabContentId);
 }
 
@@ -283,12 +309,26 @@ function handleSubviewTabClick(e) {
   }
 }
 
+function initScrollAffordance() {
+  const tabs = document.getElementById('nav-tabs');
+  if (!tabs) return;
+
+  function checkScroll() {
+    const atEnd = tabs.scrollLeft + tabs.clientWidth >= tabs.scrollWidth - 1;
+    tabs.classList.toggle('scrolled-end', atEnd);
+  }
+
+  tabs.addEventListener('scroll', checkScroll, { passive: true });
+  checkScroll();
+}
+
 function initNavigationTabs() {
   document.querySelector('nav').addEventListener('click', handleNavTabClick);
   document.addEventListener('click', handleSubtabClick);
   document.addEventListener('click', handleSubviewTabClick);
   window.addEventListener('hashchange', applyHash);
   applyHash();
+  initScrollAffordance();
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
