@@ -21,6 +21,7 @@ const ABBRS = [
   ['AF IR', 'Acetabulo-Femoral Internal Rotation'],
   ['FA IR', 'Femoro-Acetabular Internal Rotation'],
   ['FA ER', 'Femoro-Acetabular External Rotation'],
+  ['IR/ER', 'Internal/External Rotation'],
   ['B HALT', 'Bilateral Hruska Abduction Lift Test'],
   ['B PADT', 'Bilateral Pelvic Ascension Drop Test'],
   ['B PART', 'Bilateral Passive Abduction Raise Test'],
