@@ -144,7 +144,7 @@ nav {
   margin: 0;
 }
 
-.subtab-row.active {
+.subtab-row.activeTab {
   display: flex;
 }
 
@@ -199,7 +199,7 @@ nav {
   color: var(--text);
 }
 
-.nav-tab.active {
+.nav-tab.activeTab {
   color: var(--accent);
   background: var(--surface2);
 }
@@ -225,20 +225,21 @@ nav {
 }
 
 main {
+  max-width: 1160px;
   margin: 0 auto;
   padding: 1.5rem 1rem 3rem;
 }
 
-main:not(:has(#tab-anatomy.active)) {
-  max-width: 1160px;
+main:has(#anatomy-content.activeTab) {
+  max-width: none;
 }
 
 
-section.tab {
+section.content {
   display: none;
 }
 
-section.tab.active {
+section.content.activeTab {
   display: block;
   animation: fadeIn var(--dur-normal) ease-out;
 }
@@ -287,7 +288,7 @@ section.tab.active {
   transition: all var(--dur-fast);
 }
 
-.subview-tab.active {
+.subview-tab.activeTab {
   background: var(--accent-bg);
   border-color: var(--accent);
   color: var(--accent);
@@ -436,7 +437,7 @@ p:last-child {
   color: var(--text);
 }
 
-.subtab.active {
+.subtab.activeTab {
   color: var(--accent);
   border-bottom-color: var(--accent);
   font-weight: 700;
@@ -447,7 +448,7 @@ p:last-child {
   display: none;
 }
 
-.subtab-content.active {
+.subtab-content.activeTab {
   display: block;
   animation: fadeIn var(--dur-normal) ease-out;
 }

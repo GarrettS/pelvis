@@ -18,7 +18,7 @@ export async function initPatterns() {
     const responses = await Promise.all(urls.map(u => fetch(u)));
     const badResp = responses.find(r => !r.ok);
     if (badResp) {
-      showFetchError('#tab-patterns', 'pattern data');
+      showFetchError('#patterns-content', 'pattern data');
       return;
     }
     const results = await Promise.all(responses.map(r => r.json()));
@@ -28,7 +28,7 @@ export async function initPatterns() {
     HALT_LEVELS = results[3];
     SQUAT_LEVELS = results[4];
   } catch (fetchErr) {
-    showFetchError('#tab-patterns', 'pattern data');
+    showFetchError('#patterns-content', 'pattern data');
     return;
   }
   MAP_NODES = CAUSAL_MAP.nodes;

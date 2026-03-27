@@ -7,12 +7,12 @@ export async function initDecoder() {
   try {
     const resp = await fetch('data/regions.json');
     if (!resp.ok) {
-      showFetchError('#anatomy-decoder', 'pelvis decoder regions');
+      showFetchError('#anatomy-decoder-content', 'pelvis decoder regions');
       return;
     }
     REGIONS = await resp.json();
   } catch (fetchErr) {
-    showFetchError('#anatomy-decoder', 'pelvis decoder regions');
+    showFetchError('#anatomy-decoder-content', 'pelvis decoder regions');
     return;
   }
   const decoderState = { side: 'Left', region: 'IP', dir: 'ER' };

@@ -1,11 +1,8 @@
-#mq-config,
-#mq-quiz,
-#mq-results { display: none; }
-
-#tab-masterquiz.screen-config #mq-config,
-#tab-masterquiz.screen-quiz #mq-quiz,
-#tab-masterquiz.screen-results #mq-results {
-  display: block;
+#masterquiz-content {
+  #mq-config, #mq-quiz, #mq-results { display: none; }
+  &.screen-config #mq-config,
+  &.screen-quiz #mq-quiz,
+  &.screen-results #mq-results { display: block; }
 }
 
 #mq-results:not(.has-incorrect) {

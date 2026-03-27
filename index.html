@@ -20,36 +20,36 @@
 </head>
 <body>
 <nav>
-  <menu id="nav-tabs" role="tablist">
-    <li role="presentation"><a class="nav-tab active" role="tab" data-tab="tab-home" href="#home">PRI · Pelvis</a></li>
-    <li role="presentation"><a class="nav-tab" role="tab" data-tab="tab-anatomy" href="#anatomy">Anatomy</a></li>
-    <li role="presentation"><a class="nav-tab" role="tab" data-tab="tab-nomenclature" href="#nomenclature">Nomenclature</a></li>
-    <li role="presentation"><a class="nav-tab" role="tab" data-tab="tab-patterns" href="#patterns">Patterns</a></li>
-    <li role="presentation"><a class="nav-tab" role="tab" data-tab="tab-diagnose" href="#diagnose">Diagnose</a></li>
-    <li role="presentation"><a class="nav-tab" role="tab" data-tab="tab-flashcards" href="#flashcards">Flashcards</a></li>
-    <li role="presentation"><a class="nav-tab" role="tab" data-tab="tab-equivalence" href="#equivalence">Equivalence</a></li>
-    <li role="presentation"><a class="nav-tab" role="tab" data-tab="tab-masterquiz" href="#masterquiz">Master Quiz</a></li>
+  <menu id="nav-tabs">
+    <li><a class="nav-tab activeTab" id="nav:home" href="#home">PRI · Pelvis</a></li>
+    <li><a class="nav-tab" id="nav:anatomy" href="#anatomy">Anatomy</a></li>
+    <li><a class="nav-tab" id="nav:nomenclature" href="#nomenclature">Nomenclature</a></li>
+    <li><a class="nav-tab" id="nav:patterns" href="#patterns">Patterns</a></li>
+    <li><a class="nav-tab" id="nav:diagnose" href="#diagnose">Diagnose</a></li>
+    <li><a class="nav-tab" id="nav:flashcards" href="#flashcards">Flashcards</a></li>
+    <li><a class="nav-tab" id="nav:equivalence" href="#equivalence">Equivalence</a></li>
+    <li><a class="nav-tab" id="nav:masterquiz" href="#masterquiz">Master Quiz</a></li>
   </menu>
-  <menu class="subtab-row" data-for-tab="tab-anatomy" role="tablist">
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="anatomy-anatomize" href="#anatomy/anatomize">Anatomize This!</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="anatomy-decoder" href="#anatomy/decoder">Pelvis Decoder</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="anatomy-aic" href="#anatomy/aic">L AIC Chain</a></li>
+  <menu class="subtab-row" id="anatomy-subtabs">
+    <li><a class="subtab" href="#anatomy/anatomize">Anatomize This!</a></li>
+    <li><a class="subtab" href="#anatomy/decoder">Pelvis Decoder</a></li>
+    <li><a class="subtab" href="#anatomy/aic">L AIC Chain</a></li>
   </menu>
-  <menu class="subtab-row" data-for-tab="tab-nomenclature" role="tablist">
-    <li role="presentation"><a class="subtab active" role="tab" data-subtab="nom-joints" href="#nomenclature/joints">Joints</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="nom-translation" href="#nomenclature/translation">Translation Table</a></li>
+  <menu class="subtab-row" id="nomenclature-subtabs">
+    <li><a class="subtab activeTab" href="#nomenclature/joints">Joints</a></li>
+    <li><a class="subtab" href="#nomenclature/translation">Translation Table</a></li>
   </menu>
-  <menu class="subtab-row" data-for-tab="tab-patterns" role="tablist">
-    <li role="presentation"><a class="subtab active" role="tab" data-subtab="patterns-cheatsheet" href="#patterns/cheatsheet">Cheat Sheet</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="patterns-conceptmap" href="#patterns/conceptmap">Concept Map</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="patterns-tests" href="#patterns/tests">Test Reference</a></li>
+  <menu class="subtab-row" id="patterns-subtabs">
+    <li><a class="subtab activeTab" href="#patterns/cheatsheet">Cheat Sheet</a></li>
+    <li><a class="subtab" href="#patterns/conceptmap">Concept Map</a></li>
+    <li><a class="subtab" href="#patterns/tests">Test Reference</a></li>
   </menu>
-  <menu class="subtab-row" data-for-tab="tab-diagnose" role="tablist">
-    <li role="presentation"><a class="subtab active" role="tab" data-subtab="diagnose-patternid" href="#diagnose/patternid">Pattern ID</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="diagnose-cases" href="#diagnose/cases">Case Studies</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="diagnose-chains" href="#diagnose/chains">Causal Chains</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="diagnose-tree" href="#diagnose/tree">Decision Tree</a></li>
-    <li role="presentation"><a class="subtab" role="tab" data-subtab="diagnose-exercises" href="#diagnose/exercises">Exercise Map</a></li>
+  <menu class="subtab-row" id="diagnose-subtabs">
+    <li><a class="subtab activeTab" href="#diagnose/patternid">Pattern ID</a></li>
+    <li><a class="subtab" href="#diagnose/cases">Case Studies</a></li>
+    <li><a class="subtab" href="#diagnose/chains">Causal Chains</a></li>
+    <li><a class="subtab" href="#diagnose/tree">Decision Tree</a></li>
+    <li><a class="subtab" href="#diagnose/exercises">Exercise Map</a></li>
   </menu>
 </nav>
 <div class="location-bar hidden" id="location-bar">
@@ -59,7 +59,7 @@
 </div>
 <main>
 
-<section id="tab-home" class="tab active">
+<section id="home-content" class="content activeTab">
   <div class="tab-section home-landing">
 
     <h1 class="home-title">PRI · Pelvis</h1>
@@ -112,8 +112,8 @@
   </div>
 </section>
 
-<section id="tab-anatomy" class="tab">
-  <div class="subtab-content active" id="anatomy-anatomize" role="tabpanel">
+<section id="anatomy-content" class="content">
+  <div class="subtab-content activeTab" id="anatomy-anatomize-content">
     <div class="tab-section">
       <div class="anatomize-controls">
         <div class="anatomize-control-row">
@@ -137,7 +137,7 @@
     </div>
   </div>
 
-  <div class="subtab-content" id="anatomy-decoder" role="tabpanel">
+  <div class="subtab-content" id="anatomy-decoder-content">
   <div class="tab-section">
     <div class="decoder-body">
       <div class="decoder-svg-col">
@@ -231,7 +231,7 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="anatomy-aic" role="tabpanel">
+  <div class="subtab-content" id="anatomy-aic-content">
     <div class="tab-section">
       <div class="aic-chain-container">
         <div class="aic-chain-panel"></div>
@@ -249,8 +249,8 @@
   </div>
 </section>
 
-<section id="tab-nomenclature" class="tab">
-  <div class="subtab-content active" id="nom-joints" role="tabpanel" aria-labelledby="nom-joints">
+<section id="nomenclature-content" class="content">
+  <div class="subtab-content activeTab" id="nomenclature-joints-content">
     <div class="tab-section" id="joints-view">
       <h2 class="section-title">Pelvic Joints</h2>
       <p>The pelvis contains five joints. PRI's position-naming system references three of them — the sacroiliac joint, the pubic symphysis, and the hip joint. The other two (lumbosacral and sacrococcygeal) are anatomically present but excluded from PRI's framework because they do not involve innominate displacement.</p>
@@ -305,7 +305,7 @@
       </div>
     </div>
   </div>
-  <div class="subtab-content" id="nom-translation" role="tabpanel" aria-labelledby="nom-translation">
+  <div class="subtab-content" id="nomenclature-translation-content">
   <div class="tab-section">
     <h2 class="section-title">Translation Table</h2>
     <div class="callout">
@@ -394,16 +394,16 @@
   </div>
 </template>
 
-<section id="tab-patterns" class="tab">
+<section id="patterns-content" class="content">
 
-  <div class="subtab-content active" id="patterns-cheatsheet" role="tabpanel" aria-labelledby="patterns-cheatsheet">
+  <div class="subtab-content activeTab" id="patterns-cheatsheet-content">
   <div class="tab-section">
     <h2 class="section-title">Pattern Comparison Cheat Sheet</h2>
     <div class="grid-3" id="cheat-sheet-grid"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="patterns-conceptmap" role="tabpanel" aria-labelledby="patterns-conceptmap">
+  <div class="subtab-content" id="patterns-conceptmap-content">
   <div class="tab-section">
     <h2 class="section-title">Concept Map</h2>
     <p class="text-dim instruction-text">Click a node to highlight its connections.</p>
@@ -440,7 +440,7 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="patterns-tests" role="tabpanel" aria-labelledby="patterns-tests">
+  <div class="subtab-content" id="patterns-tests-content">
   <div class="tab-section">
     <h2 class="section-title">Test Reference</h2>
     <h4 class="subsection-title">Test Profile by Pattern</h4>
@@ -481,23 +481,23 @@
   </div>
 </section>
 
-<section id="tab-diagnose" class="tab">
+<section id="diagnose-content" class="content">
 
-  <div class="subtab-content active" id="diagnose-patternid" role="tabpanel" aria-labelledby="diagnose-patternid">
+  <div class="subtab-content activeTab" id="diagnose-patternid-content">
   <div class="tab-section">
     <h2 class="section-title">Pattern Identifier</h2>
     <div id="game-wrap"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-cases" role="tabpanel" aria-labelledby="diagnose-cases">
+  <div class="subtab-content" id="diagnose-cases-content">
   <div class="tab-section">
     <h2 class="section-title">Case Studies</h2>
     <div id="case-study-wrap"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-chains" role="tabpanel" aria-labelledby="diagnose-chains">
+  <div class="subtab-content" id="diagnose-chains-content">
   <div class="tab-section">
     <h2 class="section-title">Causal Chains</h2>
     <p class="text-dim instruction-text-lg">Drag (or tap) to reorder the steps in each causal chain. Click "Check" when done.</p>
@@ -505,19 +505,19 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-tree" role="tabpanel" aria-labelledby="diagnose-tree">
+  <div class="subtab-content" id="diagnose-tree-content">
   <div class="tab-section">
     <h2 class="section-title">Decision Tree</h2>
     <div id="tree-wrap" class="tree-node"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-exercises" role="tabpanel" aria-labelledby="diagnose-exercises">
+  <div class="subtab-content" id="diagnose-exercises-content">
   <div class="tab-section">
     <h2 class="section-title">Muscle-to-Exercise Map</h2>
-    <menu class="subview-tabs" role="tablist" id="muscle-view-tabs">
-      <li role="presentation"><a class="subview-tab active" data-mview="byMuscle">By Muscle</a></li>
-      <li role="presentation"><a class="subview-tab" data-mview="byFinding">By Finding</a></li>
+    <menu class="subview-tabs" id="muscle-view-tabs">
+      <li><a class="subview-tab activeTab" href="#diagnose/exercises/byMuscle">By Muscle</a></li>
+      <li><a class="subview-tab" href="#diagnose/exercises/byFinding">By Finding</a></li>
     </menu>
     <div class="search-wrap">
       <input class="search-input" id="muscle-search" type="text" placeholder="Search muscles or exercises…" autocomplete="off">
@@ -527,7 +527,7 @@
   </div>
 </section>
 
-<section id="tab-flashcards" class="tab">
+<section id="flashcards-content" class="content">
   <h2 class="section-title">Flashcards</h2>
   <div class="fc-container">
     <div class="fc-header">
@@ -591,7 +591,7 @@
   </div>
 </section>
 
-<section id="tab-equivalence" class="tab">
+<section id="equivalence-content" class="content">
   <h2 class="section-title">Equivalence Quiz</h2>
   <div class="decoder-rule decoder-rule-intro">
     Inlet direction matches femur direction. Outlet direction is always opposite.
@@ -630,7 +630,7 @@
   </div>
 </section>
 
-<section id="tab-masterquiz" class="tab screen-config">
+<section id="masterquiz-content" class="content screen-config">
 
   <div id="mq-config" class="tab-section">
     <h2 class="section-title">Master Quiz</h2>

@@ -136,7 +136,7 @@ function initListeners() {
     }
   });
 
-  const anatomizePanel = document.getElementById('anatomy-anatomize');
+  const anatomizePanel = document.getElementById('anatomy-anatomize-content');
   if (anatomizePanel) {
     anatomizePanel.addEventListener('subtab-shown', () => {
       if (!initialized && startImageFromHash()) {

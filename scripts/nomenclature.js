@@ -88,17 +88,17 @@ export async function initNomenclature() {
   try {
     const jointsResp = await fetch('data/pelvic-joints.json');
     if (!jointsResp.ok) {
-      showFetchError('#tab-nomenclature', 'nomenclature data');
+      showFetchError('#nomenclature-content', 'nomenclature data');
       return;
     }
     JOINTS = await jointsResp.json();
   } catch (fetchErr) {
-    showFetchError('#tab-nomenclature', 'nomenclature data');
+    showFetchError('#nomenclature-content', 'nomenclature data');
     return;
   }
   DATA = await getStudyData();
   if (!DATA) {
-    showFetchError('#tab-nomenclature', 'study data');
+    showFetchError('#nomenclature-content', 'study data');
     return;
   }
   buildJointsView();

@@ -19,7 +19,7 @@ let caseState = {
 export async function initDiagnose() {
   DATA = await getStudyData();
   if (!DATA) {
-    showFetchError('#tab-diagnose', 'study data');
+    showFetchError('#diagnose-content', 'study data');
     return;
   }
   initGame();
@@ -783,16 +783,21 @@ function annotateOutOfScope(content) {
 
 function buildMuscleMap() {
   let currentMView = 'byMuscle';
-  let activeTab = document.querySelector('#muscle-view-tabs .subview-tab.active');
+  let activeViewTab = document.querySelector(
+    '#muscle-view-tabs .subview-tab.activeTab');
 
   document.getElementById('muscle-view-tabs').addEventListener('click', (e) => {
     const tab = e.target.closest('.subview-tab');
     if (!tab) return;
 
-    activeTab?.classList.remove('active');
-    tab.classList.add('active');
-    activeTab = tab;
-    currentMView = tab.dataset.mview;
+    const href = tab.getAttribute('href') || '';
+    const view = href.replace(/^#/, '').split('/')[2];
+    if (!view) return;
+
+    activeViewTab?.classList.remove('activeTab');
+    tab.classList.add('activeTab');
+    activeViewTab = tab;
+    currentMView = view;
     renderMuscleView(currentMView, '');
   });
 

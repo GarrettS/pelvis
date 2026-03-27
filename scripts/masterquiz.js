@@ -55,7 +55,7 @@ function buildQueue(domains, count, priorityMode) {
 let activeScreenClass = 'screen-config';
 
 function showScreen(cls) {
-  const section = document.getElementById('tab-masterquiz');
+  const section = document.getElementById('masterquiz-content');
   section.classList.replace(activeScreenClass, cls);
   activeScreenClass = cls;
 }
@@ -550,7 +550,7 @@ function initListeners(tab) {
 }
 
 export async function initMasterQuiz() {
-  const tab = document.getElementById('tab-masterquiz');
+  const tab = document.getElementById('masterquiz-content');
   if (!tab) return;
 
   try {

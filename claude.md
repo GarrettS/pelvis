@@ -25,7 +25,8 @@ Apply `code-guidelines.md` to every line you write and every line you touch. If 
   > "This fetch loads quiz data. If it fails, the quiz cannot render. Options: (1) show an error message with a retry button, (2) fall back to a cached copy of the data if available, (3) disable the quiz tab and show a status message. Which approach?"
   Do not write `console.error` and move on. Do not re-throw. Do not pick a handling strategy without presenting it.
 - Do not use heredocs with template literals — the tool parser chokes on `${…}` substitutions.
-- Do not batch-edit files with transformation scripts. Make direct edits, one at a time, verifying each.
+- Do not batch-edit files with transformation scripts (sed, awk). Use direct edits.
+- **Batch cohesive mechanical changes.** When a refactoring requires the same transformation applied to multiple locations (renaming an ID, replacing a class, removing an attribute), apply all instances in a single `replace_all` edit or a single block edit — not one at a time. Repetitive line-by-line approval fatigues the reviewer and encourages auto-approve, which defeats the review loop.
 - For coordinate or positioning work, measure each element individually. Never batch-adjust.
 
 ### After Every Change

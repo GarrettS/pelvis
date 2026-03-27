@@ -6,7 +6,7 @@
   --pelvis-sublabel: 9px;
 }
 
-#anatomy-decoder .tab-section {
+#anatomy-decoder-content .tab-section {
   margin-bottom: 0;
 }
 
@@ -202,12 +202,12 @@
   #equiv-correct-section { display: none; }
 }
 
-#tab-equivalence.in-session {
+#equivalence-content.in-session {
   .equiv-session-config,
   #equiv-score { display: none; }
 }
 
-#tab-equivalence.showing-results {
+#equivalence-content.showing-results {
   #equiv-quiz-wrap,
   .equiv-session-config,
   #equiv-score { display: none; }

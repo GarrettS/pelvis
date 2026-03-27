@@ -76,18 +76,18 @@ function resetSession() {
 }
 
 function showQuizScreen() {
-  const section = document.getElementById('tab-equivalence');
+  const section = document.getElementById('equivalence-content');
   section.classList.remove('showing-results');
   section.classList.add('in-session');
 }
 
 function showConfigScreen() {
-  const section = document.getElementById('tab-equivalence');
+  const section = document.getElementById('equivalence-content');
   section.classList.remove('showing-results', 'in-session');
 }
 
 function showResultsScreen() {
-  document.getElementById('tab-equivalence').classList.add('showing-results');
+  document.getElementById('equivalence-content').classList.add('showing-results');
 }
 
 const CLICK_DISPATCH = {
@@ -114,7 +114,7 @@ async function loadExplanations() {
 export function initEquivalence() {
   loadExplanations();
   const section = document.getElementById(
-    'tab-equivalence'
+    'equivalence-content'
   );
   const wrap = document.getElementById(
     'equiv-quiz-wrap'
