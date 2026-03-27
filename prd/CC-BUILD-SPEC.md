@@ -1,7 +1,7 @@
 # Feature Spec: PRI Pelvis Restoration Study Tool
 
 ## What This Is
-A unified vanilla JS single-page application for PRI Pelvis Restoration certification exam preparation. See `prd/project.md` for architecture, directory structure, and content authority. See `code-guidelines.md` for code standards. See `prd/style-guide.md` for design tokens.
+A unified vanilla JS single-page application for PRI Pelvis Restoration certification exam preparation. See `prd/project.md` for architecture, directory structure, and content authority. See `.doctrine/code-guidelines.md` for code standards. See `prd/style-guide.md` for design tokens.
 
 ---
 

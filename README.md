@@ -18,17 +18,17 @@ No React, no build step, no bundler, no `package.json`. This is a deliberate con
 
 Zero dependencies means every failure mode is the author's to handle. There is no framework lifecycle to defer to and no black-box error boundary to swallow exceptions. This is the load-bearing connection to the project's fail-safe principle: every `catch` block must answer "what does the user see?" — because there is nothing else in the stack to answer it.
 
-The code guidelines document ([code-guidelines.md](code-guidelines.md)) codifies this and the rest of the engineering standards. It is opinionated and worth reading on its own.
+The code guidelines document ([code-guidelines.md](.doctrine/code-guidelines.md)) codifies this and the rest of the engineering standards. It is opinionated and worth reading on its own.
 
 ## Built with Claude Code
 
 This project uses [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (Anthropic's CLI agent). The workflow resembles XP-style pairing — I drive, Claude Code proposes. All design decisions, code review, and editorial direction are mine. Every line Claude Code produces is individually reviewed and edited before commit. As part of this process, the code guidelines are honed to catch anti-patterns and improve the production of high-quality, performant code.
 
-[CLAUDE.md](CLAUDE.md) is the behavioral contract that constrains Claude Code's output. [code-guidelines.md](code-guidelines.md) defines the engineering standards it must follow. [bin/pre-commit-check.sh](bin/pre-commit-check.sh) mechanically catches the violations it can grep for. The rules it cannot grep for — module cohesion, fail-safe completeness, silent-failure detection — require Claude Code to re-read the guidelines before every commit (Step 1 of the pre-commit sequence).
+[CLAUDE.md](CLAUDE.md) is the behavioral contract that constrains Claude Code's output. [code-guidelines.md](.doctrine/code-guidelines.md) defines the engineering standards it must follow. [bin/pre-commit-check.sh](bin/pre-commit-check.sh) mechanically catches the violations it can grep for. The rules it cannot grep for — module cohesion, fail-safe completeness, silent-failure detection — require Claude Code to re-read the guidelines before every commit (Step 1 of the pre-commit sequence).
 
 These rules were not written in advance. They were tightened iteratively, each one a response to a specific failure mode observed during development:
 
-- **Explicit Asset Lists.** Claude Code added a stale JSON file to the service worker precache manifest by including everything in `data/`. The file was unused by app code — it was a development artifact. A dev-tool HTML file referenced an image that also ended up in precache, passing the orphan check because the script counted dev-tool references as valid. Both produced pointless 404 requests in production. The fix was a new principle in [code-guidelines.md](code-guidelines.md): "each entry must be individually justified by an *app* code reference... Dev tools and PRD documents are not app code; a reference from a dev tool does not justify inclusion in an asset list."
+- **Explicit Asset Lists.** Claude Code added a stale JSON file to the service worker precache manifest by including everything in `data/`. The file was unused by app code — it was a development artifact. A dev-tool HTML file referenced an image that also ended up in precache, passing the orphan check because the script counted dev-tool references as valid. Both produced pointless 404 requests in production. The fix was a new principle in [code-guidelines.md](.doctrine/code-guidelines.md): "each entry must be individually justified by an *app* code reference... Dev tools and PRD documents are not app code; a reference from a dev tool does not justify inclusion in an asset list."
 
 - **Failure paths require approval.** Claude Code's default behavior when writing a `fetch` call is to add a `catch` block with `console.error` and move on. That passes a mechanical check for "has a catch block" but fails the actual requirement: the user sees nothing. The rule in CLAUDE.md now requires it to stop and present the failure scenario before writing the handler: "State what operation can fail, what the consequence is, and list contextual handling options."
 
@@ -90,7 +90,7 @@ Modules are ES modules (`type="module"`). No globals except a shared data cache.
 - **Event delegation over per-element listeners.** Attach to ancestors, match via `closest()`.
 - **Dead code removal after every change.** Orphaned selectors, unreferenced IDs, stale variables — cleaned on commit, not accumulated.
 
-Full standards: [code-guidelines.md](code-guidelines.md)
+Full standards: [code-guidelines.md](.doctrine/code-guidelines.md)
 
 ## Run locally
 
