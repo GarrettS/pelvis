@@ -3,7 +3,7 @@ import { showFetchError } from './fetch-feedback.js';
 
 let REGIONS;
 
-export async function initDecoder() {
+export async function init() {
   try {
     const resp = await fetch('data/regions.json');
     if (!resp.ok) {

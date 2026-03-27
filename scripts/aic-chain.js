@@ -17,7 +17,7 @@ let leaderEl = null;
 let imgEl = null;
 let detailEl = null;
 
-async function initLAIC() {
+async function init() {
   containerEl = document.querySelector('.aic-chain-container');
   if (!containerEl) return;
 
@@ -332,4 +332,4 @@ function handleResize() {
   }
 }
 
-export {initLAIC};
+export {init};

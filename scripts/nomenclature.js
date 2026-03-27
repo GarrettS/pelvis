@@ -84,7 +84,7 @@ function buildTranslationTable() {
   });
 }
 
-export async function initNomenclature() {
+export async function init() {
   try {
     const jointsResp = await fetch('data/pelvic-joints.json');
     if (!jointsResp.ok) {

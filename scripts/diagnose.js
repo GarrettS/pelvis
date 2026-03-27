@@ -16,7 +16,7 @@ let caseState = {
   selectedTreatments: []
 };
 
-export async function initDiagnose() {
+export async function init() {
   DATA = await getStudyData();
   if (!DATA) {
     showFetchError('#diagnose-content', 'study data');

@@ -549,7 +549,7 @@ function initListeners(tab) {
   });
 }
 
-export async function initMasterQuiz() {
+export async function init() {
   const tab = document.getElementById('masterquiz-content');
   if (!tab) return;
 

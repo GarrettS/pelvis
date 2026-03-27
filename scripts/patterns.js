@@ -8,7 +8,7 @@ let symptomQuiz = { idx: 0, isQuizDone: false, score: { correct: 0, total: 0 } }
 let haltQuiz = { idx: 0, isQuizDone: false };
 let squatQuiz = { idx: 0, isQuizDone: false };
 
-export async function initPatterns() {
+export async function init() {
   try {
     const urls = [
       'data/cheat-data.json', 'data/causal-map.json',

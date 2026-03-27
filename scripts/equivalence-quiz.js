@@ -111,7 +111,7 @@ async function loadExplanations() {
   }
 }
 
-export function initEquivalence() {
+export function init() {
   loadExplanations();
   const section = document.getElementById(
     'equivalence-content'

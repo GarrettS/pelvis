@@ -163,7 +163,7 @@ function renderCard() {
   wrap.appendChild(cardDiv);
 }
 
-export async function initFlashcards() {
+export async function init() {
   try {
     const resp = await fetch('data/flashcard-deck.json');
     if (!resp.ok) {

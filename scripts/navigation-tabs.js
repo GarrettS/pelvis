@@ -12,40 +12,31 @@ const initialized = new Set();
 
 const LAZY_INIT = {
   'nomenclature-content': {
-    label: 'Nomenclature',
-    load: () => import('./nomenclature.js').then((m) => m.initNomenclature)
+    label: 'Nomenclature', path: './nomenclature.js'
   },
   'patterns-content': {
-    label: 'Patterns',
-    load: () => import('./patterns.js').then((m) => m.initPatterns)
+    label: 'Patterns', path: './patterns.js'
   },
   'diagnose-content': {
-    label: 'Diagnose',
-    load: () => import('./diagnose.js').then((m) => m.initDiagnose)
+    label: 'Diagnose', path: './diagnose.js'
   },
   'flashcards-content': {
-    label: 'Flashcards',
-    load: () => import('./flashcards.js').then((m) => m.initFlashcards)
+    label: 'Flashcards', path: './flashcards.js'
   },
   'equivalence-content': {
-    label: 'Equivalence',
-    load: () => import('./equivalence-quiz.js').then((m) => m.initEquivalence)
+    label: 'Equivalence', path: './equivalence-quiz.js'
   },
   'masterquiz-content': {
-    label: 'Master Quiz',
-    load: () => import('./masterquiz.js').then((m) => m.initMasterQuiz)
+    label: 'Master Quiz', path: './masterquiz.js'
   },
   'anatomy-anatomize-content': {
-    label: 'Anatomize',
-    load: () => import('./anatomize.js').then((m) => m.initAnatomize)
+    label: 'Anatomize', path: './anatomize.js'
   },
   'anatomy-decoder-content': {
-    label: 'Decoder',
-    load: () => import('./decoder.js').then((m) => m.initDecoder)
+    label: 'Decoder', path: './decoder.js'
   },
   'anatomy-aic-content': {
-    label: 'L AIC Chain',
-    load: () => import('./aic-chain.js').then((m) => m.initLAIC)
+    label: 'L AIC Chain', path: './aic-chain.js'
   }
 };
 
@@ -74,9 +65,9 @@ function lazyInit(key) {
   if (!container) return;
 
   showTabLoading(container);
-  entry.load().then((initFn) => {
+  import(entry.path).then((m) => {
     clearTabLoading(container);
-    return initFn();
+    return m.init();
   }).catch(() => {
     clearTabLoading(container);
     initialized.delete(key);

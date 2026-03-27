@@ -159,7 +159,7 @@ function initListeners() {
     });
 }
 
-async function initAnatomize() {
+async function init() {
   const loaded = await loadAnatomizeData('#anatomy-anatomize');
   if (!loaded) return;
 
@@ -921,4 +921,4 @@ function hookImageLoad() {
   }
 }
 
-export {initAnatomize, resetAnatomize, loadImageSet};
+export {init, resetAnatomize, loadImageSet};
