@@ -1,4 +1,3 @@
-import {initAnatomize, loadImageSet} from './anatomize.js';
 import {showFetchError} from './fetch-feedback.js';
 import {renderHomeProgress} from './home-progress.js';
 
@@ -38,7 +37,7 @@ const LAZY_INIT = {
   },
   'anatomy-anatomize-content': {
     label: 'Anatomize',
-    load: () => Promise.resolve(initAnatomize)
+    load: () => import('./anatomize.js').then((m) => m.initAnatomize)
   },
   'anatomy-decoder-content': {
     label: 'Decoder',
@@ -126,12 +125,24 @@ function activateTab(tab) {
 }
 
 function activateSubtab(tab, subtab) {
-  const contentId = tab + '-' + subtab + '-content';
   const row = document.getElementById(tab + '-subtabs');
   if (!row) return;
 
-  const link = row.querySelector('[href="#' + tab + '/' + subtab + '"]');
-  if (!link) return;
+  let link = subtab
+    ? row.querySelector('[href="#' + tab + '/' + subtab + '"]')
+    : null;
+  if (!link && lastSubtab[tab]) {
+    subtab = lastSubtab[tab];
+    link = row.querySelector('[href="#' + tab + '/' + subtab + '"]');
+  }
+  if (!link) {
+    const firstLink = row.querySelector('.subtab');
+    if (!firstLink) return;
+    const href = firstLink.getAttribute('href') || '';
+    subtab = href.replace(/^#/, '').split('/')[1];
+    if (!subtab) return;
+    link = firstLink;
+  }
 
   if (!activeSubtabLink[tab]) {
     activeSubtabLink[tab] = row.querySelector('.subtab.activeTab');
@@ -149,10 +160,12 @@ function activateSubtab(tab, subtab) {
   }
   activeSubtabContent[tab]?.classList.remove('activeTab');
 
+  const contentId = tab + '-' + subtab + '-content';
   const target = document.getElementById(contentId);
   if (target) {
     target.classList.add('activeTab');
-    target.dispatchEvent(new CustomEvent('subtab-shown', {bubbles: true}));
+    target.dispatchEvent(
+      new CustomEvent('subtab-shown', {bubbles: true}));
   }
   activeSubtabContent[tab] = target;
   lastSubtab[tab] = subtab;
@@ -161,54 +174,24 @@ function activateSubtab(tab, subtab) {
   lazyInit(contentId);
 }
 
-function activateFirstSubtab(tab) {
-  if (lastSubtab[tab]) {
-    activateSubtab(tab, lastSubtab[tab]);
-    return;
-  }
-  const row = document.getElementById(tab + '-subtabs');
-  if (!row) return;
-
-  const firstLink = row.querySelector('.subtab');
-  if (!firstLink) return;
-
-  const href = firstLink.getAttribute('href') || '';
-  const subtab = href.replace(/^#/, '').split('/')[1];
-  if (subtab) activateSubtab(tab, subtab);
-}
-
 function applyHash() {
   const h = (location.hash || '').replace(/^#/, '');
   const [tab, subtab, subview] = h.split('/');
 
-  const section = tab ? document.getElementById(tab + '-content') : null;
+  const section = tab
+    ? document.getElementById(tab + '-content')
+    : null;
   if (!section || !section.classList.contains('content')) {
     activateTab('home');
     return;
   }
 
   activateTab(tab);
-
-  if (subtab) {
-    const content = section.querySelector(
-      '#' + tab + '-' + subtab + '-content');
-    if (content) {
-      activateSubtab(tab, subtab);
-    } else {
-      activateFirstSubtab(tab);
-    }
-  } else {
-    activateFirstSubtab(tab);
-  }
-
+  activateSubtab(tab, subtab);
   if (subview) activateSubview(tab, subtab, subview);
 }
 
 function activateSubview(tab, subtab, subview) {
-  if (tab === 'anatomy' && subtab === 'anatomize') {
-    loadImageSet(subview, true);
-    return;
-  }
   const container = document.getElementById(
     tab + '-' + subtab + '-content');
   if (!container) return;
