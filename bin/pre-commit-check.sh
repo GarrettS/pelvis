@@ -292,6 +292,9 @@ else
   echo -e "${GREEN}PASS${NC}  All PRDs referenced"
 fi
 
+# Warn once daily if .doctrine is behind canonical.
+bash bin/check-doctrine-sync.sh
+
 # ---- Summary ----
 
 echo ""

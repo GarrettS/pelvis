@@ -9,6 +9,8 @@ This project follows the canonical code doctrine from [`GarrettS/code-guidelines
 - **`.doctrine/code-guidelines.md`** — what the code looks like. Principles, patterns, language rules, formatting.
 - **`.doctrine/code-philosophy.md`** — why the doctrine is structured this way.
 
+Keep `.doctrine` in sync with the canonical `code-guidelines` repository. Before major work, at periodic commits, and when pulling upstream doctrine changes, check whether the submodule is behind. If it is, update `.doctrine` and commit the new submodule pointer in the parent project.
+
 This file (`project.md`) is the project overlay. Project-specific decisions live here, not in a fork of the doctrine. When this overlay overrides a doctrine default, it states which rule is overridden and why.
 
 ## Content Authority
