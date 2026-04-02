@@ -1,3 +1,0 @@
-[submodule ".doctrine"]
-	path = .doctrine
-	url = https://github.com/GarrettS/code-guidelines.git

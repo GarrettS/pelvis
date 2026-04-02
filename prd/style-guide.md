@@ -1,6 +1,6 @@
 # Style Guide — PRI Pelvis
 
-Project-specific design decisions. Code standards are in `.doctrine/code-guidelines.md`; this file defines the visual and tonal identity of this project.
+Project-specific design decisions. Code standards are in `~/.web-xp/code-guidelines.md`; this file defines the visual and tonal identity of this project.
 
 ---
 

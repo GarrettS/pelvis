@@ -4,14 +4,12 @@ https://garretts.github.io/pelvis
 
 An interactive study tool for the PRI Pelvis Restoration certification exam. Single-page vanilla JS application, GitHub Pages, works offline.
 
-## Doctrine
-This project follows the canonical code doctrine from [`GarrettS/code-guidelines`](https://github.com/GarrettS/code-guidelines):
-- **`.doctrine/code-guidelines.md`** — what the code looks like. Principles, patterns, language rules, formatting.
-- **`.doctrine/code-philosophy.md`** — why the doctrine is structured this way.
+## Code Standards
+This project follows [Web XP](https://github.com/GarrettS/web-xp), installed at `~/.web-xp/`:
+- **`~/.web-xp/code-guidelines.md`** — what the code looks like. Principles, patterns, language rules, formatting.
+- **`~/.web-xp/code-philosophy.md`** — why the standards are structured this way.
 
-Keep `.doctrine` in sync with the canonical `code-guidelines` repository. Before major work, at periodic commits, and when pulling upstream doctrine changes, check whether the submodule is behind. If it is, update `.doctrine` and commit the new submodule pointer in the parent project.
-
-This file (`project.md`) is the project overlay. Project-specific decisions live here, not in a fork of the doctrine. When this overlay overrides a doctrine default, it states which rule is overridden and why.
+This file (`project.md`) is the project overlay. Project-specific decisions live here, not in a fork of the standards. When this overlay overrides a default, it states which rule is overridden and why.
 
 ## Content Authority
 - **`Pelvis Restoration 2026 Complete Manual.md`** (parent directory) — the course manual. Authoritative for all PRI content. If app data contradicts this file, the manual wins. If Claude's training data contradicts this file, the manual wins.
