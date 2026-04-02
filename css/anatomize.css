@@ -115,7 +115,7 @@
   opacity: .8;
 }
 
-.anatomize-next.disabled {
+.anatomize-next:disabled {
   opacity: .35;
   pointer-events: none;
   cursor: default;

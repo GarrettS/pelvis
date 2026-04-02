@@ -121,12 +121,11 @@ function initListeners() {
 
   const nextBtn = document.getElementById('anat-next');
   nextBtn.addEventListener('click', () => {
-    if (nextBtn.classList.contains('disabled')) return;
     if (nextBtn.dataset.action === 'reset') {
       resetSession();
       return;
     }
-    nextBtn.classList.add('disabled');
+    nextBtn.disabled = true;
     promptNext();
   });
   nextBtn.addEventListener('keydown', (e) => {
@@ -181,7 +180,7 @@ function resetAnatomize() {
   const nextBtn = document.getElementById('anat-next');
   nextBtn.textContent = 'Next \u2192';
   delete nextBtn.dataset.action;
-  nextBtn.classList.add('disabled');
+  nextBtn.disabled = true;
   document.getElementById('anat-score-text').textContent = '';
   document.getElementById('anat-detail').textContent = '';
 }
@@ -338,7 +337,7 @@ function resetSession() {
   state.queue = shuffle(Object.keys(state.structures));
 
   document.getElementById('anat-detail').textContent = '';
-  nextBtn.classList.add('disabled');
+  nextBtn.disabled = true;
 
   if (state.mechanic === 'blank_panels') {
     renderBlankPanels(imgSet);
@@ -586,7 +585,7 @@ function promptNext() {
   }
   state.current = state.queue.shift();
   attemptedOnCurrent = false;
-  document.getElementById('anat-next').classList.add('disabled');
+  document.getElementById('anat-next').disabled = true;
 
   const structure = state.structures[state.current];
   if (structure) {
@@ -696,7 +695,7 @@ function scoreAttempt(structureId, correct) {
 
 function showNextButton() {
   const nextBtn = document.getElementById('anat-next');
-  nextBtn.classList.remove('disabled');
+  nextBtn.disabled = false;
   if (state.queue.length === 0) {
     nextBtn.textContent = 'Finish';
   }
@@ -865,7 +864,7 @@ function endSession() {
 
   const nextBtn = document.getElementById('anat-next');
   nextBtn.textContent = 'Reset';
-  nextBtn.classList.remove('disabled');
+  nextBtn.disabled = false;
   nextBtn.dataset.action = 'reset';
 
   if (isMobile) {
