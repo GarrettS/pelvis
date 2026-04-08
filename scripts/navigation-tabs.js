@@ -95,24 +95,32 @@ function updateLocationBar() {
   bar.classList.remove('hidden');
 }
 
-function activateTab(tab) {
+function activateTab(tab, subtab) {
   const sectionId = tab + '-content';
+  const section = document.getElementById(sectionId);
+
+  if (!section || !section.classList.contains('content')) {
+    if (tab !== 'home') { activateTab('home'); return; }
+    return;
+  }
 
   activeNavTab?.classList.remove('activeTab');
   activeSection?.classList.remove('activeTab');
   activeSubtabRow?.classList.remove('activeTab');
 
   activeNavTab = document.getElementById('nav:' + tab);
-  activeSection = document.getElementById(sectionId);
+  activeSection = section;
   activeSubtabRow = document.getElementById(tab + '-subtabs');
 
   activeNavTab?.classList.add('activeTab');
-  activeSection?.classList.add('activeTab');
+  activeSection.classList.add('activeTab');
   activeSubtabRow?.classList.add('activeTab');
 
   if (tab === 'home') renderHomeProgress();
   updateLocationBar();
   lazyInit(sectionId);
+
+  if (subtab !== undefined) activateSubtab(tab, subtab);
 }
 
 function activateSubtab(tab, subtab) {
@@ -166,33 +174,9 @@ function activateSubtab(tab, subtab) {
 }
 
 function applyHash() {
-  const h = (location.hash || '').replace(/^#/, '');
-  const [tab, subtab, subview] = h.split('/');
-
-  const section = tab
-    ? document.getElementById(tab + '-content')
-    : null;
-  if (!section || !section.classList.contains('content')) {
-    activateTab('home');
-    return;
-  }
-
-  activateTab(tab);
-  activateSubtab(tab, subtab);
-  if (subview) activateSubview(tab, subtab, subview);
-}
-
-function activateSubview(tab, subtab, subview) {
-  const container = document.getElementById(
-    tab + '-' + subtab + '-content');
-  if (!container) return;
-
-  const svTabs = container.querySelector('.subview-tabs');
-  if (!svTabs) return;
-
-  const svHref = '#' + tab + '/' + subtab + '/' + subview;
-  const svLink = svTabs.querySelector('[href="' + svHref + '"]');
-  if (svLink) svLink.click();
+  const h = location.hash.replace(/^#/, '');
+  const [tab = 'home', subtab] = h.split('/');
+  activateTab(tab, subtab);
 }
 
 function handleNavClick(e) {

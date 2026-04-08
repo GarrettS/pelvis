@@ -755,51 +755,53 @@ function renderTreeNode(node, parent) {
 }
 
 function annotateOutOfScope(content) {
-  if (!content.includes('Myokinematic Restoration')) {
-    return content;
-  }
+  return content.replace(
+    /Myokinematic Restoration(?: & Postural Respiration)?/g,
+    '$& (out of scope for this course)'
+  );
+}
 
-  const OOS = ' (out of scope for this course)';
-  return content
-    .replace(
-      'Myokinematic Restoration'
-        + ' & Postural Respiration',
-      'Myokinematic Restoration'
-        + ' & Postural Respiration' + OOS
-    )
-    .replace(
-      'Myokinematic Restoration.',
-      'Myokinematic Restoration' + OOS + '.'
-    )
-    .replace(
-      'Myokinematic Restoration\u2014',
-      'Myokinematic Restoration' + OOS + ' \u2014'
-    )
-    .replace(
-      'Myokinematic Restoration \u2014',
-      'Myokinematic Restoration' + OOS + ' \u2014'
-    );
+function getSubviewFromHash() {
+  return location.hash.replace(/^#/, '').split('/')[2];
+}
+
+function resolveSubviewLink(viewTabs) {
+  const hashView = getSubviewFromHash();
+  if (hashView) {
+    const link = viewTabs.querySelector('[href="#diagnose/exercises/' + hashView + '"]');
+    if (link) return link;
+  }
+  return viewTabs.querySelector('.subview-tab.activeTab')
+    || viewTabs.querySelector('.subview-tab');
+}
+
+function subviewKeyFromLink(link) {
+  return link.getAttribute('href').replace(/^#/, '').split('/')[2];
 }
 
 function buildMuscleMap() {
-  let currentMView = 'byMuscle';
-  let activeViewTab = document.querySelector(
-    '#muscle-view-tabs .subview-tab.activeTab');
+  const viewTabs = document.getElementById('muscle-view-tabs');
+  let activeViewTab = viewTabs.querySelector('.subview-tab.activeTab');
+  let currentMView;
 
-  document.getElementById('muscle-view-tabs').addEventListener('click', (e) => {
-    const tab = e.target.closest('.subview-tab');
-    if (!tab) return;
+  function applySubview() {
+    const link = resolveSubviewLink(viewTabs);
+    if (!link) return;
 
-    const href = tab.getAttribute('href') || '';
-    const view = href.replace(/^#/, '').split('/')[2];
-    if (!view) return;
+    const view = subviewKeyFromLink(link);
+    if (link !== activeViewTab) {
+      activeViewTab?.classList.remove('activeTab');
+      link.classList.add('activeTab');
+      activeViewTab = link;
+    }
+    if (view !== currentMView) {
+      currentMView = view;
+      renderMuscleView(currentMView);
+    }
+  }
 
-    activeViewTab?.classList.remove('activeTab');
-    tab.classList.add('activeTab');
-    activeViewTab = tab;
-    currentMView = view;
-    renderMuscleView(currentMView, '');
-  });
+  applySubview();
+  window.addEventListener('hashchange', applySubview);
 
   const search = document.getElementById('muscle-search');
   search.addEventListener('input', () =>
@@ -808,10 +810,9 @@ function buildMuscleMap() {
   search.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') e.preventDefault();
   });
-  renderMuscleView('byMuscle', '');
 }
 
-function renderMuscleView(view, query) {
+function renderMuscleView(view, query = '') {
   const wrap = document.getElementById('muscle-map-wrap');
   const entries = DATA.muscleExerciseMap[view] || [];
   wrap.innerHTML = '';
@@ -844,5 +845,8 @@ function renderMuscleView(view, query) {
         + exercises + '</div>';
     wrap.appendChild(div);
   });
-  if (!wrap.children.length) wrap.innerHTML = '<div class="empty-message">No entries match.</div>';
+  if (!wrap.children.length) {
+    wrap.innerHTML =
+      '<div class="empty-message">No entries match.</div>';
+  }
 }
