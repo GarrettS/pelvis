@@ -120,7 +120,7 @@ function activateTab(tab, subtab) {
   updateLocationBar();
   lazyInit(sectionId);
 
-  if (subtab !== undefined) activateSubtab(tab, subtab);
+  if (activeSubtabRow) activateSubtab(tab, subtab);
 }
 
 function activateSubtab(tab, subtab) {
@@ -137,8 +137,8 @@ function activateSubtab(tab, subtab) {
   if (!link) {
     const firstLink = row.querySelector('.subtab');
     if (!firstLink) return;
-    const href = firstLink.getAttribute('href') || '';
-    subtab = href.replace(/^#/, '').split('/')[1];
+    
+    subtab = firstLink.hash.substring(1).split('/')[1];
     if (!subtab) return;
     link = firstLink;
   }
@@ -174,7 +174,7 @@ function activateSubtab(tab, subtab) {
 }
 
 function applyHash() {
-  const h = location.hash.replace(/^#/, '');
+  const h = location.hash.substring(1);
   const [tab = 'home', subtab] = h.split('/');
   activateTab(tab, subtab);
 }
@@ -184,8 +184,7 @@ function handleNavClick(e) {
   if (!link) return;
 
   e.preventDefault();
-  const href = link.getAttribute('href');
-  if (href) location.hash = href.replace(/^#/, '');
+  if (link.hash) location.hash = link.hash;
 }
 
 function handleSubviewClick(e) {
@@ -193,8 +192,7 @@ function handleSubviewClick(e) {
   if (!link) return;
 
   e.preventDefault();
-  const href = link.getAttribute('href');
-  if (href) location.hash = href.replace(/^#/, '');
+  if (link.hash) location.hash = link.hash;
 }
 
 function initScrollAffordance() {

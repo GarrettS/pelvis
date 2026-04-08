@@ -761,22 +761,18 @@ function annotateOutOfScope(content) {
   );
 }
 
-function getSubviewFromHash() {
-  return location.hash.replace(/^#/, '').split('/')[2];
+function getSubviewFromHash(url) {
+  return url.substring(1).split('/')[2];
 }
 
 function resolveSubviewLink(viewTabs) {
-  const hashView = getSubviewFromHash();
+  const hashView = getSubviewFromHash(location.hash);
   if (hashView) {
     const link = viewTabs.querySelector('[href="#diagnose/exercises/' + hashView + '"]');
     if (link) return link;
   }
   return viewTabs.querySelector('.subview-tab.activeTab')
     || viewTabs.querySelector('.subview-tab');
-}
-
-function subviewKeyFromLink(link) {
-  return link.getAttribute('href').replace(/^#/, '').split('/')[2];
 }
 
 function buildMuscleMap() {
@@ -788,7 +784,7 @@ function buildMuscleMap() {
     const link = resolveSubviewLink(viewTabs);
     if (!link) return;
 
-    const view = subviewKeyFromLink(link);
+    const view = getSubviewFromHash(link.hash);
     if (link !== activeViewTab) {
       activeViewTab?.classList.remove('activeTab');
       link.classList.add('activeTab');
