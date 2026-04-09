@@ -119,6 +119,8 @@ function renderQuestion() {
   const q = queue[qIdx];
   selectedKey = null;
   submitted = false;
+  document.getElementById('mq-quiz').classList.remove(
+    'answered-correct', 'answered-incorrect');
 
   const pct = ((qIdx / queue.length) * 100) + '%';
   document.getElementById('mq-progress-fill')
@@ -190,6 +192,9 @@ function handleSubmit() {
       btn.classList.add('incorrect');
     }
   }
+
+  document.getElementById('mq-quiz').classList.add(
+    correct ? 'answered-correct' : 'answered-incorrect');
 
   document.getElementById('mq-submit').classList.add('hidden');
   const nextBtn = document.getElementById('mq-next');

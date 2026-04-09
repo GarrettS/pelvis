@@ -145,9 +145,42 @@
   color: var(--error);
 }
 
+.mq-options > button.correct::before {
+  content: '\2713\a0';
+}
+
+.mq-options > button.incorrect::before {
+  content: '\2717\a0';
+}
+
 .mq-options > button.locked {
   cursor: default;
   pointer-events: none;
+}
+
+#mq-quiz {
+  &.answered-correct .mq-stem { border-left-color: var(--correct); }
+  &.answered-incorrect .mq-stem { border-left-color: var(--error); }
+}
+
+#mq-verdict {
+  font-family: var(--mono);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  margin-bottom: .5rem;
+  color: transparent;
+  white-space: nowrap;
+  height: 1lh;
+
+  #mq-quiz.answered-correct & {
+    color: var(--correct);
+    &::before { content: '\200A\2713\200ACorrect.'; }
+  }
+
+  #mq-quiz.answered-incorrect & {
+    color: var(--error);
+    &::before { content: '\200A\2717\202FIncorrect.'; }
+  }
 }
 
 .mq-equiv-highlight {

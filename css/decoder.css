@@ -153,9 +153,17 @@
   background: var(--correct-bg);
 }
 
+.equiv-opt.correct-reveal::before {
+  content: '\2713\a0';
+}
+
 .equiv-opt.wrong-reveal {
   border-color: var(--error-border);
   background: var(--error-bg);
+}
+
+.equiv-opt.wrong-reveal::before {
+  content: '\2717\a0';
 }
 
 .equiv-opt.missed {

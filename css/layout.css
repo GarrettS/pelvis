@@ -788,10 +788,18 @@ p:last-child {
   color: var(--correct);
 }
 
+.answer-btn.correct::before {
+  content: '\2713\a0';
+}
+
 .answer-btn.incorrect {
   background: var(--error-bg);
   border-color: var(--error-border);
   color: var(--error);
+}
+
+.answer-btn.incorrect::before {
+  content: '\2717\a0';
 }
 
 .answered .answer-btn {
