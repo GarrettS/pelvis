@@ -149,12 +149,12 @@
 }
 
 .equiv-opt.correct-reveal {
-  border-color: var(--correct);
+  border-color: var(--correct-border);
   background: var(--correct-bg);
 }
 
 .equiv-opt.wrong-reveal {
-  border-color: var(--error);
+  border-color: var(--error-border);
   background: var(--error-bg);
 }
 

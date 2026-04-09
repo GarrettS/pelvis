@@ -190,7 +190,7 @@
 }
 
 .anatomize-label.wrong {
-  border-color: var(--error);
+  border-color: var(--error-border);
 }
 
 .anatomize-dark-bg .anatomize-label {
@@ -405,7 +405,7 @@ g.correct .anatomize-target-circle {
 }
 
 .anatomize-mobile-btn.wrong {
-  border-color: var(--error);
+  border-color: var(--error-border);
   background-color: var(--error-bg);
 }
 

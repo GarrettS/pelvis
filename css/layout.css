@@ -5,17 +5,19 @@
   --border: #cec7b8;
   --text: #2a2520;
   --text-dim: #78706a;
-  --accent: #486a78;
-  --accent-dim: #94b0b8;
-  --accent-bg: #eaefee;
+  --accent: #486080;
+  --accent-dim: #94a8be;
+  --accent-bg: #eaecf0;
   --warn: #b07228;
   --warn-bg: #f6eddf;
-  --error: #a83830;
-  --error-bg: #f4e4e2;
+  --error: hsl(4 22% 22%);
+  --error-bg: hsl(0 30% 55% / .18);
+  --error-border: hsl(0 35% 40% / .5);
   --inlet: #506878;
   --outlet: #8a5530;
-  --correct: #518f7a;
-  --correct-bg: #e2ebe6;
+  --correct: hsl(160 28% 22%);
+  --correct-bg: hsl(117 30% 55% / .18);
+  --correct-border: hsl(117 35% 35% / .5);
   --instruction-bg-highlight: #ede4d4;
   --box-shadow-sm: 0 .05rem .15rem rgba(40, 30, 20, .07),
     0 .05rem .1rem rgba(40, 30, 20, .05);
@@ -77,11 +79,11 @@
     --warn-bg: #2a2218;
     --error: #d05050;
     --error-bg: #2a1818;
-    --inlet: #5ea8d4;
+  --error-border: hsl(0 35% 40% / .5);    --inlet: #5ea8d4;
     --outlet: #d4815e;
     --correct: #72b89a;
     --correct-bg: #1c2824;
-    --instruction-bg-highlight: #3a3228;
+  --correct-border: hsl(117 35% 35% / .5);    --instruction-bg-highlight: #3a3228;
     --box-shadow-sm: 0 .05rem .15rem rgba(0, 0, 0, .2),
       0 .05rem .1rem rgba(0, 0, 0, .15);
     --box-shadow-md: 0 .25rem .75rem rgba(0, 0, 0, .25),
@@ -506,7 +508,7 @@ p:last-child {
 }
 
 .callout.error {
-  border-left-color: var(--error);
+  border-left-color: var(--error-border);
 }
 
 .callout p:last-child {
@@ -782,13 +784,13 @@ p:last-child {
 
 .answer-btn.correct {
   background: var(--correct-bg);
-  --instruction-bg-highlight: #ede4d4;  border-color: var(--correct);
+  border-color: var(--correct-border);
   color: var(--correct);
 }
 
 .answer-btn.incorrect {
   background: var(--error-bg);
-  border-color: var(--error);
+  border-color: var(--error-border);
   color: var(--error);
 }
 
@@ -798,7 +800,7 @@ p:last-child {
 
 .answer-btn.selected-correct {
   background: var(--correct-bg);
-  --instruction-bg-highlight: #ede4d4;  border-color: var(--correct);
+  border-color: var(--correct-border);
   color: var(--correct);
 }
 
@@ -812,7 +814,7 @@ p:last-child {
 }
 
 .feedback-box.error {
-  border-left-color: var(--error);
+  border-left-color: var(--error-border);
   background: var(--error-bg);
 }
 

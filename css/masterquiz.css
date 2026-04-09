@@ -134,13 +134,13 @@
 }
 
 .mq-options > button.correct {
-  border-color: var(--correct);
+  border-color: var(--correct-border);
   background: var(--correct-bg);
   color: var(--correct);
 }
 
 .mq-options > button.incorrect {
-  border-color: var(--error);
+  border-color: var(--error-border);
   background: var(--error-bg);
   color: var(--error);
 }
@@ -248,13 +248,13 @@
 .mq-result-opt.correct {
   background: var(--correct-bg);
   color: var(--correct);
-  border-left: 3px solid var(--correct);
+  border-left: 3px solid var(--correct-border);
 }
 
 .mq-result-opt.incorrect {
   background: var(--error-bg);
   color: var(--error);
-  border-left: 3px solid var(--error);
+  border-left: 3px solid var(--error-border);
 }
 
 .mq-result-save {

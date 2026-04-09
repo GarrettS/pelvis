@@ -84,12 +84,12 @@
 }
 
 .chain-item.correct {
-  border-left-color: var(--correct);
+  border-left-color: var(--correct-border);
   background: var(--correct-bg);
 }
 
 .chain-item.incorrect {
-  border-left-color: var(--error);
+  border-left-color: var(--error-border);
   background: var(--error-bg);
 }
 
