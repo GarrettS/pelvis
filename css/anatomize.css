@@ -1,5 +1,6 @@
 :root {
   --text-label: clamp(0.55rem, 0.45rem + 0.2vw, 0.625rem);
+  --dur-img-reveal: 600ms;
 }
 
 .anatomize-controls {
@@ -139,6 +140,8 @@
   height: auto;
   border-radius: .25rem;
   border: 1px solid var(--border);
+  background: var(--surface2);
+  animation: imgReveal var(--dur-img-reveal) ease-out;
   pointer-events: none;
 }
 
@@ -427,6 +430,11 @@ g.correct .anatomize-target-circle {
   border-radius: .5rem;
   padding: 1rem;
   margin-top: 1rem;
+}
+
+@keyframes imgReveal {
+  from { opacity: .1; filter: blur(.25rem); }
+  to { opacity: 1; filter: blur(0); }
 }
 
 .anatomize-dark-bg {
