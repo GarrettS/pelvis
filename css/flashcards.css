@@ -31,7 +31,7 @@
   border: 1px solid var(--border);
   color: var(--text-dim);
   padding: .3rem .65rem;
-  border-radius: 4px;
+  border-radius: .25rem;
   cursor: pointer;
   transition: all var(--dur-fast);
 }
@@ -51,7 +51,7 @@
 .fc-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: .5rem;
   min-height: 200px;
   padding: 2rem;
   text-align: center;
@@ -124,7 +124,7 @@
 .fc-add-form {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: .5rem;
   padding: 1.25rem;
   margin-bottom: 1rem;
 }
@@ -153,7 +153,7 @@
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 4px;
+  border-radius: .25rem;
   padding: .5rem .65rem;
   font-size: var(--text-sm);
   font-family: inherit;

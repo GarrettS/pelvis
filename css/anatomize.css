@@ -137,7 +137,7 @@
   max-width: 100%;
   width: auto;
   height: auto;
-  border-radius: 4px;
+  border-radius: .25rem;
   border: 1px solid var(--border);
   pointer-events: none;
 }
@@ -164,7 +164,7 @@
   font-weight: 600;
   color: rgba(0, 0, 0, .8);
   border: 2px solid var(--pri-fg);
-  border-radius: 3px;
+  border-radius: .2rem;
   padding: .3rem 0 .25rem .1rem;
   cursor: pointer;
   pointer-events: auto;
@@ -187,7 +187,7 @@
 }
 
 .anatomize-label.wrong {
-  border-color: var(--red);
+  border-color: var(--error);
 }
 
 .anatomize-dark-bg .anatomize-label {
@@ -282,7 +282,7 @@ g.correct .anatomize-target-circle {
 }
 
 .anatomize-hitbox-wrong {
-  border-bottom-color: var(--red);
+  border-bottom-color: var(--error);
 }
 
 .anatomize-hitbox.correct {
@@ -294,7 +294,7 @@ g.correct .anatomize-target-circle {
   margin-left: auto;
   font-size: var(--text-sm);
   line-height: 1;
-  color: var(--green);
+  color: var(--correct);
   pointer-events: none;
   flex-shrink: 0;
 }
@@ -303,7 +303,7 @@ g.correct .anatomize-target-circle {
   margin-left: auto;
   font-size: var(--text-sm);
   line-height: 1;
-  color: var(--red);
+  color: var(--error);
   pointer-events: none;
   flex-shrink: 0;
 }
@@ -329,9 +329,10 @@ g.correct .anatomize-target-circle {
 .anatomize-detail-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: .5rem;
   padding: 1rem 1.25rem;
   border-left: 4px solid var(--pri-fg);
+  box-shadow: var(--box-shadow-sm);
 }
 
 .anatomize-detail-bullet {
@@ -401,7 +402,7 @@ g.correct .anatomize-target-circle {
 }
 
 .anatomize-mobile-btn.wrong {
-  border-color: var(--red);
+  border-color: var(--error);
   background-color: var(--error-bg);
 }
 
@@ -423,7 +424,7 @@ g.correct .anatomize-target-circle {
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: .5rem;
   padding: 1rem;
   margin-top: 1rem;
 }

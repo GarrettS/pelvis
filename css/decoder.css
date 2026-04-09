@@ -149,8 +149,8 @@
 }
 
 .equiv-opt.correct-reveal {
-  border-color: var(--green);
-  background: var(--accent-bg);
+  border-color: var(--correct);
+  background: var(--correct-bg);
 }
 
 .equiv-opt.wrong-reveal {

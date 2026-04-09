@@ -44,17 +44,16 @@ export async function init() {
 function buildCheatSheet() {
   const grid = document.getElementById('cheat-sheet-grid');
   grid.innerHTML = '';
+  const keyLabels = new Set();
   const colTemplate = document.createElement('div');
   colTemplate.classList.add('cheat-col');
   CHEAT_DATA.forEach(col => {
     const div = colTemplate.cloneNode(false);
-    const isPatho = col.name.includes('Patho');
     div.innerHTML = '<div class="cheat-col-header">'
       + expandAbbr(col.name) + '</div>'
       + col.rows.map((row) => {
-        const keyCls = row.key
-          ? (isPatho ? ' key-warn' : ' key')
-          : '';
+        const keyCls = row.key ? ' key' : '';
+        if (row.key) keyLabels.add(row.l);
         return '<div class="cheat-row'
           + keyCls + '">'
           + '<span>' + expandAbbr(row.l)
@@ -64,6 +63,10 @@ function buildCheatSheet() {
       }).join('');
     grid.appendChild(div);
   });
+  const legendLabels = document.getElementById('cheat-legend-labels');
+  if (legendLabels && keyLabels.size) {
+    legendLabels.textContent = Array.from(keyLabels).join(', ');
+  }
 }
 
 const CONCEPT_MAP_W = 500, CONCEPT_MAP_H = 340;

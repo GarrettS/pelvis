@@ -84,8 +84,8 @@
 }
 
 .chain-item.correct {
-  border-left-color: var(--green);
-  background: var(--accent-bg);
+  border-left-color: var(--correct);
+  background: var(--correct-bg);
 }
 
 .chain-item.incorrect {
@@ -142,13 +142,13 @@
 }
 
 .test-item-val.negative {
-  color: var(--green);
+  color: var(--correct);
 }
 
 .visit-badge {
   font-family: var(--mono);
   font-size: var(--text-xs);
-  background: var(--accent-bg);
+  background: var(--correct-bg);
   color: var(--accent);
   border: 1px solid var(--accent-dim);
   border-radius: 3px;

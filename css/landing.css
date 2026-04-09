@@ -4,14 +4,18 @@
 }
 
 .home-title {
-  font-family: var(--mono);
+  font-family: var(--display);
   font-size: var(--text-2xl);
   color: var(--accent);
+  font-weight: 600;
+  letter-spacing: -.02em;
   margin-bottom: .25rem;
 }
 
 .home-subtitle {
+  font-size: var(--text-sm);
   margin-bottom: 2rem;
+  letter-spacing: .02em;
 }
 
 .home-nav-grid {
@@ -54,7 +58,7 @@
   padding: .75rem 1rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: .5rem;
   text-decoration: none;
   color: var(--text);
   box-shadow: var(--box-shadow-sm);
@@ -63,15 +67,15 @@
 
 .home-nav-card:hover {
   border-color: var(--accent);
-  background: var(--surface2);
   box-shadow: var(--box-shadow-md);
 }
 
 .home-nav-card > span:first-child {
-  font-family: var(--mono);
+  font-family: var(--display);
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--accent);
+  letter-spacing: -.01em;
 }
 
 .home-nav-card > span:nth-child(2) {

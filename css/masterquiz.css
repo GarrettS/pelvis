@@ -134,9 +134,9 @@
 }
 
 .mq-options > button.correct {
-  border-color: var(--green);
-  background: var(--accent-bg);
-  color: var(--green);
+  border-color: var(--correct);
+  background: var(--correct-bg);
+  color: var(--correct);
 }
 
 .mq-options > button.incorrect {
@@ -175,9 +175,9 @@
   border-radius: 6px;
 }
 
-.mq-score-green {
-  color: var(--green);
-  background: var(--accent-bg);
+.mq-score-correct {
+  color: var(--correct);
+  background: var(--correct-bg);
 }
 
 .mq-score-yellow {
@@ -246,9 +246,9 @@
 }
 
 .mq-result-opt.correct {
-  background: var(--accent-bg);
-  color: var(--green);
-  border-left: 3px solid var(--green);
+  background: var(--correct-bg);
+  color: var(--correct);
+  border-left: 3px solid var(--correct);
 }
 
 .mq-result-opt.incorrect {

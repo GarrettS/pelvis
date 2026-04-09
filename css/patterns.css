@@ -10,7 +10,7 @@
   font-size: var(--text-sm);
   font-weight: 700;
   padding: .75rem 1rem;
-  background: var(--accent-bg);
+  background: var(--instruction-bg-highlight);
   color: var(--accent);
   border-bottom: 1px solid var(--border);
 }
@@ -24,12 +24,25 @@
   border-bottom: none;
 }
 
-.cheat-row.key {
-  background: var(--accent-bg);
+.key {
+  background: var(--instruction-bg-highlight);
 }
 
-.cheat-row.key-warn {
-  background: var(--warn-bg);
+#cheat-legend {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  margin-top: .75rem;
+}
+
+#cheat-legend-swatch {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--border);
+  border-radius: .15rem;
+  flex-shrink: 0;
 }
 
 .cheat-row > span:first-child {
@@ -67,7 +80,7 @@
 }
 
 .map-node.central rect {
-  fill: var(--accent-bg);
+  fill: var(--instruction-bg-highlight);
   stroke: var(--accent);
 }
 
