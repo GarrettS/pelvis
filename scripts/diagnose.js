@@ -17,9 +17,13 @@ let caseState = {
 };
 
 export async function init() {
-  DATA = await getStudyData();
-  if (!DATA) {
-    showFetchError('#diagnose-content', 'study data');
+  const container = document.getElementById('diagnose-content');
+  if (!container) return;
+
+  try {
+    DATA = await getStudyData();
+  } catch (cause) {
+    showFetchError(container, 'study-data.json', cause);
     return;
   }
   initGame();

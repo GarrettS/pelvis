@@ -41,13 +41,13 @@ async function loadAnatomizeData(errorContainer) {
   try {
     const resp = await fetch('data/anatomize-data.json');
     if (!resp.ok) {
-      showFetchError(errorContainer, 'anatomy images');
+      showFetchError(errorContainer, 'anatomize-data.json', resp);
       return false;
     }
     anatomizeData = await resp.json();
     return true;
-  } catch (fetchErr) {
-    showFetchError(errorContainer, 'anatomy images');
+  } catch (cause) {
+    showFetchError(errorContainer, 'anatomize-data.json', cause);
     return false;
   }
 }

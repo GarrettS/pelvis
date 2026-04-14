@@ -85,20 +85,24 @@ function buildTranslationTable() {
 }
 
 export async function init() {
+  const container = document.getElementById('nomenclature-content');
+  if (!container) return;
+
   try {
     const jointsResp = await fetch('data/pelvic-joints.json');
     if (!jointsResp.ok) {
-      showFetchError('#nomenclature-content', 'nomenclature data');
+      showFetchError(container, 'pelvic-joints.json', jointsResp);
       return;
     }
     JOINTS = await jointsResp.json();
-  } catch (fetchErr) {
-    showFetchError('#nomenclature-content', 'nomenclature data');
+  } catch (cause) {
+    showFetchError(container, 'pelvic-joints.json', cause);
     return;
   }
-  DATA = await getStudyData();
-  if (!DATA) {
-    showFetchError('#nomenclature-content', 'study data');
+  try {
+    DATA = await getStudyData();
+  } catch (cause) {
+    showFetchError(container, 'study-data.json', cause);
     return;
   }
   buildJointsView();

@@ -25,12 +25,12 @@ async function init() {
   try {
     const resp = await fetch('data/aic-chain.json');
     if (!resp.ok) {
-      showFetchError(containerEl, 'L AIC chain');
+      showFetchError(containerEl, 'aic-chain.json', resp);
       return;
     }
     data = await resp.json();
-  } catch (fetchErr) {
-    showFetchError(containerEl, 'L AIC chain');
+  } catch (cause) {
+    showFetchError(containerEl, 'aic-chain.json', cause);
     return;
   }
   aicChain = data.chain;

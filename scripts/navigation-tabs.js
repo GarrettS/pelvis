@@ -1,4 +1,4 @@
-import {showFetchError} from './fetch-feedback.js';
+import {showModuleLoadError} from './fetch-feedback.js';
 import {renderHomeProgress} from './home-progress.js';
 
 const lastSubtab = {};
@@ -12,31 +12,31 @@ const initialized = new Set();
 
 const LAZY_INIT = {
   'nomenclature-content': {
-    label: 'Nomenclature', path: './nomenclature.js'
+    path: './nomenclature.js'
   },
   'patterns-content': {
-    label: 'Patterns', path: './patterns.js'
+    path: './patterns.js'
   },
   'diagnose-content': {
-    label: 'Diagnose', path: './diagnose.js'
+    path: './diagnose.js'
   },
   'flashcards-content': {
-    label: 'Flashcards', path: './flashcards.js'
+    path: './flashcards.js'
   },
   'equivalence-content': {
-    label: 'Equivalence', path: './equivalence-quiz.js'
+    path: './equivalence-quiz.js'
   },
   'masterquiz-content': {
-    label: 'Master Quiz', path: './masterquiz.js'
+    path: './masterquiz.js'
   },
   'anatomy-anatomize-content': {
-    label: 'Anatomize', path: './anatomize.js'
+    path: './anatomize.js'
   },
   'anatomy-decoder-content': {
-    label: 'Decoder', path: './decoder.js'
+    path: './decoder.js'
   },
   'anatomy-aic-content': {
-    label: 'L AIC Chain', path: './aic-chain.js'
+    path: './aic-chain.js'
   }
 };
 
@@ -68,10 +68,10 @@ function lazyInit(key) {
   import(entry.path).then((m) => {
     clearTabLoading(container);
     return m.init();
-  }).catch(() => {
+  }).catch((cause) => {
     clearTabLoading(container);
     initialized.delete(key);
-    showFetchError(container, entry.label);
+    showModuleLoadError(container, entry.path, cause);
   });
 }
 

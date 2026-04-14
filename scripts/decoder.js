@@ -4,15 +4,18 @@ import { showFetchError } from './fetch-feedback.js';
 let REGIONS;
 
 export async function init() {
+  const container = document.getElementById('anatomy-decoder-content');
+  if (!container) return;
+
   try {
     const resp = await fetch('data/regions.json');
     if (!resp.ok) {
-      showFetchError('#anatomy-decoder-content', 'pelvis decoder regions');
+      showFetchError(container, 'regions.json', resp);
       return;
     }
     REGIONS = await resp.json();
-  } catch (fetchErr) {
-    showFetchError('#anatomy-decoder-content', 'pelvis decoder regions');
+  } catch (cause) {
+    showFetchError(container, 'regions.json', cause);
     return;
   }
   const decoderState = { side: 'Left', region: 'IP', dir: 'ER' };

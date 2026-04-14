@@ -164,15 +164,18 @@ function renderCard() {
 }
 
 export async function init() {
+  const wrap = document.getElementById('fc-card-wrap');
+  if (!wrap) return;
+
   try {
     const resp = await fetch('data/flashcard-deck.json');
     if (!resp.ok) {
-      showFetchError('#fc-card-wrap', 'flashcard deck');
+      showFetchError(wrap, 'flashcard-deck.json', resp);
       return;
     }
     FLASHCARD_DECK = await resp.json();
-  } catch (fetchErr) {
-    showFetchError('#fc-card-wrap', 'flashcard deck');
+  } catch (cause) {
+    showFetchError(wrap, 'flashcard-deck.json', cause);
     return;
   }
   const userCards = tryGetUserCards().map(c => ({

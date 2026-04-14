@@ -561,12 +561,12 @@ export async function init() {
   try {
     const resp = await fetch('data/master-quiz.json');
     if (!resp.ok) {
-      showFetchError(tab, 'master quiz questions');
+      showFetchError(tab, 'master-quiz.json', resp);
       return;
     }
     QUESTIONS = await resp.json();
-  } catch (fetchErr) {
-    showFetchError(tab, 'master quiz questions');
+  } catch (cause) {
+    showFetchError(tab, 'master-quiz.json', cause);
     return;
   }
 
