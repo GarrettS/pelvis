@@ -12,26 +12,35 @@ function appendErrorCallout(element, message) {
 }
 
 function fetchReason(cause) {
-  if (cause instanceof Response) {
+  const errorName = cause?.name;
+
+  if (errorName) {
+    if (errorName === 'SyntaxError') {
+      return "response wasn't valid JSON";
+    } else if (errorName === 'TypeError') {
+      return 'network request failed';
+    }
+    return 'unexpected error: ' + errorName;
+  }
+
+  if (typeof cause?.status === 'number') {
     return 'server returned ' + cause.status;
   }
-  if (cause instanceof SyntaxError) {
-    return "response wasn't valid JSON";
-  }
-  if (cause instanceof TypeError) {
-    return 'network request failed';
-  }
-  return 'unexpected error (' + (cause?.name || 'Error') + ')';
+  return 'unexpected error';
 }
 
 function moduleLoadReason(cause) {
-  if (cause instanceof SyntaxError) {
-    return 'module failed to parse';
+  const errorName = cause?.name;
+
+  if (errorName) {
+    if (errorName === 'SyntaxError') {
+      return 'module failed to parse';
+    } else if (errorName === 'TypeError') {
+      return 'network request failed';
+    }
+    return 'unexpected error: ' + errorName;
   }
-  if (cause instanceof TypeError) {
-    return 'network request failed';
-  }
-  return 'unexpected error (' + (cause?.name || 'Error') + ')';
+  return 'unexpected error';
 }
 
 export function showFetchError(element, filename, cause) {
