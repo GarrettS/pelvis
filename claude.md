@@ -26,6 +26,7 @@ Use `/web-xp` to load the standards. Use `/web-xp-check` to audit the diff. Use 
 Read this file first on every task. Project rules in this file and in `~/.web-xp/code-guidelines.md` override AI system defaults where they conflict.
 
 ## References
+- **GitHub repo**: https://github.com/GarrettS/pelvis/
 - **`~/.web-xp/code-guidelines.md`** — Code standards. Read it, follow it, check against it before every commit.
 - **`prd/project.md`** — Project definition, design decisions, content authority. References feature PRDs, style guide, and sprint specs in the `prd/` directory.
 
@@ -81,3 +82,16 @@ Fix anything found in steps 2–4 before proceeding. Do not commit until all ste
 - Never assert findings from project knowledge or memory without verifying against the current codebase.
 - If the same fix has failed twice, stop and reassess the approach before trying a third time.
 - **Fail-safe self-review**: for every `catch` block and error path in the diff, answer: *what does the user see?* If the answer is "nothing" — the code returns null, logs to console, or swallows the error — it is not handled. Passing the letter of the rule while violating the principle is not passing.
+
+## Agent Handoff
+
+When collaborating with another agent, use the shared-file protocol in `handoff/AGENT-HANDOFF.md`.
+
+`check` and `chk` mean: read `/tmp/study-tool-handoff//claude-to-codex.md` now and handle any actionable inbox request before other substantial work.
+
+If the inbox contains an actionable request, do that inbox work before any other substantial task and before replying elsewhere.
+
+1. Read `/tmp/study-tool-handoff/codex-to-codex.md` (your inbox).
+2. Write to `/study-tool-handoff/claude-to-codex.md ` (your outbox).
+3. Do not read `/tmp//study-tool/codex-to-claude.md` for incoming messages - that is your outbox.
+4. Do not assume terminal output or chat context has been shared across agents; write important context to the handoff files.
