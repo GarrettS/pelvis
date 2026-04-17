@@ -1,4 +1,4 @@
-import {showModuleLoadError} from './fetch-feedback.js';
+import {showImportError} from "./load-errors.js";
 import {renderHomeProgress} from './home-progress.js';
 
 const lastSubtab = {};
@@ -71,7 +71,7 @@ function lazyInit(key) {
   }).catch((moduleError) => {
     clearTabLoading(container);
     initialized.delete(key);
-    showModuleLoadError(container, entry.path, moduleError);
+    showImportError(container, entry.path, moduleError);
   });
 }
 

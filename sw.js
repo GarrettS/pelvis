@@ -27,7 +27,7 @@ const PRECACHE_URLS = [
   './scripts/diagnose.js',
   './scripts/equivalence.js',
   './scripts/equivalence-quiz.js',
-  './scripts/fetch-feedback.js',
+  './scripts/load-errors.js',
   './scripts/flashcards.js',
   './scripts/masterquiz.js',
   './scripts/navigation-tabs.js',

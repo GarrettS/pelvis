@@ -1,4 +1,4 @@
-import {showFetchError} from './fetch-feedback.js';
+import {showFetchError} from "./load-errors.js";
 import {getStudyData} from './study-data-cache.js';
 import {shuffle} from './shuffle.js';
 import {expandAbbr} from './abbr-expand.js';

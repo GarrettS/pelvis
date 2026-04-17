@@ -65,7 +65,7 @@ scripts/
   aic-chain.js            — L AIC chain interactive diagram
   decoder.js              — SVG pelvis schematic
   abbreviations.js        — abbreviation reference
-  fetch-feedback.js       — user-visible fetch error handling
+  load-errors.js          — user-visible load error handling
   study-data-cache.js     — shared data loader with caching
   resize-handle.js        — draggable split-pane resize
 data/

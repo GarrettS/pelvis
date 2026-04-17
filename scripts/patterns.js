@@ -1,4 +1,4 @@
-import { showFetchError } from './fetch-feedback.js';
+import { showFetchError } from "./load-errors.js";
 import { expandAbbr } from './abbr-expand.js';
 
 let CHEAT_DATA, CAUSAL_MAP, SYMPTOM_PATTERNS, HALT_LEVELS, SQUAT_LEVELS;
@@ -13,37 +13,35 @@ function basename(path) {
 }
 
 async function loadPatternFile(path) {
-  const resp = await fetch(path);
-  if (!resp.ok) {
-    return Promise.reject({filename: basename(path), cause: resp});
-  }
-
+  const filename = basename(path);
   try {
+    const resp = await fetch(path);
+    if (!resp.ok) throw resp;
     return await resp.json();
-  } catch (cause) {
-    return Promise.reject({filename: basename(path), cause});
+  } catch (error) {
+    error.filename = filename;
+    throw error;
   }
 }
 
 export async function init() {
-  const container = document.getElementById('patterns-content');
+  const container = document.getElementById("patterns-content");
   if (!container) return;
 
   try {
     const files = [
-      'data/cheat-data.json', 'data/causal-map.json',
-      'data/symptom-patterns.json', 'data/halt-levels.json',
-      'data/squat-levels.json'
+      "data/cheat-data.json", "data/causal-map.json",
+      "data/symptom-patterns.json", "data/halt-levels.json",
+      "data/squat-levels.json"
     ];
-    const results = await Promise.all(files.map((path) =>
-      loadPatternFile(path)));
+    const results = await Promise.all(files.map(loadPatternFile));
     CHEAT_DATA = results[0];
     CAUSAL_MAP = results[1];
     SYMPTOM_PATTERNS = results[2];
     HALT_LEVELS = results[3];
     SQUAT_LEVELS = results[4];
-  } catch (failure) {
-    showFetchError(container, failure.filename, failure.cause);
+  } catch (error) {
+    showFetchError(container, error.filename, error);
     return;
   }
   MAP_NODES = CAUSAL_MAP.nodes;

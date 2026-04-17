@@ -1,5 +1,5 @@
 import { getAllEquivalent, getMuscles } from './equivalence.js';
-import { showFetchError } from './fetch-feedback.js';
+import { showFetchError } from "./load-errors.js";
 
 let REGIONS;
 

@@ -1,5 +1,5 @@
 import {createResizeHandle} from './resize-handle.js';
-import {showFetchError} from './fetch-feedback.js';
+import {showFetchError} from "./load-errors.js";
 import {expandAbbr} from './abbr-expand.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
