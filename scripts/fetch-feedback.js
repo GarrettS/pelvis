@@ -1,8 +1,3 @@
-/**
- * User-visible feedback for failed fetch operations.
- * @module fetch-feedback
- */
-
 function appendErrorCallout(element, message) {
   if (!element) return;
   const callout = document.createElement('div');
@@ -11,8 +6,8 @@ function appendErrorCallout(element, message) {
   element.appendChild(callout);
 }
 
-function fetchReason(cause) {
-  const errorName = cause?.name;
+function fetchReason(responseOrError) {
+  const errorName = responseOrError?.name;
 
   if (errorName) {
     if (errorName === 'SyntaxError') {
@@ -23,34 +18,26 @@ function fetchReason(cause) {
     return 'unexpected error: ' + errorName;
   }
 
-  if (typeof cause?.status === 'number') {
-    return 'server returned ' + cause.status;
+  if (typeof responseOrError?.status === 'number') {
+    return 'server returned ' + responseOrError.status;
   }
   return 'unexpected error';
 }
 
-function moduleLoadReason(cause) {
-  const errorName = cause?.name;
+export function showFetchError(element, filename, responseOrError) {
+  appendErrorCallout(element,
+      `Couldn't load ${filename}: ${fetchReason(responseOrError)}.`);
+}
 
-  if (errorName) {
-    if (errorName === 'SyntaxError') {
-      return 'module failed to parse';
-    } else if (errorName === 'TypeError') {
-      return 'network request failed';
-    }
-    return 'unexpected error: ' + errorName;
+export function showModuleLoadError(element, modulePath, moduleError) {
+  let reason = 'unexpected error: ';
+
+  if (moduleError.name === 'SyntaxError') {
+    reason = 'module failed to parse';
+  } else if (moduleError.name === 'TypeError') {
+    reason = 'network request failed';
+  } else {
+    reason += moduleError.name;
   }
-  return 'unexpected error';
-}
-
-export function showFetchError(element, filename, cause) {
-  appendErrorCallout(
-      element,
-      `Couldn't load ${filename}: ${fetchReason(cause)}.`);
-}
-
-export function showModuleLoadError(element, modulePath, cause) {
-  appendErrorCallout(
-      element,
-      `Couldn't load ${modulePath}: ${moduleLoadReason(cause)}.`);
+  appendErrorCallout(element, `Couldn't load ${modulePath}: ${reason}.`);
 }

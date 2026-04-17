@@ -556,17 +556,27 @@ function initListeners(tab) {
 
 export async function init() {
   const tab = document.getElementById('masterquiz-content');
+  const fileName = 'master-quiz.json';
+  const fullPath = 'data/' + fileName;
   if (!tab) return;
 
+  let resp;
   try {
-    const resp = await fetch('data/master-quiz.json');
-    if (!resp.ok) {
-      showFetchError(tab, 'master-quiz.json', resp);
-      return;
-    }
+    resp = await fetch(fullPath);
+  } catch (fetchErr) {
+    showFetchError(tab, fileName, fetchErr);
+    return;
+  }
+
+  if (!resp.ok) {
+    showFetchError(tab, fileName, resp);
+    return;
+  }
+
+  try {
     QUESTIONS = await resp.json();
-  } catch (cause) {
-    showFetchError(tab, 'master-quiz.json', cause);
+  } catch (syntaxError) {
+    showFetchError(tab, fileName, syntaxError);
     return;
   }
 

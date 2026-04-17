@@ -68,10 +68,10 @@ function lazyInit(key) {
   import(entry.path).then((m) => {
     clearTabLoading(container);
     return m.init();
-  }).catch((cause) => {
+  }).catch((moduleError) => {
     clearTabLoading(container);
     initialized.delete(key);
-    showModuleLoadError(container, entry.path, cause);
+    showModuleLoadError(container, entry.path, moduleError);
   });
 }
 
