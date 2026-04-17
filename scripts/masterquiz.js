@@ -298,11 +298,15 @@ function clearEquivHighlights() {
 
 const NO_SAVED_CARDS = [];
 
+function getUserCards() {
+  const raw = localStorage.getItem(USER_FC_KEY);
+  return raw ? JSON.parse(raw) : NO_SAVED_CARDS;
+}
+
 function tryGetUserCards() {
   try {
-    const raw = localStorage.getItem(USER_FC_KEY);
-    return raw ? JSON.parse(raw) : NO_SAVED_CARDS;
-  } catch (storageErr) { return NO_SAVED_CARDS; }
+    return getUserCards();
+  } catch (anyError) { return NO_SAVED_CARDS; }
 }
 
 function isAlreadySaved(qId) {
@@ -311,7 +315,8 @@ function isAlreadySaved(qId) {
 }
 
 function saveAsFlashcard(q) {
-  if (isAlreadySaved(q.id)) return false;
+  const existing = getUserCards();
+  if (existing.some(c => c.id === 'user-mq-' + q.id)) return false;
 
   const front = q.stem.length > 200 ? q.stem.slice(0, 200) + '\u2026' : q.stem;
   const correctOpt = q.options.find(o => o.key === q.answer);
@@ -329,18 +334,31 @@ function saveAsFlashcard(q) {
     back: back,
     backDetail: backDetail
   };
-  const existing = tryGetUserCards();
   existing.push(card);
   localStorage.setItem(USER_FC_KEY, JSON.stringify(existing));
   return true;
+}
+
+function saveFlashcardErrorText(anyError) {
+  if (anyError.name === 'SyntaxError') {
+    return "Couldn't save flashcard: existing saved cards could not be read.";
+  }
+  return "Couldn't save flashcard: browser storage is unavailable.";
 }
 
 function handleSaveFlashcard() {
   if (!submitted) return;
 
   const q = queue[qIdx];
-  const saved = saveAsFlashcard(q);
   const saveBtn = document.getElementById('mq-save-flashcard');
+  let saved;
+  try {
+    saved = saveAsFlashcard(q);
+  } catch (anyError) {
+    saveBtn.textContent = saveFlashcardErrorText(anyError);
+    saveBtn.disabled = true;
+    return;
+  }
   saveBtn.textContent = saved ? '\u2713 Saved' : 'Already saved';
   saveBtn.disabled = true;
 }
@@ -450,8 +468,17 @@ function handleResultSave(qId) {
   const q = QUESTIONS.find(qu => qu.id === qId);
   if (!q) return;
 
-  const saved = saveAsFlashcard(q);
   const btn = document.getElementById('mq-result-save-' + qId);
+  let saved;
+  try {
+    saved = saveAsFlashcard(q);
+  } catch (anyError) {
+    if (btn) {
+      btn.textContent = saveFlashcardErrorText(anyError);
+      btn.disabled = true;
+    }
+    return;
+  }
   if (btn) {
     btn.textContent = saved ? '\u2713 Saved' : 'Already saved';
     btn.disabled = true;
@@ -477,7 +504,13 @@ function handleNewSession() {
 function handleResetProgress() {
   if (!confirm('Reset all Master Quiz progress? This cannot be undone.')) return;
 
-  clearProgress();
+  try {
+    clearProgress();
+  } catch (anyError) {
+    document.getElementById('mq-stats').textContent =
+      "Couldn't reset progress: browser storage is unavailable.";
+    return;
+  }
   renderStats();
 }
 

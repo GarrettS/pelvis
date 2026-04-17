@@ -8,24 +8,23 @@ let FLASHCARD_DECK = [];
 // function without persistence; user loses custom cards only.
 const NO_USER_CARDS = [];
 
+function getUserCards() {
+  const raw = localStorage.getItem('userFlashcards');
+  return raw ? JSON.parse(raw) : NO_USER_CARDS;
+}
+
 function tryGetUserCards() {
   try {
-    const raw = localStorage.getItem('userFlashcards');
-    return raw ? JSON.parse(raw) : NO_USER_CARDS;
-  } catch (storageErr) { return NO_USER_CARDS; }
+    return getUserCards();
+  } catch (anyError) { return NO_USER_CARDS; }
 }
 
 function saveUserCard(card) {
-  const existing = tryGetUserCards();
+  const existing = getUserCards();
   existing.push(card);
-  try {
-    localStorage.setItem(
-      'userFlashcards', JSON.stringify(existing)
-    );
-    return true;
-  } catch (storageErr) {
-    return false;
-  }
+  localStorage.setItem(
+    'userFlashcards', JSON.stringify(existing)
+  );
 }
 
 let allCards = [];
@@ -274,6 +273,7 @@ export async function init() {
     const front = frontInput.value.trim();
     const back = backInput.value.trim();
     if (!front || !back) return;
+    addForm.querySelector('.callout.error')?.remove();
 
     const newCard = {
       id: 'user-' + Date.now(),
@@ -285,8 +285,24 @@ export async function init() {
       backDetail: detailInput.value.trim() || null,
     };
 
-    // TODO: show inline feedback if save fails
-    saveUserCard(newCard);
+    try {
+      saveUserCard(newCard);
+    } catch (anyError) {
+      const errorCallout = document.createElement('div');
+      errorCallout.className = 'callout error';
+      if (anyError.name === 'SyntaxError') {
+        errorCallout.textContent =
+          "Couldn't save flashcard: existing saved cards could not be read.";
+      } else if (anyError.name === 'TypeError') {
+        errorCallout.textContent =
+          "Couldn't save flashcard: card data couldn't be prepared.";
+      } else {
+        errorCallout.textContent =
+          "Couldn't save flashcard: browser storage is unavailable.";
+      }
+      addForm.appendChild(errorCallout);
+      return;
+    }
     allCards.push(newCard);
 
     deck.unshift(newCard);
