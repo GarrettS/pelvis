@@ -174,12 +174,12 @@
 
   #mq-quiz.answered-correct & {
     color: var(--correct);
-    &::before { content: '\200A\2713\200ACorrect.'; }
+    &::before { content: '\200A\2714 Correct.'; }
   }
 
   #mq-quiz.answered-incorrect & {
     color: var(--error);
-    &::before { content: '\200A\2717\202FIncorrect.'; }
+    &::before { content: '\200A\2717 Incorrect.'; }
   }
 }
 
