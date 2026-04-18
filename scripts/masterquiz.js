@@ -136,7 +136,7 @@ function renderQuestion() {
   for (const opt of q.options) {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.dataset.key = opt.key;
+    btn.value = opt.key;
     btn.innerHTML = opt.key + '. ' + expandAbbr(opt.text);
     optionsEl.appendChild(btn);
   }
@@ -168,7 +168,7 @@ function handleOptionSelect(key) {
   selectedKey = key;
   const btns = document.getElementById('mq-options').querySelectorAll('button');
   for (const btn of btns) {
-    btn.classList.toggle('selected', btn.dataset.key === key);
+    btn.classList.toggle('selected', btn.value === key);
   }
   document.getElementById('mq-submit').disabled = false;
 }
@@ -290,14 +290,10 @@ function clearEquivHighlights() {
   }
 }
 
-function getUserCards() {
-  const raw = localStorage.getItem(USER_FC_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
 function tryGetUserCards() {
   try {
-    return getUserCards();
+    const rawCards = localStorage.getItem(USER_FC_KEY);
+    return rawCards ? JSON.parse(rawCards) : [];
   } catch (anyError) {
     // Background saved-status check — not user-initiated.
     // Save handlers read again and show an error if saved-card data is corrupt.
@@ -305,10 +301,7 @@ function tryGetUserCards() {
   }
 }
 
-function isAlreadySaved(qId) {
-  const cards = tryGetUserCards();
-  return cards.some(c => c.id === 'user-mq-' + qId);
-}
+const isAlreadySaved = qId => tryGetUserCards().some(c => c.id === 'user-mq-' + qId);
 
 function buildFlashcard(q) {
   const front = q.stem.length > 200 ? q.stem.slice(0, 200) + '\u2026' : q.stem;
@@ -334,48 +327,78 @@ function withSavedFlashcard(cards, card) {
   return [...cards, card];
 }
 
-function saveFlashcardErrorText(anyError) {
-  if (anyError.name === 'SyntaxError') {
-    return "Couldn't save flashcard: saved card data is corrupt.";
-  }
-  return "Couldn't save flashcard: browser storage is unavailable.";
+function showSaveFailure(container, message) {
+  container.querySelector('.callout.error')?.remove();
+  appendErrorCallout(container, message);
 }
 
-function showSaveError(container, anyError) {
-  container.querySelector('.callout.error')?.remove();
-  appendErrorCallout(container, saveFlashcardErrorText(anyError));
+function saveUserFlashcard(card) {
+  let rawCards;
+  try {
+    rawCards = localStorage.getItem(USER_FC_KEY);
+  } catch (storageReadError) {
+    return {
+      ok: false,
+      message: "Couldn't save flashcard: browser storage is unavailable: "
+        + storageReadError.message
+    };
+  }
+
+  let savedCards;
+  try {
+    savedCards = rawCards ? JSON.parse(rawCards) : [];
+  } catch (parseError) {
+    return {
+      ok: false,
+      message: "Couldn't save flashcard: saved card data is corrupt: "
+        + parseError.message
+    };
+  }
+
+  const nextSavedCards = withSavedFlashcard(savedCards, card);
+  if (nextSavedCards === savedCards) {
+    return { ok: true, duplicate: true };
+  }
+
+  let serializedCards;
+  try {
+    serializedCards = JSON.stringify(nextSavedCards);
+  } catch (stringifyError) {
+    return {
+      ok: false,
+      message: "Couldn't save flashcard: saved card data couldn't be prepared: "
+        + stringifyError.message
+    };
+  }
+
+  try {
+    localStorage.setItem(USER_FC_KEY, serializedCards);
+  } catch (storageWriteError) {
+    return {
+      ok: false,
+      message: "Couldn't save flashcard: browser storage is unavailable: "
+        + storageWriteError.message
+    };
+  }
+
+  return { ok: true, duplicate: false };
 }
 
 function handleSaveFlashcard() {
   if (!submitted) return;
 
   const q = queue[qIdx];
-  const card = buildFlashcard(q);
   const saveBtn = document.getElementById('mq-save-flashcard');
   const explanationEl = document.getElementById('mq-explanation');
-  let savedCards;
-
-  try {
-    savedCards = getUserCards();
-  } catch (anyError) {
-    showSaveError(explanationEl, anyError);
+  const result = saveUserFlashcard(buildFlashcard(q));
+  if (!result.ok) {
+    showSaveFailure(explanationEl, result.message);
     saveBtn.disabled = true;
     return;
   }
 
-  const nextSavedCards = withSavedFlashcard(savedCards, card);
-  if (nextSavedCards !== savedCards) {
-    try {
-      localStorage.setItem(USER_FC_KEY, JSON.stringify(nextSavedCards));
-    } catch (anyError) {
-      showSaveError(explanationEl, anyError);
-      saveBtn.disabled = true;
-      return;
-    }
-  }
-
   explanationEl?.querySelector('.callout.error')?.remove();
-  saveBtn.textContent = '\u2713 Saved';
+  saveBtn.textContent = result.duplicate ? 'Already saved' : '\u2713 Saved';
   saveBtn.disabled = true;
 }
 
@@ -480,30 +503,15 @@ function handleResultSave(btn) {
   const q = QUESTIONS.find(qu => qu.id === qId);
   if (!q) return;
 
-  const card = buildFlashcard(q);
-  let savedCards;
-
-  try {
-    savedCards = getUserCards();
-  } catch (anyError) {
-    showSaveError(btn.parentNode, anyError);
+  const result = saveUserFlashcard(buildFlashcard(q));
+  if (!result.ok) {
+    showSaveFailure(btn.parentNode, result.message);
     btn.disabled = true;
     return;
   }
 
-  const nextSavedCards = withSavedFlashcard(savedCards, card);
-  if (nextSavedCards !== savedCards) {
-    try {
-      localStorage.setItem(USER_FC_KEY, JSON.stringify(nextSavedCards));
-    } catch (anyError) {
-      showSaveError(btn.parentNode, anyError);
-      btn.disabled = true;
-      return;
-    }
-  }
-
   btn.parentNode?.querySelector('.callout.error')?.remove();
-  btn.textContent = '\u2713 Saved';
+  btn.textContent = result.duplicate ? 'Already saved' : '\u2713 Saved';
   btn.disabled = true;
 }
 
@@ -584,7 +592,7 @@ function initListeners(tab) {
     );
     if (action) {
       if (action.matches('.mq-options button')) {
-        handleOptionSelect(action.dataset.key);
+        handleOptionSelect(action.value);
       } else if (action.matches('.mq-result-summary')) {
         action.nextElementSibling.classList.toggle('hidden');
       } else {

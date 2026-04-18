@@ -23,6 +23,11 @@ function withUserCard(cards, card) {
   return [...cards, card];
 }
 
+function showSaveFailure(container, message) {
+  container.querySelector('.callout.error')?.remove();
+  appendErrorCallout(container, message);
+}
+
 let allCards = [];
 let activeCat = 'all';
 let activeWeight = 'all';
@@ -282,27 +287,48 @@ export async function init() {
     };
 
     let savedCards;
+    let rawCards;
     try {
-      savedCards = getUserCards();
-    } catch (anyError) {
-      let message;
-      if (anyError.name === 'SyntaxError') {
-        message = "Couldn't save flashcard: saved card data is corrupt.";
-      } else {
-        message = "Couldn't save flashcard: browser storage is unavailable.";
-      }
-      appendErrorCallout(addForm, message);
+      rawCards = localStorage.getItem('userFlashcards');
+    } catch (storageReadError) {
+      showSaveFailure(
+        addForm,
+        "Couldn't save flashcard: browser storage is unavailable: "
+          + storageReadError.message
+      );
       return;
     }
 
     try {
-      localStorage.setItem(
-        'userFlashcards', JSON.stringify(withUserCard(savedCards, newCard))
-      );
-    } catch (anyError) {
-      appendErrorCallout(
+      savedCards = rawCards ? JSON.parse(rawCards) : [];
+    } catch (parseError) {
+      showSaveFailure(
         addForm,
-        "Couldn't save flashcard: browser storage is unavailable."
+        "Couldn't save flashcard: saved card data is corrupt: "
+          + parseError.message
+      );
+      return;
+    }
+
+    let serializedCards;
+    try {
+      serializedCards = JSON.stringify(withUserCard(savedCards, newCard));
+    } catch (stringifyError) {
+      showSaveFailure(
+        addForm,
+        "Couldn't save flashcard: saved card data couldn't be prepared: "
+          + stringifyError.message
+      );
+      return;
+    }
+
+    try {
+      localStorage.setItem('userFlashcards', serializedCards);
+    } catch (storageWriteError) {
+      showSaveFailure(
+        addForm,
+        "Couldn't save flashcard: browser storage is unavailable: "
+          + storageWriteError.message
       );
       return;
     }

@@ -387,7 +387,8 @@ test('flashcards save click shows inline feedback when saved cards cannot be rea
   assert.ok(errorCallout);
   assert.equal(
       errorCallout.textContent,
-      "Couldn't save flashcard: saved card data is corrupt.");
+      "Couldn't save flashcard: saved card data is corrupt: "
+        + "Unexpected end of JSON input");
   assert.equal(wrap.children.length > 0, true);
 
   globalThis.document = originalDocument;
@@ -437,7 +438,8 @@ test('masterquiz save button shows inline feedback when saved cards cannot be re
   assert.ok(errorCallout);
   assert.equal(
       errorCallout.textContent,
-      "Couldn't save flashcard: saved card data is corrupt.");
+      "Couldn't save flashcard: saved card data is corrupt: "
+        + "Unexpected end of JSON input");
   assert.equal(saveButton.textContent, '');
   assert.equal(saveButton.disabled, true);
 
@@ -480,7 +482,7 @@ test('masterquiz duplicate save is treated as already satisfied without extra no
   });
   handleSaveFlashcard();
 
-  assert.equal(saveButton.textContent, '\u2713 Saved');
+  assert.equal(saveButton.textContent, 'Already saved');
   assert.equal(saveButton.disabled, true);
 
   globalThis.document = originalDocument;
@@ -537,8 +539,65 @@ test('masterquiz failed write does not mark empty storage card as saved in memor
   assert.equal(explanation.children.length, 1);
   assert.equal(
       explanation.children[0].textContent,
-      "Couldn't save flashcard: browser storage is unavailable.");
+      "Couldn't save flashcard: browser storage is unavailable: quota exceeded");
 
+  globalThis.document = originalDocument;
+  globalThis.localStorage = originalLocalStorage;
+});
+
+test('masterquiz save shows preparation feedback when saved cards cannot stringify', async () => {
+  const originalDocument = globalThis.document;
+  const originalLocalStorage = globalThis.localStorage;
+  const originalJSONstringify = JSON.stringify;
+
+  const saveButton = {textContent: '', disabled: false};
+  const explanation = new StubElement('mq-explanation');
+  globalThis.document = {
+    createElement(tagName) {
+      return new StubElement(tagName);
+    },
+    getElementById(id) {
+      if (id === 'mq-save-flashcard') return saveButton;
+      if (id === 'mq-explanation') return explanation;
+      return null;
+    }
+  };
+  globalThis.localStorage = {
+    getItem() {
+      return null;
+    },
+    setItem() {
+      throw new Error('should not write unprepared cards');
+    }
+  };
+  JSON.stringify = () => {
+    throw new TypeError('cyclic card data');
+  };
+
+  const {handleSaveFlashcard, __setMasterquizState} = await importMasterquizModule();
+  __setMasterquizState({
+    queue: [{
+      id: 'q1',
+      stem: 'Question stem',
+      domain: 'anatomy',
+      answer: 'A',
+      explanation: 'Because.',
+      options: [{key: 'A', text: 'Correct'}]
+    }],
+    qIdx: 0,
+    submitted: true
+  });
+  handleSaveFlashcard();
+
+  const errorCallout = explanation.querySelector('.callout.error');
+  assert.ok(errorCallout);
+  assert.equal(
+      errorCallout.textContent,
+      "Couldn't save flashcard: saved card data couldn't be prepared: "
+        + "cyclic card data");
+  assert.equal(saveButton.disabled, true);
+
+  JSON.stringify = originalJSONstringify;
   globalThis.document = originalDocument;
   globalThis.localStorage = originalLocalStorage;
 });
@@ -582,7 +641,7 @@ test('masterquiz result save button shows inline feedback when storage is unavai
   assert.ok(errorCallout);
   assert.equal(
       errorCallout.textContent,
-      "Couldn't save flashcard: browser storage is unavailable.");
+      "Couldn't save flashcard: browser storage is unavailable: quota exceeded");
   assert.equal(resultButton.textContent, '');
   assert.equal(resultButton.disabled, true);
 
