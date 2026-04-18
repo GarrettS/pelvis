@@ -186,9 +186,9 @@ function handleSubmit() {
   const btns = document.getElementById('mq-options').querySelectorAll('button');
   for (const btn of btns) {
     btn.classList.add('locked');
-    if (btn.dataset.key === q.answer) {
+    if (btn.value === q.answer) {
       btn.classList.add('correct');
-    } else if (btn.dataset.key === selectedKey && !correct) {
+    } else if (btn.value === selectedKey && !correct) {
       btn.classList.add('incorrect');
     }
   }
