@@ -1,5 +1,5 @@
 import { getAllEquivalent } from './equivalence.js';
-import { showFetchError } from "./load-errors.js";
+import { appendErrorCallout, showFetchError } from "./load-errors.js";
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
 import { tryLoad as tryLoadProgress, updateEntry as updateProgress,
@@ -279,12 +279,6 @@ function renderEquivChain(q) {
     (equivPinned ? ' checked' : '') + '> Keep Pinned</label>';
   equivWrap.classList.remove('hidden');
 
-  const pinCb = document.getElementById('mq-pin-equiv');
-  if (pinCb) {
-    pinCb.addEventListener('change', () => {
-      equivPinned = pinCb.checked;
-    });
-  }
 }
 
 function clearEquivHighlights() {
@@ -296,17 +290,19 @@ function clearEquivHighlights() {
   }
 }
 
-const NO_SAVED_CARDS = [];
-
 function getUserCards() {
   const raw = localStorage.getItem(USER_FC_KEY);
-  return raw ? JSON.parse(raw) : NO_SAVED_CARDS;
+  return raw ? JSON.parse(raw) : [];
 }
 
 function tryGetUserCards() {
   try {
     return getUserCards();
-  } catch (anyError) { return NO_SAVED_CARDS; }
+  } catch (anyError) {
+    // Background saved-status check — not user-initiated.
+    // Save handlers read again and show an error if saved-card data is corrupt.
+    return [];
+  }
 }
 
 function isAlreadySaved(qId) {
@@ -314,10 +310,7 @@ function isAlreadySaved(qId) {
   return cards.some(c => c.id === 'user-mq-' + qId);
 }
 
-function saveAsFlashcard(q) {
-  const existing = getUserCards();
-  if (existing.some(c => c.id === 'user-mq-' + q.id)) return false;
-
+function buildFlashcard(q) {
   const front = q.stem.length > 200 ? q.stem.slice(0, 200) + '\u2026' : q.stem;
   const correctOpt = q.options.find(o => o.key === q.answer);
   const back = q.answer + '. ' + (correctOpt ? correctOpt.text : '');
@@ -325,7 +318,7 @@ function saveAsFlashcard(q) {
     ? q.explanation.slice(0, 380) + '\u2026'
     : q.explanation;
 
-  const card = {
+  return {
     id: 'user-mq-' + q.id,
     category: 'user_created',
     examWeight: 'high',
@@ -334,32 +327,55 @@ function saveAsFlashcard(q) {
     back: back,
     backDetail: backDetail
   };
-  existing.push(card);
-  localStorage.setItem(USER_FC_KEY, JSON.stringify(existing));
-  return true;
+}
+
+function withSavedFlashcard(cards, card) {
+  if (cards.some(c => c.id === card.id)) return cards;
+  return [...cards, card];
 }
 
 function saveFlashcardErrorText(anyError) {
   if (anyError.name === 'SyntaxError') {
-    return "Couldn't save flashcard: existing saved cards could not be read.";
+    return "Couldn't save flashcard: saved card data is corrupt.";
   }
   return "Couldn't save flashcard: browser storage is unavailable.";
+}
+
+function showSaveError(container, anyError) {
+  container.querySelector('.callout.error')?.remove();
+  appendErrorCallout(container, saveFlashcardErrorText(anyError));
 }
 
 function handleSaveFlashcard() {
   if (!submitted) return;
 
   const q = queue[qIdx];
+  const card = buildFlashcard(q);
   const saveBtn = document.getElementById('mq-save-flashcard');
-  let saved;
+  const explanationEl = document.getElementById('mq-explanation');
+  let savedCards;
+
   try {
-    saved = saveAsFlashcard(q);
+    savedCards = getUserCards();
   } catch (anyError) {
-    saveBtn.textContent = saveFlashcardErrorText(anyError);
+    showSaveError(explanationEl, anyError);
     saveBtn.disabled = true;
     return;
   }
-  saveBtn.textContent = saved ? '\u2713 Saved' : 'Already saved';
+
+  const nextSavedCards = withSavedFlashcard(savedCards, card);
+  if (nextSavedCards !== savedCards) {
+    try {
+      localStorage.setItem(USER_FC_KEY, JSON.stringify(nextSavedCards));
+    } catch (anyError) {
+      showSaveError(explanationEl, anyError);
+      saveBtn.disabled = true;
+      return;
+    }
+  }
+
+  explanationEl?.querySelector('.callout.error')?.remove();
+  saveBtn.textContent = '\u2713 Saved';
   saveBtn.disabled = true;
 }
 
@@ -442,21 +458,16 @@ function renderResultsList(container, answers, showSave) {
 
     if (showSave) {
       const alreadySaved = isAlreadySaved(q.id);
-      const saveId = 'mq-result-save-' + q.id;
       const saveLabel = alreadySaved
         ? 'Already saved' : 'Save as Flashcard';
       detailHTML += '<button type="button"'
         + ' class="btn mq-result-save"'
-        + ' id="' + saveId + '"'
+        + ' value="' + q.id + '"'
         + (alreadySaved ? ' disabled' : '')
         + '>' + saveLabel + '</button>';
     }
 
     detail.innerHTML = detailHTML;
-
-    summary.addEventListener('click', () => {
-      detail.classList.toggle('hidden');
-    });
 
     row.appendChild(summary);
     row.appendChild(detail);
@@ -464,25 +475,36 @@ function renderResultsList(container, answers, showSave) {
   }
 }
 
-function handleResultSave(qId) {
+function handleResultSave(btn) {
+  const qId = btn.value;
   const q = QUESTIONS.find(qu => qu.id === qId);
   if (!q) return;
 
-  const btn = document.getElementById('mq-result-save-' + qId);
-  let saved;
+  const card = buildFlashcard(q);
+  let savedCards;
+
   try {
-    saved = saveAsFlashcard(q);
+    savedCards = getUserCards();
   } catch (anyError) {
-    if (btn) {
-      btn.textContent = saveFlashcardErrorText(anyError);
-      btn.disabled = true;
-    }
+    showSaveError(btn.parentNode, anyError);
+    btn.disabled = true;
     return;
   }
-  if (btn) {
-    btn.textContent = saved ? '\u2713 Saved' : 'Already saved';
-    btn.disabled = true;
+
+  const nextSavedCards = withSavedFlashcard(savedCards, card);
+  if (nextSavedCards !== savedCards) {
+    try {
+      localStorage.setItem(USER_FC_KEY, JSON.stringify(nextSavedCards));
+    } catch (anyError) {
+      showSaveError(btn.parentNode, anyError);
+      btn.disabled = true;
+      return;
+    }
   }
+
+  btn.parentNode?.querySelector('.callout.error')?.remove();
+  btn.textContent = '\u2713 Saved';
+  btn.disabled = true;
 }
 
 function handleRetakeMissed() {
@@ -557,14 +579,17 @@ const CLICK_DISPATCH = {
 
 function initListeners(tab) {
   tab.addEventListener('click', (e) => {
-    const optBtn = e.target.closest('.mq-options button');
-    if (optBtn) {
-      handleOptionSelect(optBtn.dataset.key);
-      return;
-    }
-    const resultSave = e.target.closest('.mq-result-save');
-    if (resultSave) {
-      handleResultSave(resultSave.id.replace('mq-result-save-', ''));
+    const action = e.target.closest(
+      '.mq-options button, .mq-result-summary, .mq-result-save'
+    );
+    if (action) {
+      if (action.matches('.mq-options button')) {
+        handleOptionSelect(action.dataset.key);
+      } else if (action.matches('.mq-result-summary')) {
+        action.nextElementSibling.classList.toggle('hidden');
+      } else {
+        handleResultSave(action);
+      }
       return;
     }
     const target = e.target.closest('[id]');
@@ -574,6 +599,11 @@ function initListeners(tab) {
   });
 
   tab.addEventListener('change', (e) => {
+    const pinCheckbox = e.target.closest('#mq-pin-equiv');
+    if (pinCheckbox) {
+      equivPinned = pinCheckbox.checked;
+      return;
+    }
     if (e.target.closest('.mq-domain-filters input')) {
       syncStartButton();
       renderStats();

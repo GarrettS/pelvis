@@ -1,4 +1,4 @@
-function appendErrorCallout(element, message) {
+export function appendErrorCallout(element, message) {
   if (!element) return;
   const callout = document.createElement("div");
   callout.className = "callout error";

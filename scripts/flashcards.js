@@ -1,30 +1,26 @@
-import { showFetchError } from "./load-errors.js";
+import { appendErrorCallout, showFetchError } from "./load-errors.js";
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
 
 let FLASHCARD_DECK = [];
 
-// Background storage — not user-initiated. Flashcards
-// function without persistence; user loses custom cards only.
-const NO_USER_CARDS = [];
-
 function getUserCards() {
   const raw = localStorage.getItem('userFlashcards');
-  return raw ? JSON.parse(raw) : NO_USER_CARDS;
+  return raw ? JSON.parse(raw) : [];
 }
 
 function tryGetUserCards() {
   try {
     return getUserCards();
-  } catch (anyError) { return NO_USER_CARDS; }
+  } catch (anyError) {
+    // Background storage — not user-initiated. Flashcards
+    // function without persistence; user loses custom cards only.
+    return [];
+  }
 }
 
-function saveUserCard(card) {
-  const existing = getUserCards();
-  existing.push(card);
-  localStorage.setItem(
-    'userFlashcards', JSON.stringify(existing)
-  );
+function withUserCard(cards, card) {
+  return [...cards, card];
 }
 
 let allCards = [];
@@ -285,24 +281,32 @@ export async function init() {
       backDetail: detailInput.value.trim() || null,
     };
 
+    let savedCards;
     try {
-      saveUserCard(newCard);
+      savedCards = getUserCards();
     } catch (anyError) {
-      const errorCallout = document.createElement('div');
-      errorCallout.className = 'callout error';
+      let message;
       if (anyError.name === 'SyntaxError') {
-        errorCallout.textContent =
-          "Couldn't save flashcard: existing saved cards could not be read.";
-      } else if (anyError.name === 'TypeError') {
-        errorCallout.textContent =
-          "Couldn't save flashcard: card data couldn't be prepared.";
+        message = "Couldn't save flashcard: saved card data is corrupt.";
       } else {
-        errorCallout.textContent =
-          "Couldn't save flashcard: browser storage is unavailable.";
+        message = "Couldn't save flashcard: browser storage is unavailable.";
       }
-      addForm.appendChild(errorCallout);
+      appendErrorCallout(addForm, message);
       return;
     }
+
+    try {
+      localStorage.setItem(
+        'userFlashcards', JSON.stringify(withUserCard(savedCards, newCard))
+      );
+    } catch (anyError) {
+      appendErrorCallout(
+        addForm,
+        "Couldn't save flashcard: browser storage is unavailable."
+      );
+      return;
+    }
+
     allCards.push(newCard);
 
     deck.unshift(newCard);

@@ -387,7 +387,7 @@ test('flashcards save click shows inline feedback when saved cards cannot be rea
   assert.ok(errorCallout);
   assert.equal(
       errorCallout.textContent,
-      "Couldn't save flashcard: existing saved cards could not be read.");
+      "Couldn't save flashcard: saved card data is corrupt.");
   assert.equal(wrap.children.length > 0, true);
 
   globalThis.document = originalDocument;
@@ -400,9 +400,15 @@ test('masterquiz save button shows inline feedback when saved cards cannot be re
   const originalLocalStorage = globalThis.localStorage;
 
   const saveButton = {textContent: '', disabled: false};
+  const explanation = new StubElement('mq-explanation');
   globalThis.document = {
+    createElement(tagName) {
+      return new StubElement(tagName);
+    },
     getElementById(id) {
-      return id === 'mq-save-flashcard' ? saveButton : null;
+      if (id === 'mq-save-flashcard') return saveButton;
+      if (id === 'mq-explanation') return explanation;
+      return null;
     }
   };
   globalThis.localStorage = {
@@ -427,10 +433,111 @@ test('masterquiz save button shows inline feedback when saved cards cannot be re
   });
   handleSaveFlashcard();
 
+  const errorCallout = explanation.querySelector('.callout.error');
+  assert.ok(errorCallout);
   assert.equal(
-      saveButton.textContent,
-      "Couldn't save flashcard: existing saved cards could not be read.");
+      errorCallout.textContent,
+      "Couldn't save flashcard: saved card data is corrupt.");
+  assert.equal(saveButton.textContent, '');
   assert.equal(saveButton.disabled, true);
+
+  globalThis.document = originalDocument;
+  globalThis.localStorage = originalLocalStorage;
+});
+
+test('masterquiz duplicate save is treated as already satisfied without extra noise', async () => {
+  const originalDocument = globalThis.document;
+  const originalLocalStorage = globalThis.localStorage;
+
+  const saveButton = {textContent: '', disabled: false};
+  globalThis.document = {
+    getElementById(id) {
+      return id === 'mq-save-flashcard' ? saveButton : null;
+    }
+  };
+  globalThis.localStorage = {
+    getItem(key) {
+      if (key !== 'userFlashcards') return null;
+      return JSON.stringify([{id: 'user-mq-q1'}]);
+    },
+    setItem() {
+      throw new Error('should not write duplicate save');
+    }
+  };
+
+  const {handleSaveFlashcard, __setMasterquizState} = await importMasterquizModule();
+  __setMasterquizState({
+    queue: [{
+      id: 'q1',
+      stem: 'Question stem',
+      domain: 'anatomy',
+      answer: 'A',
+      explanation: 'Because.',
+      options: [{key: 'A', text: 'Correct'}]
+    }],
+    qIdx: 0,
+    submitted: true
+  });
+  handleSaveFlashcard();
+
+  assert.equal(saveButton.textContent, '\u2713 Saved');
+  assert.equal(saveButton.disabled, true);
+
+  globalThis.document = originalDocument;
+  globalThis.localStorage = originalLocalStorage;
+});
+
+test('masterquiz failed write does not mark empty storage card as saved in memory', async () => {
+  const originalDocument = globalThis.document;
+  const originalLocalStorage = globalThis.localStorage;
+
+  const firstButton = {textContent: '', disabled: false};
+  const secondButton = {textContent: '', disabled: false};
+  const explanation = new StubElement('mq-explanation');
+  let activeButton = firstButton;
+  globalThis.document = {
+    createElement(tagName) {
+      return new StubElement(tagName);
+    },
+    getElementById(id) {
+      if (id === 'mq-save-flashcard') return activeButton;
+      if (id === 'mq-explanation') return explanation;
+      return null;
+    }
+  };
+  globalThis.localStorage = {
+    getItem() {
+      return null;
+    },
+    setItem() {
+      throw new Error('quota exceeded');
+    }
+  };
+
+  const {handleSaveFlashcard, __setMasterquizState} = await importMasterquizModule();
+  __setMasterquizState({
+    queue: [{
+      id: 'q1',
+      stem: 'Question stem',
+      domain: 'anatomy',
+      answer: 'A',
+      explanation: 'Because.',
+      options: [{key: 'A', text: 'Correct'}]
+    }],
+    qIdx: 0,
+    submitted: true
+  });
+
+  handleSaveFlashcard();
+  activeButton = secondButton;
+  handleSaveFlashcard();
+
+  assert.equal(firstButton.textContent, '');
+  assert.equal(secondButton.textContent, '');
+  assert.equal(explanation.children.length, 1);
+  assert.equal(
+      explanation.children[0].textContent,
+      "Couldn't save flashcard: browser storage is unavailable.");
 
   globalThis.document = originalDocument;
   globalThis.localStorage = originalLocalStorage;
@@ -440,11 +547,14 @@ test('masterquiz result save button shows inline feedback when storage is unavai
   const originalDocument = globalThis.document;
   const originalLocalStorage = globalThis.localStorage;
 
-  const resultButton = {textContent: '', disabled: false};
+  const resultButton = {textContent: '', disabled: false, value: 'q1'};
+  const resultDetail = new StubElement('mq-result-detail');
+  resultButton.parentNode = resultDetail;
   globalThis.document = {
-    getElementById(id) {
-      return id === 'mq-result-save-q1' ? resultButton : null;
-    }
+    createElement(tagName) {
+      return new StubElement(tagName);
+    },
+    getElementById() {}
   };
   globalThis.localStorage = {
     getItem() {
@@ -466,11 +576,14 @@ test('masterquiz result save button shows inline feedback when storage is unavai
       options: [{key: 'A', text: 'Correct'}]
     }]
   });
-  handleResultSave('q1');
+  handleResultSave(resultButton);
 
+  const errorCallout = resultDetail.querySelector('.callout.error');
+  assert.ok(errorCallout);
   assert.equal(
-      resultButton.textContent,
+      errorCallout.textContent,
       "Couldn't save flashcard: browser storage is unavailable.");
+  assert.equal(resultButton.textContent, '');
   assert.equal(resultButton.disabled, true);
 
   globalThis.document = originalDocument;
