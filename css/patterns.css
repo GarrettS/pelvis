@@ -63,8 +63,10 @@
 }
 
 #concept-map-svg {
+  display: block;
   width: 100%;
-  height: min(65vh, 600px);
+  height: auto;
+  aspect-ratio: 500 / 340;
 }
 
 .map-node {

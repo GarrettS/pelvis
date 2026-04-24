@@ -110,15 +110,49 @@ function forEachConceptMapEdge(visitEdge) {
   });
 }
 
+const EDGE_START_GAP = 1.5;
+const EDGE_END_GAP = 4.5;
+
+function edgeGeometry(fromKey, toKey) {
+  const sourceBounds = rectBounds(
+    document.getElementById(nodeId(fromKey)).querySelector('rect')
+  );
+  const targetBounds = rectBounds(
+    document.getElementById(nodeId(toKey)).querySelector('rect')
+  );
+  const rawStart = rectBoundaryPoint(sourceBounds, rectCenter(targetBounds));
+  const rawEnd = rectBoundaryPoint(targetBounds, rectCenter(sourceBounds));
+  const dx = rawEnd.x - rawStart.x;
+  const dy = rawEnd.y - rawStart.y;
+  const len = Math.hypot(dx, dy) || 1;
+  const ux = dx / len;
+  const uy = dy / len;
+  const start = {
+    x: rawStart.x + ux * EDGE_START_GAP,
+    y: rawStart.y + uy * EDGE_START_GAP
+  };
+  const end = {
+    x: rawEnd.x - ux * EDGE_END_GAP,
+    y: rawEnd.y - uy * EDGE_END_GAP
+  };
+  return {
+    start,
+    end,
+    midpoint: {
+      x: (start.x + end.x) / 2,
+      y: (start.y + end.y) / 2
+    }
+  };
+}
+
 function buildEdgeLines() {
   const lines = [];
   forEachConceptMapEdge((fromKey, toKey) => {
-    const f = pxToViewBox(CAUSAL_MAP[fromKey]);
-    const t = pxToViewBox(CAUSAL_MAP[toKey]);
+    const { start, end } = edgeGeometry(fromKey, toKey);
     lines.push(`<line class="map-edge"
       id="${edgeLineId(fromKey, toKey)}"
-      x1="${f.cx}" y1="${f.cy}"
-      x2="${t.cx}" y2="${t.cy}"
+      x1="${start.x}" y1="${start.y}"
+      x2="${end.x}" y2="${end.y}"
       marker-end="url(#arrow-map)"/>`);
   });
   return lines.join('');
@@ -192,6 +226,45 @@ function sizeEdgeLabelBoxes() {
   });
 }
 
+function rectBounds(rectEl) {
+  return {
+    left: Number(rectEl.getAttribute('x')),
+    top: Number(rectEl.getAttribute('y')),
+    width: Number(rectEl.getAttribute('width')),
+    height: Number(rectEl.getAttribute('height'))
+  };
+}
+
+function rectCenter(bounds) {
+  return {
+    x: bounds.left + bounds.width / 2,
+    y: bounds.top + bounds.height / 2
+  };
+}
+
+function rectBoundaryPoint(bounds, towardPoint) {
+  const center = rectCenter(bounds);
+  const dx = towardPoint.x - center.x;
+  const dy = towardPoint.y - center.y;
+  if (!dx && !dy) return center;
+
+  const tx = dx > 0
+    ? (bounds.left + bounds.width - center.x) / dx
+    : dx < 0
+      ? (bounds.left - center.x) / dx
+      : Infinity;
+  const ty = dy > 0
+    ? (bounds.top + bounds.height - center.y) / dy
+    : dy < 0
+      ? (bounds.top - center.y) / dy
+      : Infinity;
+  const t = Math.min(tx, ty);
+  return {
+    x: center.x + dx * t,
+    y: center.y + dy * t
+  };
+}
+
 function buildEdgesByNode(graph) {
   const index = {};
   Object.keys(graph).forEach(key => index[key] = []);
@@ -263,10 +336,8 @@ function initNodeHighlight(svg) {
 function buildConceptMap() {
   const svg = document.getElementById('concept-map-svg');
   const defs = svg.querySelector('defs');
-  defs.insertAdjacentHTML(
-    'afterend',
-    buildEdgeLines() + buildNodes() + buildEdgeLabels()
-  );
+  defs.insertAdjacentHTML('afterend', buildNodes() + buildEdgeLabels());
+  defs.insertAdjacentHTML('afterend', buildEdgeLines());
   sizeEdgeLabelBoxes();
   initNodeHighlight(svg);
 }
