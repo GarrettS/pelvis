@@ -1,115 +1,105 @@
 {
-  "nodes": {
-    "concept-map-diaphragm": {
-      "label": "L Hemidiaphragm\nWeakness",
-      "x": 22,
-      "y": 9
-    },
-    "concept-map-iotas": {
-      "label": "L IO/TA\nWeakness",
-      "x": 7,
-      "y": 44
-    },
-    "concept-map-psoas": {
-      "label": "L Psoas/Iliacus\nShortening",
-      "x": 46,
-      "y": 21
-    },
-    "concept-map-aic": {
-      "label": "L Innominate\nAnterior Tilt\n(IP ER)",
-      "x": 60,
-      "y": 49,
-      "central": true
-    },
-    "concept-map-nutat": {
-      "label": "L SI Joint\nNutation\n(IS IR)",
-      "x": 82,
-      "y": 27
-    },
-    "concept-map-outlet": {
-      "label": "L Outlet\nClosure\n(IsP IR)",
-      "x": 82,
-      "y": 65
-    },
-    "concept-map-floor": {
-      "label": "L Pelvic Floor\nDescent",
-      "x": 92,
-      "y": 82
-    },
-    "concept-map-spine": {
-      "label": "Spine Rightward\nOrientation",
-      "x": 33,
-      "y": 76
-    },
-    "concept-map-right": {
-      "label": "R Compensatory\nPosition",
-      "x": 12,
-      "y": 89
+  "diaphragm": {
+    "name": "L Hemidiaphragm\nWeakness",
+    "x": 22,
+    "y": 9,
+    "to": {
+      "psoas": {
+        "effect": "crural pull / ZOA loss",
+        "dx": 58.4,
+        "dy": -17.4
+      },
+      "iotas": {
+        "effect": "no abdominal counter-pressure",
+        "dx": -17.8,
+        "dy": -21.8
+      }
     }
   },
-  "edges": [
-    {
-      "from": "concept-map-diaphragm",
-      "to": "concept-map-psoas",
-      "label": "crural pull / ZOA loss",
-      "labelDx": 58.4,
-      "labelDy": -17.4
-    },
-    {
-      "from": "concept-map-diaphragm",
-      "to": "concept-map-iotas",
-      "label": "no abdominal counter-pressure",
-      "labelDx": -17.8,
-      "labelDy": -21.8
-    },
-    {
-      "from": "concept-map-iotas",
-      "to": "concept-map-aic",
-      "label": "no posterior tilt opposition",
-      "labelDx": -21.5,
-      "labelDy": 14.1
-    },
-    {
-      "from": "concept-map-psoas",
-      "to": "concept-map-aic",
-      "label": "pulls ilium forward",
-      "labelDx": -66.4,
-      "labelDy": -1.5
-    },
-    {
-      "from": "concept-map-aic",
-      "to": "concept-map-nutat",
-      "label": "ilium fwd → nutation",
-      "labelDx": -36.7,
-      "labelDy": -24
-    },
-    {
-      "from": "concept-map-aic",
-      "to": "concept-map-outlet",
-      "label": "inlet/outlet reciprocal",
-      "labelDx": -49.6,
-      "labelDy": 22
-    },
-    {
-      "from": "concept-map-outlet",
-      "to": "concept-map-floor",
-      "label": "outlet closed → floor descends",
-      "labelDx": -89.9,
-      "labelDy": 13.2
-    },
-    {
-      "from": "concept-map-aic",
-      "to": "concept-map-spine",
-      "label": "sacrum follows",
-      "labelDx": -48.9,
-      "labelDy": -8.8
-    },
-    {
-      "from": "concept-map-spine",
-      "to": "concept-map-right",
-      "label": "weight shift right",
-      "labelDx": -41.8,
-      "labelDy": -18.4
+  "iotas": {
+    "name": "L IO/TA\nWeakness",
+    "x": 7,
+    "y": 44,
+    "to": {
+      "aic": {
+        "effect": "no posterior tilt opposition",
+        "dx": -21.5,
+        "dy": 14.1
+      }
     }
-  ]
+  },
+  "psoas": {
+    "name": "L Psoas/Iliacus\nShortening",
+    "x": 46,
+    "y": 21,
+    "to": {
+      "aic": {
+        "effect": "pulls ilium forward",
+        "dx": -66.4,
+        "dy": -1.5
+      }
+    }
+  },
+  "aic": {
+    "name": "L Innominate\nAnterior Tilt\n(IP ER)",
+    "x": 60,
+    "y": 49,
+    "central": true,
+    "to": {
+      "nutat": {
+        "effect": "ilium fwd → nutation",
+        "dx": -36.7,
+        "dy": -24
+      },
+      "outlet": {
+        "effect": "inlet/outlet reciprocal",
+        "dx": -49.6,
+        "dy": 22
+      },
+      "spine": {
+        "effect": "sacrum follows",
+        "dx": -48.9,
+        "dy": -8.8
+      }
+    }
+  },
+  "nutat": {
+    "name": "L SI Joint\nNutation\n(IS IR)",
+    "x": 82,
+    "y": 27
+  },
+  "outlet": {
+    "name": "L Outlet\nClosure\n(IsP IR)",
+    "x": 82,
+    "y": 65,
+    "to": {
+      "floor": {
+        "effect": "outlet closed → floor descends",
+        "dx": -89.9,
+        "dy": 13.2
+      }
+    }
+  },
+  "floor": {
+    "name": "L Pelvic Floor\nDescent",
+    "x": 92,
+    "y": 82
+  },
+  "spine": {
+    "name": "Spine Rightward\nOrientation",
+    "x": 33,
+    "y": 76,
+    "to": {
+      "right": {
+        "effect": "weight shift right",
+        "dx": -41.8,
+        "dy": -18.4
+      }
+    }
+  },
+  "right": {
+    "name": "R Compensatory\nPosition",
+    "x": 12,
+    "y": 89
+  }
 }

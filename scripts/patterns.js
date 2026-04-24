@@ -2,7 +2,6 @@ import { showFetchError } from "./load-errors.js";
 import { expandAbbr } from './abbr-expand.js';
 
 let CHEAT_DATA, CAUSAL_MAP, SYMPTOM_PATTERNS, HALT_LEVELS, SQUAT_LEVELS;
-let MAP_NODES, MAP_EDGES;
 
 let symptomQuiz = { idx: 0, isQuizDone: false, score: { correct: 0, total: 0 } };
 let haltQuiz = { idx: 0, isQuizDone: false };
@@ -44,8 +43,6 @@ export async function init() {
     showFetchError(container, error.filename, error);
     return;
   }
-  MAP_NODES = CAUSAL_MAP.nodes;
-  MAP_EDGES = CAUSAL_MAP.edges;
 
   buildCheatSheet();
   buildConceptMap();
@@ -90,81 +87,91 @@ const NODE_CHAR_W = 5.2;
 const NODE_PAD = 12;
 const NODE_MIN_W = 60;
 
-function pxToViewBox(node) {
-  return {
-    cx: CONCEPT_MAP_PAD
-      + node.x / 100 * (CONCEPT_MAP_W - 2 * CONCEPT_MAP_PAD),
-    cy: CONCEPT_MAP_PAD
-      + node.y / 100 * (CONCEPT_MAP_H - 2 * CONCEPT_MAP_PAD)
-  };
+const pxToViewBox = node => ({
+    cx: CONCEPT_MAP_PAD + node.x / 100 * (CONCEPT_MAP_W - 2 * CONCEPT_MAP_PAD),
+    cy: CONCEPT_MAP_PAD + node.y / 100 * (CONCEPT_MAP_H - 2 * CONCEPT_MAP_PAD)
+  });
+
+const nodeId = nodeKey => 'concept-map-' + nodeKey;
+
+const parseNodeKey = nodeDomId => nodeDomId.replace(/^concept-map-/, '');
+
+const edgeKey = (fromKey, toKey) => fromKey + "--to--" + toKey;
+
+const edgeLineId = (fromKey, toKey) =>  "concept-map-edge-" + edgeKey(fromKey, toKey);
+
+const edgeLabelId = (fromKey, toKey) => 'concept-map-edge-label-' + edgeKey(fromKey, toKey);
+
+function forEachConceptMapEdge(visitEdge) {
+  Object.entries(CAUSAL_MAP).forEach(([fromKey, node]) => {
+    Object.entries(node.to || {}).forEach(([toKey, edge]) => {
+      visitEdge(fromKey, toKey, edge);
+    });
+  });
 }
 
 function buildEdgeLines() {
-  return MAP_EDGES.map((edge, i) => {
-    const f = pxToViewBox(MAP_NODES[edge.from]);
-    const t = pxToViewBox(MAP_NODES[edge.to]);
-    return `<line class="map-edge"
-      id="concept-map-edge-${i}"
+  const lines = [];
+  forEachConceptMapEdge((fromKey, toKey) => {
+    const f = pxToViewBox(CAUSAL_MAP[fromKey]);
+    const t = pxToViewBox(CAUSAL_MAP[toKey]);
+    lines.push(`<line class="map-edge"
+      id="${edgeLineId(fromKey, toKey)}"
       x1="${f.cx}" y1="${f.cy}"
       x2="${t.cx}" y2="${t.cy}"
-      marker-end="url(#arrow-map)"/>`;
-  }).join('');
+      marker-end="url(#arrow-map)"/>`);
+  });
+  return lines.join('');
 }
 
 function buildEdgeLabels() {
-  return MAP_EDGES.map((edge, i) => {
-    const f = pxToViewBox(MAP_NODES[edge.from]);
-    const t = pxToViewBox(MAP_NODES[edge.to]);
+  const labels = [];
+  forEachConceptMapEdge((fromKey, toKey, edge) => {
+    const f = pxToViewBox(CAUSAL_MAP[fromKey]);
+    const t = pxToViewBox(CAUSAL_MAP[toKey]);
     const mx = (f.cx + t.cx) / 2;
     const my = (f.cy + t.cy) / 2;
     let ox, oy;
-    if (typeof edge.labelDx === 'number') {
-      ox = mx + edge.labelDx;
-      oy = my + edge.labelDy;
+    if (typeof edge.dx === 'number') {
+      ox = mx + edge.dx;
+      oy = my + edge.dy;
     } else {
       const dx = t.cx - f.cx;
       const dy = t.cy - f.cy;
-      const len = Math.sqrt(
-        dx * dx + dy * dy
-      ) || 1;
+      const len = Math.sqrt(dx * dx + dy * dy) || 1;
       ox = mx + (-dy / len) * OFF_DIST;
       oy = my + (dx / len) * OFF_DIST;
     }
-    return `<g class="map-edge-label-group"
-      id="concept-map-label-${i}">
+    labels.push(`<g class="map-edge-label-group"
+      id="${edgeLabelId(fromKey, toKey)}">
       <line class="map-edge-leader"
         x1="${mx}" y1="${my}"
         x2="${ox}" y2="${oy}"/>
       <rect class="map-edge-label-bg"/>
       <text class="map-edge-label"
         x="${ox}" y="${oy + 3}"
-        text-anchor="middle">${edge.label}</text>
-    </g>`;
-  }).join('');
+        text-anchor="middle">${edge.effect}</text>
+    </g>`);
+  });
+  return labels.join('');
 }
 
 function buildNodes() {
-  return Object.keys(MAP_NODES).map((id) => {
-    const node = MAP_NODES[id];
+  return Object.entries(CAUSAL_MAP).map(([key, node]) => {
     const p = pxToViewBox(node);
-    const lines = node.label.split('\n');
-    const maxLen = Math.max(
-      ...lines.map((l) => l.length)
-    );
-    const rw = Math.max(
-      NODE_MIN_W, maxLen * NODE_CHAR_W + NODE_PAD
-    );
+    const lines = node.name.split('\n');
+    const maxLen = Math.max(...lines.map((l) => l.length));
+    const rw = Math.max(NODE_MIN_W, maxLen * NODE_CHAR_W + NODE_PAD);
     const rh = lines.length > 2 ? 38 : 28;
     const rx = p.cx - rw / 2;
     const ry = p.cy - rh / 2;
-    const cls = 'map-node'
-      + (node.central ? ' central' : '');
+    const cls = 'map-node' + (node.central ? ' central' : '');
     const textSVG = lines.map((l, li) =>
       `<text x="${p.cx}"
         y="${ry + 11 + li * 11}"
         text-anchor="middle">${l}</text>`
     ).join('');
-    return `<g class="${cls}" id="${id}">
+    return `<g class="${cls}" id="${nodeId(key)}">
       <rect x="${rx}" y="${ry}"
         width="${rw}" height="${rh}"/>
       ${textSVG}</g>`;
@@ -172,14 +179,11 @@ function buildNodes() {
 }
 
 function sizeEdgeLabelBoxes() {
-  MAP_EDGES.forEach((edge, i) => {
-    const g = document.getElementById(
-      'concept-map-label-' + i
-    );
+  forEachConceptMapEdge((fromKey, toKey) => {
+    const g = document.getElementById(edgeLabelId(fromKey, toKey));
     const text = g.querySelector('text');
     const rect = g.querySelector('rect');
-    const tw = text.getComputedTextLength()
-      + LABEL_PAD * 2;
+    const tw = text.getComputedTextLength() + LABEL_PAD * 2;
     const bbox = text.getBBox();
     rect.setAttribute('x', bbox.x - LABEL_PAD);
     rect.setAttribute('y', bbox.y - 1);
@@ -188,10 +192,26 @@ function sizeEdgeLabelBoxes() {
   });
 }
 
+function buildEdgesByNode(graph) {
+  const index = {};
+  Object.keys(graph).forEach(key => index[key] = []);
+  Object.entries(graph).forEach(([fromKey, node]) => {
+    Object.keys(node.to || {}).forEach((toKey) => {
+      const edge = { fromKey, toKey };
+      index[fromKey].push(edge);
+      index[toKey].push(edge);
+    });
+  });
+  return index;
+}
+
 function initNodeHighlight(svg) {
   let activeNode = null;
   let activeEdgeEls = [];
   let activeNodeEls = [];
+  let edgesByNode = null;
+  const getEdgesByNode = () =>
+    edgesByNode ??= buildEdgesByNode(CAUSAL_MAP);
 
   function clearHighlight() {
     if (!activeNode) return;
@@ -199,9 +219,7 @@ function initNodeHighlight(svg) {
     activeNode.classList.remove('highlighted');
     activeEdgeEls.forEach((el) => {
       el.classList.remove('highlighted');
-      el.setAttribute(
-        'marker-end', 'url(#arrow-map)'
-      );
+      el.setAttribute('marker-end', 'url(#arrow-map)');
     });
     activeNodeEls.forEach((el) => {
       el.classList.remove('highlighted');
@@ -211,34 +229,25 @@ function initNodeHighlight(svg) {
     activeNodeEls = [];
   }
 
+  function highlightNodeEdge(edgeEl, otherEl) {
+    edgeEl.classList.add('highlighted');
+    edgeEl.setAttribute('marker-end', 'url(#arrow-map-hl)');
+    activeEdgeEls.push(edgeEl);
+    if (!otherEl) return;
+
+    otherEl.classList.add('highlighted');
+    activeNodeEls.push(otherEl);
+  }
+
   function highlightNode(nodeEl) {
     activeNode = nodeEl;
-    const nodeId = nodeEl.id;
+    const nodeKey = parseNodeKey(nodeEl.id);
     nodeEl.classList.add('highlighted');
-
-    MAP_EDGES.forEach((edge, i) => {
-      if (edge.from !== nodeId
-        && edge.to !== nodeId) return;
-
-      const edgeEl = document.getElementById(
-        'concept-map-edge-' + i
-      );
-      if (edgeEl) {
-        edgeEl.classList.add('highlighted');
-        edgeEl.setAttribute(
-          'marker-end', 'url(#arrow-map-hl)'
-        );
-        activeEdgeEls.push(edgeEl);
-      }
-      const otherId = edge.from === nodeId
-        ? edge.to : edge.from;
-      const otherEl = document.getElementById(
-        otherId
-      );
-      if (otherEl) {
-        otherEl.classList.add('highlighted');
-        activeNodeEls.push(otherEl);
-      }
+    getEdgesByNode()[nodeKey].forEach(({ fromKey, toKey }) => {
+      const edgeEl = document.getElementById(edgeLineId(fromKey, toKey));
+      const otherKey = fromKey === nodeKey ? toKey : fromKey;
+      const otherEl = document.getElementById(nodeId(otherKey));
+      highlightNodeEdge(edgeEl, otherEl);
     });
   }
 
@@ -252,14 +261,11 @@ function initNodeHighlight(svg) {
 }
 
 function buildConceptMap() {
-  const svg = document.getElementById(
-    'concept-map-svg'
-  );
+  const svg = document.getElementById('concept-map-svg');
   const defs = svg.querySelector('defs');
   defs.insertAdjacentHTML(
     'afterend',
-    buildEdgeLines() + buildNodes()
-      + buildEdgeLabels()
+    buildEdgeLines() + buildNodes() + buildEdgeLabels()
   );
   sizeEdgeLabelBoxes();
   initNodeHighlight(svg);
@@ -312,8 +318,7 @@ function showSymptomFeedback(explanation, isCorrect) {
 }
 
 function showSymptomNext() {
-  document.getElementById('symptom-next')
-    .classList.remove('hidden');
+  document.getElementById('symptom-next').classList.remove('hidden');
 }
 
 function initSymptomQuiz() {
@@ -346,7 +351,7 @@ function renderSymptomQuestion() {
   feedback.classList.remove('error');
   document.getElementById('symptom-next').classList.add('hidden');
   const answersEl = document.getElementById('symptom-answers');
-  symptomQuiz.markedBtns.forEach(b => { b.classList.remove('correct', 'incorrect'); });
+  symptomQuiz.markedBtns.forEach(b => b.classList.remove('correct', 'incorrect'));
   symptomQuiz.markedBtns = [];
   answersEl.classList.remove('answered');
 }
