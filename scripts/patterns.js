@@ -266,37 +266,52 @@ function buildConceptMap() {
 }
 
 function gradeSymptomAnswer(btn, answersEl) {
-  symptomQuiz.isQuizDone = true;
   const current = SYMPTOM_PATTERNS[symptomQuiz.idx];
-  const chosen = btn.dataset.ans;
-  const isCorrect = chosen === current.pattern;
-  symptomQuiz.score.total++;
-  if (isCorrect) symptomQuiz.score.correct++;
-  document.getElementById('symptom-score')
-    .textContent = 'Score: '
-      + symptomQuiz.score.correct
-      + ' / ' + symptomQuiz.score.total;
+  const chosenKey = btn.value;
+  const correctKey = current.patternKey;
+  const isCorrect = chosenKey === correctKey;
 
-  const sel = '[data-ans="'
-    + current.pattern + '"]';
-  const correctBtn = answersEl.querySelector(sel);
-  correctBtn.classList.add('correct');
-  symptomQuiz.markedBtns = [correctBtn];
+  symptomQuiz.isQuizDone = true;
+  symptomQuiz.score.total++;
+  showScoreUpdate(isCorrect);
+  markCorrectSymptomAnswer(answersEl, correctKey);
   if (!isCorrect) {
     btn.classList.add('incorrect');
     symptomQuiz.markedBtns.push(btn);
   }
   answersEl.classList.add('answered');
+  showSymptomFeedback(current.explanation, isCorrect);
+  showSymptomNext();
+}
 
+function markCorrectSymptomAnswer(answersEl, correctKey) {
+  const correctBtn = answersEl.querySelector(
+    '[value="' + correctKey + '"]'
+  );
+  correctBtn.classList.add('correct');
+  symptomQuiz.markedBtns = [correctBtn];
+}
+
+function showScoreUpdate(isCorrect) {
+  symptomQuiz.score.correct += +isCorrect;
+  document.getElementById('symptom-score')
+    .textContent = 'Score: '
+      + symptomQuiz.score.correct
+      + ' / ' + symptomQuiz.score.total;
+}
+
+function showSymptomFeedback(explanation, isCorrect) {
   const feedback = document.getElementById(
     'symptom-feedback'
   );
+  const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
   feedback.classList.toggle('error', !isCorrect);
-  const verdict = isCorrect
-    ? 'Correct.' : 'Incorrect.';
   feedback.innerHTML = '<strong>' + verdict
-    + '</strong> ' + current.explanation;
+    + '</strong> ' + explanation;
   feedback.classList.remove('hidden');
+}
+
+function showSymptomNext() {
   document.getElementById('symptom-next')
     .classList.remove('hidden');
 }
@@ -324,7 +339,11 @@ function initSymptomQuiz() {
 function renderSymptomQuestion() {
   const current = SYMPTOM_PATTERNS[symptomQuiz.idx];
   document.getElementById('symptom-condition').textContent = current.condition;
-  document.getElementById('symptom-feedback').classList.add('hidden');
+  const feedback = document.getElementById(
+    'symptom-feedback'
+  );
+  feedback.classList.add('hidden');
+  feedback.classList.remove('error');
   document.getElementById('symptom-next').classList.add('hidden');
   const answersEl = document.getElementById('symptom-answers');
   symptomQuiz.markedBtns.forEach(b => { b.classList.remove('correct', 'incorrect'); });
