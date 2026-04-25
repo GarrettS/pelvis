@@ -235,12 +235,10 @@ const rectBounds = (rectEl) => ({
   height: rectEl.height.baseVal.value
 });
 
-function rectCenter(bounds) {
-  return {
-    x: bounds.left + bounds.width / 2,
-    y: bounds.top + bounds.height / 2
-  };
-}
+const rectCenter = bounds => ({
+  x: bounds.left + bounds.width / 2,
+  y: bounds.top + bounds.height / 2
+});
 
 function rectBoundaryPoint(bounds, towardPoint) {
   const center = rectCenter(bounds);
