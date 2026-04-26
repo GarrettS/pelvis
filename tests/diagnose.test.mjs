@@ -178,48 +178,46 @@ function importSource(source) {
   );
 }
 
-async function importDiagnoseModule() {
+async function importDiagnoseSubmodule(name) {
   const [
-    diagnoseSource,
-    loadErrorsSource,
+    moduleSource,
     studyDataCacheSource,
     shuffleSource,
     abbrExpandSource
   ] = await Promise.all([
-    readFile(new URL('../scripts/diagnose.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/load-errors.js', import.meta.url), 'utf8'),
+    readFile(new URL(`../scripts/${name}.js`, import.meta.url), 'utf8'),
     readFile(new URL('../scripts/study-data-cache.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8')
   ]);
-  const loadErrorsUrl = `data:text/javascript;base64,${
-    Buffer.from(loadErrorsSource).toString('base64')}`;
-  const studyDataCacheUrl = `data:text/javascript;base64,${
-    Buffer.from(studyDataCacheSource).toString('base64')}`;
-  const shuffleUrl = `data:text/javascript;base64,${
-    Buffer.from(shuffleSource).toString('base64')}`;
-  const abbrExpandUrl = `data:text/javascript;base64,${
-    Buffer.from(abbrExpandSource).toString('base64')}`;
-  const rewrittenSource = diagnoseSource
-    .replace('"./load-errors.js"', `"${loadErrorsUrl}"`)
-    .replace("'./study-data-cache.js'", `'${studyDataCacheUrl}'`)
+  const freshDataUrl = (source) => {
+    const nonce = `\n// ${Date.now()}-${Math.random()}`;
+    return `data:text/javascript;base64,${
+      Buffer.from(source + nonce).toString('base64')}`;
+  };
+  const cacheUrl = freshDataUrl(studyDataCacheSource);
+  const shuffleUrl = freshDataUrl(shuffleSource);
+  const abbrExpandUrl = freshDataUrl(abbrExpandSource);
+  const rewritten = moduleSource
+    .replace("'./study-data-cache.js'", `'${cacheUrl}'`)
     .replace("'./shuffle.js'", `'${shuffleUrl}'`)
     .replace("'./abbr-expand.js'", `'${abbrExpandUrl}'`);
-  return importSource(rewrittenSource + `
-export {
-  buildMuscleMap,
-  buildDecisionTree,
-  doesEntryMatchQuery,
-  renderCaseVisit
-};
-export function __setDiagnoseData(nextData) {
-  DATA = nextData;
+  return importSource(rewritten);
 }
-`);
+
+function mockFetchOnce(payload) {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = () => Promise.resolve(
+    new Response(JSON.stringify(payload), {
+      status: 200,
+      headers: {'Content-Type': 'application/json'}
+    })
+  );
+  return () => { globalThis.fetch = originalFetch; };
 }
 
 test('doesEntryMatchQuery matches expanded abbreviation titles', async () => {
-  const {doesEntryMatchQuery} = await importDiagnoseModule();
+  const {doesEntryMatchQuery} = await importDiagnoseSubmodule('diagnose-muscle-map');
   const entry = {
     pattern: 'Corrects L AIC (L inlet in IP ER -> needs IP IR)',
     exercises: []
@@ -231,7 +229,7 @@ test('doesEntryMatchQuery matches expanded abbreviation titles', async () => {
   );
 });
 
-test('buildMuscleMap preserves active search query across subview hash changes', async () => {
+test('setupMuscleMap preserves active search query across subview hash changes', async () => {
   const document = makeDocument();
   const window = makeWindow();
   const viewTabs = document.register(new TestElement('muscle-view-tabs'));
@@ -257,8 +255,7 @@ test('buildMuscleMap preserves active search query across subview hash changes',
   globalThis.window = window;
   globalThis.location = {hash: '#diagnose/exercises/byMuscle'};
 
-  const {buildMuscleMap, __setDiagnoseData} = await importDiagnoseModule();
-  __setDiagnoseData({
+  const restoreFetch = mockFetchOnce({
     muscleExerciseMap: {
       byMuscle: [
         {muscle: 'L IO/TA', pattern: 'Corrects L AIC', exercises: []}
@@ -269,23 +266,28 @@ test('buildMuscleMap preserves active search query across subview hash changes',
       ]
     }
   });
+  try {
+    const {setupMuscleMap} = await importDiagnoseSubmodule('diagnose-muscle-map');
+    await setupMuscleMap();
 
-  buildMuscleMap();
-  search.value = 'anterior interior chain';
-  search.dispatch('input');
-  assert.equal(wrap.children.length, 1);
+    search.value = 'anterior interior chain';
+    search.dispatch('input');
+    assert.equal(wrap.children.length, 1);
 
-  globalThis.location.hash = '#diagnose/exercises/byFinding';
-  window.dispatch('hashchange');
+    globalThis.location.hash = '#diagnose/exercises/byFinding';
+    window.dispatch('hashchange');
 
-  assert.equal(wrap.children.length, 1);
+    assert.equal(wrap.children.length, 1);
+  } finally {
+    restoreFetch();
+  }
 });
 
 test('renderCaseVisit uses caseStudy.visitNumber() instead of raw visit data', async () => {
   const document = makeDocument();
   globalThis.document = document;
 
-  const {renderCaseVisit} = await importDiagnoseModule();
+  const {renderCaseVisit} = await importDiagnoseSubmodule('diagnose-case-studies');
   const caseEl = new TestElement('case-1');
   const caseStudy = {
     isComplete() { return false; },
@@ -304,13 +306,12 @@ test('renderCaseVisit uses caseStudy.visitNumber() instead of raw visit data', a
   assert.doesNotMatch(caseEl.innerHTML, /undefined/);
 });
 
-test('buildDecisionTree renders question nodes without an id fallback', async () => {
+test('setupDecisionTree renders question nodes without an id fallback', async () => {
   const document = makeDocument();
   const wrap = document.register(new TestElement('tree-wrap'));
   globalThis.document = document;
 
-  const {buildDecisionTree, __setDiagnoseData} = await importDiagnoseModule();
-  __setDiagnoseData({
+  const restoreFetch = mockFetchOnce({
     decisionTree: {
       question: 'Primary question?',
       branches: [
@@ -324,8 +325,12 @@ test('buildDecisionTree renders question nodes without an id fallback', async ()
       ]
     }
   });
+  try {
+    const {setupDecisionTree} = await importDiagnoseSubmodule('diagnose-decision-tree');
+    await setupDecisionTree();
 
-  buildDecisionTree();
-
-  assert.equal(wrap.children[0].innerHTML, 'Primary question?');
+    assert.equal(wrap.children[0].innerHTML, 'Primary question?');
+  } finally {
+    restoreFetch();
+  }
 });

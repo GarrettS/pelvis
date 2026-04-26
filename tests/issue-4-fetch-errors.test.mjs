@@ -231,7 +231,7 @@ test('showImportError distinguishes module parse failures', async () => {
       "Couldn't load ./diagnose.js: module failed to parse.");
 });
 
-test('getStudyData clears cached failure so the next call can retry', async () => {
+test('study-data accessor clears cached failure so the next call can retry', async () => {
   const originalFetch = globalThis.fetch;
   let fetchCount = 0;
 
@@ -246,18 +246,18 @@ test('getStudyData clears cached failure so the next call can retry', async () =
             {status: 200, headers: {'Content-Type': 'application/json'}}));
   };
 
-  const {getStudyData} = await importLocalModule('../scripts/study-data-cache.js');
+  const {getTranslations} = await importLocalModule('../scripts/study-data-cache.js');
 
-  await assert.rejects(getStudyData(), (cause) => cause instanceof Response);
-  const data = await getStudyData();
+  await assert.rejects(getTranslations(), (cause) => cause instanceof Response);
+  const data = await getTranslations();
 
-  assert.deepEqual(data, {translationMap: []});
+  assert.deepEqual(data, []);
   assert.equal(fetchCount, 2);
 
   globalThis.fetch = originalFetch;
 });
 
-test('getStudyData preserves parse errors for callers', async () => {
+test('study-data accessor preserves parse errors for callers', async () => {
   const originalFetch = globalThis.fetch;
 
   globalThis.fetch = () => Promise.resolve(
@@ -266,10 +266,10 @@ test('getStudyData preserves parse errors for callers', async () => {
         headers: {'Content-Type': 'application/json'}
       }));
 
-  const {getStudyData} = await importLocalModule('../scripts/study-data-cache.js');
+  const {getTranslations} = await importLocalModule('../scripts/study-data-cache.js');
 
   await assert.rejects(
-      getStudyData(),
+      getTranslations(),
       (cause) => cause instanceof SyntaxError);
 
   globalThis.fetch = originalFetch;

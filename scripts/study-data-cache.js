@@ -17,10 +17,6 @@ function load() {
   return cached;
 }
 
-export function getStudyData() {
-  return load();
-}
-
 export const getCausalChains      = async () => (await load()).causalChains;
 export const getCaseStudies       = async () => (await load()).caseStudies;
 export const getGameScenarios     = async () => (await load()).gameScenarios;
