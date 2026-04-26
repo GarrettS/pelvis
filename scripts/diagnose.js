@@ -609,6 +609,10 @@ const CausalChainFactory = (() => {
     #steps;
     #order;
     #activeDragItem = null;
+    #startY = 0;
+    #initialItemTop = 0;
+    #dropTarget;
+    #dropTargetMarker = null;
 
     constructor(id, definition, key) {
       if (key !== KEY) throw new Error(
@@ -623,32 +627,82 @@ const CausalChainFactory = (() => {
     currentOrder() { return this.#order.slice(); }
     correctOrder() { return this.#steps; }
 
-    startDrag(chainItem) {
+    startDrag(chainItem, startY) {
       this.#activeDragItem = chainItem;
-      chainItem.classList.add('dragging');
+      this.#startY = startY;
+      this.#initialItemTop = chainItem.getBoundingClientRect().top;
+      this.#dropTarget = undefined;
+      chainItem.classList.add('active-drag-item');
     }
 
-    endDrag() {
-      this.#activeDragItem?.classList.remove('dragging');
-      this.#activeDragItem = null;
-    }
-
-    reorderToward(y, chainList) {
+    dragMove(y, chainList) {
       if (!this.#activeDragItem) return;
 
-      let insertBefore = null;
+      const item = this.#activeDragItem;
+      const listBox = chainList.getBoundingClientRect();
+      const itemHeight = item.getBoundingClientRect().height;
+      const minDelta = listBox.top - this.#initialItemTop;
+      const maxDelta = listBox.bottom - itemHeight - this.#initialItemTop;
+      const deltaY = Math.max(
+        minDelta, Math.min(maxDelta, y - this.#startY)
+      );
+      item.style.setProperty('--drag-offset', deltaY + 'px');
+
+      let target = null;
       for (const sibling of chainList.children) {
-        if (sibling === this.#activeDragItem) continue;
+        if (sibling === item) continue;
         const box = sibling.getBoundingClientRect();
         if (y <= box.top + box.height / 2) {
-          insertBefore = sibling;
+          target = sibling;
           break;
         }
       }
-      chainList.insertBefore(this.#activeDragItem, insertBefore);
-      this.#order = Array.from(
-        chainList.children, item => item.dataset.step
+
+      const wouldNoOp = target === item.nextElementSibling
+        || (target === null && item === chainList.lastElementChild);
+      const finalTarget = wouldNoOp ? undefined : target;
+      if (finalTarget === this.#dropTarget) return;
+
+      this.#dropTargetMarker?.classList.remove(
+        'drop-target-before', 'drop-target-after'
       );
+      this.#dropTargetMarker = null;
+
+      if (finalTarget === null) {
+        this.#dropTargetMarker = chainList.lastElementChild;
+        this.#dropTargetMarker.classList.add('drop-target-after');
+      } else if (finalTarget) {
+        this.#dropTargetMarker = finalTarget;
+        this.#dropTargetMarker.classList.add('drop-target-before');
+      }
+      this.#dropTarget = finalTarget;
+    }
+
+    commitDrop(chainList) {
+      const item = this.#activeDragItem;
+      if (!item || this.#dropTarget === undefined) return null;
+
+      chainList.insertBefore(item, this.#dropTarget);
+      this.#order = Array.from(
+        chainList.children, li => li.dataset.step
+      );
+      return item;
+    }
+
+    endDrag() {
+      const item = this.#activeDragItem;
+      if (!item) return;
+
+      this.#dropTargetMarker?.classList.remove(
+        'drop-target-before', 'drop-target-after'
+      );
+      item.classList.remove('active-drag-item');
+      item.style.removeProperty('--drag-offset');
+      this.#activeDragItem = null;
+      this.#dropTarget = undefined;
+      this.#dropTargetMarker = null;
+      this.#startY = 0;
+      this.#initialItemTop = 0;
     }
 
     isOrderCorrect() {
@@ -711,32 +765,73 @@ function buildCausalChains() {
     }
   });
 
-  wrap.addEventListener('dragstart', e => {
+  let activeChain = null;
+  let activeChainList = null;
+  let activePointerId = null;
+
+  wrap.addEventListener('pointerdown', e => {
+    if (!e.isPrimary || e.button !== 0) return;
+
     const chainItem = e.target.closest('.chain-list > li');
     if (!chainItem) return;
 
-    CausalChainFactory
-      .getInstance(chainItem.closest('.chain-list'))
-      .startDrag(chainItem);
+    const chainList = chainItem.closest('.chain-list');
+    for (const el of chainList.querySelectorAll('.just-dropped')) {
+      el.classList.remove('just-dropped');
+    }
+
+    activeChain = CausalChainFactory.getInstance(chainList);
+    activeChainList = chainList;
+    activePointerId = e.pointerId;
+    chainItem.setPointerCapture(e.pointerId);
+    activeChain.startDrag(chainItem, e.clientY);
+    document.documentElement.classList.add('active-chain-drag');
+    chainList.classList.add('dragging-chain');
   });
 
-  wrap.addEventListener('dragend', e => {
-    const chainItem = e.target.closest('.chain-list > li');
-    if (!chainItem) return;
+  wrap.addEventListener('pointermove', e => {
+    if (!activeChain || e.pointerId !== activePointerId) return;
 
-    CausalChainFactory
-      .getInstance(chainItem.closest('.chain-list'))
-      .endDrag();
+    activeChain.dragMove(e.clientY, activeChainList);
   });
 
-  wrap.addEventListener('dragover', e => {
-    e.preventDefault();
-    const chainList = e.target.closest('.chain-list');
-    if (!chainList) return;
+  wrap.addEventListener('pointerup', e => {
+    if (!activeChain || e.pointerId !== activePointerId) return;
 
-    CausalChainFactory
-      .getInstance(chainList)
-      .reorderToward(e.clientY, chainList);
+    const moved = activeChain.commitDrop(activeChainList);
+    if (moved) {
+      moved.addEventListener('animationend', () => {
+        moved.classList.remove('just-dropped');
+      }, { once: true });
+      moved.classList.add('just-dropped');
+    }
+    activeChain.endDrag();
+    document.documentElement.classList.remove('active-chain-drag');
+    activeChainList.classList.remove('dragging-chain');
+    activeChain = null;
+    activeChainList = null;
+    activePointerId = null;
+  });
+
+  const cancelActiveDrag = () => {
+    if (!activeChain) return;
+
+    activeChain.endDrag();
+    document.documentElement.classList.remove('active-chain-drag');
+    activeChainList.classList.remove('dragging-chain');
+    activeChain = null;
+    activeChainList = null;
+    activePointerId = null;
+  };
+
+  wrap.addEventListener('pointercancel', e => {
+    if (e.pointerId !== activePointerId) return;
+
+    cancelActiveDrag();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') cancelActiveDrag();
   });
 }
 
@@ -764,7 +859,6 @@ function renderChainList(chain) {
   const chainList = document.getElementById(chain.id);
   chainList.innerHTML = '';
   const itemTemplate = document.createElement('li');
-  itemTemplate.setAttribute('draggable', 'true');
   chain.currentOrder().forEach(step => {
     const chainItem = itemTemplate.cloneNode(false);
     chainItem.dataset.step = step;

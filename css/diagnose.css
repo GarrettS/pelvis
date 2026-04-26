@@ -67,18 +67,16 @@
 }
 
 .chain-list > li {
+  position: relative;
   background: var(--surface2);
   border-left: 3px solid var(--border);
   padding: .5rem .75rem;
-  margin: .35rem 0;
-  border-radius: 0 4px 4px 0;
+  margin: .5rem .5rem;
+  border-radius: 4px;
   cursor: grab;
   font-size: var(--text-sm);
+  touch-action: none;
   transition: border-color var(--dur-fast);
-}
-
-.chain-list > li:active {
-  cursor: grabbing;
 }
 
 .chain-list > li.correct {
@@ -91,8 +89,57 @@
   background: var(--error-bg);
 }
 
-.chain-list > li.dragging {
-  opacity: .5;
+.chain-list > li.active-drag-item {
+  z-index: 1;
+  opacity: .9;
+  cursor: grabbing;
+  box-shadow: var(--box-shadow-md);
+  transform: translateY(var(--drag-offset, 0px));
+}
+
+.chain-list > li.active-drag-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateY(calc(-1 * var(--drag-offset, 0px)));
+  outline: 2px dashed var(--border);
+  outline-offset: -2px;
+  pointer-events: none;
+}
+
+.chain-list > li.drop-target-before::before,
+.chain-list > li.drop-target-after::before {
+  content: '';
+  position: absolute;
+  left: -.5rem;
+  right: 0;
+  height: .4rem;
+  background: var(--accent);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.chain-list > li.drop-target-before::before {
+  top: -.4rem;
+}
+
+.chain-list > li.drop-target-after::before {
+  bottom: -.4rem;
+}
+
+.chain-list > li.just-dropped {
+  animation: drop-settle var(--dur-slow);
+}
+
+@keyframes drop-settle {
+  from { box-shadow: var(--box-shadow-md); }
+  to { box-shadow: none; }
+}
+
+html.active-chain-drag,
+html.active-chain-drag * {
+  cursor: grabbing;
+  user-select: none;
 }
 
 .scenario-header {

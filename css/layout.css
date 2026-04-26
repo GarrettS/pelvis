@@ -27,6 +27,7 @@
     0 .25rem .5rem rgba(40, 30, 20, .05);
   --dur-fast: 120ms;
   --dur-normal: 200ms;
+  --dur-slow: 600ms;
   --text-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
   --text-sm: clamp(0.875rem, 0.82rem + 0.25vw, 1.0625rem);
   --text-base: clamp(1rem, 0.92rem + 0.35vw, 1.1875rem);
