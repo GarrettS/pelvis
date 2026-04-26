@@ -44,7 +44,7 @@ function initGame() {
     gameState.isAnswered = false;
     const hasMoreSteps = gameState.round2Step < 2;
     const hasMoreScenarios = gameState.scenarioIdx
-      < DATA.game.scenarios.length - 1;
+      < DATA.gameScenarios.length - 1;
     if (gameState.round === 1) {
       gameState.round = 2;
       gameState.round2Step = 0;
@@ -64,7 +64,7 @@ function initGame() {
   function handleGameSubmit() {
     if (gameState.isAnswered) return;
 
-    const s = DATA.game.scenarios[gameState.scenarioIdx];
+    const s = DATA.gameScenarios[gameState.scenarioIdx];
     const q = s.round2[
       ['repositioning', 'postReposition',
         'facilitation'][gameState.round2Step]
@@ -91,12 +91,12 @@ function initGame() {
 }
 
 function renderScenario(wrap) {
-  const s = DATA.game.scenarios[gameState.scenarioIdx];
+  const s = DATA.gameScenarios[gameState.scenarioIdx];
   wrap.innerHTML = '';
 
   const header = document.createElement('div');
   header.className = 'scenario-header';
-  header.textContent = `Scenario ${gameState.scenarioIdx + 1} of ${DATA.game.scenarios.length} — Round ${gameState.round}`;
+  header.textContent = `Scenario ${gameState.scenarioIdx + 1} of ${DATA.gameScenarios.length} — Round ${gameState.round}`;
 
   const scoreEl = document.createElement('div');
   scoreEl.className = 'score-display';
@@ -156,7 +156,7 @@ function handleGameAnswer(wrap, btn) {
   if (gameState.isAnswered) return;
   if (btn.disabled) return;
 
-  const s = DATA.game.scenarios[gameState.scenarioIdx];
+  const s = DATA.gameScenarios[gameState.scenarioIdx];
   if (gameState.round === 1) {
     gradeAnswer(wrap, btn, s.correctPattern, s.explanation);
     return;
@@ -524,7 +524,7 @@ function renderCaseVisit(caseStudy, caseEl) {
   });
 
   caseEl.innerHTML =
-    `<div class="visit-badge">Visit ${visit.visit}</div>`
+    `<div class="visit-badge">Visit ${caseStudy.visitNumber()}</div>`
     + testHTML
     + '<p class="question-stem">' + expandAbbr(visit.question) + '</p>';
   caseEl.appendChild(optWrap);
@@ -931,7 +931,7 @@ function renderTreeNode(node, parent) {
   }
   const qEl = document.createElement('div');
   qEl.className = 'tree-question';
-  qEl.innerHTML = expandAbbr(node.question || node.id);
+  qEl.innerHTML = expandAbbr(node.question);
   parent.appendChild(qEl);
 
   if (!node.branches) return;
