@@ -23,7 +23,7 @@ export async function init() {
   }
   initGame();
   buildCaseStudies();
-  buildCausalChains();
+  setupCausalChains();
   buildDecisionTree();
   buildMuscleMap();
 }
@@ -614,13 +614,13 @@ const CausalChainFactory = (() => {
     #dropTarget;
     #dropTargetMarker = null;
 
-    constructor(id, definition, key) {
+    constructor(id, { steps }, key) {
       if (key !== KEY) throw new Error(
         'CausalChain: use CausalChainFactory.getInstance()'
       );
       this.#id = id;
-      this.#steps = Object.freeze([...definition.steps]);
-      this.#order = shuffle([...definition.steps]);
+      this.#steps = Object.freeze([...steps]);
+      this.#order = shuffle([...steps]);
     }
 
     get id() { return this.#id; }
@@ -738,38 +738,59 @@ const CausalChainFactory = (() => {
   };
 })();
 
-function buildCausalChains() {
+function setupCausalChains() {
+  const wrap = document.getElementById('chains-wrap');
+  wrap.addEventListener('click', handleChainClick);
+  wireChainDrag(wrap);
+  renderCausalChains();
+}
+
+const chainCardText = ({ title, start, end }) => ({ title, start, end });
+
+function renderCausalChains() {
   const wrap = document.getElementById('chains-wrap');
   wrap.innerHTML = '';
   CausalChainFactory.discardAll();
 
   Object.entries(DATA.causalChains).forEach(([id, definition]) => {
     const chain = CausalChainFactory.getInstance(id, definition);
-    wrap.appendChild(buildChainCard(id, definition));
-    renderChainList(chain);
+    const { card, chainListEl } = buildChainCard(chain, chainCardText(definition));
+    wrap.appendChild(card);
+    renderChainList(chain, chainListEl);
   });
+}
 
-  wrap.addEventListener('click', e => {
-    const card = e.target.closest('.card');
-    if (!card) return;
+function handleChainClick(e) {
+  const card = e.target.closest('.card');
+  if (!card) return;
 
-    const chainList = card.querySelector('.chain-list');
-    if (!chainList) return;
+  const chainList = card.querySelector('.chain-list');
+  if (!chainList) return;
 
-    if (e.target.closest('.chain-reset')) {
-      CausalChainFactory.discard(chainList.id);
-      renderChainList(CausalChainFactory.getInstance(chainList));
-      card.querySelector('.chain-feedback').innerHTML = '';
-    } else if (e.target.closest('.chain-check')) {
-      showCheckResult(CausalChainFactory.getInstance(chainList), chainList);
-    }
-  });
+  if (e.target.closest('.chain-reset')) {
+    CausalChainFactory.discard(chainList.id);
+    renderChainList(CausalChainFactory.getInstance(chainList), chainList);
+    card.querySelector('.chain-feedback').innerHTML = '';
+  } else if (e.target.closest('.chain-check')) {
+    showCheckResult(CausalChainFactory.getInstance(chainList), chainList);
+  }
+}
 
+function wireChainDrag(wrap) {
   let activeChain = null;
   let activeChainList = null;
   let activePointerId = null;
 
-  wrap.addEventListener('pointerdown', e => {
+  function cleanup() {
+    activeChain.endDrag();
+    document.documentElement.classList.remove('active-chain-drag');
+    activeChainList.classList.remove('dragging-chain');
+    activeChain = null;
+    activeChainList = null;
+    activePointerId = null;
+  }
+
+  function handlePointerDown(e) {
     if (!e.isPrimary || e.button !== 0) return;
 
     const chainItem = e.target.closest('.chain-list > li');
@@ -787,15 +808,15 @@ function buildCausalChains() {
     activeChain.startDrag(chainItem, e.clientY);
     document.documentElement.classList.add('active-chain-drag');
     chainList.classList.add('dragging-chain');
-  });
+  }
 
-  wrap.addEventListener('pointermove', e => {
+  function handlePointerMove(e) {
     if (!activeChain || e.pointerId !== activePointerId) return;
 
     activeChain.dragMove(e.clientY, activeChainList);
-  });
+  }
 
-  wrap.addEventListener('pointerup', e => {
+  function handlePointerUp(e) {
     if (!activeChain || e.pointerId !== activePointerId) return;
 
     const moved = activeChain.commitDrop(activeChainList);
@@ -805,65 +826,58 @@ function buildCausalChains() {
       }, { once: true });
       moved.classList.add('just-dropped');
     }
-    activeChain.endDrag();
-    document.documentElement.classList.remove('active-chain-drag');
-    activeChainList.classList.remove('dragging-chain');
-    activeChain = null;
-    activeChainList = null;
-    activePointerId = null;
-  });
+    cleanup();
+  }
 
-  const cancelActiveDrag = () => {
+  function handlePointerCancel(e) {
+    if (e.pointerId !== activePointerId) return;
     if (!activeChain) return;
 
-    activeChain.endDrag();
-    document.documentElement.classList.remove('active-chain-drag');
-    activeChainList.classList.remove('dragging-chain');
-    activeChain = null;
-    activeChainList = null;
-    activePointerId = null;
-  };
+    cleanup();
+  }
 
-  wrap.addEventListener('pointercancel', e => {
-    if (e.pointerId !== activePointerId) return;
+  function handleEscKey(e) {
+    if (e.key !== 'Escape') return;
+    if (!activeChain) return;
 
-    cancelActiveDrag();
-  });
+    cleanup();
+  }
 
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') cancelActiveDrag();
-  });
+  wrap.addEventListener('pointerdown', handlePointerDown);
+  wrap.addEventListener('pointermove', handlePointerMove);
+  wrap.addEventListener('pointerup', handlePointerUp);
+  wrap.addEventListener('pointercancel', handlePointerCancel);
+  document.addEventListener('keydown', handleEscKey);
 }
 
-function buildChainCard(id, definition) {
-  const div = document.createElement('div');
-  div.className = 'card';
-  div.innerHTML =
+function buildChainCard(chain, { title, start, end }) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML =
     '<h3 class="chain-title">'
-      + expandAbbr(definition.title) + '</h3>'
+      + expandAbbr(title) + '</h3>'
     + '<div class="chain-subtitle">'
-      + expandAbbr(definition.start) + ' \u2192 '
-      + expandAbbr(definition.end) + '</div>'
-    + '<ol class="chain-list" id="'
-      + id + '"></ol>'
+      + expandAbbr(start) + ' \u2192 '
+      + expandAbbr(end) + '</div>'
+    + '<ol class="chain-list" id="'+ chain.id + '"></ol>'
     + '<div class="btn-row">'
-      + '<button class="btn primary chain-check">'
-      + 'Check Order</button>'
-      + '<button class="btn chain-reset">'
-      + 'Reset</button></div>'
+      + '<button class="btn primary chain-check">Check Order</button>'
+      + '<button class="btn chain-reset">Reset</button></div>'
     + '<div class="feedback-gap chain-feedback"></div>';
-  return div;
+  return {
+    card,
+    chainListEl: card.querySelector('.chain-list')
+  };
 }
 
-function renderChainList(chain) {
-  const chainList = document.getElementById(chain.id);
-  chainList.innerHTML = '';
+function renderChainList(chain, chainListEl) {
+  chainListEl.innerHTML = '';
   const itemTemplate = document.createElement('li');
   chain.currentOrder().forEach(step => {
     const chainItem = itemTemplate.cloneNode(false);
     chainItem.dataset.step = step;
     chainItem.innerHTML = expandAbbr(step);
-    chainList.appendChild(chainItem);
+    chainListEl.appendChild(chainItem);
   });
 }
 
@@ -876,14 +890,12 @@ function showCheckResult(chain, chainList) {
   const card = chainList.closest('.card');
   const feedbackEl = card.querySelector('.chain-feedback');
   feedbackEl.innerHTML = chain.isOrderCorrect()
-    ? '<div class="feedback-box">'
-      + 'Correct order.</div>'
+    ? '<div class="feedback-box">Correct order.</div>'
     : '<div class="feedback-box error">'
       + 'Not quite. Correct order:'
-      + ' <ol class="chain-correct-list">'
-      + chain.correctOrder().map(
-        s => '<li>' + expandAbbr(s) + '</li>'
-      ).join('') + '</ol></div>';
+      + ' <ol class="chain-correct-list"><li>'
+      + chain.correctOrder().map(s => expandAbbr(s))
+        .join('</li><li>') + '</li></ol></div>';
 }
 
 function buildDecisionTree() {
@@ -994,13 +1006,23 @@ function buildMuscleMap() {
   });
 }
 
+function doesEntryMatchQuery(entry, query) {
+  const fields = [
+    entry.muscle, entry.finding,
+    entry.action, entry.meaning,
+    entry.pattern, entry.hierarchyStep, entry.muscles,
+    ...(entry.exercises || [])
+  ];
+  return fields.some(f => f && f.toLowerCase().includes(query));
+}
+
 function renderMuscleView(view, query = '') {
   const wrap = document.getElementById('muscle-map-wrap');
   const entries = DATA.muscleExerciseMap[view] || [];
   wrap.innerHTML = '';
   entries.forEach(entry => {
     const nameKey = entry.muscle || entry.finding || '';
-    if (query && !JSON.stringify(entry).toLowerCase().includes(query)) return;
+    if (query && !doesEntryMatchQuery(entry, query)) return;
     const div = document.createElement('div');
     div.className = 'muscle-entry';
     const exercises = (entry.exercises || []).map(e => `<span class="exercise-tag">${e}</span>`).join('');
