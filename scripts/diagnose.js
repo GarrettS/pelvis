@@ -11,11 +11,6 @@ let gameState = {
   score: { correct: 0, total: 0 },
   isAnswered: false
 };
-let caseState = {
-  visitIdx: [], isAnswered: [],
-  selectedTreatments: []
-};
-
 export async function init() {
   const container = document.getElementById('diagnose-content');
   if (!container) return;
@@ -323,73 +318,183 @@ function renderGameComplete() {
     </div></div>`;
 }
 
+const CaseStudyFactory = (() => {
+  const instances = {};
+  const KEY = Symbol();
+
+  class CaseStudy {
+    #id;
+    #visits;
+    #visitIdx = 0;
+    #isAnswered = false;
+    #selectedTreatments = new Set();
+
+    constructor(id, definition, key) {
+      if (key !== KEY) throw new Error(
+        'CaseStudy: use CaseStudyFactory.getInstance()'
+      );
+      this.#id = id;
+      this.#visits = Object.freeze([...definition.visits]);
+    }
+
+    get id() { return this.#id; }
+    currentVisit() { return this.#visits[this.#visitIdx]; }
+    isComplete() { return this.#visitIdx >= this.#visits.length; }
+    hasMoreVisits() { return this.#visitIdx + 1 < this.#visits.length; }
+    isAnswered() { return this.#isAnswered; }
+    visitNumber() { return this.#visitIdx + 1; }
+    selectedTreatments() { return new Set(this.#selectedTreatments); }
+
+    advanceVisit() {
+      this.#visitIdx++;
+      this.#isAnswered = false;
+      this.#selectedTreatments.clear();
+    }
+
+    markAnswered() {
+      this.#isAnswered = true;
+    }
+
+    toggleTreatment(option) {
+      if (this.#selectedTreatments.has(option)) {
+        this.#selectedTreatments.delete(option);
+        return false;
+      }
+      this.#selectedTreatments.add(option);
+      return true;
+    }
+
+    isAnswerCorrect(text) {
+      return text === this.currentVisit().correct;
+    }
+
+    isTreatmentCorrect() {
+      const correctSet = new Set(this.currentVisit().correctTreatment || []);
+      return this.#selectedTreatments.size === correctSet.size
+        && [...this.#selectedTreatments].every(o => correctSet.has(o));
+    }
+  }
+
+  return {
+    getInstance(elOrId, definition) {
+      const id = elOrId.id || elOrId;
+      if (!instances[id]) {
+        const def = definition ?? DATA.caseStudies[id];
+        if (!def) throw new Error(
+          'CaseStudyFactory: no definition for "' + id + '"'
+        );
+        instances[id] = new CaseStudy(id, def, KEY);
+      }
+      return instances[id];
+    },
+    discard(id) {
+      delete instances[id];
+    },
+    discardAll() {
+      for (const k in instances) delete instances[k];
+    }
+  };
+})();
+
 function buildCaseStudies() {
   const wrap = document.getElementById('case-study-wrap');
   wrap.innerHTML = '';
+  CaseStudyFactory.discardAll();
 
-  DATA.caseStudies.forEach((cs, ci) => {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.innerHTML = `<h3 class="case-title">${cs.title}</h3>`;
-    const inner = document.createElement('div');
-    inner.id = 'case-study-' + ci;
-    div.appendChild(inner);
-    wrap.appendChild(div);
-    caseState.visitIdx[ci] = 0;
-    caseState.isAnswered[ci] = false;
-    caseState.selectedTreatments[ci] = new Set();
-    renderCaseVisit(ci);
+  Object.entries(DATA.caseStudies).forEach(([id, definition]) => {
+    const caseStudy = CaseStudyFactory.getInstance(id, definition);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<h3 class="case-title">${definition.title}</h3>`;
+    const caseEl = document.createElement('div');
+    caseEl.className = 'case-study';
+    caseEl.id = id;
+    card.appendChild(caseEl);
+    wrap.appendChild(card);
+    renderCaseVisit(caseStudy, caseEl);
   });
 
-  wrap.addEventListener('click', (e) => {
+  wrap.addEventListener('click', e => {
     const answerBtn = e.target.closest('.answer-btn');
     if (answerBtn) {
-      handleCaseAnswer(answerBtn);
+      handleAnswerClick(answerBtn);
       return;
     }
-    const id = e.target.id;
-    if (id.startsWith('case-study-restart-')) {
-      const ci = +id.split('-').pop();
-      caseState.visitIdx[ci] = 0;
-      caseState.isAnswered[ci] = false;
-      renderCaseVisit(ci);
-    } else if (id.startsWith('case-study-next-')) {
-      const ci = +id.split('-').pop();
-      caseState.visitIdx[ci]++;
-      caseState.isAnswered[ci] = false;
-      renderCaseVisit(ci);
-    } else if (id.startsWith('case-study-submit-')) {
-      const ci = +id.split('-').pop();
-      gradeTreatment(ci);
+    const caseEl = e.target.closest('.case-study');
+    if (!caseEl) return;
+
+    if (e.target.closest('.case-restart')) {
+      CaseStudyFactory.discard(caseEl.id);
+      renderCaseVisit(CaseStudyFactory.getInstance(caseEl), caseEl);
+    } else if (e.target.closest('.case-next')) {
+      const caseStudy = CaseStudyFactory.getInstance(caseEl);
+      caseStudy.advanceVisit();
+      renderCaseVisit(caseStudy, caseEl);
+    } else if (e.target.closest('.case-submit')) {
+      showTreatmentResult(CaseStudyFactory.getInstance(caseEl), caseEl);
     }
   });
 }
 
-function getCaseIndex(el) {
-  const container = el.closest('[id^="case-study-"]');
-  return +container.id.split('-').pop();
+function handleAnswerClick(btn) {
+  const caseEl = btn.closest('.case-study');
+  if (!caseEl) return;
+
+  const caseStudy = CaseStudyFactory.getInstance(caseEl);
+  if (caseStudy.isAnswered()) {
+    handleTreatmentToggle(caseStudy, btn);
+    return;
+  }
+  if (btn.disabled) return;
+
+  caseStudy.markAnswered();
+  const visit = caseStudy.currentVisit();
+
+  const optWrap = btn.closest('.answer-opts');
+  for (const b of optWrap.children) {
+    if (b.textContent === visit.correct) {
+      b.classList.add('correct');
+    } else if (b === btn) {
+      b.classList.add('incorrect');
+    }
+    b.disabled = true;
+  }
+
+  const isCorrect = caseStudy.isAnswerCorrect(btn.textContent);
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
+  fb.innerHTML = '<strong>'
+    + (isCorrect ? 'Correct.' : 'Incorrect.')
+    + '</strong> ' + expandAbbr(visit.explanation);
+  caseEl.appendChild(fb);
+
+  if (visit.treatmentQuestion && isCorrect) {
+    renderTreatmentQuestion(caseStudy, caseEl);
+  } else {
+    appendNextButton(caseStudy, caseEl);
+  }
 }
 
-function renderCaseVisit(ci) {
-  const cs = DATA.caseStudies[ci];
-  const vi = caseState.visitIdx[ci];
-  const container = document.getElementById(
-    'case-study-' + ci
-  );
+function handleTreatmentToggle(caseStudy, btn) {
+  if (!btn.closest('.treatment-opts')) return;
+  if (btn.disabled) return;
 
-  if (vi >= cs.visits.length) {
-    container.innerHTML =
+  const isNowSelected = caseStudy.toggleTreatment(btn.textContent);
+  btn.classList.toggle('selectedOpt', isNowSelected);
+}
+
+function renderCaseVisit(caseStudy, caseEl) {
+  if (caseStudy.isComplete()) {
+    caseEl.innerHTML =
       `<div class="callout">
         <strong>Case complete.</strong>
         <div class="btn-row">
-          <button class="btn"
-            id="case-study-restart-${ci}">
-            Restart Case</button>
+          <button class="btn case-restart">Restart Case</button>
         </div></div>`;
     return;
   }
 
-  const visit = cs.visits[vi];
+  const visit = caseStudy.currentVisit();
   const testHTML = visit.testResults
     ? '<div class="test-profile">'
       + Object.entries(visit.testResults).map(
@@ -412,66 +517,21 @@ function renderCaseVisit(ci) {
   btnTemplate.className = 'answer-btn';
   const optWrap = document.createElement('div');
   optWrap.className = 'answer-opts';
-  (visit.options || []).forEach((opt) => {
+  (visit.options || []).forEach(opt => {
     const btn = btnTemplate.cloneNode(false);
     btn.textContent = opt;
     optWrap.appendChild(btn);
   });
 
-  container.innerHTML =
+  caseEl.innerHTML =
     `<div class="visit-badge">Visit ${visit.visit}</div>`
     + testHTML
     + '<p class="question-stem">' + expandAbbr(visit.question) + '</p>';
-  container.appendChild(optWrap);
+  caseEl.appendChild(optWrap);
 }
 
-function handleCaseAnswer(btn) {
-  const ci = getCaseIndex(btn);
-  if (caseState.isAnswered[ci]) {
-    handleTreatmentToggle(ci, btn);
-    return;
-  }
-  if (btn.disabled) return;
-
-  caseState.isAnswered[ci] = true;
-  const cs = DATA.caseStudies[ci];
-  const vi = caseState.visitIdx[ci];
-  const visit = cs.visits[vi];
-
-  const optWrap = btn.closest('.answer-opts');
-  for (const b of optWrap.children) {
-    if (b.textContent === visit.correct) {
-      b.classList.add('correct');
-    } else if (b === btn) {
-      b.classList.add('incorrect');
-    }
-    b.disabled = true;
-  }
-
-  const isCorrect = btn.textContent === visit.correct;
-  const container = document.getElementById(
-    'case-study-' + ci
-  );
-  const fb = document.createElement('div');
-  fb.className = 'feedback-box'
-    + (isCorrect ? '' : ' error');
-  fb.innerHTML = '<strong>'
-    + (isCorrect ? 'Correct.' : 'Incorrect.')
-    + '</strong> ' + expandAbbr(visit.explanation);
-  container.appendChild(fb);
-
-  if (visit.treatmentQuestion && isCorrect) {
-    renderTreatmentQuestion(ci, visit);
-  } else {
-    appendNextButton(ci, container);
-  }
-}
-
-function renderTreatmentQuestion(ci, visit) {
-  const container = document.getElementById(
-    'case-study-' + ci
-  );
-  caseState.selectedTreatments[ci] = new Set();
+function renderTreatmentQuestion(caseStudy, caseEl) {
+  const visit = caseStudy.currentVisit();
 
   const treatmentDiv = document.createElement('div');
   treatmentDiv.className = 'treatment-subquestion';
@@ -482,7 +542,7 @@ function renderTreatmentQuestion(ci, visit) {
   optWrap.className = 'answer-opts treatment-opts';
   const btnTemplate = document.createElement('button');
   btnTemplate.className = 'answer-btn';
-  (visit.treatmentOptions || []).forEach((opt) => {
+  (visit.treatmentOptions || []).forEach(opt => {
     const btn = btnTemplate.cloneNode(false);
     btn.textContent = opt;
     optWrap.appendChild(btn);
@@ -490,217 +550,245 @@ function renderTreatmentQuestion(ci, visit) {
   treatmentDiv.appendChild(optWrap);
 
   const submitBtn = document.createElement('button');
-  submitBtn.className = 'btn primary submit-gap';
-  submitBtn.id = 'case-study-submit-' + ci;
+  submitBtn.className = 'btn primary submit-gap case-submit';
   submitBtn.textContent = 'Check';
   treatmentDiv.appendChild(submitBtn);
 
-  container.appendChild(treatmentDiv);
+  caseEl.appendChild(treatmentDiv);
 }
 
-function handleTreatmentToggle(ci, btn) {
-  if (!btn.closest('.treatment-opts')) return;
-  if (btn.disabled) return;
+function showTreatmentResult(caseStudy, caseEl) {
+  const submitBtn = caseEl.querySelector('.case-submit');
+  if (!submitBtn || submitBtn.disabled) return;
+  submitBtn.disabled = true;
 
-  const sel = caseState.selectedTreatments[ci];
-  const val = btn.textContent;
-  if (sel.has(val)) {
-    sel.delete(val);
-    btn.classList.remove('selectedOpt');
-  } else {
-    sel.add(val);
-    btn.classList.add('selectedOpt');
-  }
-}
+  const visit = caseStudy.currentVisit();
+  const isCorrect = caseStudy.isTreatmentCorrect();
+  const correctSet = new Set(visit.correctTreatment || []);
+  const selected = caseStudy.selectedTreatments();
 
-function gradeTreatment(ci) {
-  const cs = DATA.caseStudies[ci];
-  const vi = caseState.visitIdx[ci];
-  const visit = cs.visits[vi];
-  const correctSet = new Set(
-    visit.correctTreatment || []
-  );
-  const sel = caseState.selectedTreatments[ci];
-  const isCorrect = sel.size === correctSet.size
-    && [...sel].every((o) => correctSet.has(o));
-
-  const container = document.getElementById(
-    'case-study-' + ci
-  );
-  const optWrap = container.querySelector(
-    '.treatment-opts'
-  );
+  const optWrap = caseEl.querySelector('.treatment-opts');
   for (const b of optWrap.children) {
     if (correctSet.has(b.textContent)) {
       b.classList.add('correct');
-    } else if (sel.has(b.textContent)) {
+    } else if (selected.has(b.textContent)) {
       b.classList.add('incorrect');
     }
     b.disabled = true;
   }
 
   const fb = document.createElement('div');
-  fb.className = 'feedback-box'
-    + (isCorrect ? '' : ' error');
+  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
   fb.innerHTML = '<strong>'
     + (isCorrect ? 'Correct.' : 'Incorrect.')
     + '</strong> '
     + expandAbbr(visit.treatmentExplanation || '');
-  const treatmentDiv = container.querySelector(
-    '.treatment-subquestion'
-  );
+  const treatmentDiv = caseEl.querySelector('.treatment-subquestion');
   treatmentDiv.appendChild(fb);
-  appendNextButton(ci, treatmentDiv);
+  appendNextButton(caseStudy, treatmentDiv);
 }
 
-function appendNextButton(ci, parent) {
-  const cs = DATA.caseStudies[ci];
-  const vi = caseState.visitIdx[ci];
-  const hasMore = vi + 1 < cs.visits.length;
+function appendNextButton(caseStudy, parent) {
   const btnRow = document.createElement('div');
   btnRow.className = 'btn-row';
   const btn = document.createElement('button');
-  btn.className = 'btn primary';
-  btn.id = 'case-study-next-' + ci;
-  btn.textContent = hasMore
-    ? 'Next Visit (Visit ' + (vi + 2) + ') \u2192'
+  btn.className = 'btn primary case-next';
+  btn.textContent = caseStudy.hasMoreVisits()
+    ? 'Next Visit (Visit ' + (caseStudy.visitNumber() + 1) + ') \u2192'
     : 'Case Complete';
   btnRow.appendChild(btn);
   parent.appendChild(btnRow);
 }
 
+const CausalChainFactory = (() => {
+  const instances = {};
+  const KEY = Symbol();
+
+  class CausalChain {
+    #id;
+    #steps;
+    #order;
+    #activeDragItem = null;
+
+    constructor(id, definition, key) {
+      if (key !== KEY) throw new Error(
+        'CausalChain: use CausalChainFactory.getInstance()'
+      );
+      this.#id = id;
+      this.#steps = Object.freeze([...definition.steps]);
+      this.#order = shuffle([...definition.steps]);
+    }
+
+    get id() { return this.#id; }
+    currentOrder() { return this.#order.slice(); }
+    correctOrder() { return this.#steps; }
+
+    startDrag(chainItem) {
+      this.#activeDragItem = chainItem;
+      chainItem.classList.add('dragging');
+    }
+
+    endDrag() {
+      this.#activeDragItem?.classList.remove('dragging');
+      this.#activeDragItem = null;
+    }
+
+    reorderToward(y, chainList) {
+      if (!this.#activeDragItem) return;
+
+      let insertBefore = null;
+      for (const sibling of chainList.children) {
+        if (sibling === this.#activeDragItem) continue;
+        const box = sibling.getBoundingClientRect();
+        if (y <= box.top + box.height / 2) {
+          insertBefore = sibling;
+          break;
+        }
+      }
+      chainList.insertBefore(this.#activeDragItem, insertBefore);
+      this.#order = Array.from(
+        chainList.children, item => item.dataset.step
+      );
+    }
+
+    checkOrder() {
+      return this.#order.map((step, i) => ({
+        step,
+        isCorrect: step === this.#steps[i]
+      }));
+    }
+  }
+
+  return {
+    getInstance(elOrId, definition) {
+      const id = elOrId.id || elOrId;
+      if (!instances[id]) {
+        const def = definition ?? DATA.causalChains[id];
+        if (!def) throw new Error(
+          'CausalChainFactory: no definition for "' + id + '"'
+        );
+        instances[id] = new CausalChain(id, def, KEY);
+      }
+      return instances[id];
+    },
+    discard(id) {
+      delete instances[id];
+    },
+    discardAll() {
+      for (const k in instances) delete instances[k];
+    }
+  };
+})();
+
 function buildCausalChains() {
   const wrap = document.getElementById('chains-wrap');
   wrap.innerHTML = '';
-  const chainState = [];
+  CausalChainFactory.discardAll();
 
-  DATA.causalChains.forEach((chain, ci) => {
-    const steps = [...chain.steps];
-    chainState[ci] = { steps, order: shuffle(steps) };
-    wrap.appendChild(buildChainCard(chain, ci));
-    renderChainList(ci, chainState[ci]);
-    initChainDrag(ci, chainState[ci]);
+  Object.entries(DATA.causalChains).forEach(([id, definition]) => {
+    const chain = CausalChainFactory.getInstance(id, definition);
+    wrap.appendChild(buildChainCard(id, definition));
+    renderChainList(chain);
   });
 
-  wrap.addEventListener('click', (e) => {
-    const id = e.target.id;
-    if (id.startsWith('chain-check-')) {
-      const ci = +id.split('-').pop();
-      checkChainOrder(ci, chainState[ci]);
-    } else if (id.startsWith('chain-reset-')) {
-      const ci = +id.split('-').pop();
-      chainState[ci].order = shuffle(
-        chainState[ci].steps
-      );
-      renderChainList(ci, chainState[ci]);
-      document.getElementById(
-        'chain-feedback-' + ci
-      ).innerHTML = '';
+  wrap.addEventListener('click', e => {
+    const card = e.target.closest('.card');
+    if (!card) return;
+
+    const chainList = card.querySelector('.chain-list');
+    if (!chainList) return;
+
+    if (e.target.closest('.chain-reset')) {
+      CausalChainFactory.discard(chainList.id);
+      renderChainList(CausalChainFactory.getInstance(chainList));
+      card.querySelector('.chain-feedback').innerHTML = '';
+    } else if (e.target.closest('.chain-check')) {
+      showCheckResult(CausalChainFactory.getInstance(chainList), chainList);
     }
+  });
+
+  wrap.addEventListener('dragstart', e => {
+    const chainItem = e.target.closest('.chain-list > li');
+    if (!chainItem) return;
+
+    CausalChainFactory
+      .getInstance(chainItem.closest('.chain-list'))
+      .startDrag(chainItem);
+  });
+
+  wrap.addEventListener('dragend', e => {
+    const chainItem = e.target.closest('.chain-list > li');
+    if (!chainItem) return;
+
+    CausalChainFactory
+      .getInstance(chainItem.closest('.chain-list'))
+      .endDrag();
+  });
+
+  wrap.addEventListener('dragover', e => {
+    e.preventDefault();
+    const chainList = e.target.closest('.chain-list');
+    if (!chainList) return;
+
+    CausalChainFactory
+      .getInstance(chainList)
+      .reorderToward(e.clientY, chainList);
   });
 }
 
-function buildChainCard(chain, ci) {
+function buildChainCard(id, definition) {
   const div = document.createElement('div');
   div.className = 'card';
   div.innerHTML =
     '<h3 class="chain-title">'
-      + expandAbbr(chain.title) + '</h3>'
+      + expandAbbr(definition.title) + '</h3>'
     + '<div class="chain-subtitle">'
-      + expandAbbr(chain.start) + ' \u2192 '
-      + expandAbbr(chain.end) + '</div>'
-    + '<ul class="chain-list" id="chain-'
-      + ci + '"></ul>'
+      + expandAbbr(definition.start) + ' \u2192 '
+      + expandAbbr(definition.end) + '</div>'
+    + '<ol class="chain-list" id="'
+      + id + '"></ol>'
     + '<div class="btn-row">'
-      + '<button class="btn primary"'
-      + ' id="chain-check-' + ci
-      + '">Check Order</button>'
-      + '<button class="btn"'
-      + ' id="chain-reset-' + ci
-      + '">Reset</button></div>'
-    + '<div class="feedback-gap"'
-      + ' id="chain-feedback-' + ci
-      + '"></div>';
+      + '<button class="btn primary chain-check">'
+      + 'Check Order</button>'
+      + '<button class="btn chain-reset">'
+      + 'Reset</button></div>'
+    + '<div class="feedback-gap chain-feedback"></div>';
   return div;
 }
 
-function renderChainList(ci, state) {
-  const ul = document.getElementById('chain-' + ci);
-  ul.innerHTML = '';
-  const liTemplate = document.createElement('li');
-  liTemplate.className = 'chain-item';
-  liTemplate.setAttribute('draggable', 'true');
-  state.order.forEach((step, i) => {
-    const li = liTemplate.cloneNode(false);
-    li.dataset.step = step;
-    li.innerHTML =
-      '<span class="chain-step-num">'
-      + (i + 1) + '.</span>'
-      + '<span>' + expandAbbr(step) + '</span>';
-    ul.appendChild(li);
+function renderChainList(chain) {
+  const chainList = document.getElementById(chain.id);
+  chainList.innerHTML = '';
+  const itemTemplate = document.createElement('li');
+  itemTemplate.setAttribute('draggable', 'true');
+  chain.currentOrder().forEach(step => {
+    const chainItem = itemTemplate.cloneNode(false);
+    chainItem.dataset.step = step;
+    chainItem.innerHTML = expandAbbr(step);
+    chainList.appendChild(chainItem);
   });
 }
 
-function initChainDrag(ci, state) {
-  const ul = document.getElementById('chain-' + ci);
-  let activeDragItem = null;
-
-  ul.addEventListener('dragstart', (e) => {
-    activeDragItem = e.target;
-    activeDragItem.classList.add('dragging');
-  });
-  ul.addEventListener('dragend', () => {
-    activeDragItem?.classList.remove('dragging');
-    activeDragItem = null;
-  });
-  ul.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    if (!activeDragItem) return;
-
-    let insertBeforeItem = null;
-    for (const sibling of ul.children) {
-      if (sibling === activeDragItem) continue;
-      const box = sibling.getBoundingClientRect();
-      if (e.clientY <= box.top + box.height / 2) {
-        insertBeforeItem = sibling;
-        break;
-      }
-    }
-    if (insertBeforeItem) {
-      ul.insertBefore(
-        activeDragItem, insertBeforeItem
-      );
-    } else {
-      ul.appendChild(activeDragItem);
-    }
-    state.order = Array.from(
-      ul.children, (li) => li.dataset.step
-    );
-  });
-}
-
-function checkChainOrder(ci, state) {
-  const ul = document.getElementById('chain-' + ci);
+function showCheckResult(chain, chainList) {
+  const results = chain.checkOrder();
   let allCorrect = true;
-  for (let i = 0; i < ul.children.length; i++) {
-    const li = ul.children[i];
-    const isCorrect = li.dataset.step
-      === state.steps[i];
-    li.classList.toggle('correct', isCorrect);
-    li.classList.toggle('incorrect', !isCorrect);
+  for (let i = 0; i < chainList.children.length; i++) {
+    const chainItem = chainList.children[i];
+    const isCorrect = results[i].isCorrect;
+    chainItem.classList.toggle('correct', isCorrect);
+    chainItem.classList.toggle('incorrect', !isCorrect);
     if (!isCorrect) allCorrect = false;
   }
-  const feedbackEl = document.getElementById(
-    'chain-feedback-' + ci
-  );
+  const card = chainList.closest('.card');
+  const feedbackEl = card.querySelector('.chain-feedback');
   feedbackEl.innerHTML = allCorrect
     ? '<div class="feedback-box">'
       + 'Correct order.</div>'
     : '<div class="feedback-box error">'
       + 'Not quite. Correct order:'
       + ' <ol class="chain-correct-list">'
-      + state.steps.map(
-        (s) => '<li>' + expandAbbr(s) + '</li>'
+      + chain.correctOrder().map(
+        s => '<li>' + expandAbbr(s) + '</li>'
       ).join('') + '</ol></div>';
 }
 

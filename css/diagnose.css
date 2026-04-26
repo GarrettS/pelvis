@@ -62,10 +62,11 @@
 }
 
 .chain-list {
-  list-style: none;
+  list-style-type: decimal;
+  list-style-position: inside;
 }
 
-.chain-item {
+.chain-list > li {
   background: var(--surface2);
   border-left: 3px solid var(--border);
   padding: .5rem .75rem;
@@ -73,35 +74,25 @@
   border-radius: 0 4px 4px 0;
   cursor: grab;
   font-size: var(--text-sm);
-  display: flex;
-  align-items: center;
-  gap: .5rem;
   transition: border-color var(--dur-fast);
 }
 
-.chain-item:active {
+.chain-list > li:active {
   cursor: grabbing;
 }
 
-.chain-item.correct {
+.chain-list > li.correct {
   border-left-color: var(--correct-border);
   background: var(--correct-bg);
 }
 
-.chain-item.incorrect {
+.chain-list > li.incorrect {
   border-left-color: var(--error-border);
   background: var(--error-bg);
 }
 
-.chain-item.dragging {
+.chain-list > li.dragging {
   opacity: .5;
-}
-
-.chain-step-num {
-  font-family: var(--mono);
-  font-size: var(--text-xs);
-  color: var(--text-dim);
-  min-width: 24px;
 }
 
 .scenario-header {

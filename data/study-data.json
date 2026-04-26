@@ -207,9 +207,8 @@
       }
     ]
   },
-  "causalChains": [
-    {
-      "id": 1,
+  "causalChains": {
+    "diaphragm-to-adt": {
       "title": "From Diaphragm to Positive ADT",
       "start": "Left hemidiaphragm loses ZOA (no liver support)",
       "end": "Positive left ADT",
@@ -221,19 +220,9 @@
         "Femoral head position changes relative to acetabular rim",
         "In sidelying, femur cannot adduct past midline (impingement on acetabular rim)",
         "Positive left ADT"
-      ],
-      "annotations": [
-        "The left diaphragm sits above the stomach/spleen — no solid platform like the liver on the right. It loses dome shape more easily.",
-        "The crura of the diaphragm attach to anterior L1-L3. The psoas attaches to the same vertebrae. When the diaphragm flattens, the crural pull increases lordosis and the psoas shortens in parallel.",
-        "The psoas/iliacus don't just flex the hip — they pull the entire innominate forward. This is a tri-planar event: forward (sagittal), outward (frontal), and rotated (transverse).",
-        "The acetabulum is part of the innominate. When the innominate tips forward, the socket goes with it. The femur didn't move — the socket moved around it.",
-        "With the acetabulum rotated forward, the posterior-inferior femoral neck approximates the anterior-inferior acetabular rim and transverse ligament.",
-        "The ADT positions the femur in adduction. If the acetabulum is forwardly rotated, bone-on-bone contact blocks full adduction.",
-        "A positive ADT confirms the innominate is stuck in anterior rotation. It's a position test, not a flexibility test."
       ]
     },
-    {
-      "id": 2,
+    "outlet-to-padt": {
       "title": "From Outlet Closure to Positive PADT",
       "start": "Left outlet in IsP IR (closed, pelvic floor descended)",
       "end": "Positive left PADT",
@@ -244,18 +233,9 @@
         "Distal iliacus is pulling femur, overriding proximal iliacus inlet adduction",
         "In sidelying, patient cannot lower top knee to mat",
         "Positive left PADT"
-      ],
-      "annotations": [
-        "IsP IR = ischium and pubis in extension, adduction, IR. The bottom ring of the pelvis is squeezed shut.",
-        "The pelvic floor (obturator internus, iliococcygeus, puborectalis, pubococcygeus) is stuck in a descended position — PRI's 'state of inhalation.' It can't cycle.",
-        "Inlet and outlet move in opposite directions. Closed outlet = open inlet. The ilium is abducted (IP ER).",
-        "The iliacus has two functional zones: proximal (acts on inlet — adducts) and distal (acts on femur — flexes). When distal dominates, the femoral pull prevents the inlet from closing.",
-        "The PADT asks the patient to actively adduct: lower the top knee. This requires the inlet to close (IP IR) and the outlet to open (IsP ER). Neither can happen.",
-        "A positive PADT means the pelvic floor can't ascend and the inlet/outlet can't switch. This is the Pelvis Restoration problem."
       ]
     },
-    {
-      "id": 3,
+    "left-aic-to-right-compensation": {
       "title": "From Left AIC to Right Compensatory Position",
       "start": "Left innominate in anterior tilt (L IP ER)",
       "end": "Right innominate in compensatory position (R IP IR)",
@@ -266,18 +246,9 @@
         "Right innominate is loaded in weight-bearing and held posteriorly",
         "Right inlet closes (R IP IR: extension, adduction, IR)",
         "Right outlet opens (R IsP ER: flexion, abduction, ER)"
-      ],
-      "annotations": [
-        "The left innominate rotating forward pulls the sacrum with it into right rotation.",
-        "The lumbar spine follows the sacrum. The thorax compensates. The whole body orients rightward.",
-        "Standing posture shifts right. The right leg becomes the default stance leg.",
-        "Weight-bearing compresses the right SI joint and holds the right innominate in a posteriorly tilted position.",
-        "Right inlet closing is the compensatory mirror of left inlet opening.",
-        "Right outlet opening is why the right pelvic floor is typically in better position than the left in L AIC. The right pelvic diaphragm can ascend."
       ]
     },
-    {
-      "id": 4,
+    "iota-weakness-to-respiratory": {
       "title": "From IO/TA Weakness to Respiratory Dysfunction",
       "start": "Left IO/TAs become weak",
       "end": "Positive right Apical Expansion Test",
@@ -289,19 +260,9 @@
         "Left posterior mediastinum can't expand (air is already anterior)",
         "Right anterior upper chest can't expand (limited by left-dominant inflation pattern)",
         "Positive right Apical Expansion Test"
-      ],
-      "annotations": [
-        "IO/TAs connect the respiratory diaphragm to the pelvis — they're the 'conduit for airflow and pressure regulation' between the two diaphragms.",
-        "Without abdominal wall tension pushing back, the diaphragm has nothing to push against. It flattens. ZOA shrinks.",
-        "A flat diaphragm pushes ribs outward instead of down. The lower ribs on the left flare anteriorly.",
-        "With left ribs flared and left abdominal wall slack, inhalation fills the left anterior chest preferentially.",
-        "Posterior mediastinum expansion requires the diaphragm to descend symmetrically. A flat left diaphragm can't direct air posteriorly.",
-        "The respiratory system compensates asymmetrically. The right anterior upper chest gets restricted.",
-        "The Apical Expansion Test asks: can the patient inhale into the right anterior chest wall? If the left side has monopolized the air space, the answer is no."
       ]
     },
-    {
-      "id": 5,
+    "bpec-to-pubalgia": {
       "title": "From B PEC to Pubalgia",
       "start": "Bilateral PEC pattern (both inlets in IP ER)",
       "end": "Pubic symphysis shearing / pubalgia",
@@ -313,19 +274,9 @@
         "Adductors are lengthened by outlet IsP IR position",
         "Opposing forces create shearing at pubic symphysis",
         "Pubalgia"
-      ],
-      "annotations": [
-        "B PEC = both sides have adopted the anterior tilt. Both ASIS are dropped forward.",
-        "When both inlets open, both outlets close. The ischial tuberosities are squeezed together bilaterally.",
-        "The rectus abdominis spans from ribs to pubis. Bilateral anterior tilt increases the distance between these attachments. The muscle is chronically stretched.",
-        "The PEC (posterior exterior chain) is overactive bilaterally — lats, QL, paraspinals all pulling the spine into extension.",
-        "The adductors attach to the inferior pubic rami. With the ischia adducted (outlet closed), the adductor origin is displaced.",
-        "The pubic symphysis is caught between the eccentrically loaded rectus above and the displaced adductor origins below. Shearing force across the joint.",
-        "Treatment: inhibit anterior inlet/posterior outlet via IO/TAs → maximize inlet extension → maximize L posterior outlet expansion → reciprocal activity."
       ]
     },
-    {
-      "id": 6,
+    "repositioning-to-restoration": {
       "title": "From Repositioning to Pelvis Restoration Decision",
       "start": "Patient presents with + bilateral ADT, + bilateral PADT",
       "end": "Enter Pelvis Restoration program",
@@ -336,17 +287,9 @@
         "The bone is in the right place but the pelvic floor can't cycle",
         "This is a motor control deficit, not a positional problem",
         "Enter Pelvis Restoration program"
-      ],
-      "annotations": [
-        "Repositioning = the starting point. Three techniques per pattern (B PEC/Patho get one set, L AIC gets a different set).",
-        "Negative ADT means the innominate is no longer anteriorly rotated. The femur can adduct freely. The positional problem is resolved.",
-        "Positive PADT means the pelvic floor is still descended. The outlet can't open and the inlet can't close. The bone is in the right place but the muscles can't control it.",
-        "This is the key clinical distinction: ADT tests position. PADT tests function.",
-        "Position is corrected by repositioning. Function is corrected by the Pelvis Restoration facilitation hierarchy.",
-        "If both ADT and PADT had cleared, you'd go to Myokinematic Restoration instead — different course, different problem."
       ]
     }
-  ],
+  },
   "game": {
     "scenarios": [
       {
@@ -760,9 +703,8 @@
       }
     ]
   },
-  "caseStudies": [
-    {
-      "id": 1,
+  "caseStudies": {
+    "bpec-case": {
       "title": "Bilateral PEC Case",
       "visits": [
         {
@@ -880,8 +822,7 @@
         }
       ]
     },
-    {
-      "id": 2,
+    "left-aic-case": {
       "title": "Left AIC Case",
       "visits": [
         {
@@ -950,7 +891,7 @@
         }
       ]
     }
-  ],
+  },
   "decisionTree": {
     "id": "root",
     "question": "Perform ADT bilaterally. What are the results?",
