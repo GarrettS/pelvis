@@ -975,6 +975,7 @@ function resolveSubviewLink(viewTabs) {
 
 function buildMuscleMap() {
   const viewTabs = document.getElementById('muscle-view-tabs');
+  const search = document.getElementById('muscle-search');
   let activeViewTab = viewTabs.querySelector('.subview-tab.activeTab');
   let currentMView;
 
@@ -990,14 +991,13 @@ function buildMuscleMap() {
     }
     if (view !== currentMView) {
       currentMView = view;
-      renderMuscleView(currentMView);
+      renderMuscleView(currentMView, search.value.toLowerCase());
     }
   }
 
   applySubview();
   window.addEventListener('hashchange', applySubview);
 
-  const search = document.getElementById('muscle-search');
   search.addEventListener('input', () =>
     renderMuscleView(currentMView, search.value.toLowerCase())
   );
@@ -1013,7 +1013,8 @@ function doesEntryMatchQuery(entry, query) {
     entry.pattern, entry.hierarchyStep, entry.muscles,
     ...(entry.exercises || [])
   ];
-  return fields.some(f => f && f.toLowerCase().includes(query));
+  return fields.some((field) => field
+    && expandAbbr(String(field)).toLowerCase().includes(query));
 }
 
 function renderMuscleView(view, query = '') {
