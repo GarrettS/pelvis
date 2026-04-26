@@ -13,6 +13,7 @@ const CaseStudyFactory = (() => {
     #visitIdx = 0;
     #isAnswered = false;
     #selectedTreatments = new Set();
+    #correctTreatmentSet;
 
     constructor(id, definition, key) {
       if (key !== KEY) throw new Error(
@@ -20,6 +21,7 @@ const CaseStudyFactory = (() => {
       );
       this.#id = id;
       this.#visits = Object.freeze([...definition.visits]);
+      this.#cacheCorrectTreatmentSet();
     }
 
     get id() { return this.#id; }
@@ -28,12 +30,12 @@ const CaseStudyFactory = (() => {
     hasMoreVisits() { return this.#visitIdx + 1 < this.#visits.length; }
     isAnswered() { return this.#isAnswered; }
     visitNumber() { return this.#visitIdx + 1; }
-    selectedTreatments() { return new Set(this.#selectedTreatments); }
 
     advanceVisit() {
       this.#visitIdx++;
       this.#isAnswered = false;
       this.#selectedTreatments.clear();
+      this.#cacheCorrectTreatmentSet();
     }
 
     markAnswered() {
@@ -53,10 +55,23 @@ const CaseStudyFactory = (() => {
       return text === this.currentVisit().correct;
     }
 
+    isCorrectTreatment(option) {
+      return this.#correctTreatmentSet.has(option);
+    }
+
+    isSelectedTreatment(option) {
+      return this.#selectedTreatments.has(option);
+    }
+
     isTreatmentCorrect() {
-      const correctSet = new Set(this.currentVisit().correctTreatment || []);
-      return this.#selectedTreatments.size === correctSet.size
-        && [...this.#selectedTreatments].every(o => correctSet.has(o));
+      return this.#selectedTreatments.size === this.#correctTreatmentSet.size
+        && this.#selectedTreatments.isSubsetOf(this.#correctTreatmentSet);
+    }
+
+    #cacheCorrectTreatmentSet() {
+      this.#correctTreatmentSet = new Set(
+        this.currentVisit()?.correctTreatment || []
+      );
     }
   }
 
@@ -254,14 +269,12 @@ function showTreatmentResult(caseStudy, caseEl) {
 
   const visit = caseStudy.currentVisit();
   const isCorrect = caseStudy.isTreatmentCorrect();
-  const correctSet = new Set(visit.correctTreatment || []);
-  const selected = caseStudy.selectedTreatments();
 
   const optWrap = caseEl.querySelector('.treatment-opts');
   for (const b of optWrap.children) {
-    if (correctSet.has(b.textContent)) {
+    if (caseStudy.isCorrectTreatment(b.textContent)) {
       b.classList.add('correct');
-    } else if (selected.has(b.textContent)) {
+    } else if (caseStudy.isSelectedTreatment(b.textContent)) {
       b.classList.add('incorrect');
     }
     b.disabled = true;

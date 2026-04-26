@@ -105,20 +105,17 @@ function renderRound1(wrap, s) {
   const card = document.createElement('div');
   card.className = 'card';
 
+  const itemClass = { '+': 'positive', '−': 'negative' };
   let profileHTML = '<div class="card-label">'
     + 'Test Profile</div><div class="test-profile">';
   Object.entries(s.testProfile).forEach(
     ([test, val]) => {
-      const isPos = String(val).startsWith('+');
-      const isNeg = String(val).startsWith('−')
-        || String(val).startsWith('-');
-      const cls = isPos ? 'positive'
-        : isNeg ? 'negative' : '';
+      const cls = itemClass[val[0]] || '';
       profileHTML += '<div class="test-item">'
         + '<div class="test-item-name">'
         + expandAbbr(test) + '</div>'
         + '<div class="test-item-val ' + cls + '">'
-        + expandAbbr(String(val)) + '</div></div>';
+        + expandAbbr(val) + '</div></div>';
     }
   );
   profileHTML += '</div>';
@@ -153,11 +150,9 @@ function isMultiSelect(q) {
   return Array.isArray(q.correct);
 }
 
-function isMultiSelectionCorrect(q, selected) {
-  const correctSet = new Set(q.correct);
-  return selected.size === correctSet.size
-    && [...selected].every((o) => correctSet.has(o));
-}
+const isMultiSelectionCorrect = (correctSet, selected) =>
+  selected.size === correctSet.size
+  && selected.isSubsetOf(correctSet);
 
 function toggleSelection(btn, selected) {
   const chosen = btn.textContent;
@@ -268,10 +263,10 @@ function handleMultiSelectSubmit(wrap, question) {
   gameState.isAnswered = true;
   gameState.score.total++;
   const sel = gameState.selectedOpts;
-  const isCorrect = isMultiSelectionCorrect(question, sel);
+  const correctSet = new Set(question.correct);
+  const isCorrect = isMultiSelectionCorrect(correctSet, sel);
   if (isCorrect) gameState.score.correct++;
 
-  const correctSet = new Set(question.correct);
   const optWrap = wrap.querySelector('.answer-opts');
   for (const b of optWrap.children) {
     if (correctSet.has(b.textContent)) {
@@ -299,8 +294,7 @@ function renderGameComplete() {
   const wrap = document.getElementById('game-wrap');
   wrap.innerHTML = `<div class="callout">
     <strong>Game complete.</strong>
-    Final score: ${gameState.score.correct}
-    / ${gameState.score.total}.
+    ${scoreText()}.
     <div class="btn-row">
       <button class="btn primary"
         id="game-restart">Restart</button>
