@@ -1,6 +1,6 @@
 let cached = null;
 
-export function getStudyData() {
+function load() {
   if (cached) return cached;
 
   cached = fetch('data/study-data.json')
@@ -16,3 +16,14 @@ export function getStudyData() {
     });
   return cached;
 }
+
+export function getStudyData() {
+  return load();
+}
+
+export const getCausalChains      = async () => (await load()).causalChains;
+export const getCaseStudies       = async () => (await load()).caseStudies;
+export const getGameScenarios     = async () => (await load()).gameScenarios;
+export const getDecisionTree      = async () => (await load()).decisionTree;
+export const getMuscleExerciseMap = async () => (await load()).muscleExerciseMap;
+export const getTranslations      = async () => (await load()).translationMap;

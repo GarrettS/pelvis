@@ -1,9 +1,9 @@
 import { showFetchError } from "./load-errors.js";
-import { getStudyData } from './study-data-cache.js';
+import { getTranslations } from './study-data-cache.js';
 import { expandAbbr } from './abbr-expand.js';
 
 let JOINTS = [];
-let DATA = {};
+let translations = [];
 const KEYS = ['joint', 'type', 'motion', 'positions', 'role'];
 
 function buildJointsView() {
@@ -38,7 +38,7 @@ function buildTranslationTable() {
   const cards = document.getElementById('translation-cards');
   const rowTpl = document.getElementById('translation-row-tpl').content;
   const cardTpl = document.getElementById('translation-card-tpl').content;
-  const rows = DATA.translationMap;
+  const rows = translations;
 
   const ROW_KEYS = [
     'priTerm', 'realStructure', 'whatPriRenamed',
@@ -100,7 +100,7 @@ export async function init() {
     return;
   }
   try {
-    DATA = await getStudyData();
+    translations = await getTranslations();
   } catch (cause) {
     showFetchError(container, 'study-data.json', cause);
     return;
