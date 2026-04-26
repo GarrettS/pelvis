@@ -73,9 +73,8 @@ function buildTranslationTable() {
   searchInput.addEventListener('input', () => {
     const q = searchInput.value.toLowerCase();
     const filtered = q ? rows.filter((r) =>
-      (r.priTerm + r.realStructure + r.whatPriRenamed +
-        r.whatActuallyHappened + r.standardTerm + r.encodedTreatment
-      ).toLowerCase().includes(q)
+      ROW_KEYS.some((k) => r[k]
+        && expandAbbr(r[k]).toLowerCase().includes(q))
     ) : rows;
     renderRows(filtered);
   });

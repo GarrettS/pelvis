@@ -17,6 +17,7 @@ function load() {
   return cached;
 }
 
+export const prefetchStudyData    = () => load();
 export const getCausalChains      = async () => (await load()).causalChains;
 export const getCaseStudies       = async () => (await load()).caseStudies;
 export const getGameScenarios     = async () => (await load()).gameScenarios;
