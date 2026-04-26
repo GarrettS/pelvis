@@ -651,7 +651,11 @@ const CausalChainFactory = (() => {
       );
     }
 
-    checkOrder() {
+    isOrderCorrect() {
+      return this.#order.every((step, i) => step === this.#steps[i]);
+    }
+
+    orderResults() {
       return this.#order.map((step, i) => ({
         step,
         isCorrect: step === this.#steps[i]
@@ -770,18 +774,14 @@ function renderChainList(chain) {
 }
 
 function showCheckResult(chain, chainList) {
-  const results = chain.checkOrder();
-  let allCorrect = true;
-  for (let i = 0; i < chainList.children.length; i++) {
-    const chainItem = chainList.children[i];
-    const isCorrect = results[i].isCorrect;
-    chainItem.classList.toggle('correct', isCorrect);
-    chainItem.classList.toggle('incorrect', !isCorrect);
-    if (!isCorrect) allCorrect = false;
-  }
+  const results = chain.orderResults();
+  [...chainList.children].forEach((chainItem, i) => {
+    chainItem.classList.toggle('correct', results[i].isCorrect);
+    chainItem.classList.toggle('incorrect', !results[i].isCorrect);
+  });
   const card = chainList.closest('.card');
   const feedbackEl = card.querySelector('.chain-feedback');
-  feedbackEl.innerHTML = allCorrect
+  feedbackEl.innerHTML = chain.isOrderCorrect()
     ? '<div class="feedback-box">'
       + 'Correct order.</div>'
     : '<div class="feedback-box error">'
