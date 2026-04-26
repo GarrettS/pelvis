@@ -1,12 +1,13 @@
 import {getGameScenarios} from './study-data-cache.js';
 import {expandAbbr} from './abbr-expand.js';
 
-const ROUND2_STEPS = ['repositioning', 'postReposition', 'facilitation'];
-const ROUND2_STEP_LABELS = [
-  'Repositioning',
-  'Post-Repositioning Program',
-  'Facilitation'
+const ROUND2_STEPS = [
+  { key: 'repositioning',  label: 'Repositioning' },
+  { key: 'postReposition', label: 'Post-Repositioning Program' },
+  { key: 'facilitation',   label: 'Facilitation' }
 ];
+
+const currentRound2Step = () => ROUND2_STEPS[gameState.round2Step];
 
 let scenarios = [];
 let gameState = {
@@ -56,7 +57,7 @@ export async function setupGame() {
     if (gameState.isAnswered) return;
 
     const s = scenarios[gameState.scenarioIdx];
-    const q = s.round2[ROUND2_STEPS[gameState.round2Step]];
+    const q = s.round2[currentRound2Step().key];
     handleMultiSelectSubmit(wrap, q);
   }
 
@@ -178,8 +179,7 @@ function handleGameAnswer(wrap, btn) {
     gradeAnswer(wrap, btn, s.correctPattern, s.explanation);
     return;
   }
-  const step = ROUND2_STEPS[gameState.round2Step];
-  const q = s.round2[step];
+  const q = s.round2[currentRound2Step().key];
   if (isMultiSelect(q)) {
     toggleSelection(btn, gameState.selectedOpts);
     return;
@@ -215,9 +215,8 @@ function gradeAnswer(wrap, btn, correct, explanation) {
 }
 
 function renderRound2(wrap, s) {
-  const r2 = s.round2;
-  const step = ROUND2_STEPS[gameState.round2Step];
-  const q = r2[step];
+  const step = currentRound2Step();
+  const q = s.round2[step.key];
   if (!q) { renderGameComplete(); return; }
 
   const card = document.createElement('div');
@@ -225,7 +224,7 @@ function renderRound2(wrap, s) {
 
   const stepLabel = document.createElement('div');
   stepLabel.className = 'card-label';
-  stepLabel.textContent = `Round 2 — Step ${gameState.round2Step + 1}/3: ${ROUND2_STEP_LABELS[gameState.round2Step]}`;
+  stepLabel.textContent = `Round 2 — Step ${gameState.round2Step + 1}/3: ${step.label}`;
   card.appendChild(stepLabel);
 
   const qText = document.createElement('p');
