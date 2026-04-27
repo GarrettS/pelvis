@@ -14,19 +14,52 @@ query methods. Case studies do not share the drag-specific Active
 Object fields, the document-level Esc handler, or the pointer
 lifecycle.
 
-Caveat: setupCausalChains() binds its listeners inline rather than
-splitting one-shot setup from repeatable render. setupCausalChains
-runs once per tab activation via navigation-tabs's lazy-init gate,
-so this is latent in the success path. There is a known
-retry-duplication path on partial-init failure (init throws after
-some setup*() calls have bound listeners → navigation-tabs
-releases the gate → revisit re-binds). Deferred; not a live bug
-in normal flow.
+Reference: layering doctrine in prd/architecture/layering.md.
+
+Pillar mapping
+--------------
+Module code  — scripts/diagnose-causal-chains.js (the setupX, the
+               click/pointer/keydown listener wiring, the build /
+               render functions). Currently co-located with the
+               ADT in the same file; future cleanup may extract.
+ADT          — CausalChain class + CausalChainFactory IIFE,
+               co-located in scripts/diagnose-causal-chains.js.
+Data         — currently a slice of data/study-data.json reached
+               via getCausalChains(). MIGRATING to its own file
+               data/diagnose-causal-chains.json per the migration
+               plan.
+Loader       — currently scripts/study-data-cache.js's
+               getCausalChains() accessor. MIGRATING to a direct
+               loadJson() call inside setupCausalChains.
+
+Current gaps vs the doctrine
+----------------------------
+1. Multi-key vendor loader. scripts/study-data-cache.js holds a
+   shared load() Promise behind 6 named accessors. Six diagnose-tab
+   files all import from it. Anti-pattern: dependency hub.
+   Tracked: prd/architecture/diagnose-data-boundary-migration.md.
+
+2. Junk-drawer JSON. data/study-data.json holds 6 unrelated top-level
+   keys (5 diagnose, 1 nomenclature). Anti-pattern: junk-drawer data.
+   Tracked: same migration plan.
+
+3. Pillar mixing within feature modules. The ADT and module code
+   share a single file. Acceptable today (tight coupling); future
+   cleanup if coupling loosens or the ADT is reused.
+
+4. Listener-bind retry-duplication. setupCausalChains() binds its
+   listeners inline; if init throws after some setup*() bound
+   listeners and navigation-tabs releases the gate, revisit
+   re-binds. Latent (not a live bug in normal flow); structurally
+   addressed once each setupX() runs exactly once per page load,
+   which the navigation-tabs gate guarantees in the success path.
 
 
 Init
 ----
-setupCausalChains() ─┬─► await getCausalChains() (cached slice)
+setupCausalChains() ─┬─► await loader (today: getCausalChains();
+                     │   target: loadJson('./data/diagnose-causal-
+                     │   chains.json'))
                      ├─► attach listeners on #chains-wrap + document
                      ├─► populate CausalChainFactory pool
                      └─► render <ol class="chain-list" id="..."> + <li>s
