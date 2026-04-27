@@ -62,6 +62,46 @@ ready. setupX awaits the loader before calling render. Listeners can be
 bound before data is available — they cannot fire until rendered content
 exists for the user to interact with.
 
+### Listener bind locations
+
+Where listeners get bound is a judgment call, not a fixed rule. The
+doctrine names the trade-offs; the engineer picks per-feature. Two
+positions are valid:
+
+**Module-top.** Bind statements run when the module body evaluates,
+structurally one-shot by language semantics.
+
+- Buys: listener-bind is exactly-once-per-module-load by construction;
+  no flag needed.
+- Costs: module body becomes impure. `import`-ing the module triggers
+  `document.getElementById(...)` and `addEventListener(...)` as side
+  effects. Tests and any non-DOM caller must work around that.
+
+**Inside `setupX()`, guarded for idempotence.** Listener bind happens
+on the first `setupX()` call; subsequent calls skip via a per-module
+flag (`let listenersBound = false;`) or an equivalent `bindOnce`
+helper.
+
+- Buys: imports stay pure (no DOM at module-top). Listener-bind stays
+  idempotent against the retry path —
+  `navigation-tabs.js:71-74` deletes the `initialized` gate on
+  `init()` rejection, so revisit re-runs every `setupX()`.
+- Costs: per-module flag (or shared helper) is the bookkeeping cost.
+
+The choice is per-feature. The feature's HLA artifact records the
+chosen location and the local reasoning. The same project can have
+some features bind at module-top and others bind inside setupX; that
+is not a contradiction, it is each feature making the call that fits
+its constraints.
+
+Two anti-shapes:
+
+- **Module-top binding without acknowledging the impure-import property.**
+  Tests and tooling will hit it. Document the trade in the feature's HLA.
+- **Setup-time binding without an idempotency guard.** Init rejection
+  triggers retry; unguarded bind statements re-bind on
+  already-successful sections, accumulating listeners.
+
 ## Pillar 2: ADTs
 
 **Role:** encapsulate a domain entity with state and behavior. Own the DOM
@@ -147,9 +187,14 @@ data, OR as a tiny shared utility for the fetch+parse pattern itself
   benefit.
 
 **Caching:** rely on the service worker for HTTP-layer caching across page
-loads. Within a page load, each `setupX()` is called exactly once
-(navigation-tabs's `initialized` Set gates re-entry), so JS-level
-deduplication is not needed.
+loads. Within a page load, each `setupX()` is typically called once on
+the success path (navigation-tabs's `initialized` Set gates re-entry).
+Re-entry IS possible: `navigation-tabs.js` deletes the gate when
+`init()` rejects, so a programming bug or escaped rejection causes
+revisit to run `init()` again. JS-level deduplication is unnecessary
+even so — second-call refetches are fine if every other failure mode
+is handled deliberately. What matters is that listener-bind sites
+inside `setupX()` are idempotent (see "Listener bind locations" below).
 
 **Anti-pattern: middleman accessor.** A function whose body is
 `async () => (await load()).slice` is a middleman: it adds a function call

@@ -248,7 +248,7 @@ Worth keeping in mind beyond the bounds:
   fetch. Empty sections during the small window between tab activation and
   data arrival are a UX cost.
 - **Load order may need consideration during refactor.** Currently the
-  proposal fires all 5 setupX in parallel via Promise.allSettled. If
+  proposal fires all 5 setupX in parallel via `Promise.all`. If
   user-attention focus warrants it (e.g., the user is most likely looking
   at the top section), prioritizing that section's data load — by ordering
   the awaits, prefetching from index.html, or showing skeleton loaders —
