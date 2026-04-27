@@ -78,7 +78,7 @@ const CaseStudyFactory = (() => {
   return {
     getInstance(elOrId, definition) {
       const id = elOrId.id || elOrId;
-      if (!instances[id]) {
+      if (!(id in instances)) {
         // Fallback for the discard-and-recreate restart path: the
         // delegated click handler has the element but not the
         // definition, so look it up from the cached slice.

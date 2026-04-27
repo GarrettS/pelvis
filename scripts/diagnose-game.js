@@ -198,8 +198,7 @@ function gradeAnswer(wrap, btn, correct, explanation) {
 
   const card = btn.closest('.card');
   const fb = document.createElement('div');
-  fb.className = 'feedback-box'
-    + (isCorrect ? '' : ' error');
+  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
   const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
   fb.innerHTML = '<strong>' + verdict + '</strong> '
     + expandAbbr(explanation);
