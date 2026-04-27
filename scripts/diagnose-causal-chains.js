@@ -2,6 +2,7 @@ import {getCausalChains} from './study-data-cache.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 
+let listenersBound = false;
 let causalChains = {};
 
 const CausalChainFactory = (() => {
@@ -151,8 +152,11 @@ export async function setupCausalChains() {
   causalChains = await getCausalChains();
 
   const wrap = document.getElementById('chains-wrap');
-  wrap.addEventListener('click', handleChainClick);
-  wireChainDrag(wrap);
+  if (!listenersBound) {
+    wrap.addEventListener('click', handleChainClick);
+    wireChainDrag(wrap);
+    listenersBound = true;
+  }
   renderCausalChains();
 }
 

@@ -1,6 +1,7 @@
 import {expandAbbr} from './abbr-expand.js';
 import {getCaseStudies} from './study-data-cache.js';
 
+let listenersBound = false;
 let caseStudies = {};
 
 const CaseStudyFactory = (() => {
@@ -119,26 +120,29 @@ export async function setupCaseStudies() {
     renderCaseVisit(caseStudy, caseEl);
   });
 
-  wrap.addEventListener('click', (e) => {
-    const answerBtn = e.target.closest('.answer-btn');
-    if (answerBtn) {
-      handleAnswerClick(answerBtn);
-      return;
-    }
-    const caseEl = e.target.closest('.case-study');
-    if (!caseEl) return;
+  if (!listenersBound) {
+    wrap.addEventListener('click', (e) => {
+      const answerBtn = e.target.closest('.answer-btn');
+      if (answerBtn) {
+        handleAnswerClick(answerBtn);
+        return;
+      }
+      const caseEl = e.target.closest('.case-study');
+      if (!caseEl) return;
 
-    if (e.target.closest('.case-restart')) {
-      CaseStudyFactory.discard(caseEl.id);
-      renderCaseVisit(CaseStudyFactory.getInstance(caseEl), caseEl);
-    } else if (e.target.closest('.case-next')) {
-      const caseStudy = CaseStudyFactory.getInstance(caseEl);
-      caseStudy.advanceVisit();
-      renderCaseVisit(caseStudy, caseEl);
-    } else if (e.target.closest('.case-submit')) {
-      showTreatmentResult(CaseStudyFactory.getInstance(caseEl), caseEl);
-    }
-  });
+      if (e.target.closest('.case-restart')) {
+        CaseStudyFactory.discard(caseEl.id);
+        renderCaseVisit(CaseStudyFactory.getInstance(caseEl), caseEl);
+      } else if (e.target.closest('.case-next')) {
+        const caseStudy = CaseStudyFactory.getInstance(caseEl);
+        caseStudy.advanceVisit();
+        renderCaseVisit(caseStudy, caseEl);
+      } else if (e.target.closest('.case-submit')) {
+        showTreatmentResult(CaseStudyFactory.getInstance(caseEl), caseEl);
+      }
+    });
+    listenersBound = true;
+  }
 }
 
 function handleAnswerClick(btn) {

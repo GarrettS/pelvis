@@ -1,6 +1,8 @@
 import {getDecisionTree} from './study-data-cache.js';
 import {expandAbbr} from './abbr-expand.js';
 
+let listenersBound = false;
+
 export async function setupDecisionTree() {
   const tree = await getDecisionTree();
 
@@ -8,12 +10,15 @@ export async function setupDecisionTree() {
   wrap.innerHTML = '';
   renderTreeNode(tree, wrap);
 
-  wrap.addEventListener('click', (e) => {
-    const toggle = e.target.closest('.tree-answer-toggle');
-    if (!toggle) return;
+  if (!listenersBound) {
+    wrap.addEventListener('click', (e) => {
+      const toggle = e.target.closest('.tree-answer-toggle');
+      if (!toggle) return;
 
-    toggleTreeBranch(toggle);
-  });
+      toggleTreeBranch(toggle);
+    });
+    listenersBound = true;
+  }
 }
 
 function toggleTreeBranch(toggle) {

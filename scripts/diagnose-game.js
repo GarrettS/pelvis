@@ -9,6 +9,7 @@ const ROUND2_STEPS = [
 
 const currentRound2Step = () => ROUND2_STEPS[gameState.round2Step];
 
+let listenersBound = false;
 let scenarios = [];
 let gameState = {
   scenarioIdx: 0,
@@ -67,14 +68,17 @@ export async function setupGame() {
     'game-submit': handleGameSubmit
   };
 
-  wrap.addEventListener('click', (e) => {
-    const answerBtn = e.target.closest('.answer-btn');
-    if (answerBtn) {
-      handleGameAnswer(wrap, answerBtn);
-      return;
-    }
-    GAME_DISPATCH[e.target.id]?.();
-  });
+  if (!listenersBound) {
+    wrap.addEventListener('click', (e) => {
+      const answerBtn = e.target.closest('.answer-btn');
+      if (answerBtn) {
+        handleGameAnswer(wrap, answerBtn);
+        return;
+      }
+      GAME_DISPATCH[e.target.id]?.();
+    });
+    listenersBound = true;
+  }
 
   resetGame();
 }

@@ -1,6 +1,7 @@
 import {getMuscleExerciseMap} from './study-data-cache.js';
 import {expandAbbr} from './abbr-expand.js';
 
+let listenersBound = false;
 let muscleExerciseMap = {};
 
 export async function setupMuscleMap() {
@@ -28,14 +29,17 @@ export async function setupMuscleMap() {
   }
 
   applySubview();
-  window.addEventListener('hashchange', applySubview);
 
-  search.addEventListener('input', () =>
-    renderMuscleView(currentMView, search.value.toLowerCase())
-  );
-  search.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') e.preventDefault();
-  });
+  if (!listenersBound) {
+    window.addEventListener('hashchange', applySubview);
+    search.addEventListener('input', () =>
+      renderMuscleView(currentMView, search.value.toLowerCase())
+    );
+    search.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') e.preventDefault();
+    });
+    listenersBound = true;
+  }
 }
 
 function getSubviewFromHash(url) {
