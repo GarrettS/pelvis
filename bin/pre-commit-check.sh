@@ -226,6 +226,25 @@ if [ -f sw.js ]; then
   else
     echo -e "${GREEN}PASS${NC}  All sw.js precache entries exist"
   fi
+
+  # Reverse direction: every script/css/data file should be in sw.js.
+  PRECACHE_LIST=$(grep -oE "'\.\/[^']+'" sw.js | tr -d "'")
+  MISSING_FROM_PRECACHE=""
+  while IFS= read -r f; do
+    expected="./$f"
+    if ! echo "$PRECACHE_LIST" | grep -qxF "$expected"; then
+      MISSING_FROM_PRECACHE="${MISSING_FROM_PRECACHE}  ${f}\n"
+    fi
+  done < <(find scripts css data -type f \
+    \( -name '*.js' -o -name '*.css' -o -name '*.json' \) 2>/dev/null)
+
+  if [ -n "$MISSING_FROM_PRECACHE" ]; then
+    echo -e "${RED}FAIL${NC}  Files exist but are not in sw.js precache"
+    echo -e "$MISSING_FROM_PRECACHE"
+    FAIL=1
+  else
+    echo -e "${GREEN}PASS${NC}  All scripts/css/data files are in sw.js precache"
+  fi
 fi
 
 # Flag files in img/ and data/ not referenced by app code.

@@ -2,7 +2,7 @@
  * Root-scoped: browsers restrict SW scope to its directory and below.
  * GitHub Pages does not support Service-Worker-Allowed header.
  */
-const CACHE_VERSION = 'v23';
+const CACHE_VERSION = 'v24';
 
 const PRECACHE_URLS = [
   './',
@@ -25,6 +25,11 @@ const PRECACHE_URLS = [
   './scripts/anatomize.js',
   './scripts/decoder.js',
   './scripts/diagnose.js',
+  './scripts/diagnose-case-studies.js',
+  './scripts/diagnose-causal-chains.js',
+  './scripts/diagnose-decision-tree.js',
+  './scripts/diagnose-game.js',
+  './scripts/diagnose-muscle-map.js',
   './scripts/equivalence.js',
   './scripts/equivalence-quiz.js',
   './scripts/load-errors.js',
