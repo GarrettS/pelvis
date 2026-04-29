@@ -32,10 +32,15 @@
     },
     "aic-biceps-femoris": {
       "label": "Biceps Femoris",
-      "connection": null,
+      "terminus": "(long head — terminal)",
       "priColor": "pri-brown",
       "anchor": {"anterior": [34.2, 70.7], "posterior": [62.6, 67.6]}
     }
+  },
+  "fieldLabels": {
+    "role": "Role",
+    "pattern": "L AIC Pattern",
+    "correction": "Correction"
   },
   "detail": {
     "aic-diaphragm": {
