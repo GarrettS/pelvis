@@ -12,7 +12,7 @@ Read this file first on every task. Project rules in this file and in `~/.web-xp
 - Mirror the project-specific workflow and guardrails defined in `claude.md` unless the user directs otherwise.
 - Keep terminology aligned with the project PRD and existing UI labels.
 - Verify claims against the current codebase before reporting them as true.
-- Run appropriate verification before closing a code task.
+- Run appropriate verification before closing a code change.
 
 ## Agent Handoff
 

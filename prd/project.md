@@ -8,6 +8,8 @@ An interactive study tool for the PRI Pelvis Restoration certification exam. Sin
 This project follows [Web XP](https://github.com/GarrettS/web-xp), installed at `~/.web-xp/`:
 - **`~/.web-xp/code-guidelines.md`** — what the code looks like. Principles, patterns, language rules, formatting.
 - **`~/.web-xp/code-philosophy.md`** — why the standards are structured this way.
+- wrap css and js to 88 chars. Don't be overly eager and wrap shorter than necessary.
+- prefer double quotes for non-template strings that do not contain quotation marks.
 
 This file (`project.md`) is the project overlay. Project-specific decisions live here, not in a fork of the standards. When this overlay overrides a default, it states which rule is overridden and why.
 
