@@ -32,6 +32,18 @@
   text-align: left;
   transition: all var(--dur-fast);
   width: 100%;
+  list-style: none;
+}
+
+.tree-answer-toggle::before {
+  content: "▶";
+  display: inline-block;
+  margin-right: .35rem;
+  transition: transform var(--dur-fast);
+}
+
+.tree-branch[open] > .tree-answer-toggle::before {
+  transform: rotate(90deg);
 }
 
 .tree-answer-toggle:hover {
@@ -39,7 +51,7 @@
   color: var(--accent);
 }
 
-.tree-answer-toggle.open {
+.tree-branch[open] > .tree-answer-toggle {
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -51,14 +63,6 @@
   padding: .6rem .9rem;
   font-size: var(--text-sm);
   margin: .25rem 0;
-}
-
-.tree-children {
-  display: none;
-}
-
-.tree-children.open {
-  display: block;
 }
 
 .chain-list {

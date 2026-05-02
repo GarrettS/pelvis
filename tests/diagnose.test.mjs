@@ -69,13 +69,21 @@ class TestElement {
     return this._innerHTML;
   }
 
+  get firstElementChild() {
+    return this.children[0] || null;
+  }
+
+  get parentElement() {
+    return this.parentNode;
+  }
+
   appendChild(node) {
     node.parentNode = this;
     this.children.push(node);
     return node;
   }
 
-  cloneNode() {
+  cloneNode(deep = false) {
     const clone = new TestElement('', {
       tagName: this.tagName,
       href: this.href
@@ -86,6 +94,11 @@ class TestElement {
     clone.value = this.value;
     clone.disabled = this.disabled;
     clone.dataset = {...this.dataset};
+    if (deep) {
+      this.children.forEach((child) => {
+        clone.appendChild(child.cloneNode(true));
+      });
+    }
     return clone;
   }
 
