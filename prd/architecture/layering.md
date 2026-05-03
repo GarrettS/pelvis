@@ -2,7 +2,7 @@
 
 This is the target architecture for tab modules in this codebase. It separates
 concerns into four pillars and names the contracts between them. Per-feature
-HLA artifacts (e.g., `diagnose-hla.txt`, `patterns-hla.md`) describe how a
+HLA artifacts (e.g., `prd/hla/diagnose.txt`, `prd/hla/patterns.md`) describe how a
 particular tab maps to these pillars, including any current gaps.
 
 ## Pillars
@@ -320,7 +320,7 @@ splitting by the migration.
 
 ## Per-feature HLA artifacts
 
-Each tab's HLA artifact (`diagnose-hla.txt`, future `patterns-hla.md`,
+Each tab's HLA artifact (`prd/hla/diagnose.txt`, future `prd/hla/patterns.md`,
 etc.) describes how that tab maps to the pillars and names current gaps.
 The doctrine is the target; the HLA is the as-built (with gap notes
 where the tab hasn't fully aligned yet).

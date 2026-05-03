@@ -2,7 +2,7 @@
 
 This is the migration plan for eliminating the data-layer indirection in the
 diagnose tab. Target state is documented in `layering.md` (the layering
-doctrine) and as-built in `diagnose-hla.txt`.
+doctrine) and as-built in `prd/hla/diagnose.txt`.
 
 ## Why
 
@@ -81,14 +81,17 @@ No source-code changes. Adds:
 - `prd/architecture/layering.md` (target architecture: pillars, rules,
   contracts, anti-patterns)
 - `prd/architecture/diagnose-data-boundary-migration.md` (this file)
-- Updates to `prd/architecture/diagnose-hla.txt` referencing the doctrine
+- Updates to `prd/hla/diagnose.txt` referencing the doctrine
   and describing the data-boundary gap
 
-### Commit B — Untracked-file cleanup
+### Commit B — Untracked-file cleanup (working-tree only, no git commit)
 
 Delete `scripts/listener-once.js` (created during a discarded approach,
 never imported) and `tmp-flashcards-form-probe.html` (persistent dev
-artifact). One small commit.
+artifact). Both files were untracked, so the deletion is a local
+working-tree cleanup with no git artifact. Effectively a no-op from
+the repo's perspective; recorded here so the sequence numbers stay
+stable.
 
 ### Commit C — Revert option-B working-tree changes + per-module listener-bind guard
 
@@ -210,7 +213,7 @@ listeners on sections that succeeded on the first attempt.
 **Codex parallel work (no source-code overlap):**
 - Review Commit A (layering doctrine) before source-code commits begin.
   Push back on framing if anything doesn't hold up.
-- Amend `prd/architecture/patterns-hla.md` against the doctrine: drop the
+- Amend `prd/hla/patterns.md` against the doctrine: drop the
   proposed `patterns-data.js`, replace with per-feature loader pattern. Make
   it a doctrine-aligned target for #23.
 - Audit one non-patterns tab module (anatomize, decoder, masterquiz, or
