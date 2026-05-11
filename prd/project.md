@@ -10,6 +10,7 @@ This project follows [Web XP](https://github.com/GarrettS/web-xp), installed at 
 - **`~/.web-xp/code-philosophy.md`** — why the standards are structured this way.
 - wrap css and js to 88 chars. Don't be overly eager and wrap shorter than necessary.
 - prefer double quotes for non-template strings that do not contain quotation marks.
+- top-down file organization: exports / public API first, then file-private helpers and internals. Consistency across files matters more than the choice itself.
 
 This file (`project.md`) is the project overlay. Project-specific decisions live here, not in a fork of the standards. When this overlay overrides a default, it states which rule is overridden and why.
 
