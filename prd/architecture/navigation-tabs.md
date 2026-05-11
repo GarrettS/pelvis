@@ -17,7 +17,7 @@
 - Data loading or data-error rendering (each module owns its data; data errors render inside the module's container).
 - Subsequent activations beyond the first (the module cache handles repeat imports; modules use `ResizeObserver` for layout-redraw on revisit).
 
-## LAZY_INIT shape
+## LAZY_INIT entries
 
 ```js
 const LAZY_INIT = {
@@ -137,6 +137,6 @@ Activation in this codebase uses CSS `display: none ↔ block` for subtab visibi
 ## What this doc does *not* cover
 
 - `scripts/load-json.js` and the result POJO `{ok, data, path, cause}` — see `prd/architecture/layering.md` and the diagnose migration plan.
-- ADT class shape, Decorator Factory pool — see `prd/architecture/layering.md`.
+- ADT class members, Decorator Factory pool — see `prd/architecture/layering.md`.
 - Per-tab module structure decisions (when does a tab module exist?) — see per-tab HLAs.
 - App-level error UI styling (`showImportError`, `showFetchError` rendering) — those helpers are app-level and live in `scripts/load-errors.js`.

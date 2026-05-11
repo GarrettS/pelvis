@@ -81,7 +81,7 @@ class AicMuscle {
 }
 
 class AicMuscleFactory {
-  static #instances = new Map();
+  static #instances = Object.create(null);
   static #chainData = {};
   static #detailData = {};
   static #fieldLabels = {};
@@ -90,19 +90,14 @@ class AicMuscleFactory {
     AicMuscleFactory.#chainData = data.chain;
     AicMuscleFactory.#detailData = data.detail;
     AicMuscleFactory.#fieldLabels = data.fieldLabels;
-    AicMuscleFactory.#instances.clear();
+    AicMuscleFactory.#instances = Object.create(null);
   }
 
   static getInstance(id) {
-    const cached = AicMuscleFactory.#instances.get(id);
-    if (cached) return cached;
-
-    const muscle = new AicMuscle(
+    return AicMuscleFactory.#instances[id] ??= new AicMuscle(
         id,
         AicMuscleFactory.#chainData[id],
         AicMuscleFactory.#detailData[id]);
-    AicMuscleFactory.#instances.set(id, muscle);
-    return muscle;
   }
 
   static forEachEntry(callback) {

@@ -5,7 +5,7 @@ The Patterns tab has three subtabs. Each subtab is independent — different dat
 The Patterns HTML already contains the subtab panels, headings, quiz buttons, table, and SVG shell. JSON fills the dynamic content inside those elements.
 
 References:
-- `prd/architecture/layering.md` — module shape, ADT classes, anti-patterns.
+- `prd/architecture/layering.md` — module composition, ADT classes, anti-patterns.
 - `prd/architecture/navigation-tabs.md` — module contract (import resolution = readiness, no init export, skeleton ownership, ResizeObserver for layout-sensitive redraw).
 
 ## Diagram
@@ -49,7 +49,7 @@ scripts/load-json.js               shared loadJson(path) — see layering.md
 
 ADT classes (`SymptomQuiz`, `LevelQuiz`) are co-located with their thin glue inside the per-subtab files. Glue is two or three lines per ADT instance; co-location keeps the file readable as one unit. The ADT itself is page-independent (parameterized by container element); only the module-top glue knows the container ID for this page.
 
-## LAZY_INIT entry shape
+## LAZY_INIT entry format
 
 `navigation-tabs.js` supports a list of paths per content id. The concept-map subtab needs two files; LAZY_INIT lists both:
 
@@ -66,14 +66,14 @@ Single string or array — the orchestrator handles both.
 
 Multi-path failure: a programming bug or import failure in any one path rejects the content-id import; data failures render locally inside their own feature. Per-path retry semantics are not added.
 
-## Module shape
+## Module composition
 
-Each subtab file is the implementation layer for its subtab. The shape:
+Each subtab file is the implementation layer for its subtab:
 
 - ADT classes (where present) own their data load, render, listener bind, and behavior. Parameterized by a container element they don't choose. Page-independent: no app-level error rendering inside the class.
-- Module top is thin glue: find container, construct ADT, call its `load(path)`, branch on the returned POJO and call `showFetchError` on failure. For features without an ADT, module top loads data and renders directly using the same shape.
+- Module top is thin glue: find container, construct ADT, call its `load(path)`, branch on the returned POJO and call `showFetchError` on failure. For features without an ADT, module top loads data and renders directly using the same pattern.
 
-Data-loading shape (used both inside ADT `load(path)` methods and in non-ADT modules):
+Data-loading template (used both inside ADT `load(path)` methods and in non-ADT modules):
 
 ```js
 import {loadJson} from './load-json.js';
@@ -238,9 +238,9 @@ Pre-data: reveal/next buttons exist in source HTML. Either `disabled` until firs
 
 ## When does an ADT use a Factory pool?
 
-Factory pool (`static #instances = new Map()`, `getInstance(elOrId)`) is the right shape for many-instance features where the count and keys come from data — `CausalChain` instances keyed by chain id, `CaseStudy` instances keyed by case id. The pool gives O(1) lazy lookup as delegated events fire on different keyed elements.
+Factory pool (`static #instances = Object.create(null)`, `getInstance(elOrId)` returning `#instances[id] ??= #create(id, args)`) fits many-instance features where the count and keys come from data — `CausalChain` instances keyed by chain id, `CaseStudy` instances keyed by case id. The pool gives O(1) lazy lookup as delegated events fire on different keyed elements.
 
-For singletons (SymptomQuiz, ConceptMap) and known fixed-count instances (LevelQuiz: halt + squat), direct `new` construction is the right shape. The Factory adds machinery for lookup that doesn't apply.
+For singletons (SymptomQuiz, ConceptMap) and known fixed-count instances (LevelQuiz: halt + squat), direct `new` construction fits. The Factory adds machinery for lookup that does not apply.
 
 ## Data files
 
@@ -257,9 +257,9 @@ All listed in `sw.js` precache.
 
 In addition to the anti-patterns in `layering.md`:
 
-- **`patterns.js` as sub-orchestrator.** The previous shape (`SUBTAB_FILES`, `loadShownSubtab`, `init()` re-loading the active panel) existed only because `subtab-shown` dispatched before the lazy import resolved, requiring manual catch-up. With the navigation-tabs contract change (no `subtab-shown` dispatch; per-subtab files as direct LAZY_INIT entries), the sub-orchestrator role disappears. `patterns.js` is deleted.
+- **`patterns.js` as sub-orchestrator.** A `patterns.js` above the per-subtab files duplicates dispatch already handled by `navigation-tabs.js` via per-subtab LAZY_INIT entries. Each subtab is its own direct entry; no sub-orchestrator.
 - **`initLevelQuiz` as a function instead of a class.** Two named instances, each with their own state, deserve an ADT class. The function-per-instance form mixes construction with module-scope state and obscures the per-instance ownership.
-- **Factory pool for a singleton.** SymptomQuiz has one instance per page; using `static #instances = new Map()` + `getInstance(container)` adds machinery for keyed lookup that never applies. Direct `new` is simpler.
+- **Factory pool for a singleton.** SymptomQuiz has one instance per page; using `static #instances = Object.create(null)` + `getInstance(container)` adds machinery for keyed lookup that never applies. Direct `new` is simpler.
 - **ADT calling `showFetchError` directly.** Couples the ADT class to the app's error-rendering machinery. The ADT's `load` returns the POJO result; module-top glue branches on `result.ok` and calls `showFetchError`.
 
 ## Execution order

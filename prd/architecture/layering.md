@@ -5,7 +5,8 @@ Target architecture for tabs and features in this codebase. Splits a tab into a 
 References:
 - `prd/architecture/navigation-tabs.md` — the orchestrator contract every lazy-loaded module follows. Canonical for the POJO data-load contract and the skeleton/error-rendering lifecycle.
 - `prd/architecture/patterns.md` — per-tab HLA for Patterns (dissolved tab; subtabs are direct LAZY_INIT entries).
-- `prd/architecture/diagnose-data-boundary-migration.md` — per-tab HLA for Diagnose (dissolving; same shape as Patterns).
+- `prd/architecture/diagnose-data-boundary-migration.md` — per-tab HLA for Diagnose (dissolving; same dissolution as Patterns).
+- `prd/architecture/equivalence-quiz.md` — per-tab HLA for Equivalence Quiz (questions now, answers on demand).
 - `prd/architecture/aic-chain.txt` — per-tab HLA for the L AIC Chain tab.
 
 ## What the pieces are
@@ -24,7 +25,7 @@ There is no tab-implementation orchestrator. Both tabs that previously had one (
 
 The integration site for one feature. Self-contained: someone reading this one file knows everything about how the feature works.
 
-### Module-top shape
+### Module-top composition
 
 ```js
 import {loadJson} from './load-json.js';
@@ -69,7 +70,7 @@ For features without identity-keyed entities (a singleton concept map, a statele
 
 ### Two-instance features
 
-A few features render twice with the same shape and different data (HALT and Squat level quizzes share a shape). The per-feature module defines a class for the shape, constructs two named instances eagerly at module top via direct `new`, binds each instance's listener in its own constructor, and calls each instance's `load(path)`.
+A few features render twice with the same class and different data (HALT and Squat level quizzes share a class definition). The per-feature module defines the class, constructs two named instances eagerly at module top via direct `new`, binds each instance's listener in its own constructor, and calls each instance's `load(path)`.
 
 ```js
 import {loadJson} from './load-json.js';
@@ -122,9 +123,9 @@ Three valid mitigations:
 
 The `closest()` early-return safety only protects controls that don't exist in source HTML (generated controls). Source-rendered controls need explicit guards or deferred binding.
 
-### Anti-shapes
+### Anti-patterns
 
-- **Tab-implementation orchestrator** — a `fooTab.js` that imports each feature's `mount(container, dataPath)` and calls them in a loop. Couples features through one import, fans out all data fetches on tab activation regardless of which subtab is shown, emits one tab-level skeleton instead of per-subtab. Patterns and Diagnose both dissolved this shape; each subtab is a direct LAZY_INIT entry instead.
+- **Tab-implementation orchestrator** — a `fooTab.js` that imports each feature's `mount(container, dataPath)` and calls them in a loop. Couples features through one import, fans out all data fetches on tab activation regardless of which subtab is shown, emits one tab-level skeleton instead of per-subtab. Use direct per-subtab LAZY_INIT entries; do not introduce a tab-implementation module.
 - **`mount(container, dataPath)` export** — the contract the orchestrator called. Without an orchestrator, the export has no caller. Self-running module-top side effects replace it.
 - **Parameterless `setupX()` wrapper.** A function that just calls `loadJson` with hardcoded selectors and renders, when module-top could do the same. The wrapper adds an indirection hop with no logic of its own.
 - **Listener bind inside a function called from outside the module.** Re-entry accumulates listeners. Module-top bind (or constructor-time bind on a single-instance class) is the standard answer.
@@ -136,30 +137,38 @@ The `closest()` early-return safety only protects controls that don't exist in s
 
 When a feature has identity-keyed entities — many causal chains in one section, many case studies in one section — each entity is a class. Instances are constructed lazily via a Factory keyed by id.
 
-### Factory shape
+### Factory pool
 
 ```js
 class FeatureFactory {
-  static #instances = new Map();
+  static #instances = Object.create(null);
   static #KEY = Symbol();
 
   static getInstance(elOrId) {
     const id = typeof elOrId === 'string' ? elOrId : elOrId.id;
-    let instance = FeatureFactory.#instances.get(id);
-    if (!instance) {
-      instance = new Feature(id, FeatureFactory.#KEY);
-      FeatureFactory.#instances.set(id, instance);
-    }
-    return instance;
+    return FeatureFactory.#instances[id] ??= FeatureFactory.#create(id);
+  }
+
+  static #create(id) {
+    return new Feature(id, FeatureFactory.#KEY);
+  }
+
+  static discard(id) {
+    delete FeatureFactory.#instances[id];
+  }
+
+  static discardAll() {
+    FeatureFactory.#instances = Object.create(null);
   }
 }
 ```
 
-- Pool: `static #instances = new Map()`. `Map`'s `.get`/`.set`/`.delete`/`.clear` read cleanly and avoid prototype-chain gotchas of plain object literals.
+- Pool: `static #instances = Object.create(null)`. A prototype-less dictionary safe to index with arbitrary string keys; composes cleanly with `??=` for lazy memoization. `Object.create(null)` is the closest thing JS has to a primitive Map without inherited members like `__proto__`, `hasOwnProperty`, or `constructor`.
+- Lookup: `getInstance(elOrId)` accepts an element (reads `.id`) or a string id, returns the cached instance or constructs one via the private `#create`. Listeners call this on every event; the cache makes it O(1).
 - Construction guard: `#KEY` Symbol checked in the class constructor prevents external code from instantiating directly. Only the Factory can.
-- Lookup: `getInstance(elOrId)` accepts an element (reads `.id`) or a string id, returns the cached instance or creates one. Listeners call this on every event; the cache makes it O(1).
+- Reset: `.clear()`-equivalent is reassigning `#instances = Object.create(null)`; `.delete(id)`-equivalent is `delete #instances[id]`.
 
-### Class shape
+### Class members
 
 - Private fields (`#id`, `#state`, `#refs`) for state and DOM refs.
 - Public `id` getter for identity. Behavior methods mutate state and the DOM subtree the entity owns — never elements outside its subtree.
@@ -167,7 +176,7 @@ class FeatureFactory {
 
 ### When to use a Factory pool
 
-Factory pool is the right shape only for **many-instance features keyed by data IDs** — `CausalChain` instances keyed by chain id, `CaseStudy` instances keyed by case id. The pool gives O(1) lazy lookup as delegated events fire on different keyed elements.
+Factory pool fits **many-instance features keyed by data IDs** — `CausalChain` instances keyed by chain id, `CaseStudy` instances keyed by case id. The pool gives O(1) lazy lookup as delegated events fire on different keyed elements.
 
 For other cases, use direct construction:
 - **Singleton** (one instance per page): direct `new`. The Factory's keyed lookup is machinery for nothing.
@@ -217,7 +226,7 @@ Callers check `result.ok` and branch. There is no thrown error, no `instanceof` 
 
 ### Why no `loadInto` helper
 
-A helper of the shape `loadJson(path).then(render).catch(showFetchError)` would catch render bugs in the same `.catch` as fetch errors, misclassifying programming bugs as fetch failures. The POJO branch keeps render outside the failure path: `if (result.ok) render(...); else showError(...)`. Render bugs propagate as ordinary rejections past the branch.
+A helper of the form `loadJson(path).then(render).catch(showFetchError)` would catch render bugs in the same `.catch` as fetch errors, misclassifying programming bugs as fetch failures. The POJO branch keeps render outside the failure path: `if (result.ok) render(...); else showError(...)`. Render bugs propagate as ordinary rejections past the branch.
 
 ### Why no JS-level cache
 
@@ -231,7 +240,7 @@ A single string identifies a domain entity across DOM, data, and Factory pool.
 
 - DOM: `<ol class="chain-list" id="diaphragm-to-adt">` — element id.
 - Data: `{ "diaphragm-to-adt": {...} }` — JSON key.
-- Factory pool: `instances.get('diaphragm-to-adt')` — Map key.
+- Factory pool: `instances['diaphragm-to-adt']` — dictionary key.
 
 The same string crosses all three layers without translation. Listeners extract the id from the event target (`target.closest('.chain-list').id`) and use it directly as the lookup key.
 
@@ -283,7 +292,7 @@ Names kept consistent for grep-ability.
 
 `scripts/diagnose-causal-chains.js` defines a `CausalChain` class and a `CausalChainFactory`. The class holds `#id`, `#steps`, `#order`, drag state. It exposes behavior methods (`startDrag`, `dragMove`, `commitDrop`, `endDrag`, `isOrderCorrect`, `orderResults`). It mutates DOM only on its own `<ol>` and its `<li>` children. The constructor is Symbol-guarded.
 
-The Factory holds `static #instances = new Map()`. Module-top side effects find the container by id (`diagnose-causal-chains-content`), bind the delegated click listener (lookup via `getInstance`), and await `loadJson('./data/diagnose-causal-chains.json')`. On `result.ok`, render the chains; on failure, call `showFetchError(container, result)`. First click on a given chain creates the instance via `getInstance`; subsequent clicks retrieve from the pool.
+The Factory holds `static #instances = Object.create(null)`. Module-top side effects find the container by id (`diagnose-causal-chains-content`), bind the delegated click listener (lookup via `getInstance`), and await `loadJson('./data/diagnose-causal-chains.json')`. On `result.ok`, render the chains; on failure, call `showFetchError(container, result)`. First click on a given chain creates the instance via `getInstance`; subsequent clicks retrieve from the pool.
 
 The module is registered in `navigation-tabs.js` under `'diagnose-causal-chains-content': './diagnose-causal-chains.js'`. No `diagnose.js` orchestrator above it.
 

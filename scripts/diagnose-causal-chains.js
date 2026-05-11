@@ -164,32 +164,31 @@ function showCheckResult(chain, chainList) {
 const chainCardText = ({ title, start, end }) => ({ title, start, end });
 
 class CausalChain {
-  static #instances = new Map();
+  static #instances = Object.create(null);
   static #KEY = Symbol();
 
   static getInstance(elOrId, definition) {
     const id = elOrId.id || elOrId;
-    let instance = CausalChain.#instances.get(id);
-    if (!instance) {
-      // Fallback for the discard-and-recreate reset path: the
-      // delegated click handler has the element but not the
-      // definition, so look it up from the cached slice.
-      definition ??= causalChains[id];
-      if (!definition) throw new Error(
-        'CausalChain: no definition for "' + id + '"'
-      );
-      instance = new CausalChain(id, definition, CausalChain.#KEY);
-      CausalChain.#instances.set(id, instance);
-    }
-    return instance;
+    return CausalChain.#instances[id] ??= CausalChain.#create(id, definition);
+  }
+
+  static #create(id, definition) {
+    // Fallback for the discard-and-recreate reset path: the
+    // delegated click handler has the element but not the
+    // definition, so look it up from the cached slice.
+    definition ??= causalChains[id];
+    if (!definition) throw new Error(
+      'CausalChain: no definition for "' + id + '"'
+    );
+    return new CausalChain(id, definition, CausalChain.#KEY);
   }
 
   static discard(id) {
-    CausalChain.#instances.delete(id);
+    delete CausalChain.#instances[id];
   }
 
   static discardAll() {
-    CausalChain.#instances.clear();
+    CausalChain.#instances = Object.create(null);
   }
 
   #id;

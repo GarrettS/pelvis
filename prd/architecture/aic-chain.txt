@@ -70,7 +70,7 @@ User input -> Decorator method
 
 AicMuscleFactory (static class, module-private state)
 -----------------------------------------------------
-+-- #instances    Map<id, AicMuscle>     (lazy cache)
++-- #instances    { id: AicMuscle }      (lazy cache, Object.create(null))
 +-- #chainData    { id -> chainEntry }   (label, priColor, anchor,
 |                                         connection?, terminus?)
 +-- #detailData   { id -> detailEntry }  (role, pattern, correction)

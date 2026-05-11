@@ -211,32 +211,31 @@ function appendNextButton(caseStudy, parent) {
 }
 
 class CaseStudy {
-  static #instances = new Map();
+  static #instances = Object.create(null);
   static #KEY = Symbol();
 
   static getInstance(elOrId, definition) {
     const id = elOrId.id || elOrId;
-    let instance = CaseStudy.#instances.get(id);
-    if (!instance) {
-      // Fallback for the discard-and-recreate restart path: the
-      // delegated click handler has the element but not the
-      // definition, so look it up from the cached slice.
-      definition ??= caseStudies[id];
-      if (!definition) throw new Error(
-        'CaseStudy: no definition for "' + id + '"'
-      );
-      instance = new CaseStudy(id, definition, CaseStudy.#KEY);
-      CaseStudy.#instances.set(id, instance);
-    }
-    return instance;
+    return CaseStudy.#instances[id] ??= CaseStudy.#create(id, definition);
+  }
+
+  static #create(id, definition) {
+    // Fallback for the discard-and-recreate restart path: the
+    // delegated click handler has the element but not the
+    // definition, so look it up from the cached slice.
+    definition ??= caseStudies[id];
+    if (!definition) throw new Error(
+      'CaseStudy: no definition for "' + id + '"'
+    );
+    return new CaseStudy(id, definition, CaseStudy.#KEY);
   }
 
   static discard(id) {
-    CaseStudy.#instances.delete(id);
+    delete CaseStudy.#instances[id];
   }
 
   static discardAll() {
-    CaseStudy.#instances.clear();
+    CaseStudy.#instances = Object.create(null);
   }
 
   #id;
