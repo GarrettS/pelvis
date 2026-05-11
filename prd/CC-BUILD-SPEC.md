@@ -83,7 +83,7 @@ Two cases (B PEC 6 visits, L AIC 3 visits). Interactive — user makes decisions
 ### Causal Chains
 Drag-to-order exercises. 6 chains. Mobile: tap-to-order fallback.
 
-Data: `data/concept-map.json`.
+Data: `data/diagnose-causal-chains.json`.
 
 ### Decision Tree
 Interactive expandable flowchart. Terminal nodes referencing "Myokinematic Restoration & Postural Respiration" append "(out of scope for this course)".
