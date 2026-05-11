@@ -2,7 +2,7 @@
  * Root-scoped: browsers restrict SW scope to its directory and below.
  * GitHub Pages does not support Service-Worker-Allowed header.
  */
-const CACHE_VERSION = 'v24';
+const CACHE_VERSION = 'v30';
 
 const PRECACHE_URLS = [
   './',
@@ -24,7 +24,6 @@ const PRECACHE_URLS = [
   './scripts/aic-chain.js',
   './scripts/anatomize.js',
   './scripts/decoder.js',
-  './scripts/diagnose.js',
   './scripts/diagnose-case-studies.js',
   './scripts/diagnose-causal-chains.js',
   './scripts/diagnose-decision-tree.js',
@@ -33,19 +32,23 @@ const PRECACHE_URLS = [
   './scripts/equivalence.js',
   './scripts/equivalence-quiz.js',
   './scripts/load-errors.js',
+  './scripts/load-json.js',
   './scripts/flashcards.js',
   './scripts/masterquiz.js',
   './scripts/navigation-tabs.js',
   './scripts/nomenclature.js',
-  './scripts/patterns.js',
+  './scripts/patterns-cheat-sheet.js',
+  './scripts/patterns-concept-map.js',
+  './scripts/patterns-symptom-quiz.js',
+  './scripts/patterns-level-quiz.js',
+  './scripts/level-quiz.js',
   './scripts/shuffle.js',
   './scripts/resize-handle.js',
-  './scripts/study-data-cache.js',
   './scripts/master-quiz-progress.js',
   './scripts/home-progress.js',
   './data/aic-chain.json',
   './data/anatomize-data.json',
-  './data/causal-map.json',
+  './data/concept-map.json',
   './data/cheat-data.json',
   './data/equivalence-explanations.json',
   './data/flashcard-deck.json',
@@ -54,8 +57,13 @@ const PRECACHE_URLS = [
   './data/pelvic-joints.json',
   './data/regions.json',
   './data/squat-levels.json',
-  './data/study-data.json',
   './data/symptom-patterns.json',
+  './data/diagnose-causal-chains.json',
+  './data/diagnose-case-studies.json',
+  './data/diagnose-decision-tree.json',
+  './data/diagnose-game-scenarios.json',
+  './data/diagnose-muscle-exercise-map.json',
+  './data/nomenclature-translations.json',
   './img/PRI-1-glute-med--glute-max.png',
   './img/PRI-1-Pelvic-Inlet.png',
   './img/PRI-1-Pelvic-Outlet.jpg',

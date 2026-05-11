@@ -1,174 +1,24 @@
-import {getCausalChains} from './study-data-cache.js';
+import {loadJson} from './load-json.js';
+import {showFetchError} from './load-errors.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 
-let listenersBound = false;
 let causalChains = {};
 
-const CausalChainFactory = (() => {
-  const instances = {};
-  const KEY = Symbol();
+const containerEl = document.getElementById('diagnose-causal-chains-content');
+const chainsWrap = document.getElementById('chains-wrap');
 
-  class CausalChain {
-    #id;
-    #steps;
-    #order;
-    #activeDragItem = null;
-    #startY = 0;
-    #initialItemTop = 0;
-    #dropTarget;
-    #dropTargetMarker = null;
+chainsWrap.addEventListener('click', handleChainClick);
+wireChainDrag(chainsWrap);
 
-    constructor(id, { steps }, key) {
-      if (key !== KEY) throw new Error(
-        'CausalChain: use CausalChainFactory.getInstance()'
-      );
-      this.#id = id;
-      this.#steps = Object.freeze([...steps]);
-      this.#order = shuffle([...steps]);
-    }
-
-    get id() { return this.#id; }
-    currentOrder() { return this.#order.slice(); }
-    correctOrder() { return this.#steps; }
-
-    startDrag(chainItem, startY) {
-      this.#activeDragItem = chainItem;
-      this.#startY = startY;
-      this.#initialItemTop = chainItem.getBoundingClientRect().top;
-      this.#dropTarget = undefined;
-      chainItem.classList.add('active-drag-item');
-    }
-
-    dragMove(y, chainList) {
-      if (!this.#activeDragItem) return;
-
-      const item = this.#activeDragItem;
-      const listBox = chainList.getBoundingClientRect();
-      const itemHeight = item.getBoundingClientRect().height;
-      const minDelta = listBox.top - this.#initialItemTop;
-      const maxDelta = listBox.bottom - itemHeight - this.#initialItemTop;
-      const deltaY = Math.max(
-        minDelta, Math.min(maxDelta, y - this.#startY)
-      );
-      item.style.setProperty('--drag-offset', deltaY + 'px');
-
-      let target = null;
-      for (const sibling of chainList.children) {
-        if (sibling === item) continue;
-        const box = sibling.getBoundingClientRect();
-        if (y <= box.top + box.height / 2) {
-          target = sibling;
-          break;
-        }
-      }
-
-      const wouldNoOp = target === item.nextElementSibling
-        || (target === null && item === chainList.lastElementChild);
-      const finalTarget = wouldNoOp ? undefined : target;
-      if (finalTarget === this.#dropTarget) return;
-
-      this.#dropTargetMarker?.classList.remove(
-        'drop-target-before', 'drop-target-after'
-      );
-      this.#dropTargetMarker = null;
-
-      if (finalTarget === null) {
-        this.#dropTargetMarker = chainList.lastElementChild;
-        this.#dropTargetMarker.classList.add('drop-target-after');
-      } else if (finalTarget) {
-        this.#dropTargetMarker = finalTarget;
-        this.#dropTargetMarker.classList.add('drop-target-before');
-      }
-      this.#dropTarget = finalTarget;
-    }
-
-    commitDrop(chainList) {
-      const item = this.#activeDragItem;
-      if (!item || this.#dropTarget === undefined) return null;
-
-      chainList.insertBefore(item, this.#dropTarget);
-      this.#order = Array.from(
-        chainList.children, (li) => li.dataset.step
-      );
-      return item;
-    }
-
-    endDrag() {
-      const item = this.#activeDragItem;
-      if (!item) return;
-
-      this.#dropTargetMarker?.classList.remove(
-        'drop-target-before', 'drop-target-after'
-      );
-      item.classList.remove('active-drag-item');
-      item.style.removeProperty('--drag-offset');
-      this.#activeDragItem = null;
-      this.#dropTarget = undefined;
-      this.#dropTargetMarker = null;
-      this.#startY = 0;
-      this.#initialItemTop = 0;
-    }
-
-    isOrderCorrect() {
-      return this.#order.every((step, i) => step === this.#steps[i]);
-    }
-
-    orderResults() {
-      return this.#order.map((step, i) => ({
-        step,
-        isCorrect: step === this.#steps[i]
-      }));
-    }
-  }
-
-  return {
-    getInstance(elOrId, definition) {
-      const id = elOrId.id || elOrId;
-      if (!instances[id]) {
-        // Fallback for the discard-and-recreate reset path: the
-        // delegated click handler has the element but not the
-        // definition, so look it up from the cached slice.
-        definition ??= causalChains[id];
-        if (!definition) throw new Error(
-          'CausalChainFactory: no definition for "' + id + '"'
-        );
-        instances[id] = new CausalChain(id, definition, KEY);
-      }
-      return instances[id];
-    },
-    discard(id) {
-      delete instances[id];
-    },
-    discardAll() {
-      for (const k in instances) delete instances[k];
-    }
-  };
-})();
-
-const chainCardText = ({ title, start, end }) => ({ title, start, end });
-
-export async function setupCausalChains() {
-  causalChains = await getCausalChains();
-
-  const wrap = document.getElementById('chains-wrap');
-  if (!listenersBound) {
-    wrap.addEventListener('click', handleChainClick);
-    wireChainDrag(wrap);
-    listenersBound = true;
-  }
-  renderCausalChains();
-}
-
-function renderCausalChains() {
-  const wrap = document.getElementById('chains-wrap');
-  wrap.innerHTML = '';
-  CausalChainFactory.discardAll();
+function renderAll(container) {
+  container.innerHTML = '';
+  CausalChain.discardAll();
 
   Object.entries(causalChains).forEach(([id, definition]) => {
-    const chain = CausalChainFactory.getInstance(id, definition);
+    const chain = CausalChain.getInstance(id, definition);
     const { card, chainListEl } = buildChainCard(chain, chainCardText(definition));
-    wrap.appendChild(card);
+    container.appendChild(card);
     renderChainList(chain, chainListEl);
   });
 }
@@ -181,15 +31,15 @@ function handleChainClick(e) {
   if (!chainList) return;
 
   if (e.target.closest('.chain-reset')) {
-    CausalChainFactory.discard(chainList.id);
-    renderChainList(CausalChainFactory.getInstance(chainList), chainList);
+    CausalChain.discard(chainList.id);
+    renderChainList(CausalChain.getInstance(chainList), chainList);
     card.querySelector('.chain-feedback').innerHTML = '';
   } else if (e.target.closest('.chain-check')) {
-    showCheckResult(CausalChainFactory.getInstance(chainList), chainList);
+    showCheckResult(CausalChain.getInstance(chainList), chainList);
   }
 }
 
-function wireChainDrag(wrap) {
+function wireChainDrag(container) {
   let activeChain = null;
   let activeChainList = null;
   let activePointerId = null;
@@ -214,7 +64,7 @@ function wireChainDrag(wrap) {
       el.classList.remove('just-dropped');
     }
 
-    activeChain = CausalChainFactory.getInstance(chainList);
+    activeChain = CausalChain.getInstance(chainList);
     activeChainList = chainList;
     activePointerId = e.pointerId;
     chainItem.setPointerCapture(e.pointerId);
@@ -256,10 +106,10 @@ function wireChainDrag(wrap) {
     cleanup();
   }
 
-  wrap.addEventListener('pointerdown', handlePointerDown);
-  wrap.addEventListener('pointermove', handlePointerMove);
-  wrap.addEventListener('pointerup', handlePointerUp);
-  wrap.addEventListener('pointercancel', handlePointerCancel);
+  container.addEventListener('pointerdown', handlePointerDown);
+  container.addEventListener('pointermove', handlePointerMove);
+  container.addEventListener('pointerup', handlePointerUp);
+  container.addEventListener('pointercancel', handlePointerCancel);
   document.addEventListener('keydown', handleEscKey);
 }
 
@@ -309,4 +159,155 @@ function showCheckResult(chain, chainList) {
       + ' <ol class="chain-correct-list"><li>'
       + chain.correctOrder().map((s) => expandAbbr(s))
         .join('</li><li>') + '</li></ol></div>';
+}
+
+const chainCardText = ({ title, start, end }) => ({ title, start, end });
+
+class CausalChain {
+  static #instances = new Map();
+  static #KEY = Symbol();
+
+  static getInstance(elOrId, definition) {
+    const id = elOrId.id || elOrId;
+    let instance = CausalChain.#instances.get(id);
+    if (!instance) {
+      // Fallback for the discard-and-recreate reset path: the
+      // delegated click handler has the element but not the
+      // definition, so look it up from the cached slice.
+      definition ??= causalChains[id];
+      if (!definition) throw new Error(
+        'CausalChain: no definition for "' + id + '"'
+      );
+      instance = new CausalChain(id, definition, CausalChain.#KEY);
+      CausalChain.#instances.set(id, instance);
+    }
+    return instance;
+  }
+
+  static discard(id) {
+    CausalChain.#instances.delete(id);
+  }
+
+  static discardAll() {
+    CausalChain.#instances.clear();
+  }
+
+  #id;
+  #steps;
+  #order;
+  #activeDragItem = null;
+  #startY = 0;
+  #initialItemTop = 0;
+  #dropTarget;
+  #dropTargetMarker = null;
+
+  constructor(id, { steps }, key) {
+    if (key !== CausalChain.#KEY) throw new Error(
+      'CausalChain: use CausalChain.getInstance()'
+    );
+    this.#id = id;
+    this.#steps = Object.freeze([...steps]);
+    this.#order = shuffle([...steps]);
+  }
+
+  get id() { return this.#id; }
+  currentOrder() { return this.#order.slice(); }
+  correctOrder() { return this.#steps; }
+
+  startDrag(chainItem, startY) {
+    this.#activeDragItem = chainItem;
+    this.#startY = startY;
+    this.#initialItemTop = chainItem.getBoundingClientRect().top;
+    this.#dropTarget = undefined;
+    chainItem.classList.add('active-drag-item');
+  }
+
+  dragMove(y, chainList) {
+    if (!this.#activeDragItem) return;
+
+    const item = this.#activeDragItem;
+    const listBox = chainList.getBoundingClientRect();
+    const itemHeight = item.getBoundingClientRect().height;
+    const minDelta = listBox.top - this.#initialItemTop;
+    const maxDelta = listBox.bottom - itemHeight - this.#initialItemTop;
+    const deltaY = Math.max(
+      minDelta, Math.min(maxDelta, y - this.#startY)
+    );
+    item.style.setProperty('--drag-offset', deltaY + 'px');
+
+    let target = null;
+    for (const sibling of chainList.children) {
+      if (sibling === item) continue;
+      const box = sibling.getBoundingClientRect();
+      if (y <= box.top + box.height / 2) {
+        target = sibling;
+        break;
+      }
+    }
+
+    const wouldNoOp = target === item.nextElementSibling
+      || (target === null && item === chainList.lastElementChild);
+    const finalTarget = wouldNoOp ? undefined : target;
+    if (finalTarget === this.#dropTarget) return;
+
+    this.#dropTargetMarker?.classList.remove(
+      'drop-target-before', 'drop-target-after'
+    );
+    this.#dropTargetMarker = null;
+
+    if (finalTarget === null) {
+      this.#dropTargetMarker = chainList.lastElementChild;
+      this.#dropTargetMarker.classList.add('drop-target-after');
+    } else if (finalTarget) {
+      this.#dropTargetMarker = finalTarget;
+      this.#dropTargetMarker.classList.add('drop-target-before');
+    }
+    this.#dropTarget = finalTarget;
+  }
+
+  commitDrop(chainList) {
+    const item = this.#activeDragItem;
+    if (!item || this.#dropTarget === undefined) return null;
+
+    chainList.insertBefore(item, this.#dropTarget);
+    this.#order = Array.from(
+      chainList.children, (li) => li.dataset.step
+    );
+    return item;
+  }
+
+  endDrag() {
+    const item = this.#activeDragItem;
+    if (!item) return;
+
+    this.#dropTargetMarker?.classList.remove(
+      'drop-target-before', 'drop-target-after'
+    );
+    item.classList.remove('active-drag-item');
+    item.style.removeProperty('--drag-offset');
+    this.#activeDragItem = null;
+    this.#dropTarget = undefined;
+    this.#dropTargetMarker = null;
+    this.#startY = 0;
+    this.#initialItemTop = 0;
+  }
+
+  isOrderCorrect() {
+    return this.#order.every((step, i) => step === this.#steps[i]);
+  }
+
+  orderResults() {
+    return this.#order.map((step, i) => ({
+      step,
+      isCorrect: step === this.#steps[i]
+    }));
+  }
+}
+
+const result = await loadJson('./data/diagnose-causal-chains.json');
+if (result.ok) {
+  causalChains = result.data;
+  renderAll(chainsWrap);
+} else {
+  showFetchError(containerEl, result);
 }

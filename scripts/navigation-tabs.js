@@ -11,33 +11,21 @@ const activeSubtabContent = {};
 const initialized = new Set();
 
 const LAZY_INIT = {
-  'nomenclature-content': {
-    path: './nomenclature.js'
-  },
-  'patterns-content': {
-    path: './patterns.js'
-  },
-  'diagnose-content': {
-    path: './diagnose.js'
-  },
-  'flashcards-content': {
-    path: './flashcards.js'
-  },
-  'equivalence-content': {
-    path: './equivalence-quiz.js'
-  },
-  'masterquiz-content': {
-    path: './masterquiz.js'
-  },
-  'anatomy-anatomize-content': {
-    path: './anatomize.js'
-  },
-  'anatomy-decoder-content': {
-    path: './decoder.js'
-  },
-  'anatomy-aic-content': {
-    path: './aic-chain.js'
-  }
+  'nomenclature-content':      './nomenclature.js',
+  'patterns-cheat-sheet-content': './patterns-cheat-sheet.js',
+  'patterns-concept-map-content': ['./patterns-concept-map.js', './patterns-symptom-quiz.js'],
+  'patterns-level-quiz-content': './patterns-level-quiz.js',
+  'diagnose-game-content':          './diagnose-game.js',
+  'diagnose-case-studies-content':  './diagnose-case-studies.js',
+  'diagnose-causal-chains-content': './diagnose-causal-chains.js',
+  'diagnose-decision-tree-content': './diagnose-decision-tree.js',
+  'diagnose-muscle-map-content':    './diagnose-muscle-map.js',
+  'flashcards-content':        './flashcards.js',
+  'equivalence-content':       './equivalence-quiz.js',
+  'masterquiz-content':        './masterquiz.js',
+  'anatomy-anatomize-content': './anatomize.js',
+  'anatomy-decoder-content':   './decoder.js',
+  'anatomy-aic-content':       './aic-chain.js'
 };
 
 function showTabLoading(container) {
@@ -54,24 +42,42 @@ function clearTabLoading(container) {
   container.querySelector('.tab-loading')?.remove();
 }
 
-function lazyInit(key) {
-  if (initialized.has(key)) return;
+const SHOW_SKELETON_AFTER_MS = 250;
 
-  const entry = LAZY_INIT[key];
+function importModule(path) {
+  return import(path).then(
+    (module) => ({ok: true, path, module}),
+    (cause) => ({ok: false, path, cause})
+  );
+}
+
+function lazyInit(contentId) {
+  if (initialized.has(contentId)) return;
+
+  const entry = LAZY_INIT[contentId];
   if (!entry) return;
 
-  initialized.add(key);
-  const container = document.getElementById(key);
+  initialized.add(contentId);
+  const container = document.getElementById(contentId);
   if (!container) return;
 
-  showTabLoading(container);
-  import(entry.path).then((m) => {
+  const paths = Array.isArray(entry) ? entry : [entry];
+  const skeletonTimer = setTimeout(
+    () => showTabLoading(container),
+    SHOW_SKELETON_AFTER_MS
+  );
+
+  Promise.all(paths.map(importModule)).then((results) => {
+    clearTimeout(skeletonTimer);
     clearTabLoading(container);
-    return m.init();
-  }).catch((moduleError) => {
-    clearTabLoading(container);
-    initialized.delete(key);
-    showImportError(container, entry.path, moduleError);
+
+    results.forEach((r) => {
+      if (r.ok) {
+        r.module.init?.();
+      } else {
+        showImportError(container, r.path, r.cause);
+      }
+    });
   });
 }
 
@@ -163,8 +169,6 @@ function activateSubtab(tab, subtab) {
   const target = document.getElementById(contentId);
   if (target) {
     target.classList.add('activeTab');
-    target.dispatchEvent(
-      new CustomEvent('subtab-shown', {bubbles: true}));
   }
   activeSubtabContent[tab] = target;
   lastSubtab[tab] = subtab;

@@ -40,16 +40,16 @@
     <li><a class="subtab" href="#nomenclature/translation">Translation Table</a></li>
   </menu>
   <menu class="subtab-row" id="patterns-subtabs">
-    <li><a class="subtab activeTab" href="#patterns/cheatsheet">Cheat Sheet</a></li>
-    <li><a class="subtab" href="#patterns/conceptmap">Concept Map</a></li>
-    <li><a class="subtab" href="#patterns/tests">Test Reference</a></li>
+    <li><a class="subtab activeTab" href="#patterns/cheat-sheet">Cheat Sheet</a></li>
+    <li><a class="subtab" href="#patterns/concept-map">Concept Map</a></li>
+    <li><a class="subtab" href="#patterns/level-quiz">Test Reference</a></li>
   </menu>
   <menu class="subtab-row" id="diagnose-subtabs">
-    <li><a class="subtab activeTab" href="#diagnose/patternid">Pattern ID</a></li>
-    <li><a class="subtab" href="#diagnose/cases">Case Studies</a></li>
-    <li><a class="subtab" href="#diagnose/chains">Causal Chains</a></li>
-    <li><a class="subtab" href="#diagnose/tree">Decision Tree</a></li>
-    <li><a class="subtab" href="#diagnose/exercises">Exercise Map</a></li>
+    <li><a class="subtab activeTab" href="#diagnose/game">Pattern ID</a></li>
+    <li><a class="subtab" href="#diagnose/case-studies">Case Studies</a></li>
+    <li><a class="subtab" href="#diagnose/causal-chains">Causal Chains</a></li>
+    <li><a class="subtab" href="#diagnose/decision-tree">Decision Tree</a></li>
+    <li><a class="subtab" href="#diagnose/muscle-map">Exercise Map</a></li>
   </menu>
 </nav>
 <div class="location-bar hidden" id="location-bar">
@@ -74,11 +74,11 @@
         <span>Nomenclature</span>
         <span>Pelvic joints, PRI-to-standard translation table.</span>
       </a>
-      <a href="#patterns/cheatsheet" class="home-nav-card">
+      <a href="#patterns/cheat-sheet" class="home-nav-card">
         <span>Patterns</span>
         <span>L AIC, B PEC, Patho PEC comparison. Test profiles. Concept map.</span>
       </a>
-      <a href="#diagnose/tree" class="home-nav-card">
+      <a href="#diagnose/decision-tree" class="home-nav-card">
         <span>Diagnose This</span>
         <span>Decision tree, causal chains, case studies, exercise map.</span>
       </a>
@@ -396,7 +396,7 @@
 
 <section id="patterns-content" class="content">
 
-  <div class="subtab-content activeTab" id="patterns-cheatsheet-content">
+  <div class="subtab-content activeTab" id="patterns-cheat-sheet-content">
   <div class="tab-section">
     <h2 class="section-title">Pattern Comparison Cheat Sheet</h2>
     <div class="grid-3" id="cheat-sheet-grid"></div>
@@ -404,8 +404,8 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="patterns-conceptmap-content">
-  <div class="tab-section">
+  <div class="subtab-content" id="patterns-concept-map-content">
+  <div class="tab-section" id="concept-map-wrap">
     <h2 class="section-title">Concept Map</h2>
     <p class="text-dim instruction-text">Click a node to highlight its connections.</p>
     <svg id="concept-map-svg" viewBox="0 0 500 340" xmlns="http://www.w3.org/2000/svg">
@@ -427,6 +427,7 @@
       <div class="card">
         <div class="card-label">Clinical Condition</div>
         <div class="symptom-condition" id="symptom-condition"></div>
+        <fieldset id="symptom-controls" disabled>
         <div class="btn-row" id="symptom-answers">
           <button class="answer-btn" type="button" value="LAIC">Left <abbr title="Anterior Interior Chain">AIC</abbr></button>
           <button class="answer-btn" type="button" value="BPEC">Bilateral <abbr title="Posterior Exterior Chain">PEC</abbr></button>
@@ -436,12 +437,13 @@
         <div class="btn-row">
           <button class="btn primary hidden" id="symptom-next">Next</button>
         </div>
+        </fieldset>
       </div>
     </div>
   </div>
   </div>
 
-  <div class="subtab-content" id="patterns-tests-content">
+  <div class="subtab-content" id="patterns-level-quiz-content">
   <div class="tab-section">
     <h2 class="section-title">Test Reference</h2>
     <h4 class="subsection-title">Test Profile by Pattern</h4>
@@ -484,21 +486,21 @@
 
 <section id="diagnose-content" class="content">
 
-  <div class="subtab-content activeTab" id="diagnose-patternid-content">
+  <div class="subtab-content activeTab" id="diagnose-game-content">
   <div class="tab-section">
     <h2 class="section-title">Pattern Identifier</h2>
     <div id="game-wrap"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-cases-content">
+  <div class="subtab-content" id="diagnose-case-studies-content">
   <div class="tab-section">
     <h2 class="section-title">Case Studies</h2>
     <div id="case-study-wrap"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-chains-content">
+  <div class="subtab-content" id="diagnose-causal-chains-content">
   <div class="tab-section">
     <h2 class="section-title">Causal Chains</h2>
     <p class="text-dim instruction-text-lg">Drag (or tap) to reorder the steps in each causal chain. Click "Check" when done.</p>
@@ -506,19 +508,19 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-tree-content">
+  <div class="subtab-content" id="diagnose-decision-tree-content">
   <div class="tab-section">
     <h2 class="section-title">Decision Tree</h2>
     <div id="tree-wrap" class="tree-node"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-exercises-content">
+  <div class="subtab-content" id="diagnose-muscle-map-content">
   <div class="tab-section">
     <h2 class="section-title">Muscle-to-Exercise Map</h2>
     <menu class="subview-tabs" id="muscle-view-tabs">
-      <li><a class="subview-tab activeTab" href="#diagnose/exercises/byMuscle">By Muscle</a></li>
-      <li><a class="subview-tab" href="#diagnose/exercises/byFinding">By Finding</a></li>
+      <li><a class="subview-tab activeTab" href="#diagnose/muscle-map/byMuscle">By Muscle</a></li>
+      <li><a class="subview-tab" href="#diagnose/muscle-map/byFinding">By Finding</a></li>
     </menu>
     <div class="search-wrap">
       <input class="search-input" id="muscle-search" type="text" placeholder="Search muscles or exercises…" autocomplete="off">

@@ -1,4 +1,5 @@
-import {getGameScenarios} from './study-data-cache.js';
+import {loadJson} from './load-json.js';
+import {showFetchError} from './load-errors.js';
 import {expandAbbr} from './abbr-expand.js';
 
 const ROUND2_STEPS = [
@@ -7,9 +8,6 @@ const ROUND2_STEPS = [
   { key: 'facilitation',   label: 'Facilitation' }
 ];
 
-const currentRound2Step = () => ROUND2_STEPS[gameState.round2Step];
-
-let listenersBound = false;
 let scenarios = [];
 let gameState = {
   scenarioIdx: 0,
@@ -19,68 +17,56 @@ let gameState = {
   isAnswered: false
 };
 
-export async function setupGame() {
-  scenarios = await getGameScenarios();
+const containerEl = document.getElementById('diagnose-game-content');
+const gameWrap = document.getElementById('game-wrap');
 
-  const wrap = document.getElementById('game-wrap');
+gameWrap.addEventListener('click', handleClick);
 
-  function resetGame() {
-    gameState = {
-      scenarioIdx: 0, round: 1, round2Step: 0,
-      score: { correct: 0, total: 0 },
-      isAnswered: false, selectedOpts: new Set()
-    };
-    renderScenario(wrap);
+function handleClick(e) {
+  const answerBtn = e.target.closest('.answer-btn');
+  if (answerBtn) {
+    handleGameAnswer(gameWrap, answerBtn);
+    return;
   }
+  GAME_DISPATCH[e.target.id]?.();
+}
 
-  function advanceGame() {
-    gameState.isAnswered = false;
-    const hasMoreSteps = gameState.round2Step < 2;
-    const hasMoreScenarios = gameState.scenarioIdx
-      < scenarios.length - 1;
-    if (gameState.round === 1) {
-      gameState.round = 2;
-      gameState.round2Step = 0;
-    } else if (hasMoreSteps) {
-      gameState.round2Step++;
-    } else if (hasMoreScenarios) {
-      gameState.scenarioIdx++;
-      gameState.round = 1;
-      gameState.round2Step = 0;
-    } else {
-      renderGameComplete();
-      return;
-    }
-    renderScenario(wrap);
-  }
-
-  function handleGameSubmit() {
-    if (gameState.isAnswered) return;
-
-    const s = scenarios[gameState.scenarioIdx];
-    const q = s.round2[currentRound2Step().key];
-    handleMultiSelectSubmit(wrap, q);
-  }
-
-  const GAME_DISPATCH = {
-    'game-restart': resetGame,
-    'game-next': advanceGame,
-    'game-submit': handleGameSubmit
+function resetGame() {
+  gameState = {
+    scenarioIdx: 0, round: 1, round2Step: 0,
+    score: { correct: 0, total: 0 },
+    isAnswered: false, selectedOpts: new Set()
   };
+  renderScenario(gameWrap);
+}
 
-  if (!listenersBound) {
-    wrap.addEventListener('click', (e) => {
-      const answerBtn = e.target.closest('.answer-btn');
-      if (answerBtn) {
-        handleGameAnswer(wrap, answerBtn);
-        return;
-      }
-      GAME_DISPATCH[e.target.id]?.();
-    });
-    listenersBound = true;
+function advanceGame() {
+  gameState.isAnswered = false;
+  const hasMoreSteps = gameState.round2Step < 2;
+  const hasMoreScenarios = gameState.scenarioIdx
+    < scenarios.length - 1;
+  if (gameState.round === 1) {
+    gameState.round = 2;
+    gameState.round2Step = 0;
+  } else if (hasMoreSteps) {
+    gameState.round2Step++;
+  } else if (hasMoreScenarios) {
+    gameState.scenarioIdx++;
+    gameState.round = 1;
+    gameState.round2Step = 0;
+  } else {
+    renderGameComplete();
+    return;
   }
+  renderScenario(gameWrap);
+}
 
-  resetGame();
+function handleGameSubmit() {
+  if (gameState.isAnswered) return;
+
+  const s = scenarios[gameState.scenarioIdx];
+  const q = s.round2[currentRound2Step().key];
+  handleMultiSelectSubmit(gameWrap, q);
 }
 
 function renderScenario(wrap) {
@@ -142,31 +128,46 @@ function renderRound1(wrap, s) {
   wrap.appendChild(card);
 }
 
-const scoreText = () =>
-  `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+function renderRound2(wrap, s) {
+  const step = currentRound2Step();
+  const q = s.round2[step.key];
+  if (!q) { renderGameComplete(); return; }
 
-function updateScoreDisplay(wrap) {
-  const scoreEl = wrap.querySelector('.score-display');
-  if (scoreEl) scoreEl.textContent = scoreText();
-}
+  const card = document.createElement('div');
+  card.className = 'card';
 
-function isMultiSelect(q) {
-  return Array.isArray(q.correct);
-}
+  const stepLabel = document.createElement('div');
+  stepLabel.className = 'card-label';
+  stepLabel.textContent = `Round 2 — Step ${gameState.round2Step + 1}/3: ${step.label}`;
+  card.appendChild(stepLabel);
 
-const isMultiSelectionCorrect = (correctSet, selected) =>
-  selected.size === correctSet.size
-  && selected.isSubsetOf(correctSet);
+  const qText = document.createElement('p');
+  qText.className = 'question-stem';
+  qText.innerHTML = expandAbbr(q.question);
+  card.appendChild(qText);
 
-function toggleSelection(btn, selected) {
-  const chosen = btn.textContent;
-  if (selected.has(chosen)) {
-    selected.delete(chosen);
-    btn.classList.remove('selectedOpt');
-  } else {
-    selected.add(chosen);
-    btn.classList.add('selectedOpt');
+  const optWrap = document.createElement('div');
+  optWrap.className = 'answer-opts';
+  gameState.selectedOpts = new Set();
+  const btnTemplate = document.createElement('button');
+  btnTemplate.className = 'answer-btn';
+  q.options.forEach((opt) => {
+    const btn = btnTemplate.cloneNode(false);
+    btn.textContent = opt;
+    optWrap.appendChild(btn);
+  });
+  card.appendChild(optWrap);
+
+  if (isMultiSelect(q)) {
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'btn primary submit-gap';
+    submitBtn.id = 'game-submit';
+    submitBtn.textContent = 'Check Answer';
+    card.appendChild(submitBtn);
   }
+
+  wrap.appendChild(card);
+  updateScoreDisplay(wrap);
 }
 
 function handleGameAnswer(wrap, btn) {
@@ -212,56 +213,6 @@ function gradeAnswer(wrap, btn, correct, explanation) {
   appendNextButton(card);
 }
 
-function renderRound2(wrap, s) {
-  const step = currentRound2Step();
-  const q = s.round2[step.key];
-  if (!q) { renderGameComplete(); return; }
-
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  const stepLabel = document.createElement('div');
-  stepLabel.className = 'card-label';
-  stepLabel.textContent = `Round 2 — Step ${gameState.round2Step + 1}/3: ${step.label}`;
-  card.appendChild(stepLabel);
-
-  const qText = document.createElement('p');
-  qText.className = 'question-stem';
-  qText.innerHTML = expandAbbr(q.question);
-  card.appendChild(qText);
-
-  const optWrap = document.createElement('div');
-  optWrap.className = 'answer-opts';
-  gameState.selectedOpts = new Set();
-  const btnTemplate = document.createElement('button');
-  btnTemplate.className = 'answer-btn';
-  q.options.forEach((opt) => {
-    const btn = btnTemplate.cloneNode(false);
-    btn.textContent = opt;
-    optWrap.appendChild(btn);
-  });
-  card.appendChild(optWrap);
-
-  if (isMultiSelect(q)) {
-    const submitBtn = document.createElement('button');
-    submitBtn.className = 'btn primary submit-gap';
-    submitBtn.id = 'game-submit';
-    submitBtn.textContent = 'Check Answer';
-    card.appendChild(submitBtn);
-  }
-
-  wrap.appendChild(card);
-  updateScoreDisplay(wrap);
-}
-
-function appendNextButton(card) {
-  const btnRow = document.createElement('div');
-  btnRow.className = 'btn-row';
-  btnRow.innerHTML = '<button class="btn primary"'
-    + ' id="game-next">Next →</button>';
-  card.appendChild(btnRow);
-}
-
 function handleMultiSelectSubmit(wrap, question) {
   gameState.isAnswered = true;
   gameState.score.total++;
@@ -294,12 +245,62 @@ function handleMultiSelectSubmit(wrap, question) {
 }
 
 function renderGameComplete() {
-  const wrap = document.getElementById('game-wrap');
-  wrap.innerHTML = `<div class="callout">
+  gameWrap.innerHTML = `<div class="callout">
     <strong>Game complete.</strong>
     ${scoreText()}.
     <div class="btn-row">
       <button class="btn primary"
         id="game-restart">Restart</button>
     </div></div>`;
+}
+
+function appendNextButton(card) {
+  const btnRow = document.createElement('div');
+  btnRow.className = 'btn-row';
+  btnRow.innerHTML = '<button class="btn primary"'
+    + ' id="game-next">Next →</button>';
+  card.appendChild(btnRow);
+}
+
+function updateScoreDisplay(wrap) {
+  const scoreEl = wrap.querySelector('.score-display');
+  if (scoreEl) scoreEl.textContent = scoreText();
+}
+
+function toggleSelection(btn, selected) {
+  const chosen = btn.textContent;
+  if (selected.has(chosen)) {
+    selected.delete(chosen);
+    btn.classList.remove('selectedOpt');
+  } else {
+    selected.add(chosen);
+    btn.classList.add('selectedOpt');
+  }
+}
+
+function isMultiSelect(q) {
+  return Array.isArray(q.correct);
+}
+
+const isMultiSelectionCorrect = (correctSet, selected) =>
+  selected.size === correctSet.size
+  && selected.isSubsetOf(correctSet);
+
+const scoreText = () =>
+  `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+
+const currentRound2Step = () => ROUND2_STEPS[gameState.round2Step];
+
+const GAME_DISPATCH = {
+  'game-restart': resetGame,
+  'game-next': advanceGame,
+  'game-submit': handleGameSubmit
+};
+
+const result = await loadJson('./data/diagnose-game-scenarios.json');
+if (result.ok) {
+  scenarios = result.data;
+  resetGame();
+} else {
+  showFetchError(containerEl, result);
 }

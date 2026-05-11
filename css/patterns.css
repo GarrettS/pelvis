@@ -165,3 +165,10 @@
   margin-top: .5rem;
   font-size: var(--text-sm);
 }
+
+#symptom-controls {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-inline-size: 0;
+}

@@ -1,196 +1,13 @@
 import {expandAbbr} from './abbr-expand.js';
-import {getCaseStudies} from './study-data-cache.js';
+import {loadJson} from './load-json.js';
+import {showFetchError} from './load-errors.js';
 
-let listenersBound = false;
 let caseStudies = {};
 
-const CaseStudyFactory = (() => {
-  const instances = {};
-  const KEY = Symbol();
+const containerEl = document.getElementById('diagnose-case-studies-content');
+const caseStudyWrap = document.getElementById('case-study-wrap');
 
-  class CaseStudy {
-    #id;
-    #visits;
-    #visitIdx = 0;
-    #isAnswered = false;
-    #selectedTreatments = new Set();
-    #correctTreatmentSet;
-
-    constructor(id, definition, key) {
-      if (key !== KEY) throw new Error(
-        'CaseStudy: use CaseStudyFactory.getInstance()'
-      );
-      this.#id = id;
-      this.#visits = Object.freeze([...definition.visits]);
-      this.#cacheCorrectTreatmentSet();
-    }
-
-    get id() { return this.#id; }
-    currentVisit() { return this.#visits[this.#visitIdx]; }
-    isComplete() { return this.#visitIdx >= this.#visits.length; }
-    hasMoreVisits() { return this.#visitIdx + 1 < this.#visits.length; }
-    isAnswered() { return this.#isAnswered; }
-    visitNumber() { return this.#visitIdx + 1; }
-
-    advanceVisit() {
-      this.#visitIdx++;
-      this.#isAnswered = false;
-      this.#selectedTreatments.clear();
-      this.#cacheCorrectTreatmentSet();
-    }
-
-    markAnswered() {
-      this.#isAnswered = true;
-    }
-
-    toggleTreatment(option) {
-      if (this.#selectedTreatments.has(option)) {
-        this.#selectedTreatments.delete(option);
-        return false;
-      }
-      this.#selectedTreatments.add(option);
-      return true;
-    }
-
-    isAnswerCorrect(text) {
-      return text === this.currentVisit().correct;
-    }
-
-    isCorrectTreatment(option) {
-      return this.#correctTreatmentSet.has(option);
-    }
-
-    isSelectedTreatment(option) {
-      return this.#selectedTreatments.has(option);
-    }
-
-    isTreatmentCorrect() {
-      return this.#selectedTreatments.size === this.#correctTreatmentSet.size
-        && this.#selectedTreatments.isSubsetOf(this.#correctTreatmentSet);
-    }
-
-    #cacheCorrectTreatmentSet() {
-      this.#correctTreatmentSet = new Set(
-        this.currentVisit()?.correctTreatment || []
-      );
-    }
-  }
-
-  return {
-    getInstance(elOrId, definition) {
-      const id = elOrId.id || elOrId;
-      if (!(id in instances)) {
-        // Fallback for the discard-and-recreate restart path: the
-        // delegated click handler has the element but not the
-        // definition, so look it up from the cached slice.
-        definition ??= caseStudies[id];
-        if (!definition) throw new Error(
-          'CaseStudyFactory: no definition for "' + id + '"'
-        );
-        instances[id] = new CaseStudy(id, definition, KEY);
-      }
-      return instances[id];
-    },
-    discard(id) {
-      delete instances[id];
-    },
-    discardAll() {
-      for (const k in instances) delete instances[k];
-    }
-  };
-})();
-
-export async function setupCaseStudies() {
-  caseStudies = await getCaseStudies();
-
-  const wrap = document.getElementById('case-study-wrap');
-  wrap.innerHTML = '';
-  CaseStudyFactory.discardAll();
-
-  Object.entries(caseStudies).forEach(([id, definition]) => {
-    const caseStudy = CaseStudyFactory.getInstance(id, definition);
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `<h3 class="case-title">${definition.title}</h3>`;
-    const caseEl = document.createElement('div');
-    caseEl.className = 'case-study';
-    caseEl.id = id;
-    card.appendChild(caseEl);
-    wrap.appendChild(card);
-    renderCaseVisit(caseStudy, caseEl);
-  });
-
-  if (!listenersBound) {
-    wrap.addEventListener('click', (e) => {
-      const answerBtn = e.target.closest('.answer-btn');
-      if (answerBtn) {
-        handleAnswerClick(answerBtn);
-        return;
-      }
-      const caseEl = e.target.closest('.case-study');
-      if (!caseEl) return;
-
-      if (e.target.closest('.case-restart')) {
-        CaseStudyFactory.discard(caseEl.id);
-        renderCaseVisit(CaseStudyFactory.getInstance(caseEl), caseEl);
-      } else if (e.target.closest('.case-next')) {
-        const caseStudy = CaseStudyFactory.getInstance(caseEl);
-        caseStudy.advanceVisit();
-        renderCaseVisit(caseStudy, caseEl);
-      } else if (e.target.closest('.case-submit')) {
-        showTreatmentResult(CaseStudyFactory.getInstance(caseEl), caseEl);
-      }
-    });
-    listenersBound = true;
-  }
-}
-
-function handleAnswerClick(btn) {
-  const caseEl = btn.closest('.case-study');
-  if (!caseEl) return;
-
-  const caseStudy = CaseStudyFactory.getInstance(caseEl);
-  if (caseStudy.isAnswered()) {
-    handleTreatmentToggle(caseStudy, btn);
-    return;
-  }
-  if (btn.disabled) return;
-
-  caseStudy.markAnswered();
-  const visit = caseStudy.currentVisit();
-
-  const optWrap = btn.closest('.answer-opts');
-  for (const b of optWrap.children) {
-    if (b.textContent === visit.correct) {
-      b.classList.add('correct');
-    } else if (b === btn) {
-      b.classList.add('incorrect');
-    }
-    b.disabled = true;
-  }
-
-  const isCorrect = caseStudy.isAnswerCorrect(btn.textContent);
-  const fb = document.createElement('div');
-  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-  fb.innerHTML = '<strong>'
-    + (isCorrect ? 'Correct.' : 'Incorrect.')
-    + '</strong> ' + expandAbbr(visit.explanation);
-  caseEl.appendChild(fb);
-
-  if (visit.treatmentQuestion && isCorrect) {
-    renderTreatmentQuestion(caseStudy, caseEl);
-  } else {
-    appendNextButton(caseStudy, caseEl);
-  }
-}
-
-function handleTreatmentToggle(caseStudy, btn) {
-  if (!btn.closest('.treatment-opts')) return;
-  if (btn.disabled) return;
-
-  const isNowSelected = caseStudy.toggleTreatment(btn.textContent);
-  btn.classList.toggle('selectedOpt', isNowSelected);
-}
+caseStudyWrap.addEventListener('click', (e) => handleClick(e));
 
 export function renderCaseVisit(caseStudy, caseEl) {
   if (caseStudy.isComplete()) {
@@ -237,6 +54,92 @@ export function renderCaseVisit(caseStudy, caseEl) {
     + testHTML
     + '<p class="question-stem">' + expandAbbr(visit.question) + '</p>';
   caseEl.appendChild(optWrap);
+}
+
+function handleClick(e) {
+  const answerBtn = e.target.closest('.answer-btn');
+  if (answerBtn) {
+    handleAnswerClick(answerBtn);
+    return;
+  }
+  const caseEl = e.target.closest('.case-study');
+  if (!caseEl) return;
+
+  if (e.target.closest('.case-restart')) {
+    CaseStudy.discard(caseEl.id);
+    renderCaseVisit(CaseStudy.getInstance(caseEl), caseEl);
+  } else if (e.target.closest('.case-next')) {
+    const caseStudy = CaseStudy.getInstance(caseEl);
+    caseStudy.advanceVisit();
+    renderCaseVisit(caseStudy, caseEl);
+  } else if (e.target.closest('.case-submit')) {
+    showTreatmentResult(CaseStudy.getInstance(caseEl), caseEl);
+  }
+}
+
+function renderAll(container) {
+  container.innerHTML = '';
+  CaseStudy.discardAll();
+
+  Object.entries(caseStudies).forEach(([id, definition]) => {
+    const caseStudy = CaseStudy.getInstance(id, definition);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<h3 class="case-title">${definition.title}</h3>`;
+    const caseEl = document.createElement('div');
+    caseEl.className = 'case-study';
+    caseEl.id = id;
+    card.appendChild(caseEl);
+    container.appendChild(card);
+    renderCaseVisit(caseStudy, caseEl);
+  });
+}
+
+function handleAnswerClick(btn) {
+  const caseEl = btn.closest('.case-study');
+  if (!caseEl) return;
+
+  const caseStudy = CaseStudy.getInstance(caseEl);
+  if (caseStudy.isAnswered()) {
+    handleTreatmentToggle(caseStudy, btn);
+    return;
+  }
+  if (btn.disabled) return;
+
+  caseStudy.markAnswered();
+  const visit = caseStudy.currentVisit();
+
+  const optWrap = btn.closest('.answer-opts');
+  for (const b of optWrap.children) {
+    if (b.textContent === visit.correct) {
+      b.classList.add('correct');
+    } else if (b === btn) {
+      b.classList.add('incorrect');
+    }
+    b.disabled = true;
+  }
+
+  const isCorrect = caseStudy.isAnswerCorrect(btn.textContent);
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
+  fb.innerHTML = '<strong>'
+    + (isCorrect ? 'Correct.' : 'Incorrect.')
+    + '</strong> ' + expandAbbr(visit.explanation);
+  caseEl.appendChild(fb);
+
+  if (visit.treatmentQuestion && isCorrect) {
+    renderTreatmentQuestion(caseStudy, caseEl);
+  } else {
+    appendNextButton(caseStudy, caseEl);
+  }
+}
+
+function handleTreatmentToggle(caseStudy, btn) {
+  if (!btn.closest('.treatment-opts')) return;
+  if (btn.disabled) return;
+
+  const isNowSelected = caseStudy.toggleTreatment(btn.textContent);
+  btn.classList.toggle('selectedOpt', isNowSelected);
 }
 
 function renderTreatmentQuestion(caseStudy, caseEl) {
@@ -305,4 +208,108 @@ function appendNextButton(caseStudy, parent) {
     : 'Case Complete';
   btnRow.appendChild(btn);
   parent.appendChild(btnRow);
+}
+
+class CaseStudy {
+  static #instances = new Map();
+  static #KEY = Symbol();
+
+  static getInstance(elOrId, definition) {
+    const id = elOrId.id || elOrId;
+    let instance = CaseStudy.#instances.get(id);
+    if (!instance) {
+      // Fallback for the discard-and-recreate restart path: the
+      // delegated click handler has the element but not the
+      // definition, so look it up from the cached slice.
+      definition ??= caseStudies[id];
+      if (!definition) throw new Error(
+        'CaseStudy: no definition for "' + id + '"'
+      );
+      instance = new CaseStudy(id, definition, CaseStudy.#KEY);
+      CaseStudy.#instances.set(id, instance);
+    }
+    return instance;
+  }
+
+  static discard(id) {
+    CaseStudy.#instances.delete(id);
+  }
+
+  static discardAll() {
+    CaseStudy.#instances.clear();
+  }
+
+  #id;
+  #visits;
+  #visitIdx = 0;
+  #isAnswered = false;
+  #selectedTreatments = new Set();
+  #correctTreatmentSet;
+
+  constructor(id, definition, key) {
+    if (key !== CaseStudy.#KEY) throw new Error(
+      'CaseStudy: use CaseStudy.getInstance()'
+    );
+    this.#id = id;
+    this.#visits = Object.freeze([...definition.visits]);
+    this.#cacheCorrectTreatmentSet();
+  }
+
+  get id() { return this.#id; }
+  currentVisit() { return this.#visits[this.#visitIdx]; }
+  isComplete() { return this.#visitIdx >= this.#visits.length; }
+  hasMoreVisits() { return this.#visitIdx + 1 < this.#visits.length; }
+  isAnswered() { return this.#isAnswered; }
+  visitNumber() { return this.#visitIdx + 1; }
+
+  advanceVisit() {
+    this.#visitIdx++;
+    this.#isAnswered = false;
+    this.#selectedTreatments.clear();
+    this.#cacheCorrectTreatmentSet();
+  }
+
+  markAnswered() {
+    this.#isAnswered = true;
+  }
+
+  toggleTreatment(option) {
+    if (this.#selectedTreatments.has(option)) {
+      this.#selectedTreatments.delete(option);
+      return false;
+    }
+    this.#selectedTreatments.add(option);
+    return true;
+  }
+
+  isAnswerCorrect(text) {
+    return text === this.currentVisit().correct;
+  }
+
+  isCorrectTreatment(option) {
+    return this.#correctTreatmentSet.has(option);
+  }
+
+  isSelectedTreatment(option) {
+    return this.#selectedTreatments.has(option);
+  }
+
+  isTreatmentCorrect() {
+    return this.#selectedTreatments.size === this.#correctTreatmentSet.size
+      && this.#selectedTreatments.isSubsetOf(this.#correctTreatmentSet);
+  }
+
+  #cacheCorrectTreatmentSet() {
+    this.#correctTreatmentSet = new Set(
+      this.currentVisit()?.correctTreatment || []
+    );
+  }
+}
+
+const result = await loadJson('./data/diagnose-case-studies.json');
+if (result.ok) {
+  caseStudies = result.data;
+  renderAll(caseStudyWrap);
+} else {
+  showFetchError(containerEl, result);
 }

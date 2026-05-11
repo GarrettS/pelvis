@@ -1,0 +1,40 @@
+import {showFetchError} from './load-errors.js';
+import {expandAbbr} from './abbr-expand.js';
+import {loadJson} from './load-json.js';
+
+const containerEl = document.getElementById('patterns-cheat-sheet-content');
+
+const result = await loadJson('./data/cheat-data.json');
+if (result.ok) {
+  buildCheatSheet(result.data);
+} else {
+  showFetchError(containerEl, result);
+}
+
+function buildCheatSheet(cheatData) {
+  const grid = document.getElementById('cheat-sheet-grid');
+  grid.innerHTML = '';
+  const keyLabels = new Set();
+  const colTemplate = document.createElement('div');
+  colTemplate.classList.add('cheat-col');
+  cheatData.forEach((col) => {
+    const div = colTemplate.cloneNode(false);
+    div.innerHTML = '<div class="cheat-col-header">'
+      + expandAbbr(col.name) + '</div>'
+      + col.rows.map((row) => {
+        const keyCls = row.key ? ' key' : '';
+        if (row.key) keyLabels.add(row.l);
+        return '<div class="cheat-row'
+          + keyCls + '">'
+          + '<span>' + expandAbbr(row.l)
+          + '</span>'
+          + '<span>' + expandAbbr(row.v)
+          + '</span></div>';
+      }).join('');
+    grid.appendChild(div);
+  });
+  const legendLabels = document.getElementById('cheat-legend-labels');
+  if (keyLabels.size) {
+    legendLabels.textContent = Array.from(keyLabels).join(', ');
+  }
+}

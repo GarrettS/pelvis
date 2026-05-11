@@ -1,25 +1,13 @@
-import {getDecisionTree} from './study-data-cache.js';
+import {loadJson} from './load-json.js';
+import {showFetchError} from './load-errors.js';
 import {expandAbbr} from './abbr-expand.js';
 
-const branchSummaryTemplate = (() => {
-  const branchSummary = document.createElement('summary');
-  branchSummary.className = 'tree-answer-toggle';
-  return branchSummary;
-})();
+const containerEl = document.getElementById('diagnose-decision-tree-content');
+const treeWrap = document.getElementById('tree-wrap');
 
-const branchTemplate = (() => {
-  const branchDetails = document.createElement('details');
-  branchDetails.className = 'tree-branch';
-  branchDetails.appendChild(branchSummaryTemplate.cloneNode(false));
-  return branchDetails;
-})();
-
-export async function setupDecisionTree() {
-  const tree = await getDecisionTree();
-
-  const wrap = document.getElementById('tree-wrap');
-  wrap.innerHTML = '';
-  renderNode(tree, wrap);
+function renderTree(tree, container) {
+  container.innerHTML = '';
+  renderNode(tree, container);
 }
 
 function renderNode(node, parent) {
@@ -44,6 +32,12 @@ function renderNode(node, parent) {
   node.branches.forEach((branch) => renderBranch(branch, parent));
 }
 
+function renderBranch(branch, parent) {
+  const branchDetailsEl = makeBranchTemplate(branch.answer);
+  renderNode(branch.next, branchDetailsEl);
+  parent.appendChild(branchDetailsEl);
+}
+
 function makeBranchTemplate(answer) {
   const branchDetailsEl = branchTemplate.cloneNode(true);
   const branchSummaryEl = branchDetailsEl.firstElementChild;
@@ -51,15 +45,29 @@ function makeBranchTemplate(answer) {
   return branchDetailsEl;
 }
 
-function renderBranch(branch, parent) {
-  const branchDetailsEl = makeBranchTemplate(branch.answer);
-  renderNode(branch.next, branchDetailsEl);
-  parent.appendChild(branchDetailsEl);
-}
-
 function annotateOutOfScope(content) {
   return content.replace(
     /Myokinematic Restoration(?: & Postural Respiration)?/g,
     '$& (out of scope for this course)'
   );
+}
+
+const branchSummaryTemplate = (() => {
+  const branchSummary = document.createElement('summary');
+  branchSummary.className = 'tree-answer-toggle';
+  return branchSummary;
+})();
+
+const branchTemplate = (() => {
+  const branchDetails = document.createElement('details');
+  branchDetails.className = 'tree-branch';
+  branchDetails.appendChild(branchSummaryTemplate.cloneNode(false));
+  return branchDetails;
+})();
+
+const result = await loadJson('./data/diagnose-decision-tree.json');
+if (result.ok) {
+  renderTree(result.data, treeWrap);
+} else {
+  showFetchError(containerEl, result);
 }

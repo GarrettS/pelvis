@@ -194,27 +194,31 @@ function importSource(source) {
 async function importDiagnoseSubmodule(name) {
   const [
     moduleSource,
-    studyDataCacheSource,
     shuffleSource,
-    abbrExpandSource
+    abbrExpandSource,
+    loadJsonSource,
+    loadErrorsSource
   ] = await Promise.all([
     readFile(new URL(`../scripts/${name}.js`, import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/study-data-cache.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8')
+    readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/load-json.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/load-errors.js', import.meta.url), 'utf8')
   ]);
   const freshDataUrl = (source) => {
     const nonce = `\n// ${Date.now()}-${Math.random()}`;
     return `data:text/javascript;base64,${
       Buffer.from(source + nonce).toString('base64')}`;
   };
-  const cacheUrl = freshDataUrl(studyDataCacheSource);
   const shuffleUrl = freshDataUrl(shuffleSource);
   const abbrExpandUrl = freshDataUrl(abbrExpandSource);
+  const loadJsonUrl = freshDataUrl(loadJsonSource);
+  const loadErrorsUrl = freshDataUrl(loadErrorsSource);
   const rewritten = moduleSource
-    .replace("'./study-data-cache.js'", `'${cacheUrl}'`)
     .replace("'./shuffle.js'", `'${shuffleUrl}'`)
-    .replace("'./abbr-expand.js'", `'${abbrExpandUrl}'`);
+    .replace("'./abbr-expand.js'", `'${abbrExpandUrl}'`)
+    .replace("'./load-json.js'", `'${loadJsonUrl}'`)
+    .replace("'./load-errors.js'", `'${loadErrorsUrl}'`);
   return importSource(rewritten);
 }
 
@@ -229,65 +233,73 @@ function mockFetchOnce(payload) {
   return () => { globalThis.fetch = originalFetch; };
 }
 
-test('doesEntryMatchQuery matches expanded abbreviation titles', async () => {
-  const {doesEntryMatchQuery} = await importDiagnoseSubmodule('diagnose-muscle-map');
-  const entry = {
-    pattern: 'Corrects L AIC (L inlet in IP ER -> needs IP IR)',
-    exercises: []
-  };
-
-  assert.equal(
-    doesEntryMatchQuery(entry, 'anterior interior chain'),
-    true
-  );
-});
-
-test('setupMuscleMap preserves active search query across subview hash changes', async () => {
+function setupMuscleMapDom(initialHash) {
   const document = makeDocument();
   const window = makeWindow();
+  document.register(new TestElement('diagnose-muscle-map-content'));
+  const wrap = document.register(new TestElement('muscle-map-wrap'));
   const viewTabs = document.register(new TestElement('muscle-view-tabs'));
   const byMuscleLink = new TestElement('', {
     tagName: 'a',
-    href: '#diagnose/exercises/byMuscle'
+    href: '#diagnose/muscle-map/byMuscle'
   });
   byMuscleLink.className = 'subview-tab activeTab';
   const byFindingLink = new TestElement('', {
     tagName: 'a',
-    href: '#diagnose/exercises/byFinding'
+    href: '#diagnose/muscle-map/byFinding'
   });
   byFindingLink.className = 'subview-tab';
   viewTabs.appendChild(byMuscleLink);
   viewTabs.appendChild(byFindingLink);
-
   const search = document.register(new TestElement('muscle-search', {
     tagName: 'input'
   }));
-  const wrap = document.register(new TestElement('muscle-map-wrap'));
 
   globalThis.document = document;
   globalThis.window = window;
-  globalThis.location = {hash: '#diagnose/exercises/byMuscle'};
+  globalThis.location = {hash: initialHash};
+  return {wrap, search, window};
+}
+
+test('doesEntryMatchQuery matches expanded abbreviation titles', async () => {
+  setupMuscleMapDom('#diagnose/muscle-map/byMuscle');
+  const restoreFetch = mockFetchOnce({byMuscle: [], byFinding: []});
+  try {
+    const {doesEntryMatchQuery} = await importDiagnoseSubmodule('diagnose-muscle-map');
+    const entry = {
+      pattern: 'Corrects L AIC (L inlet in IP ER -> needs IP IR)',
+      exercises: []
+    };
+
+    assert.equal(
+      doesEntryMatchQuery(entry, 'anterior interior chain'),
+      true
+    );
+  } finally {
+    restoreFetch();
+  }
+});
+
+test('muscle map preserves active search query across subview hash changes', async () => {
+  const {wrap, search, window} = setupMuscleMapDom('#diagnose/muscle-map/byMuscle');
 
   const restoreFetch = mockFetchOnce({
-    muscleExerciseMap: {
-      byMuscle: [
-        {muscle: 'L IO/TA', pattern: 'Corrects L AIC', exercises: []}
-      ],
-      byFinding: [
-        {finding: 'L AIC outlet closure', pattern: 'Corrects L AIC', exercises: []},
-        {finding: 'B PEC respiratory weakness', pattern: 'Needs B PEC hierarchy', exercises: []}
-      ]
-    }
+    byMuscle: [
+      {muscle: 'L IO/TA', pattern: 'Corrects L AIC', exercises: []}
+    ],
+    byFinding: [
+      {finding: 'L AIC outlet closure', pattern: 'Corrects L AIC', exercises: []},
+      {finding: 'B PEC respiratory weakness', pattern: 'Needs B PEC hierarchy', exercises: []}
+    ]
   });
   try {
-    const {setupMuscleMap} = await importDiagnoseSubmodule('diagnose-muscle-map');
-    await setupMuscleMap();
+    await importDiagnoseSubmodule('diagnose-muscle-map');
 
     search.value = 'anterior interior chain';
     search.dispatch('input');
     assert.equal(wrap.children.length, 1);
 
-    globalThis.location.hash = '#diagnose/exercises/byFinding';
+    globalThis.location.hash = '#diagnose/muscle-map/byFinding';
     window.dispatch('hashchange');
 
     assert.equal(wrap.children.length, 1);
@@ -298,49 +310,54 @@ test('setupMuscleMap preserves active search query across subview hash changes',
 
 test('renderCaseVisit uses caseStudy.visitNumber() instead of raw visit data', async () => {
   const document = makeDocument();
+  document.register(new TestElement('diagnose-case-studies-content'));
+  document.register(new TestElement('case-study-wrap'));
   globalThis.document = document;
 
-  const {renderCaseVisit} = await importDiagnoseSubmodule('diagnose-case-studies');
-  const caseEl = new TestElement('case-1');
-  const caseStudy = {
-    isComplete() { return false; },
-    currentVisit() {
-      return {
-        question: 'Choose the next step.',
-        options: ['A', 'B']
-      };
-    },
-    visitNumber() { return 3; }
-  };
+  const restoreFetch = mockFetchOnce({});
+  try {
+    const {renderCaseVisit} = await importDiagnoseSubmodule('diagnose-case-studies');
+    const caseEl = new TestElement('case-1');
+    const caseStudy = {
+      isComplete() { return false; },
+      currentVisit() {
+        return {
+          question: 'Choose the next step.',
+          options: ['A', 'B']
+        };
+      },
+      visitNumber() { return 3; }
+    };
 
-  renderCaseVisit(caseStudy, caseEl);
+    renderCaseVisit(caseStudy, caseEl);
 
-  assert.match(caseEl.innerHTML, /Visit 3/);
-  assert.doesNotMatch(caseEl.innerHTML, /undefined/);
+    assert.match(caseEl.innerHTML, /Visit 3/);
+    assert.doesNotMatch(caseEl.innerHTML, /undefined/);
+  } finally {
+    restoreFetch();
+  }
 });
 
-test('setupDecisionTree renders question nodes without an id fallback', async () => {
+test('decision tree renders question nodes without an id fallback', async () => {
   const document = makeDocument();
+  document.register(new TestElement('diagnose-decision-tree-content'));
   const wrap = document.register(new TestElement('tree-wrap'));
   globalThis.document = document;
 
   const restoreFetch = mockFetchOnce({
-    decisionTree: {
-      question: 'Primary question?',
-      branches: [
-        {
-          answer: 'Yes',
-          next: {
-            terminal: true,
-            content: 'Done'
-          }
+    question: 'Primary question?',
+    branches: [
+      {
+        answer: 'Yes',
+        next: {
+          terminal: true,
+          content: 'Done'
         }
-      ]
-    }
+      }
+    ]
   });
   try {
-    const {setupDecisionTree} = await importDiagnoseSubmodule('diagnose-decision-tree');
-    await setupDecisionTree();
+    await importDiagnoseSubmodule('diagnose-decision-tree');
 
     assert.equal(wrap.children[0].innerHTML, 'Primary question?');
   } finally {
