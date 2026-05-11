@@ -141,7 +141,6 @@ Activation in this codebase uses CSS `display: none ↔ block` for subtab visibi
 After all modules have migrated to self-running module-top side effects:
 
 - The `r.module.init?.()` call in `lazyInit` is removed entirely.
-- The `subtab-shown` `dispatchEvent` call in `activateSubtab` is removed (after `anatomize.js` and `aic-chain.js` migrate to `ResizeObserver`).
 - `LAZY_INIT` no longer accepts the legacy entry value `{ path: './foo.js' }`. Entries are a direct path string or array of strings only.
 
 ## Transition state (current)
@@ -150,7 +149,6 @@ Until all modules migrate, navigation-tabs accepts both the current contract and
 
 - `lazyInit` calls `r.module.init?.()` on each successfully-imported module. Four modules still export `init()` and depend on this call: `scripts/decoder.js`, `scripts/flashcards.js`, `scripts/masterquiz.js`, `scripts/equivalence-quiz.js`. Modules without `init` are fine — the optional chain no-ops. The `r.module.init?.()` call is removed once these four migrate to self-running module-top side effects (see *Removal targets*).
 - `LAZY_INIT` entries can be either the legacy form `{ path: './foo.js' }` or a direct path string / array of strings. Final state is string or array only.
-- `subtab-shown` continues to dispatch until `anatomize.js` and `aic-chain.js` no longer listen to it.
 
 ## What this doc does *not* cover
 

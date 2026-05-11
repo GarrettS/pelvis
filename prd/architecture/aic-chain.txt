@@ -4,41 +4,51 @@ L AIC Chain tab: High-Level Architecture
 Scope
 -----
 Architecture of the L AIC Chain tab, in scripts/aic-chain.js.
-Renders the muscle chain panel, an SVG overlay of anchor circles
-on the body image, leader lines from row to circle, and a detail
-panel for the active muscle. Single active-muscle selection model.
+Renders the muscle chain panel, an SVG overlay of anchor circles on the
+body image, leader lines from row to circle, and a detail panel for the
+active muscle. Single active-muscle selection model.
 
 Reference: layering doctrine in prd/architecture/layering.md.
-Sibling: prd/hla/diagnose.txt (causal chains).
+Related: prd/architecture/navigation-tabs.md for lazy import, module-top
+setup, and ResizeObserver activation contracts.
 
 Pillar mapping
 --------------
-Module code  - scripts/aic-chain.js (init, resolveDomRefs, buildPanel,
-               setActiveMuscle, drawLeaderLine, getOrCreate*View,
-               handleResize, attachListeners). Co-located with the ADT.
+Module code  - scripts/aic-chain.js (module-top bootstrap,
+               resolveDomRefs, buildPanel, setupUi, setActiveMuscle,
+               drawLeaderLine, getOrCreate*View, handleResize).
+               Co-located with the ADT.
 ADT          - AicMuscle (per-muscle decorator) + AicMuscleFactory
-               (chain-level data vendor + lazy instance cache).
+               (chain-level data holder + lazy instance cache).
                Co-located in scripts/aic-chain.js.
 Data         - data/aic-chain.json. Top-level keys: chain, detail,
                fieldLabels. fieldLabels keys (role, pattern,
                correction) drive detail-panel row construction.
-Loader       - direct fetch('data/aic-chain.json') inside init.
-               Bad-data boundary at fetch/parse only; no schema
-               validation (file is shipped with the app).
+Loader       - loadJson('./data/aic-chain.json') at module top.
+               Data failures return POJO {ok, path, cause}; module glue
+               branches on result.ok and calls showFetchError on failure.
+               No schema validation; the file ships with the app.
 
 
-Init
-----
-init() ---+--> fetch('data/aic-chain.json')
-          |    bad path: showFetchError -> return
-          +--> AicMuscleFactory.acceptData(data)
+Module evaluation
+-----------------
+import aic-chain.js
+          +--> resolve .aic-chain-container and required descendants
+          |    missing DOM: appendErrorCallout -> stop before data load
+          +--> loadJson('./data/aic-chain.json')
+          |    !ok: showFetchError(containerEl, result) -> stop
+          +--> AicMuscleFactory.acceptData(result.data)
           |       (clears instance cache, stores chain/detail/labels)
           +--> resetView()  (clears panel, overlay, leader, detail)
           +--> buildPanel() iterates Factory.forEachEntry:
           |       row(id, chainEntry) + optional connection note
           |       + optional terminus note (data-driven)
-          +--> setupStaticUi() (idempotent: listeners + resize handle
-                                + window/subtab-shown listeners)
+          +--> setupUi() binds panel click delegation, resize handle,
+                         and ResizeObserver(tabSectionEl)
+
+Navigation-tabs lazy-loads this file for anatomy-aic-content. The import
+promise is the readiness signal. There is no exported startup function.
+ES module caching makes setupUi run once per page load.
 
 
 User input -> Decorator method
@@ -66,10 +76,10 @@ AicMuscleFactory (static class, module-private state)
 +-- #detailData   { id -> detailEntry }  (role, pattern, correction)
 +-- #fieldLabels  { key -> label }       (drives detail row order)
 |
-+-- acceptData(data)        seed all four; clear instance cache
-+-- getInstance(id)          pure: cache hit, else construct + cache
-+-- forEachEntry(callback)   iterate chain entries (panel build)
-+-- fieldLabelEntries()      [[key,label], ...] (detail-panel build)
++-- acceptData(data)        seed all three data stores; clear cache
++-- getInstance(id)          cache hit, else construct + cache
++-- forEachEntry(callback)   iterate chain entries for panel build
++-- fieldLabelEntries()      [[key,label], ...] for detail panel
 
 
 AicMuscle (per-muscle decorator)
@@ -89,26 +99,34 @@ AicMuscle (per-muscle decorator)
 Module orchestration layer
 --------------------------
 +-- DOM regions     containerEl, panelEl, overlayEl, leaderEl,
-|                   imgEl, detailEl, imageColEl, tabSectionEl,
-|                   subtabContentEl  (resolved once in
-|                   resolveDomRefs)
+|                   imgEl, detailEl, imageColEl, tabSectionEl
+|                   (resolved once in resolveDomRefs)
 +-- Active Object   activeMuscle (single AicMuscle reference)
 +-- Lazy views      detailView (cached panel + valueElsByKey),
 |                   leaderView (cached SVG path)
-+-- Idempotent      isStaticUiReady gates listener/resize binding
-|                   so re-init does not double-bind
++-- Once-only setup  panel listener, resize handle, and ResizeObserver
+|                   are bound during module evaluation; ES module caching
+|                   prevents duplicate binding on revisit
 +-- Templates       detailFieldRowTemplate (lazy, cloneNode for rows)
 
 
 Coupling channels
 -----------------
-+-- id          DOM <-> JSON entry <-> Factory pool   (one string,
-|               three layers; the JSON entries are held by the
-|               Factory's static #chainData / #detailData)
++-- id          DOM <-> JSON entry <-> Factory pool (one string,
+|               three layers; JSON entries are held by the Factory's
+|               static #chainData / #detailData)
 +-- key         fieldLabels key <-> detailEntry field <-> valueElsByKey
 |               (drives detail-panel row construction generically)
-+-- closure     init() and module locals hold DOM region refs;
-|               attachListeners closes over panelEl + the dispatch
++-- closure     module locals hold DOM region refs; setupUi closes over
+|               panelEl and resize targets
+
+
+Layout redraw
+-------------
+ResizeObserver observes tabSectionEl. When the subtab becomes visible or
+resizes, handleResize redraws the leader line for activeMuscle. This is
+the activation/redraw signal for layout changes. If there is no active
+muscle, handleResize returns without work.
 
 
 Doctrine alignment
@@ -117,7 +135,7 @@ Shared Key       - id is the only string crossing DOM, DATA, and pool.
                    fieldLabels key is the only string crossing labels,
                    detail data, and rendered rows.
 Decorator Factory- AicMuscleFactory.getInstance lazily caches AicMuscle
-                   decorators per id; precedent is CausalChainFactory.
+                   decorators per id; precedent is CausalChain.
 Encapsulation    - AicMuscle private state (#chainEntry, #detailEntry,
                    #circlesByView, #mounted); only id-derived accessors
                    and lifecycle methods are public.
@@ -131,6 +149,8 @@ Native First     - panel rows are simple <div>s; click delegation on
                    panelEl reaches any row via .closest('.aic-chain-row').
 Active Object    - activeMuscle holds the single live decorator; no
                    querySelectorAll scans to clear .activeMuscle state.
-Bad-data         - boundary lives only at fetch/parse: HTTP non-OK or
-boundary           fetch/parse throw -> showFetchError. No schema
-                   validation; data is shipped with the app.
+Data boundary    - loadJson catches network, HTTP, and JSON parse failures
+                   into a POJO result. Module-top glue branches on
+                   result.ok and calls showFetchError(containerEl, result)
+                   on failure. Render bugs are not caught as data errors.
+                   No schema validation; data is shipped with the app.

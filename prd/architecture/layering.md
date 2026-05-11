@@ -275,7 +275,7 @@ Names kept consistent for grep-ability.
 - **`loadInto`-style render-inside-catch helper** — `.then(render).catch(showFetchError)` catches render bugs as if they were fetch errors. Use `loadJson` with the `if (result.ok)` branch and render in the success arm.
 - **`init()` export to satisfy navigation-tabs** — the navigation-tabs contract no longer requires it. Module-top side effects on import are the readiness signal.
 - **Dynamic imports inside a feature module** — duplicates `navigation-tabs.js`'s lazy-loading responsibility and creates a second error-handling surface. Static imports only.
-- **Listening for `subtab-shown`** — the event is being removed. For features that need redraw on visibility/dimension change, observe the container with `ResizeObserver`.
+- **Listening for tab-activation events** — feature modules should not depend on synthetic activation events. For features that need redraw on visibility/dimension change, observe the container with `ResizeObserver`.
 
 ## Examples
 
