@@ -1,289 +1,168 @@
-# Diagnose Data-Boundary Migration
+# Diagnose Tab Migration
 
-This is the migration plan for eliminating the data-layer indirection in the
-diagnose tab. Target state is documented in `layering.md` (the layering
-doctrine) and as-built in `prd/hla/diagnose.txt`.
+End state: each diagnose feature is its own self-running module activated as its own subtab via `LAZY_INIT`. No `scripts/diagnose.js` orchestrator. No `mount(container, dataPath)` exports. Data load via `loadJson` (POJO return) with per-feature `showFetchError` on `!result.ok`.
+
+Originally scoped as a data-boundary migration (eliminate `study-data-cache.js`'s indirection over `data/study-data.json`). That work is largely landed. The remaining work is **subtab dissolution**, planned here because it touches the same set of files.
 
 ## Why
 
-After #22 each diagnose feature has its own module, but they all share
-`scripts/study-data-cache.js` and pull slices from `data/study-data.json`. Six
-files crossing a single hub for data access. Per-feature loaders + per-feature
-data files eliminate the indirection without changing the ADT/module-code/
-delegation pattern that landed in #13/#17/#22.
+### Data-boundary phase (largely complete)
 
-The architectural problem is the data boundary, not the ADT/delegation
-pattern. The ADT layer (CausalChain, CaseStudy) is correct. The data layer
-(JSON shape, loader vending, accessor seam) is the smell.
+After the original diagnose split, each diagnose feature had its own module but shared `scripts/study-data-cache.js` and pulled slices from `data/study-data.json`. Six files crossing a single hub for data access. Each feature also exported a `setupX()` wrapper that hid the fetch behind a parameterless function with hardcoded selectors.
 
-## End state
+The phase split `study-data.json` into per-feature JSON files and replaced the cache hub with direct `loadJson` calls. Per-feature JSON files exist; `study-data.json` and `scripts/study-data-cache.js` are deleted in staging.
 
-- `data/study-data.json` deleted.
-- `scripts/study-data-cache.js` deleted.
-- Per-feature JSON files: `data/diagnose-causal-chains.json`,
-  `data/diagnose-case-studies.json`, `data/diagnose-game-scenarios.json`,
-  `data/diagnose-decision-tree.json`, `data/diagnose-muscle-exercise-map.json`,
-  plus `data/nomenclature-translations.json` for the adjacent migration.
-- Each `diagnose-*` module fetches its own JSON inside `setupX()` via a tiny
-  utility (`scripts/load-json.js`).
-- Each `setupX()` handles its own fetch failure inside its own wrap. Failures
-  fragment per section.
-- `scripts/diagnose.js` is composition only: imports each setupX and calls
-  them. No prefetch gate, no orchestrator-level try/catch.
-- No JS-level cache. Service worker handles caching across page loads.
+### Dissolution phase (pending)
 
-## Out of scope
+The five diagnose subtabs must run independently. Constraint:
 
-- Pillar separation within feature modules (extracting CausalChain to its own
-  ADT-only file). Tracked as a future cleanup; this migration keeps each
-  feature's ADT and module code co-located.
-- patterns.js (#23) and other tab modules. This migration is diagnose-only.
-- Behavior changes. The refactor is greenfield in module shape, not
-  user-facing behavior.
+> No cross-submodule dependencies. No big-up-front load — only the active submodule loads. Skeleton is shown per-subtab.
+
+A `diagnose.js` orchestrator — even a clean declarative one with a feature table and top-level `await Promise.all(...)` — violates all three:
+
+- It couples the five features through one import.
+- It fans out all five fetches on tab activation regardless of which subtab is active.
+- It produces a single tab-level skeleton instead of per-subtab skeletons.
+
+The Patterns tab already dissolved its orchestrator for the same reasons. Diagnose follows the same shape.
+
+## What dissolution means structurally
+
+Each diagnose subtab's route segment, container id, and module path share one token:
+
+```
+#diagnose/game           → diagnose-game-content           → scripts/diagnose-game.js
+#diagnose/case-studies   → diagnose-case-studies-content   → scripts/diagnose-case-studies.js
+#diagnose/causal-chains  → diagnose-causal-chains-content  → scripts/diagnose-causal-chains.js
+#diagnose/decision-tree  → diagnose-decision-tree-content  → scripts/diagnose-decision-tree.js
+#diagnose/muscle-map     → diagnose-muscle-map-content     → scripts/diagnose-muscle-map.js
+```
+
+Route token, container id, and module path align through one Shared Key per subtab. `navigation-tabs.js` keys `LAZY_INIT` by container id; the dissolution just registers each subtab module under its own content id and removes the tab-level `diagnose-content` entry.
+
+## Target LAZY_INIT
+
+```js
+'diagnose-game-content':          './diagnose-game.js',
+'diagnose-case-studies-content':  './diagnose-case-studies.js',
+'diagnose-causal-chains-content': './diagnose-causal-chains.js',
+'diagnose-decision-tree-content': './diagnose-decision-tree.js',
+'diagnose-muscle-map-content':    './diagnose-muscle-map.js',
+```
+
+The `'diagnose-content': './diagnose.js'` entry is removed. `scripts/diagnose.js` is deleted.
+
+## Per-feature module shape
+
+Each diagnose feature module becomes self-running. Module-top side effects do the work on import — the same shape `patterns-cheat-sheet.js` and its siblings use.
+
+```js
+import {loadJson} from './load-json.js';
+import {showFetchError} from './load-errors.js';
+
+const container = document.getElementById('diagnose-causal-chains-content');
+
+container.addEventListener('click', (event) => {
+  const target = event.target.closest('.chain');
+  if (!target) return;
+  CausalChainFactory.getInstance(target).handleClick();
+});
+
+const result = await loadJson('./data/diagnose-causal-chains.json');
+if (result.ok) {
+  renderChains(container, result.data);
+} else {
+  showFetchError(container, result);
+}
+```
+
+Key points:
+
+- Container lookup at module top — the container id is hardcoded; the module knows which subtab it belongs to.
+- `loadJson` returns a POJO `{ok, data, path, cause}`; it does not throw. Render is gated on `result.ok`.
+- Render bugs propagate as ordinary errors past the `result.ok` branch (they reject the module's top-level await, which rejects the import, which `navigation-tabs.js` renders via `showImportError`).
+- No `mount(container, dataPath)` export — the orchestrator that would have called it is gone.
+- ADT classes (`CausalChain`, `CaseStudy`) stay page-independent — pure entity behavior, no app-level error rendering, no DOM lookups by absolute selector. The page-coupled glue lives at module top.
+
+## Pre-data control caveat: `diagnose-muscle-map.js`
+
+Four of the five diagnose features render their interactive controls from data — no actionable controls exist in source HTML before render, so `closest()` early-returns protect handlers from pre-data clicks.
+
+`diagnose-muscle-map.js` is different. It has source-rendered controls (`#muscle-view-tabs`, `#muscle-search`) and a `hashchange` handler. A pre-data click or hash change would act on undefined data.
+
+Fix: bind these listeners inside the `result.ok` branch, not at module top. After binding, call `applySubview()` once so any current hash is honored.
+
+This is the same pattern Patterns uses for its source-rendered quiz controls (symptom answer buttons, level quiz reveal/next): the data-ready gate.
+
+## Lifecycle: top-level await as the readiness signal
+
+With top-level `await loadJson(...)` in each module, `navigation-tabs.js`'s `import(path)` promise resolves only after the module's data has loaded and the first render has run. The existing skeleton machinery stays honest: the skeleton appears inside the active subtab's container until the subtab module finishes evaluating.
+
+No dynamic imports inside diagnose modules. Dynamic import is `navigation-tabs.js`'s responsibility — feature modules own data, listeners, and render only.
 
 ## Caching decision
 
-No JS-level cache. Reasoning:
+No JS-level cache. Each per-feature module's load runs once per page load (modules evaluate once per realm by ES module caching). Across page loads, the service worker handles HTTP caching. The new JSON files are precached by `sw.js`; the reverse-direction precache check audits drift at commit time.
 
-- Each `setupX()` is called once per page load (navigation-tabs's
-  `initialized` Set gates re-entry). Within a page load there is no second
-  call to deduplicate.
-- Across page loads, the service worker handles HTTP caching. New JSON files
-  are added to `sw.js` precache; the reverse-direction precache check audits
-  drift at commit time.
-- Failure-rollback retry semantics that `study-data-cache.js` provided
-  (clear `cached` on failure so revisit retries) become automatic when there
-  is no cache to clear.
+## Cross-feature dependency check
 
-## `scripts/load-json.js`
-
-A stateless utility:
-
-```js
-export async function loadJson(path) {
-  const resp = await fetch(path);
-  if (!resp.ok) throw resp;
-  return resp.json();
-}
-```
-
-Throws the `Response` on HTTP error, the `SyntaxError` on parse failure.
-Same error semantics `study-data-cache.js` provided, without the cache
-machinery. Each `setupX()` calls `loadJson('./data/...')`.
+The five diagnose modules do not import each other. They share only common utilities (`loadJson`, `showFetchError`, expand-abbreviation helpers). No dependency blocks dissolution.
 
 ## Commit sequence
 
-Each commit is independently reviewable; sequence is forward-only.
+### Already landed
 
-### Commit A — Layering doctrine + migration plan + diagnose-hla update
+- Per-feature JSON files: `data/diagnose-causal-chains.json`, `data/diagnose-case-studies.json`, `data/diagnose-game-scenarios.json`, `data/diagnose-decision-tree.json`, `data/diagnose-muscle-exercise-map.json`, plus `data/nomenclature-translations.json` for the adjacent nomenclature migration.
+- `scripts/load-json.js` exists and returns the POJO `{ok, data, path, cause}`.
+- `data/study-data.json` and `scripts/study-data-cache.js` deleted in staging.
 
-No source-code changes. Adds:
-- `prd/architecture/layering.md` (target architecture: pillars, rules,
-  contracts, anti-patterns)
-- `prd/architecture/diagnose-data-boundary-migration.md` (this file)
-- Updates to `prd/hla/diagnose.txt` referencing the doctrine
-  and describing the data-boundary gap
+### Pending — doctrine reconciliation
 
-### Commit B — Untracked-file cleanup (working-tree only, no git commit)
+`prd/architecture/layering.md` previously described the typed-error `FetchFailure` contract and the orchestrated `mount(container, dataPath)` shape. Reconciliation against the POJO contract and the dissolution direction lands before or alongside the first feature conversion so doc and code don't drift.
 
-Delete `scripts/listener-once.js` (created during a discarded approach,
-never imported) and `tmp-flashcards-form-probe.html` (persistent dev
-artifact). Both files were untracked, so the deletion is a local
-working-tree cleanup with no git artifact. Effectively a no-op from
-the repo's perspective; recorded here so the sequence numbers stay
-stable.
+### Pending — per-feature conversion (one commit per feature, any order)
 
-### Commit C — Revert option-B working-tree changes + per-module listener-bind guard
+For each diagnose feature:
 
-Restore the pre-option-B shape across the 5 diagnose modules: listener
-binding inside `setupX()`, no module-top DOM lookups. Add a per-module
-`let listenersBound = false;` flag and guard the listener-binding block:
+1. Convert the module from `export async function mount(container, dataPath)` to self-running module-top side effects:
+   - Move container lookup to module top using the subtab content id.
+   - Move the delegated listener bind to module top (generated controls) or inside the `result.ok` branch (source-rendered controls — `diagnose-muscle-map.js` only).
+   - `const result = await loadJson(path)` at module top.
+   - `if (result.ok) render(...); else showFetchError(container, result);`.
+   - For `diagnose-muscle-map.js`: defer source-rendered-control listeners and `hashchange` to inside the `result.ok` branch; call `applySubview()` once after binding.
+2. Add the module to `LAZY_INIT` under its subtab content id; remove the matching mount call from `diagnose.js`.
+3. Update the per-feature regression test to fetch-mock + dynamic-import-the-module pattern (mirroring Patterns subtab tests).
 
-```js
-if (!listenersBound) {
-  wrap.addEventListener('click', handleX);
-  listenersBound = true;
-}
-```
+### Pending — final dissolution commit
 
-**Rationale:** `setupX()` runs exactly once per page load only when
-`diagnose.init()` resolves. `scripts/navigation-tabs.js:71-74` deletes the
-`initialized` gate on init rejection, so a programming bug in any setupX
-that escapes its own try/catch will trigger revisit re-running every
-setupX — re-binding listeners on already-successful sections. The
-per-module flag closes that gap: listener binding is idempotent regardless
-of init lifecycle.
+When all five features are self-running and registered under their subtab content ids:
 
-This is the per-module-flag answer we discussed at length. Symbol-marker
-helper (`bindOnce(target, fn)`) is an equivalent alternative, slightly
-more robust to dynamic-wrap futures (nothing on this codebase needs that
-robustness today). Per-module flag preferred for minimal infrastructure.
-
-### Commit D — Add `scripts/load-json.js`
-
-Pure utility, no consumers yet. Adds the file to sw.js precache so the
-reverse-direction check passes.
-
-### Commit E — Create per-feature JSON files + sw.js precache
-
-Split `data/study-data.json` into the per-feature files. Don't yet touch JS
-modules. sw.js precache adds new entries (does not yet remove
-study-data.json — that happens in commit H).
-
-### Commits F-1..F-5 — Per-feature module refactor (one commit per feature)
-
-Each commit:
-- Replaces `import { getX } from './study-data-cache.js'` with
-  `import { loadJson } from './load-json.js'`.
-- Replaces `await getX()` with `await loadJson('./data/diagnose-*.json')` in
-  `setupX()`.
-- Adds inline try/catch around the fetch; on failure calls
-  `showFetchError(wrap, 'diagnose-*.json', cause)`.
-- Updates the corresponding regression test in `tests/diagnose.test.mjs`.
-
-Order:
-- F-1: diagnose-decision-tree (smallest)
-- F-2: diagnose-case-studies
-- F-3: diagnose-causal-chains
-- F-4: diagnose-game
-- F-5: diagnose-muscle-map
-
-### Commit G — Migrate nomenclature
-
-Same shape applied to `scripts/nomenclature.js`. Replaces `getTranslations`
-with `loadJson('./data/nomenclature-translations.json')`. Inline error
-handling.
-
-### Commit H — Delete `study-data-cache.js` and `data/study-data.json`
-
-Both files now have no consumers. Remove. Update `sw.js` precache: drop
-study-data.json. Update `tests/issue-4-fetch-errors.test.mjs` to test
-`loadJson` directly (the cache-retry semantic was a property of
-study-data-cache; with no cache, the test becomes "fetch fails →
-loadJson rejects with the Response" and "fetch returns invalid JSON →
-loadJson rejects with SyntaxError").
-
-### Commit I — Slim `scripts/diagnose.js`
-
-Remove `prefetchStudyData` import. Remove the orchestrator-level try/catch
-(each setupX handles its own EXPECTED errors now — fetch failures render
-inline in the section's wrap and the setupX resolves cleanly). `init()`
-becomes:
-
-```js
-import { setupGame } from './diagnose-game.js';
-import { setupCaseStudies } from './diagnose-case-studies.js';
-import { setupCausalChains } from './diagnose-causal-chains.js';
-import { setupDecisionTree } from './diagnose-decision-tree.js';
-import { setupMuscleMap } from './diagnose-muscle-map.js';
-
-export async function init() {
-  const container = document.getElementById('diagnose-content');
-  if (!container) return;
-  await Promise.all([
-    setupGame(),
-    setupCaseStudies(),
-    setupCausalChains(),
-    setupDecisionTree(),
-    setupMuscleMap()
-  ]);
-}
-```
-
-**Use `Promise.all`, not `Promise.allSettled`.** allSettled consumes
-rejections and returns them in the results array; init() would resolve
-cleanly even if a setupX threw a programming bug, hiding the bug under
-navigation-tabs's success-marked tab. Promise.all rejects on the first
-unexpected rejection, which causes navigation-tabs to release the gate
-and revisit retries — the right behavior for unexpected bugs.
-
-Each setupX is responsible for catching its own EXPECTED errors (fetch
-failures) and resolving cleanly. Only programming bugs that escape the
-section's local try/catch will cause init to reject. That is the
-intended behavior: expected failures fragment per section without tab
-re-init; unexpected bugs surface and trigger retry on revisit.
-
-Per-module listener-bind flag (Commit C) ensures retry does not re-bind
-listeners on sections that succeeded on the first attempt.
-
-## Work split
-
-**Claude (me) drives all source-code commits A-I sequentially.**
-
-**Codex parallel work (no source-code overlap):**
-- Review Commit A (layering doctrine) before source-code commits begin.
-  Push back on framing if anything doesn't hold up.
-- Amend `prd/hla/patterns.md` against the doctrine: drop the
-  proposed `patterns-data.js`, replace with per-feature loader pattern. Make
-  it a doctrine-aligned target for #23.
-- Audit one non-patterns tab module (anatomize, decoder, masterquiz, or
-  flashcards) at the layering-doctrine level. Brief report.
-- Review each commit B-I as it lands.
+- Remove the `'diagnose-content': './diagnose.js'` entry from `LAZY_INIT`.
+- Delete `scripts/diagnose.js`.
+- Update `sw.js` precache: `diagnose.js` removed; each feature module remains.
+- Manual browser check per the `MEMORY.md` verification checklist, plus: each diagnose subtab loads its JSON only when activated; per-subtab fetch failures render inside the active subtab container; switching between subtabs does not re-fetch.
 
 ## Verification per commit
 
-- `node --test` passes (16/16, plus per-feature loader tests as F-1..F-5
-  add them)
-- `bash bin/pre-commit-check.sh` passes (in particular the reverse-direction
-  precache check catches sw.js drift)
-- Manual browser check after F-5 lands: each diagnose section renders;
-  fetch failures (DevTools "Offline" mode) display per-section error
-  rendering inside each wrap
+- `node --test` passes.
+- `bash bin/pre-commit-check.sh` passes; the reverse-direction precache check catches `sw.js` drift.
+- Manual browser check: the converted subtab activates with skeleton; renders on success; renders per-feature error inside its own container on fetch failure; programming-bug render errors surface as import errors via `showImportError`, not as fetch errors.
 
 ## Risks
 
-### First-install network fan-out
+### Per-subtab fetch instead of bulk
 
-Multiple JSON fetches on first tab visit (5 diagnose + 1 nomenclature = 6
-total, vs the current 1 study-data.json). Bounds:
+Each subtab now fetches its own JSON on first activation. On a cold cache, switching through all five subtabs in one session triggers five separate fetches — up from the previous one-fetch-then-cache pattern. The service worker precaches all five files, so post-install this is zero network round-trips. The bounded cold-cache cost buys subtab independence.
 
-- The service worker precaches all on install. After SW install, every
-  subsequent visit hits cache — zero network fetches.
-- On the very first page load, if the user clicks Diagnose before SW install
-  completes, the fetches go to network. HTTP/2 multiplexes them; small
-  JSONs in parallel are typically sub-second.
+### Source-rendered controls in `diagnose-muscle-map.js`
 
-Worth keeping in mind beyond the bounds:
+The pre-data-click hazard is real and must be addressed in that file's conversion commit, not left for a follow-up. The Patterns precedent (symptom quiz, level quiz) is the model.
 
-- **Request-chain length matters for perceived responsiveness.** Five small
-  parallel fetches feel different from a single larger fetch even if the
-  total bytes match, because each section's render is gated on its own
-  fetch. Empty sections during the small window between tab activation and
-  data arrival are a UX cost.
-- **Load order may need consideration during refactor.** Currently the
-  proposal fires all 5 setupX in parallel via `Promise.all`. If
-  user-attention focus warrants it (e.g., the user is most likely looking
-  at the top section), prioritizing that section's data load — by ordering
-  the awaits, prefetching from index.html, or showing skeleton loaders —
-  could be added later. Not part of this migration; flagged for future
-  consideration.
-- **Submodule focus** is a related concern: the user may be more interested
-  in Causal Chains than the Game on a given visit. Today no module knows
-  which section the user has in view. If perceived latency becomes an
-  issue, viewport-aware loading (e.g., IntersectionObserver-driven prefetch
-  on tab open, lazy-render until visible) would be the next step. Out of
-  scope here.
+## Out of scope
 
-The migration accepts the bounded first-install cost in exchange for the
-indirection elimination. If user-perceived responsiveness regresses, future
-work can address it without unwinding the per-feature loader pattern.
-
-### Test infrastructure
-
-Tests need to mock `globalThis.fetch` per call rather than once for
-study-data.json. The fetch-error test pattern already supports this; the
-diagnose regression tests will need each setupX test to install a fetch
-mock that returns the right per-feature JSON shape.
-
-### Failure UX changes
-
-Instead of "study-data.json failed" at the tab level, per-section
-"couldn't load this section" inside each wrap. More informative; slightly
-more code paths to test. Each section is autonomous — one section's
-failure does not block the others.
+- Behavior changes. The refactor is greenfield in module shape, not user-facing behavior.
+- `aic-chain.js` `cached` → `instance` rename. Optional drive-by; can be a small commit on its own.
 
 ## Rollback
 
-Each commit is reversible in isolation. Commit H is the irreversible point
-(study-data.json deleted). Before commit H, the codebase has both
-mechanisms; after H, the cache module is gone.
+Each per-feature conversion is reversible in isolation (revert the commit, restore the LAZY_INIT entry, restore the `mount` export). The final dissolution commit (delete `diagnose.js`, remove the tab-level LAZY_INIT entry) is the irreversible point.
