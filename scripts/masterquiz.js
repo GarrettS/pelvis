@@ -1,10 +1,13 @@
 import { getAllEquivalent } from './equivalence.js';
-import { appendErrorCallout, showFetchError } from "./load-errors.js";
+import { appendErrorCallout, showFetchError } from './load-errors.js';
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
+import { loadJson } from './load-json.js';
 import { tryLoad as tryLoadProgress, updateEntry as updateProgress,
   getStats, clearAll as clearProgress, MASTERY_STREAK
 } from './master-quiz-progress.js';
+
+const containerEl = document.getElementById('masterquiz-content');
 
 const DOMAINS = [
   'nomenclature', 'tests', 'treatment',
@@ -55,8 +58,7 @@ function buildQueue(domains, count, priorityMode) {
 let activeScreenClass = 'screen-config';
 
 function showScreen(cls) {
-  const section = document.getElementById('masterquiz-content');
-  section.classList.replace(activeScreenClass, cls);
+  containerEl.classList.replace(activeScreenClass, cls);
   activeScreenClass = cls;
 }
 
@@ -585,8 +587,8 @@ const CLICK_DISPATCH = {
 };
 
 
-function initListeners(tab) {
-  tab.addEventListener('click', (e) => {
+function initListeners() {
+  containerEl.addEventListener('click', (e) => {
     const action = e.target.closest(
       '.mq-options button, .mq-result-summary, .mq-result-save'
     );
@@ -606,7 +608,7 @@ function initListeners(tab) {
     }
   });
 
-  tab.addEventListener('change', (e) => {
+  containerEl.addEventListener('change', (e) => {
     const pinCheckbox = e.target.closest('#mq-pin-equiv');
     if (pinCheckbox) {
       equivPinned = pinCheckbox.checked;
@@ -618,40 +620,21 @@ function initListeners(tab) {
     }
   });
 
-  tab.addEventListener('keydown', (e) => {
+  containerEl.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && /^(?:INPUT|SELECT)/.test(e.target.tagName)) {
       e.preventDefault();
     }
   });
 }
 
-export async function init() {
-  const tab = document.getElementById('masterquiz-content');
-  const fileName = 'master-quiz.json';
-  const fullPath = 'data/' + fileName;
-  if (!tab) return;
+async function bootstrap() {
+  const result = await loadJson('./data/master-quiz.json');
+  if (!result.ok) return showFetchError(containerEl, result);
 
-  let resp;
-  try {
-    resp = await fetch(fullPath);
-  } catch (fetchErr) {
-    showFetchError(tab, { path: fullPath, cause: fetchErr });
-    return;
-  }
-
-  if (!resp.ok) {
-    showFetchError(tab, { path: fullPath, cause: resp });
-    return;
-  }
-
-  try {
-    QUESTIONS = await resp.json();
-  } catch (syntaxError) {
-    showFetchError(tab, { path: fullPath, cause: syntaxError });
-    return;
-  }
-
+  QUESTIONS = result.data;
   renderStats();
   syncStartButton();
-  initListeners(tab);
+  initListeners();
 }
+
+await bootstrap();

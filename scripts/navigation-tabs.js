@@ -46,8 +46,8 @@ const SHOW_SKELETON_AFTER_MS = 250;
 
 function importModule(path) {
   return import(path).then(
-    (module) => ({ok: true, path, module}),
-    (cause) => ({ok: false, path, cause})
+    ()    => ({ok: true,  path}),
+    cause => ({ok: false, path, cause})
   );
 }
 
@@ -67,17 +67,13 @@ function lazyInit(contentId) {
     SHOW_SKELETON_AFTER_MS
   );
 
-  Promise.all(paths.map(importModule)).then((results) => {
+  Promise.all(paths.map(importModule)).then(results => {
     clearTimeout(skeletonTimer);
     clearTabLoading(container);
 
-    results.forEach((r) => {
-      if (r.ok) {
-        r.module.init?.();
-      } else {
-        showImportError(container, r.path, r.cause);
-      }
-    });
+    results
+      .filter(r => !r.ok)
+      .forEach(r => showImportError(container, r.path, r.cause));
   });
 }
 

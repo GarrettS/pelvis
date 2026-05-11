@@ -12,7 +12,7 @@
 ## What navigation-tabs does *not* own
 
 - Module readiness signaling (no awaitable contract beyond import resolution).
-- Module-internal setup beyond what `import()` runs (end-state contract; the transitional `r.module.init?.()` call is documented under "Transition state").
+- Module-internal setup beyond what `import()` runs. Modules perform setup at module top.
 - Module activation events (no `subtab-shown` dispatch).
 - Data loading or data-error rendering (each module owns its data; data errors render inside the module's container).
 - Subsequent activations beyond the first (the module cache handles repeat imports; modules use `ResizeObserver` for layout-redraw on revisit).
@@ -96,17 +96,15 @@ The skeleton itself is a generic placeholder (one heading skeleton + two line sk
 
 A lazy-loaded module:
 
-- **MAY** export anything it needs internally. **Is not required to export `init()`.**
-- **Performs setup at module top** as side effects on import. Module-top runs once per realm via the ES module cache.
+- **Performs setup at module top** as side effects on import. Module-top runs once per realm via the ES module cache. Modules may export anything they need internally; navigation-tabs does not call any function on them.
 - **Handles its own data load.** Uses `loadJson` from `scripts/load-json.js`, which returns a POJO `{ok, data, path, cause}`. Render runs only on `result.ok`; render bugs propagate as ordinary errors past the explicit `if (!result.ok)` branch.
 - **Renders its own data errors** at the implementation layer (the file imported by navigation-tabs, or the file that calls per-feature `mount` functions). ADT classes / per-feature functions return or propagate the result; the implementation layer checks `result.ok` and calls `showFetchError(container, result)` on failure.
-- **For layout-sensitive features** (those needing redraw when the container becomes visible or resizes): observes its own container with `ResizeObserver`. Does not rely on a `subtab-shown` event.
+- **For layout-sensitive features** (those needing redraw when the container becomes visible or resizes): observes its own container with `ResizeObserver`.
 - **Pre-data controls** (interactive elements present in source HTML before data loads) are either `disabled` until render or guard explicitly on data-ready in their handlers. Generated controls (those that don't exist before render) need no guard — `closest()` returns null and handlers return early.
 
 Modules **MUST NOT**:
 
 - Depend on navigation-tabs calling any function on them (the import is the only signal).
-- Depend on a `subtab-shown` event for activation work (it is being removed; use `ResizeObserver` for what actually matters, which is dimension change).
 - Add or remove the skeleton themselves — that is navigation's responsibility.
 
 ## Retry semantics
@@ -121,12 +119,12 @@ Distinct failure modes; one recovery mechanism. Documented honestly so users and
 
 ## ResizeObserver as the layout-redraw signal
 
-Replaces the previous `subtab-shown` event for modules that need redraw on visibility/dimension change (anatomize, aic-chain).
+Layout-sensitive modules (anatomize, aic-chain) observe their own container with `ResizeObserver`. One signal covers both cases:
 
-- The module observes its own container with `ResizeObserver`.
-- When the container goes from 0×0 (hidden via `display: none`) to non-zero (becomes visible), the observer fires — initial draw at first visibility.
-- When the container resizes (window resize, panel resize), the observer fires — redraw on dimension change.
-- The observer callback should be idempotent (existing draw functions in this codebase already are: e.g., `drawArrows` skips structures that already have an arrow drawn).
+- **First display:** container goes from 0×0 (hidden via `display: none`) to non-zero. Observer fires — initial draw.
+- **Subsequent resize:** window or panel resize. Observer fires — redraw.
+
+The callback must be safe to re-run; existing draw functions are (e.g., `drawArrows` skips structures that already have an arrow drawn).
 
 Activation in this codebase uses CSS `display: none ↔ block` for subtab visibility, so dimensions change on activation and `ResizeObserver` fires reliably. If activation ever switches to `visibility` or `opacity` toggling, dimensions wouldn't change and `ResizeObserver` wouldn't fire — that's a contract dependency worth knowing.
 
@@ -135,20 +133,6 @@ Activation in this codebase uses CSS `display: none ↔ block` for subtab visibi
 `showImportError(container, pathSpec, moduleError)` (existing helper in `scripts/load-errors.js`) renders an import error inside the container. Used by navigation-tabs's `.catch` on the import promise.
 
 `pathSpec` is a string — for multi-path entries, the paths joined by `', '`. Sufficient for the developer to identify which files were involved; the user-facing message says "couldn't load this section" and the path is diagnostic.
-
-## Removal targets (post-migration)
-
-After all modules have migrated to self-running module-top side effects:
-
-- The `r.module.init?.()` call in `lazyInit` is removed entirely.
-- `LAZY_INIT` no longer accepts the legacy entry value `{ path: './foo.js' }`. Entries are a direct path string or array of strings only.
-
-## Transition state (current)
-
-Until all modules migrate, navigation-tabs accepts both the current contract and legacy forms:
-
-- `lazyInit` calls `r.module.init?.()` on each successfully-imported module. Four modules still export `init()` and depend on this call: `scripts/decoder.js`, `scripts/flashcards.js`, `scripts/masterquiz.js`, `scripts/equivalence-quiz.js`. Modules without `init` are fine — the optional chain no-ops. The `r.module.init?.()` call is removed once these four migrate to self-running module-top side effects (see *Removal targets*).
-- `LAZY_INIT` entries can be either the legacy form `{ path: './foo.js' }` or a direct path string / array of strings. Final state is string or array only.
 
 ## What this doc does *not* cover
 

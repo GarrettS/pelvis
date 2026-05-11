@@ -1,11 +1,22 @@
-import { appendErrorCallout, showFetchError } from "./load-errors.js";
+import { appendErrorCallout, showFetchError } from './load-errors.js';
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
+import { loadJson } from './load-json.js';
+
+const USER_FC_KEY = 'userFlashcards';
 
 let FLASHCARD_DECK = [];
+let allCards = [];
+let activeCat = 'all';
+let activeWeight = 'all';
+let deck = [];
+let currentIdx = 0;
+let cardsRemaining = 0;
+
+const containerEl = document.getElementById('flashcards-content');
 
 function getUserCards() {
-  const raw = localStorage.getItem('userFlashcards');
+  const raw = localStorage.getItem(USER_FC_KEY);
   return raw ? JSON.parse(raw) : [];
 }
 
@@ -28,12 +39,52 @@ function showSaveFailure(container, message) {
   appendErrorCallout(container, message);
 }
 
-let allCards = [];
-let activeCat = 'all';
-let activeWeight = 'all';
-let deck = [];
-let currentIdx = 0;
-let cardsRemaining = 0;
+function saveUserFlashcard(card) {
+  let rawCards;
+  try {
+    rawCards = localStorage.getItem(USER_FC_KEY);
+  } catch (storageReadError) {
+    return {
+      ok: false,
+      message: "Couldn't save flashcard: browser storage is unavailable: "
+        + storageReadError.message
+    };
+  }
+
+  let savedCards;
+  try {
+    savedCards = rawCards ? JSON.parse(rawCards) : [];
+  } catch (parseError) {
+    return {
+      ok: false,
+      message: "Couldn't save flashcard: saved card data is corrupt: "
+        + parseError.message
+    };
+  }
+
+  let serializedCards;
+  try {
+    serializedCards = JSON.stringify(withUserCard(savedCards, card));
+  } catch (stringifyError) {
+    return {
+      ok: false,
+      message: "Couldn't save flashcard: saved card data couldn't be prepared: "
+        + stringifyError.message
+    };
+  }
+
+  try {
+    localStorage.setItem(USER_FC_KEY, serializedCards);
+  } catch (storageWriteError) {
+    return {
+      ok: false,
+      message: "Couldn't save flashcard: browser storage is unavailable: "
+        + storageWriteError.message
+    };
+  }
+
+  return { ok: true };
+}
 
 function getFilteredCards() {
   return allCards.filter(c => {
@@ -129,16 +180,16 @@ function showEditStep() {
 
 function renderCard() {
   const progressEl = document.getElementById('fc-progress');
-  const wrap = document.getElementById('fc-card-wrap');
+  const cardWrap = document.getElementById('fc-card-wrap');
 
   progressEl.textContent = cardsRemaining + ' of ' + deck.length + ' remaining';
 
   if (!deck.length) {
-    wrap.innerHTML = '';
+    cardWrap.innerHTML = '';
     const msg = document.createElement('div');
     msg.className = 'callout';
     msg.textContent = 'No cards match the current filters.';
-    wrap.appendChild(msg);
+    cardWrap.appendChild(msg);
     return;
   }
 
@@ -147,7 +198,7 @@ function renderCard() {
 
   const nextBtn = document.createElement('button');
   nextBtn.className = 'btn';
-  nextBtn.textContent = 'Next \u2192';
+  nextBtn.textContent = 'Next →';
   nextBtn.addEventListener('click', () => {
     cardsRemaining--;
     currentIdx = (currentIdx + 1) % deck.length;
@@ -159,25 +210,14 @@ function renderCard() {
 
   actions.appendChild(nextBtn);
 
-  wrap.innerHTML = '';
-  wrap.appendChild(cardDiv);
+  cardWrap.innerHTML = '';
+  cardWrap.appendChild(cardDiv);
 }
 
-export async function init() {
-  const wrap = document.getElementById('fc-card-wrap');
-  if (!wrap) return;
+const result = await loadJson('./data/flashcard-deck.json');
+if (result.ok) {
+  FLASHCARD_DECK = result.data;
 
-  try {
-    const resp = await fetch('data/flashcard-deck.json');
-    if (!resp.ok) {
-      showFetchError(wrap, { path: 'data/flashcard-deck.json', cause: resp });
-      return;
-    }
-    FLASHCARD_DECK = await resp.json();
-  } catch (cause) {
-    showFetchError(wrap, { path: 'data/flashcard-deck.json', cause });
-    return;
-  }
   const userCards = tryGetUserCards().map(c => ({
     ...c,
     category: c.category || 'user_created',
@@ -231,9 +271,9 @@ export async function init() {
     el.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
   });
 
-  function syncPreviewBtn() {
+  const syncPreviewBtn = () => {
     previewBtn.disabled = !(frontInput.value.trim() && backInput.value.trim());
-  }
+  };
   frontInput.addEventListener('input', syncPreviewBtn);
   backInput.addEventListener('input', syncPreviewBtn);
 
@@ -259,9 +299,9 @@ export async function init() {
       back: backInput.value.trim(),
       backDetail: detailInput.value.trim() || null,
     };
-    const container = document.getElementById('fc-preview-card');
-    container.innerHTML = '';
-    container.appendChild(buildCardDOM(previewCard).cardDiv);
+    const previewContainer = document.getElementById('fc-preview-card');
+    previewContainer.innerHTML = '';
+    previewContainer.appendChild(buildCardDOM(previewCard).cardDiv);
 
     document.getElementById('fc-edit-section').classList.add('hidden');
     document.getElementById('fc-preview-section').classList.remove('hidden');
@@ -286,55 +326,13 @@ export async function init() {
       backDetail: detailInput.value.trim() || null,
     };
 
-    let savedCards;
-    let rawCards;
-    try {
-      rawCards = localStorage.getItem('userFlashcards');
-    } catch (storageReadError) {
-      showSaveFailure(
-        addForm,
-        "Couldn't save flashcard: browser storage is unavailable: "
-          + storageReadError.message
-      );
-      return;
-    }
-
-    try {
-      savedCards = rawCards ? JSON.parse(rawCards) : [];
-    } catch (parseError) {
-      showSaveFailure(
-        addForm,
-        "Couldn't save flashcard: saved card data is corrupt: "
-          + parseError.message
-      );
-      return;
-    }
-
-    let serializedCards;
-    try {
-      serializedCards = JSON.stringify(withUserCard(savedCards, newCard));
-    } catch (stringifyError) {
-      showSaveFailure(
-        addForm,
-        "Couldn't save flashcard: saved card data couldn't be prepared: "
-          + stringifyError.message
-      );
-      return;
-    }
-
-    try {
-      localStorage.setItem('userFlashcards', serializedCards);
-    } catch (storageWriteError) {
-      showSaveFailure(
-        addForm,
-        "Couldn't save flashcard: browser storage is unavailable: "
-          + storageWriteError.message
-      );
+    const saveResult = saveUserFlashcard(newCard);
+    if (!saveResult.ok) {
+      showSaveFailure(addForm, saveResult.message);
       return;
     }
 
     allCards.push(newCard);
-
     deck.unshift(newCard);
     currentIdx = 0;
     cardsRemaining = deck.length;
@@ -344,4 +342,6 @@ export async function init() {
     clearForm();
     renderCard();
   });
+} else {
+  showFetchError(containerEl, result);
 }
