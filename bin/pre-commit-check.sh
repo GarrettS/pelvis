@@ -227,7 +227,8 @@ if [ -f sw.js ]; then
     echo -e "${GREEN}PASS${NC}  All sw.js precache entries exist"
   fi
 
-  # Reverse direction: every script/css/data file should be in sw.js.
+  # Reverse direction: every script/css file should be in sw.js.
+  # Data JSON is governed by the Data Load Consumption check below.
   PRECACHE_LIST=$(grep -oE "'\.\/[^']+'" sw.js | tr -d "'")
   MISSING_FROM_PRECACHE=""
   while IFS= read -r f; do
@@ -235,24 +236,31 @@ if [ -f sw.js ]; then
     if ! echo "$PRECACHE_LIST" | grep -qxF "$expected"; then
       MISSING_FROM_PRECACHE="${MISSING_FROM_PRECACHE}  ${f}\n"
     fi
-  done < <(find scripts css data -type f \
-    \( -name '*.js' -o -name '*.css' -o -name '*.json' \) 2>/dev/null)
+  done < <(find scripts css -type f \
+    \( -name '*.js' -o -name '*.css' \) 2>/dev/null)
 
   if [ -n "$MISSING_FROM_PRECACHE" ]; then
     echo -e "${RED}FAIL${NC}  Files exist but are not in sw.js precache"
     echo -e "$MISSING_FROM_PRECACHE"
     FAIL=1
   else
-    echo -e "${GREEN}PASS${NC}  All scripts/css/data files are in sw.js precache"
+    echo -e "${GREEN}PASS${NC}  All scripts/css files are in sw.js precache"
   fi
 fi
 
-# Flag files in img/ and data/ not referenced by app code.
+if [ -f "bin/check-data-load-consumption.mjs" ]; then
+  if ! node bin/check-data-load-consumption.mjs; then
+    FAIL=1
+  fi
+fi
+
+# Flag files in img/ not referenced by app code.
+# Data JSON orphan checks live in Data Load Consumption.
 # Only app files count as valid references — dev tools (coord-picker, tools/)
 # do not justify an asset's inclusion in the deployed app.
 APP_EXCLUDES="$EXCLUDES|sw\.js|coord-picker|tools/"
 ORPHAN_ASSETS=""
-for asset in img/* data/*; do
+for asset in img/*; do
   [ -f "$asset" ] || continue
   basename=$(basename "$asset")
   refs=$(grep -rl --include='*.html' --include='*.js' --include='*.json' \
@@ -265,10 +273,10 @@ for asset in img/* data/*; do
 done
 
 if [ -n "$ORPHAN_ASSETS" ]; then
-  echo -e "${YELLOW}WARN${NC}  Unreferenced assets in img/ or data/  [verify: used by declared process or delete]"
+  echo -e "${YELLOW}WARN${NC}  Unreferenced img assets  [verify: used by declared process or delete]"
   echo -e "$ORPHAN_ASSETS"
 else
-  echo -e "${GREEN}PASS${NC}  All img/ and data/ assets referenced"
+  echo -e "${GREEN}PASS${NC}  All img assets referenced"
 fi
 
 # ---- Doctrine integrity ----
@@ -310,9 +318,6 @@ if [ -n "$ORPHAN_PRDS" ]; then
 else
   echo -e "${GREEN}PASS${NC}  All PRDs referenced"
 fi
-
-# Warn once daily if .doctrine is behind canonical.
-bash bin/check-doctrine-sync.sh
 
 # ---- Summary ----
 

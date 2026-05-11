@@ -147,11 +147,6 @@ function initListeners() {
     });
 }
 
-function resetState() {
-  Object.assign(state, defaultState());
-  attemptedOnCurrent = false;
-}
-
 function renderImageSelector() {
   document.getElementById('anat-image-selector').textContent = '';
 
@@ -578,7 +573,7 @@ const createRevealLayer = (() => {
 
   return function createRevealLayer(fields, buttonLabel, panel) {
     const wrapper = layerTpl.cloneNode(false);
-    fields.forEach(([key, label, data]) => {
+    fields.forEach(([, label, data]) => {
       if (data) wrapper.appendChild(createDetailRow(label, data));
     });
     const btn = btnTpl.cloneNode(false);

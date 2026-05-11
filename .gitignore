@@ -2,4 +2,5 @@
 .claude/
 drafts/
 handoff/
+node_modules/
 prd/*.pdf
