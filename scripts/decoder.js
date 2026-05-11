@@ -1,78 +1,53 @@
 import { getAllEquivalent, getMuscles } from './equivalence.js';
-import { showFetchError } from "./load-errors.js";
 
-let REGIONS;
+const decoderState = { side: 'Left', region: 'IP', dir: 'ER' };
 
-export async function init() {
-  const container = document.getElementById('anatomy-decoder-content');
-  if (!container) return;
+const tiltGroup = document.getElementById('pelvis-tilt-group');
+const asisLabel = document.getElementById('pelvis-asis-label');
+const sacralLabel = document.getElementById('pelvis-sacral-label');
+const motionAnt = document.getElementById('pelvis-motion-ant');
+const motionPost = document.getElementById('pelvis-motion-post');
+const inletStatus = document.getElementById('pelvis-inlet-status');
+const outletStatus = document.getElementById('pelvis-outlet-status');
+const floorStatus = document.getElementById('pelvis-floor-status');
 
-  try {
-    const resp = await fetch('data/regions.json');
-    if (!resp.ok) {
-      showFetchError(container, { path: 'data/regions.json', cause: resp });
-      return;
-    }
-    REGIONS = await resp.json();
-  } catch (cause) {
-    showFetchError(container, { path: 'data/regions.json', cause });
-    return;
-  }
-  const decoderState = { side: 'Left', region: 'IP', dir: 'ER' };
+function makeControlGroup(containerId, key) {
+  const container = document.getElementById(containerId);
+  let activeBtn = container.querySelector('.btn.active');
+  container.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn');
+    if (!btn) return;
+    if (activeBtn) activeBtn.classList.remove('active');
+    btn.classList.add('active');
+    activeBtn = btn;
+    decoderState[key] = btn.dataset.val;
+    updateDecoder();
+  });
+}
 
-  function makeControlGroup(containerId, key) {
-    const container = document.getElementById(containerId);
-    let activeBtn = container.querySelector('.btn.active');
-    container.addEventListener('click', (e) => {
-      const btn = e.target.closest('.btn');
-      if (!btn) return;
-      if (activeBtn) activeBtn.classList.remove('active');
-      btn.classList.add('active');
-      activeBtn = btn;
-      decoderState[key] = btn.dataset.val;
-      updateDecoder();
-    });
-  }
+function updatePelvisSVG(equiv) {
+  const isAnteriorTilt = (equiv.IP === 'ER');
+  const tiltDeg = isAnteriorTilt ? 14 : -14;
+  const outletOpen = (equiv.IsP === 'ER');
 
-  makeControlGroup('decoder-side-btns', 'side');
-  makeControlGroup('decoder-region-btns', 'region');
-  makeControlGroup('decoder-dir-btns', 'dir');
+  tiltGroup.setAttribute('transform', 'rotate(' + tiltDeg + ', 200, 200)');
+  asisLabel.setAttribute('y', isAnteriorTilt ? '105' : '130');
+  sacralLabel.setAttribute('y', isAnteriorTilt ? '112' : '105');
 
-  const tiltGroup = document.getElementById('pelvis-tilt-group');
-  const asisLabel = document.getElementById('pelvis-asis-label');
-  const sacralLabel = document.getElementById('pelvis-sacral-label');
-  const motionAnt = document.getElementById('pelvis-motion-ant');
-  const motionPost = document.getElementById('pelvis-motion-post');
-  const inletStatus = document.getElementById('pelvis-inlet-status');
-  const outletStatus = document.getElementById('pelvis-outlet-status');
-  const floorStatus = document.getElementById('pelvis-floor-status');
+  motionAnt.setAttribute('display', isAnteriorTilt ? 'inline' : 'none');
+  motionPost.setAttribute('display', isAnteriorTilt ? 'none' : 'inline');
 
-  function updatePelvisSVG(equiv) {
-    const isAnteriorTilt = (equiv.IP === 'ER');
-    const tiltDeg = isAnteriorTilt ? 14 : -14;
-    const outletOpen = (equiv.IsP === 'ER');
+  inletStatus.textContent = isAnteriorTilt ? 'INLET OPENS' : 'INLET CLOSES';
+  outletStatus.textContent = outletOpen ? 'OUTLET OPENS' : 'OUTLET CLOSES';
+  floorStatus.textContent = outletOpen ? 'Pelvic floor ascending ↑' : 'Pelvic floor descended ↓';
+}
 
-    tiltGroup.setAttribute('transform', 'rotate(' + tiltDeg + ', 200, 200)');
-    asisLabel.setAttribute('y', isAnteriorTilt ? '105' : '130');
-    sacralLabel.setAttribute('y', isAnteriorTilt ? '112' : '105');
-
-    motionAnt.setAttribute('display', isAnteriorTilt ? 'inline' : 'none');
-    motionPost.setAttribute('display', isAnteriorTilt ? 'none' : 'inline');
-
-    inletStatus.textContent = isAnteriorTilt ? 'INLET OPENS' : 'INLET CLOSES';
-    outletStatus.textContent = outletOpen ? 'OUTLET OPENS' : 'OUTLET CLOSES';
-    floorStatus.textContent = outletOpen ? 'Pelvic floor ascending \u2191' : 'Pelvic floor descended \u2193';
-  }
-
-  function updateDecoder() {
-    const { side, region, dir } = decoderState;
-    const equiv = getAllEquivalent(region, dir);
-    updatePelvisSVG(equiv);
-    renderEquivChain(side, region, dir, equiv);
-    renderMuscleList(side, region, dir);
-  }
-
-  updateDecoder();
+function updateDecoder() {
+  const { side, region, dir } = decoderState;
+  const equiv = getAllEquivalent(region, dir);
+  updatePelvisSVG(equiv);
+  renderEquivChain(side, region, dir, equiv);
+  renderMuscleList(side, region, dir);
 }
 
 function renderEquivChain(side, region, dir, equiv) {
@@ -97,3 +72,8 @@ function renderMuscleList(side, region, dir) {
       muscles.map(m => '<div class="decoder-muscle-item">' + m + '</div>').join('');
   }
 }
+
+makeControlGroup('decoder-side-btns', 'side');
+makeControlGroup('decoder-region-btns', 'region');
+makeControlGroup('decoder-dir-btns', 'dir');
+updateDecoder();

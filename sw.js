@@ -55,7 +55,6 @@ const PRECACHE_URLS = [
   './data/halt-levels.json',
   './data/master-quiz.json',
   './data/pelvic-joints.json',
-  './data/regions.json',
   './data/squat-levels.json',
   './data/symptom-patterns.json',
   './data/diagnose-causal-chains.json',
