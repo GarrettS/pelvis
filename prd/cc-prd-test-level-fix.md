@@ -14,7 +14,7 @@
 
 1. Expand JSON schemas for both files.
 2. Replace all level content with manual-accurate text.
-3. Update rendering in `patterns.js` to display new fields.
+3. Update rendering in `patterns-level-quiz.js` to display new fields.
 4. Update hardcoded data in `CC-BUILD-SPEC.md` to match.
 
 ---
@@ -189,7 +189,7 @@
 
 ---
 
-## 3. Rendering Changes — `patterns.js`
+## 3. Rendering Changes — `patterns-level-quiz.js`
 
 ### HALT Quiz answer reveal (current: lines 197–200)
 
@@ -283,5 +283,5 @@ CC must verify each item against the JSON and rendering code in this spec before
 
 - [ ] HALT quiz shows `ability`, `inability`, `muscles`, `facilitate`, and conditionally `also_reflects` and `differentials`
 - [ ] Squat quiz shows `ability`, `inability`, and conditionally `hyperactive`
-- [ ] Old field names (`failure`) are not referenced anywhere in `patterns.js`
+- [ ] Old field names (`failure`) are not referenced anywhere in `patterns-level-quiz.js`
 - [ ] No console errors on load — verify JSON parses and all fields exist

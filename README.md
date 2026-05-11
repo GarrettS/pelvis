@@ -53,27 +53,36 @@ css/
   nomenclature.css        — joints, translation table
   patterns.css            — cheat sheet, concept map, test reference
 scripts/
-  navigation-tabs.js      — hash routing, tab/subtab activation
-  anatomize.js            — anatomy ID game (hotspots, polygon overlays)
-  nomenclature.js         — PRI ↔ standard translation
-  patterns.js             — pattern comparison, symptom matching
-  diagnose.js             — clinical scenarios, case studies, causal chains
-  flashcards.js           — deck with spaced repetition
-  equivalence.js          — chain walkthrough
-  equivalence-quiz.js     — equivalence chain quiz mode
-  masterquiz.js           — 175-question bank, session config
-  aic-chain.js            — L AIC chain interactive diagram
-  decoder.js              — SVG pelvis schematic
-  abbreviations.js        — abbreviation reference
-  load-errors.js          — user-visible load error handling
-  study-data-cache.js     — shared data loader with caching
-  resize-handle.js        — draggable split-pane resize
+  navigation-tabs.js       — hash routing, tab/subtab activation, lazy module loading
+  anatomize.js             — anatomy ID game (hotspots, polygon overlays)
+  nomenclature.js          — PRI ↔ standard translation
+  patterns-cheat-sheet.js  — pattern comparison cheat sheet
+  patterns-concept-map.js  — concept map SVG
+  patterns-symptom-quiz.js — symptom-to-pattern quiz
+  patterns-level-quiz.js   — HALT and Squat level quizzes
+  diagnose-game.js         — pattern identification game
+  diagnose-case-studies.js — clinical case studies
+  diagnose-causal-chains.js — causal chain ordering
+  diagnose-decision-tree.js — decision tree walkthrough
+  diagnose-muscle-map.js   — muscle-to-exercise map
+  flashcards.js            — deck with spaced repetition
+  equivalence.js           — chain walkthrough
+  equivalence-quiz.js      — equivalence chain quiz mode
+  masterquiz.js            — 175-question bank, session config
+  aic-chain.js             — L AIC chain interactive diagram
+  decoder.js               — SVG pelvis schematic
+  abbr-expand.js           — abbreviation expansion
+  abbr-popover.js          — abbreviation popover UI
+  load-json.js             — POJO-returning data loader
+  load-errors.js           — user-visible load error handling
+  resize-handle.js         — draggable split-pane resize
 data/
-  aic-chain.json          — chain data: anatomy separated from PRI interpretation
-  anatomize-data.json     — 6 image sets, 56 structures, hotspot coordinates
-  master-quiz.json        — question bank with explanations
-  flashcard-deck.json     — 69 cards, categorized by exam weight
-  study-data.json         — nomenclature, terminology, causal maps
+  aic-chain.json           — chain data: anatomy separated from PRI interpretation
+  anatomize-data.json      — 6 image sets, 56 structures, hotspot coordinates
+  master-quiz.json         — question bank with explanations
+  flashcard-deck.json      — 69 cards, categorized by exam weight
+  diagnose-*.json          — per-feature diagnose data (5 files)
+  nomenclature-translations.json — PRI ↔ standard translation table
   (+ 8 additional data files)
 img/
 ```

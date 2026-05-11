@@ -243,7 +243,6 @@ Push after each submit. Use this array to render results.
 
 - `decoder.js` — FA stays in the decoder
 - `nomenclature.js` — FA stays in nomenclature
-- `study-data.json` — not touched
 - `masterquiz.js` — reference only, not modified
 
 ---

@@ -41,7 +41,7 @@ Three layers (Structure → Mechanics → PRI Overlay), each revealed by a butto
 ### Translation Table
 6-column table: PRI Term, Real Structure, What PRI Renamed, What Actually Happened, Standard Term, Encoded Treatment Target. Search/filter input above. Explanatory callout at top.
 
-Data: `translationMap` from `data/study-data.json`.
+Data: `data/nomenclature-translations.json`.
 
 On mobile (<600px): render each row as a stacked card.
 
@@ -83,7 +83,7 @@ Two cases (B PEC 6 visits, L AIC 3 visits). Interactive — user makes decisions
 ### Causal Chains
 Drag-to-order exercises. 6 chains. Mobile: tap-to-order fallback.
 
-Data: `data/causal-map.json`.
+Data: `data/concept-map.json`.
 
 ### Decision Tree
 Interactive expandable flowchart. Terminal nodes referencing "Myokinematic Restoration & Postural Respiration" append "(out of scope for this course)".
