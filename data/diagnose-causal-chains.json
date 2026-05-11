@@ -1,0 +1,83 @@
+{
+  "diaphragm-to-adt": {
+    "title": "From Diaphragm to Positive ADT",
+    "start": "Left hemidiaphragm loses ZOA (no liver support)",
+    "end": "Positive left ADT",
+    "steps": [
+      "Left diaphragm flattens, becomes postural instead of respiratory",
+      "Left psoas and iliacus shorten (share anterior lumbar attachments with crura)",
+      "Left innominate pulled into anterior tilt (IP ER: flexion, abduction, ER)",
+      "Left acetabulum rotates forward over the femur (AF ER)",
+      "Femoral head position changes relative to acetabular rim",
+      "In sidelying, femur cannot adduct past midline (impingement on acetabular rim)",
+      "Positive left ADT"
+    ]
+  },
+  "outlet-to-padt": {
+    "title": "From Outlet Closure to Positive PADT",
+    "start": "Left outlet in IsP IR (closed, pelvic floor descended)",
+    "end": "Positive left PADT",
+    "steps": [
+      "Left ischial tuberosities are adducted (outlet closed)",
+      "Left pelvic floor is descended and cannot ascend",
+      "Left inlet is in IP ER (open) \u2014 ilium can't adduct",
+      "Distal iliacus is pulling femur, overriding proximal iliacus inlet adduction",
+      "In sidelying, patient cannot lower top knee to mat",
+      "Positive left PADT"
+    ]
+  },
+  "left-aic-to-right-compensation": {
+    "title": "From Left AIC to Right Compensatory Position",
+    "start": "Left innominate in anterior tilt (L IP ER)",
+    "end": "Right innominate in compensatory position (R IP IR)",
+    "steps": [
+      "Left pelvis rotates forward, sacrum rotates rightward",
+      "Spine orients to the right (follows the sacrum)",
+      "Body weight shifts to the right leg",
+      "Right innominate is loaded in weight-bearing and held posteriorly",
+      "Right inlet closes (R IP IR: extension, adduction, IR)",
+      "Right outlet opens (R IsP ER: flexion, abduction, ER)"
+    ]
+  },
+  "iota-weakness-to-respiratory": {
+    "title": "From IO/TA Weakness to Respiratory Dysfunction",
+    "start": "Left IO/TAs become weak",
+    "end": "Positive right Apical Expansion Test",
+    "steps": [
+      "Left abdominal wall loses tension",
+      "Left respiratory diaphragm loses ZOA (no abdominal counter-pressure)",
+      "Left anterior ribs flare into external rotation",
+      "Left anterior thorax hyperinflates (air goes where resistance is lowest)",
+      "Left posterior mediastinum can't expand (air is already anterior)",
+      "Right anterior upper chest can't expand (limited by left-dominant inflation pattern)",
+      "Positive right Apical Expansion Test"
+    ]
+  },
+  "bpec-to-pubalgia": {
+    "title": "From B PEC to Pubalgia",
+    "start": "Bilateral PEC pattern (both inlets in IP ER)",
+    "end": "Pubic symphysis shearing / pubalgia",
+    "steps": [
+      "Both inlets are in IP ER (bilateral anterior tilt)",
+      "Both outlets are in IsP IR (bilateral adduction/closure)",
+      "Rectus abdominis is eccentrically lengthened by bilateral anterior tilt",
+      "Paraspinals are short and tight (pulling spine into extension)",
+      "Adductors are lengthened by outlet IsP IR position",
+      "Opposing forces create shearing at pubic symphysis",
+      "Pubalgia"
+    ]
+  },
+  "repositioning-to-restoration": {
+    "title": "From Repositioning to Pelvis Restoration Decision",
+    "start": "Patient presents with + bilateral ADT, + bilateral PADT",
+    "end": "Enter Pelvis Restoration program",
+    "steps": [
+      "Perform repositioning: 3 techniques matched to pattern",
+      "Retest ADT: now negative bilaterally (bone repositioned)",
+      "Retest PADT: still positive bilaterally (pelvic floor still dysfunctional)",
+      "The bone is in the right place but the pelvic floor can't cycle",
+      "This is a motor control deficit, not a positional problem",
+      "Enter Pelvis Restoration program"
+    ]
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "question": "Perform ADT bilaterally. What are the results?",
+  "branches": [
+    {
+      "answer": "+ Bilateral ADT",
+      "next": {
+        "question": "Perform PADT bilaterally. What are the results?",
+        "branches": [
+          {
+            "answer": "+ Bilateral PADT",
+            "next": {
+              "question": "Check PART, SRT, and Squat to determine pattern.",
+              "branches": [
+                {
+                  "answer": "\u2212 bilateral PART, SRT > 0, Squat < 3/5 \u2192 Bilateral PEC",
+                  "next": {
+                    "question": "Reposition with: (1) Standing Wall Supported Reach, (2) 90-90 Hip Lift in Passive FA IR with Balloon, (3) Modified All Four Belly Lift. Retest ADT.",
+                    "branches": [
+                      {
+                        "answer": "\u2212 B ADT, \u2212 B PADT",
+                        "next": {
+                          "terminal": true,
+                          "content": "Myokinematic Restoration & Postural Respiration program. Both position (ADT) and function (PADT) resolved."
+                        }
+                      },
+                      {
+                        "answer": "\u2212 B ADT, + B PADT",
+                        "next": {
+                          "terminal": true,
+                          "content": "Pelvis Restoration program. B PEC Hierarchy: (1) Maximize respiratory function, (2) Maximize inhibition of bilateral anterior inlet / posterior outlet, (3) Left AIC Alternating Program."
+                        }
+                      },
+                      {
+                        "answer": "All still positive",
+                        "next": {
+                          "terminal": true,
+                          "content": "Reevaluate technique. Consider other PRI courses or interdisciplinary referral."
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "answer": "+ PART (bilateral or unilateral), SRT = 0, Squat > 3/5 \u2192 Bilateral Patho PEC",
+                  "next": {
+                    "question": "Reposition with SAME 3 techniques as B PEC. Note: if Squat > 3/5, use straw/kazoo/party favor instead of balloon. Retest ADT.",
+                    "branches": [
+                      {
+                        "answer": "\u2212 B ADT, \u2212 B PADT",
+                        "next": {
+                          "terminal": true,
+                          "content": "Myokinematic Restoration & Postural Respiration. Both resolved with repositioning alone."
+                        }
+                      },
+                      {
+                        "answer": "\u2212 B ADT, + B PADT",
+                        "next": {
+                          "terminal": true,
+                          "content": "Pelvis Restoration program. B Patho PEC Hierarchy: (1) Maximize respiratory function (straw/kazoo, NOT balloon), (2) Maximize inhibition of bilateral anterior inlet / posterior outlet, (3) Left AIC Alternating Program."
+                        }
+                      },
+                      {
+                        "answer": "All still positive",
+                        "next": {
+                          "terminal": true,
+                          "content": "Reevaluate. Patho PEC is the most decompensated pattern \u2014 may need longer repositioning or manual techniques."
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "answer": "+ Left ADT only",
+      "next": {
+        "question": "Confirm: + L PADT, + R PART. This is Left AIC. Reposition with: (1) 90-90 Supported Hip Lift with Hemibridge, (2) R Sidelying Respiratory L Adductor Pull Back, (3) L Sidelying R Glute Max. Retest.",
+        "branches": [
+          {
+            "answer": "\u2212 L ADT, \u2212 L PADT, \u2212 R PART",
+            "next": {
+              "terminal": true,
+              "content": "Myokinematic Restoration. All cleared."
+            }
+          },
+          {
+            "answer": "\u2212 L ADT, + L PADT \u00b1 R PART",
+            "next": {
+              "question": "Left AIC Pelvis Restoration. Check R HALT to determine facilitation step.",
+              "branches": [
+                {
+                  "answer": "R HALT 0/5",
+                  "next": {
+                    "terminal": true,
+                    "content": "Step 1: Turn ON R anterior inlet (IP ER) via R rectus femoris + R sartorius."
+                  }
+                },
+                {
+                  "answer": "R HALT 1/5",
+                  "next": {
+                    "terminal": true,
+                    "content": "Step 2: Turn ON L anterior outlet (IsP ER) via L pelvic floor muscles (via L adductors). Pelvic diaphragm ascension."
+                  }
+                },
+                {
+                  "answer": "R HALT 2/5",
+                  "next": {
+                    "terminal": true,
+                    "content": "Step 3: Turn ON L posterior inlet (IS ER) via L iliacus + L gluteus medius. Counter-nutation on left."
+                  }
+                },
+                {
+                  "answer": "R HALT 3/5",
+                  "next": {
+                    "terminal": true,
+                    "content": "Step 5: Upright L single-leg frontal plane control (L outlet abduction via L iliacus, L obturator, L iliococcygeus)."
+                  }
+                },
+                {
+                  "answer": "R HALT 4/5",
+                  "next": {
+                    "terminal": true,
+                    "content": "Step 4: Turn ON R posterior outlet (SI IR) via R glute max (coccygeus, piriformis). Then progress to steps 5-10."
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "answer": "All still positive",
+            "next": {
+              "terminal": true,
+              "content": "Reevaluate repositioning technique or consider other PRI courses."
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

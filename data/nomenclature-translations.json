@@ -1,0 +1,122 @@
+[
+  {
+    "priTerm": "IS IR",
+    "priFullName": "Ilio-Sacral Internal Rotation",
+    "priRegion": "Posterior Inlet",
+    "realStructure": "Sacroiliac joint",
+    "whatPriRenamed": "PRI reversed the standard joint name ('sacroiliac') to 'ilio-sacral' to encode that the ilium is the bone they consider displaced. The 'I' comes first because PRI treats the ilium as the mover.",
+    "whatActuallyHappened": "Psoas and iliacus pulled the ilium forward relative to the sacrum. The sacrum stayed. The resulting relative angle at the SI joint is called nutation.",
+    "standardTerm": "Nutation at the SI joint",
+    "encodedTreatment": "IS = target the ilium. Facilitate muscles that pull the ilium back: L gluteus medius (counter-nutation). L AIC Facilitation step 3."
+  },
+  {
+    "priTerm": "IS ER",
+    "priFullName": "Ilio-Sacral External Rotation",
+    "priRegion": "Posterior Inlet",
+    "realStructure": "Sacroiliac joint",
+    "whatPriRenamed": "Same renaming as IS IR \u2014 'ilio-sacral' to indicate the ilium is the bone of interest. ER = the ilium has rotated outward/back.",
+    "whatActuallyHappened": "Gluteus medius and/or hamstrings pulled the ilium backward relative to the sacrum. The resulting position is counter-nutation.",
+    "standardTerm": "Counter-nutation at the SI joint",
+    "encodedTreatment": "IS = target the ilium. This is the goal position for the L side in L AIC. Achieved by facilitating L gluteus medius."
+  },
+  {
+    "priTerm": "SI IR",
+    "priFullName": "Sacro-Ilio Internal Rotation",
+    "priRegion": "Posterior Outlet",
+    "realStructure": "Sacroiliac joint (same joint as IS IR/ER)",
+    "whatPriRenamed": "PRI kept the standard name order ('sacro-ilio') to encode that the sacrum is the bone they consider displaced. Same joint as IS, different clinical frame. The 'S' comes first because PRI treats the sacrum as the mover here.",
+    "whatActuallyHappened": "Gluteus maximus pulled the sacrum backward/inward relative to the ilium. The posterior outlet closes.",
+    "standardTerm": "No distinct standard term. In conventional anatomy this is still motion at the SI joint. PRI creates a separate name to distinguish 'treat the sacrum' from 'treat the ilium.'",
+    "encodedTreatment": "SI = target the sacrum. Facilitate R glute max (inferior fibers), R piriformis, R coccygeus. L AIC Facilitation step 4."
+  },
+  {
+    "priTerm": "SI ER",
+    "priFullName": "Sacro-Ilio External Rotation",
+    "priRegion": "Posterior Outlet",
+    "realStructure": "Sacroiliac joint (same joint as IS IR/ER)",
+    "whatPriRenamed": "Same as SI IR \u2014 sacrum-first naming to indicate sacrum is the target.",
+    "whatActuallyHappened": "The sacrum rotated outward relative to the ilium, possibly due to piriformis overactivity or loss of glute max control. The posterior outlet opens.",
+    "standardTerm": "No distinct standard term. Motion at the SI joint.",
+    "encodedTreatment": "SI = target the sacrum. Correct by facilitating R glute max into SI IR."
+  },
+  {
+    "priTerm": "IP ER",
+    "priFullName": "Ilio-Pubo External Rotation",
+    "priRegion": "Anterior Inlet",
+    "realStructure": "Pubic symphysis (where the two innominates meet anteriorly). Not a standard joint in the way the SI or hip joint is \u2014 the pubic symphysis is a cartilaginous joint with very little motion.",
+    "whatPriRenamed": "PRI created a joint name ('ilio-pubo') that doesn't exist in standard anatomy. There is no 'ilio-pubo joint.' PRI is describing innominate bone motion relative to the pubic symphysis midline. 'External rotation' here means the innominate rotated outward/anteriorly relative to that midline.",
+    "whatActuallyHappened": "Psoas, iliacus, and rectus femoris pulled the innominate into anterior tilt. This is a tri-planar event: forward (sagittal = flexion), outward (frontal = abduction), and rotated (transverse = external rotation). PRI describes all three planes simultaneously as 'IP ER.'",
+    "standardTerm": "No single standard term. The closest conventional description: 'anterior pelvic tilt with innominate anterior rotation.' But this only captures the sagittal plane. PRI's tri-planar descriptor (flex/abd/ER) is actually more complete than the standard term \u2014 this is one case where PRI adds information rather than losing it.",
+    "encodedTreatment": "IP = targets the ilio-pubo region (anterior inlet). Correct by inhibiting via IO/TAs and posterior pelvic tilt. Repositioning clears ADT first."
+  },
+  {
+    "priTerm": "IP IR",
+    "priFullName": "Ilio-Pubo Internal Rotation",
+    "priRegion": "Anterior Inlet",
+    "realStructure": "Pubic symphysis (same non-standard 'joint' as IP ER)",
+    "whatPriRenamed": "Same invented joint. IR = innominate rotated inward/posteriorly relative to midline.",
+    "whatActuallyHappened": "IO/TAs and proximal iliacus pulled the innominate into posterior tilt / adduction / internal rotation. The inlet closes.",
+    "standardTerm": "Closest: 'posterior pelvic tilt with innominate posterior rotation.' Again, only captures sagittal plane.",
+    "encodedTreatment": "This is the goal position for the L side. Achieved by facilitating L proximal iliacus + L IO/TA."
+  },
+  {
+    "priTerm": "IsP IR",
+    "priFullName": "Ischio-Pubo Internal Rotation",
+    "priRegion": "Anterior Outlet",
+    "realStructure": "Inferior pubic rami / ischiopubic ramus. Not a standard joint \u2014 this is a bony junction (the ischium and pubis are fused in adults). PRI is describing the position of the lower pelvis relative to the pubic symphysis.",
+    "whatPriRenamed": "PRI created another non-standard joint name ('ischio-pubo'). There is no ischio-pubo joint. PRI is describing the ischial tuberosity position relative to midline. 'Internal rotation' = the ischia are adducted (squeezed together), closing the outlet.",
+    "whatActuallyHappened": "The outlet closed because the inlet opened (they move in opposite directions on the same bone). When psoas/iliacus pulled the top of the innominate forward (IP ER), the bottom of the same bone (the ischium) was pulled inward. The pelvic floor descended under pressure with the outlet squeezed shut.",
+    "standardTerm": "No standard term. 'Pelvic floor descent with ischial adduction' is the closest description.",
+    "encodedTreatment": "IsP = targets the ischio-pubo region (anterior outlet). Correct by facilitating L pelvic floor muscles (obturator internus, iliococcygeus) to open the outlet. L AIC Facilitation step 2."
+  },
+  {
+    "priTerm": "IsP ER",
+    "priFullName": "Ischio-Pubo External Rotation",
+    "priRegion": "Anterior Outlet",
+    "realStructure": "Inferior pubic rami / ischiopubic ramus (same as IsP IR)",
+    "whatPriRenamed": "Same non-standard joint. ER = the ischia have abducted (spread apart), opening the outlet.",
+    "whatActuallyHappened": "Pelvic floor muscles (obturator internus, iliococcygeus) contracted, pulling the ischial tuberosities laterally. The outlet opens. The pelvic floor ascends.",
+    "standardTerm": "No standard term. 'Pelvic floor ascension with ischial abduction.'",
+    "encodedTreatment": "Goal position for L side. Achieved via L adductor facilitation activating L pelvic floor."
+  },
+  {
+    "priTerm": "AF IR",
+    "priFullName": "Acetabular-Femoral Internal Rotation",
+    "priRegion": "Hip",
+    "realStructure": "Hip joint (acetabulum + femoral head)",
+    "whatPriRenamed": "PRI reversed standard 'femoral-acetabular' to 'acetabular-femoral' to encode that the acetabulum (pelvis) is the moving bone. In standard kinesiology, hip motion is described as the femur moving on the pelvis (FA). PRI's AF frame describes the pelvis moving on the femur \u2014 a closed-chain perspective.",
+    "whatActuallyHappened": "In standing (closed chain), IO/TAs posteriorly tilted the pelvis, glute med stabilized it, hamstrings pulled the ischium down \u2014 the net effect rotated the pelvis back over the planted femur.",
+    "standardTerm": "Closest: 'closed-chain posterior pelvic tilt' or 'closed-chain hip internal rotation.' But these are rarely used as compound terms in standard kinesiology because conventional descriptions focus on the femur.",
+    "encodedTreatment": "AF = target the pelvis (over the femur). This is the goal position for the L side \u2014 the net result of the entire facilitation hierarchy. Final integration at step 10."
+  },
+  {
+    "priTerm": "AF ER",
+    "priFullName": "Acetabular-Femoral External Rotation",
+    "priRegion": "Hip",
+    "realStructure": "Hip joint (same as AF IR)",
+    "whatPriRenamed": "Same reversed naming. AF ER = the pelvis has rotated forward/outward over the femur.",
+    "whatActuallyHappened": "Psoas, iliacus, and rectus femoris pulled the pelvis into anterior tilt over a planted femur. This is the L AIC position viewed from the hip joint.",
+    "standardTerm": "Closest: 'closed-chain anterior pelvic tilt.' Equivalent to L IP ER viewed from a different frame.",
+    "encodedTreatment": "AF = target the pelvis. Correct by repositioning first (clear ADT), then full facilitation hierarchy."
+  },
+  {
+    "priTerm": "FA IR",
+    "priFullName": "Femoral-Acetabular Internal Rotation",
+    "priRegion": "Hip",
+    "realStructure": "Hip joint (same as AF)",
+    "whatPriRenamed": "PRI kept the standard naming order here \u2014 femur first, because the femur is the moving bone. This is the one PRI term that matches standard kinesiology exactly.",
+    "whatActuallyHappened": "The femur rotated inward on a relatively fixed pelvis. Standard open-chain hip internal rotation.",
+    "standardTerm": "Hip internal rotation. Exact match.",
+    "encodedTreatment": "FA = the femur is being moved. Not a pathological finding. Used in treatment positions: 'Passive FA IR' means the clinician passively places the femur in internal rotation."
+  },
+  {
+    "priTerm": "FA ER",
+    "priFullName": "Femoral-Acetabular External Rotation",
+    "priRegion": "Hip",
+    "realStructure": "Hip joint",
+    "whatPriRenamed": "Same as FA IR \u2014 standard naming, femur is the mover.",
+    "whatActuallyHappened": "The femur rotated outward on a relatively fixed pelvis. Standard open-chain hip external rotation.",
+    "standardTerm": "Hip external rotation. Exact match.",
+    "encodedTreatment": "FA = the femur moved. Hyperactive FA ERs are implicated at Functional Squat level 2 failure. Inhibited by achieving femoral adduction and inlet extension."
+  }
+]

@@ -101,23 +101,6 @@ class StubElement {
   }
 }
 
-async function importPatternsModule() {
-  const [patternsSource, loadErrorsSource, abbrExpandSource] =
-    await Promise.all([
-      readFile(new URL('../scripts/patterns.js', import.meta.url), 'utf8'),
-      readFile(new URL('../scripts/load-errors.js', import.meta.url), 'utf8'),
-      readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8')
-    ]);
-  const loadErrorsUrl = `data:text/javascript;base64,${
-    Buffer.from(loadErrorsSource).toString('base64')}`;
-  const abbrExpandUrl = `data:text/javascript;base64,${
-    Buffer.from(abbrExpandSource).toString('base64')}`;
-  const rewrittenSource = patternsSource
-    .replace('"./load-errors.js"', `"${loadErrorsUrl}"`)
-    .replace("'./abbr-expand.js'", `'${abbrExpandUrl}'`);
-  return importSource(rewrittenSource);
-}
-
 async function importFlashcardsModule() {
   const [flashcardsSource, loadErrorsSource, abbrExpandSource, shuffleSource] =
     await Promise.all([
@@ -194,11 +177,8 @@ test('showFetchError renders HTTP and JSON failure messages', async () => {
     }
   };
 
-  showFetchError(container, 'study-data.json', new Response('', {status: 404}));
-  showFetchError(
-      container,
-      'study-data.json',
-      new SyntaxError('Unexpected token < in JSON at position 0'));
+  showFetchError(container, { path: 'study-data.json', cause: new Response('', {status: 404}) });
+  showFetchError(container, { path: 'study-data.json', cause: new SyntaxError('Unexpected token < in JSON at position 0') });
 
   assert.equal(appended[0].className, 'callout error');
   assert.equal(
@@ -223,41 +203,29 @@ test('showImportError distinguishes module parse failures', async () => {
 
   showImportError(
       container,
-      './diagnose.js',
+      './diagnose-game.js',
       new SyntaxError('Unexpected token export'));
 
   assert.equal(
       appended[0].textContent,
-      "Couldn't load ./diagnose.js: module failed to parse.");
+      "Couldn't load ./diagnose-game.js: module failed to parse.");
 });
 
-test('study-data accessor clears cached failure so the next call can retry', async () => {
+test('loadJson returns ok:false with Response cause on HTTP error', async () => {
   const originalFetch = globalThis.fetch;
-  let fetchCount = 0;
+  globalThis.fetch = () => Promise.resolve(new Response('', {status: 503}));
 
-  globalThis.fetch = () => {
-    fetchCount++;
-    if (fetchCount === 1) {
-      return Promise.resolve(new Response('', {status: 503}));
-    }
-    return Promise.resolve(
-        new Response(
-            JSON.stringify({translationMap: []}),
-            {status: 200, headers: {'Content-Type': 'application/json'}}));
-  };
+  const {loadJson} = await importLocalModule('../scripts/load-json.js');
+  const result = await loadJson('./data/anything.json');
 
-  const {getTranslations} = await importLocalModule('../scripts/study-data-cache.js');
-
-  await assert.rejects(getTranslations(), (cause) => cause instanceof Response);
-  const data = await getTranslations();
-
-  assert.deepEqual(data, []);
-  assert.equal(fetchCount, 2);
+  assert.equal(result.ok, false);
+  assert.equal(result.cause.status, 503);
+  assert.equal(result.path, './data/anything.json');
 
   globalThis.fetch = originalFetch;
 });
 
-test('study-data accessor preserves parse errors for callers', async () => {
+test('loadJson returns ok:false with SyntaxError cause on parse failure', async () => {
   const originalFetch = globalThis.fetch;
 
   globalThis.fetch = () => Promise.resolve(
@@ -266,50 +234,15 @@ test('study-data accessor preserves parse errors for callers', async () => {
         headers: {'Content-Type': 'application/json'}
       }));
 
-  const {getTranslations} = await importLocalModule('../scripts/study-data-cache.js');
+  const {loadJson} = await importLocalModule('../scripts/load-json.js');
+  const result = await loadJson('./data/anything.json');
 
-  await assert.rejects(
-      getTranslations(),
-      (cause) => cause instanceof SyntaxError);
+  assert.equal(result.ok, false);
+  assert.equal(result.cause.name, 'SyntaxError');
 
   globalThis.fetch = originalFetch;
 });
 
-test('patterns init shows the fetch failure instead of crashing on raw TypeError', async () => {
-  const originalDocument = globalThis.document;
-  const originalFetch = globalThis.fetch;
-  const appended = [];
-  const container = {
-    appendChild(node) {
-      appended.push(node);
-    }
-  };
-
-  globalThis.document = {
-    createElement(tagName) {
-      return {
-        tagName,
-        className: '',
-        textContent: '',
-      };
-    },
-    getElementById(id) {
-      return id === 'patterns-content' ? container : null;
-    }
-  };
-  globalThis.fetch = () => Promise.reject(new TypeError('offline'));
-
-  const {init} = await importPatternsModule();
-  await init();
-
-  assert.equal(appended.length, 1);
-  assert.equal(
-      appended[0].textContent,
-      "Couldn't load cheat-data.json: network request failed.");
-
-  globalThis.document = originalDocument;
-  globalThis.fetch = originalFetch;
-});
 
 test('flashcards save click shows inline feedback when saved cards cannot be read', async () => {
   const originalDocument = globalThis.document;

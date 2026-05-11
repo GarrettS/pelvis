@@ -1,0 +1,254 @@
+{
+  "byMuscle": [
+    {
+      "muscle": "L Proximal Iliacus",
+      "action": "Adducts left inlet (closes top ring)",
+      "pattern": "Corrects L AIC (L inlet in IP ER \u2192 needs IP IR)",
+      "exercises": [
+        "90-90 Supported Hip Lift with Hemibridge",
+        "Hemi 90-90 positions",
+        "Standing single-leg activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation steps 1-3, also PADT correction"
+    },
+    {
+      "muscle": "L IO/TA",
+      "action": "Posteriorly tilts pelvis, connects respiratory diaphragm to pelvic inlet",
+      "pattern": "Weak in L AIC (left side), weak bilaterally in B PEC / B Patho PEC",
+      "exercises": [
+        "Standing Wall Supported Reach",
+        "Modified All Four Belly Lift",
+        "All Four Belly Lift",
+        "Wall and Chair Supported IO/TA",
+        "90-90 Supported Alternating Crossover w/ IO/TA"
+      ],
+      "hierarchyStep": "Integration muscle (Yellow family). Used throughout all hierarchies."
+    },
+    {
+      "muscle": "R Rectus Femoris",
+      "action": "Flexes right inlet (opens right top ring = R IP ER)",
+      "pattern": "Facilitates R anterior inlet to oppose L AIC",
+      "exercises": [
+        "Supine Hemi Extension w/ Alternating Respiratory Rectus Femoris and Sartorius",
+        "Hemi 90-90 positions"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 1 (R HALT 0/5)"
+    },
+    {
+      "muscle": "R Sartorius",
+      "action": "Flexes right inlet (assists R rectus femoris)",
+      "pattern": "Facilitates R anterior inlet to oppose L AIC",
+      "exercises": [
+        "Supine Hemi Extension w/ Alternating Respiratory Rectus Femoris and Sartorius"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 1 (R HALT 0/5)"
+    },
+    {
+      "muscle": "L Obturator Internus",
+      "action": "Abducts left outlet (opens bottom ring), adducts femur in closed chain",
+      "pattern": "Corrects L AIC (L outlet in IsP IR \u2192 needs IsP ER)",
+      "exercises": [
+        "R Sidelying Respiratory L Adductor Pull Back",
+        "L adductor facilitation activities",
+        "Standing single-leg activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 2 (R HALT 1/5)"
+    },
+    {
+      "muscle": "L Iliococcygeus",
+      "action": "Abducts left outlet, ascends pelvic floor",
+      "pattern": "Corrects L AIC (L pelvic diaphragm descended \u2192 needs ascension)",
+      "exercises": [
+        "R Sidelying Respiratory L Adductor Pull Back",
+        "L adductor facilitation activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 2 (R HALT 1/5)"
+    },
+    {
+      "muscle": "L Puborectalis",
+      "action": "Controls left outlet, contributes to pelvic floor ascension",
+      "pattern": "Corrects L AIC outlet closure",
+      "exercises": [
+        "L adductor facilitation activities",
+        "PRI Kegel (when HALT 4/5)"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 2"
+    },
+    {
+      "muscle": "L Pubococcygeus",
+      "action": "Controls left outlet, contributes to pelvic floor ascension",
+      "pattern": "Corrects L AIC outlet closure",
+      "exercises": [
+        "L adductor facilitation activities",
+        "PRI Kegel (when HALT 4/5)"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 2"
+    },
+    {
+      "muscle": "L Gluteus Medius",
+      "action": "Counter-nutates left ilium on sacrum (IS ER), frontal plane pelvic stabilizer",
+      "pattern": "Corrects L AIC (L posterior inlet in IS IR \u2192 needs IS ER)",
+      "exercises": [
+        "L Sidelying R Glute Max (L glute med co-activates)",
+        "Standing single-leg frontal plane activities",
+        "HALT progression"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 3 (R HALT 2/5)"
+    },
+    {
+      "muscle": "R Gluteus Maximus (superior fibers)",
+      "action": "Nutates right ilium on sacrum (R IS IR)",
+      "pattern": "Facilitates R posterior inlet position to oppose L AIC",
+      "exercises": [
+        "L Sidelying R Glute Max",
+        "Supine Hooklying Synchronized Resisted Glute Max"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 4 / also R posterior inlet"
+    },
+    {
+      "muscle": "R Gluteus Maximus (inferior fibers)",
+      "action": "Closes right posterior outlet (R SI IR), extends hip",
+      "pattern": "Facilitates R posterior outlet closure",
+      "exercises": [
+        "L Sidelying R Glute Max",
+        "Supine Hooklying Synchronized Resisted Glute Max",
+        "Standing R single-leg activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 4 (R HALT 4/5)"
+    },
+    {
+      "muscle": "R Piriformis",
+      "action": "Stabilizes right sacrum, contributes to R posterior outlet closure",
+      "pattern": "Facilitates R posterior outlet (SI IR)",
+      "exercises": [
+        "R posterior outlet facilitation activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 4"
+    },
+    {
+      "muscle": "R Coccygeus",
+      "action": "Controls coccyx position, contributes to R posterior outlet closure",
+      "pattern": "Facilitates R posterior outlet (SI IR)",
+      "exercises": [
+        "R posterior outlet facilitation activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 4"
+    },
+    {
+      "muscle": "L Hamstrings",
+      "action": "Pulls ischium down/back, posteriorly tilts pelvis",
+      "pattern": "Opposes L AIC anterior tilt",
+      "exercises": [
+        "90-90 Hip Lift positions (hamstrings activate to maintain 90-90)"
+      ],
+      "hierarchyStep": "Brown (Sagittal) family \u2014 active throughout"
+    }
+  ],
+  "byFinding": [
+    {
+      "finding": "+ L ADT",
+      "meaning": "Left innominate anteriorly rotated. Femur can't adduct.",
+      "muscles": "Not a muscle problem \u2014 positional. Requires repositioning.",
+      "exercises": [
+        "L AIC Repositioning: 90-90 Supported Hip Lift with Hemibridge, R Sidelying Respiratory L Adductor Pull Back, L Sidelying R Glute Max"
+      ],
+      "hierarchyStep": "Repositioning (pre-hierarchy)"
+    },
+    {
+      "finding": "+ B ADT",
+      "meaning": "Both innominates anteriorly rotated.",
+      "muscles": "Not a muscle problem \u2014 positional. Requires repositioning.",
+      "exercises": [
+        "B PEC Repositioning: Standing Wall Supported Reach, 90-90 Hip Lift in Passive FA IR with Balloon, Modified All Four Belly Lift"
+      ],
+      "hierarchyStep": "Repositioning (pre-hierarchy)"
+    },
+    {
+      "finding": "+ L PADT",
+      "meaning": "Left pelvic diaphragm can't ascend. Outlet closed, inlet open.",
+      "muscles": "Facilitate: L proximal iliacus (inlet adduction), L obturator internus + L iliococcygeus (outlet abduction), L pelvic floor (ascension)",
+      "exercises": [
+        "Hemi 90-90 positions",
+        "L adductor facilitation",
+        "Standing L single-leg activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation steps 1-4"
+    },
+    {
+      "finding": "+ B PADT",
+      "meaning": "Bilateral pelvic diaphragm dysfunction. Both outlets closed, both inlets open.",
+      "muscles": "Facilitate: bilateral IO/TAs, bilateral proximal iliacus, bilateral pelvic floor",
+      "exercises": [
+        "B PEC or B Patho PEC hierarchy: respiratory function first, then inlet/outlet inhibition, then L AIC alternating"
+      ],
+      "hierarchyStep": "B PEC / B Patho PEC hierarchy steps 1-3"
+    },
+    {
+      "finding": "+ R PART (with \u2212 B ADT)",
+      "meaning": "Right outlet can't abduct / right inlet can't abduct. Right pelvic diaphragm can't descend.",
+      "muscles": "Facilitate: R gluteus maximus",
+      "exercises": [
+        "L Sidelying R Glute Max",
+        "Standing R single-leg activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 3-4 territory"
+    },
+    {
+      "finding": "SRT = 0 with + B ADT and + B PADT",
+      "meaning": "Patient can touch toes despite bilateral dysfunction = Bilateral Patho PEC (compensatory hypermobility, not flexibility)",
+      "muscles": "All inlet and outlet muscles are 'OFF' (mechanically disadvantaged). Everything needs facilitation.",
+      "exercises": [
+        "B Patho PEC hierarchy. Use straw/kazoo instead of balloon."
+      ],
+      "hierarchyStep": "Repositioning first, then B Patho PEC hierarchy"
+    },
+    {
+      "finding": "Squat > 3/5 with + B ADT",
+      "meaning": "High squat score with positive ADT = Patho PEC. Compensatory strategy, not motor control.",
+      "muscles": "Global muscle insufficiency \u2014 do not progress aggressively",
+      "exercises": [
+        "Respiratory exercises with straw/kazoo (not balloon). Small movements."
+      ],
+      "hierarchyStep": "B Patho PEC hierarchy step 1"
+    },
+    {
+      "finding": "R HALT 0/5",
+      "meaning": "Can't even position for the test. Malaligned pelvis.",
+      "muscles": "R rectus femoris + R sartorius (R anterior inlet)",
+      "exercises": [
+        "Hemi 90-90 with R knee advancement"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 1"
+    },
+    {
+      "finding": "R HALT 1/5",
+      "meaning": "IO/TA weakness, can't inhibit inlet abduction of flexed leg.",
+      "muscles": "L pelvic floor (obturator internus, iliococcygeus) via L adductors",
+      "exercises": [
+        "R Sidelying Respiratory L Adductor Pull Back",
+        "L adductor facilitation"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 2"
+    },
+    {
+      "finding": "R HALT 2/5",
+      "meaning": "Poor IC adductor / anterior glute med. Can't achieve outlet abduction of flexed leg.",
+      "muscles": "L iliacus + L gluteus medius",
+      "exercises": [
+        "Standing L single-leg activities",
+        "L glute med facilitation"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 3"
+    },
+    {
+      "finding": "R HALT 4/5",
+      "meaning": "Poor contralateral adductor / ipsilateral glute med integration.",
+      "muscles": "R glute max (inferior fibers), R piriformis, R coccygeus",
+      "exercises": [
+        "L Sidelying R Glute Max",
+        "Standing R activities"
+      ],
+      "hierarchyStep": "L AIC Facilitation step 4"
+    }
+  ]
+}

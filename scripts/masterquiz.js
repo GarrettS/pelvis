@@ -635,19 +635,19 @@ export async function init() {
   try {
     resp = await fetch(fullPath);
   } catch (fetchErr) {
-    showFetchError(tab, fileName, fetchErr);
+    showFetchError(tab, { path: fullPath, cause: fetchErr });
     return;
   }
 
   if (!resp.ok) {
-    showFetchError(tab, fileName, resp);
+    showFetchError(tab, { path: fullPath, cause: resp });
     return;
   }
 
   try {
     QUESTIONS = await resp.json();
   } catch (syntaxError) {
-    showFetchError(tab, fileName, syntaxError);
+    showFetchError(tab, { path: fullPath, cause: syntaxError });
     return;
   }
 

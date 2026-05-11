@@ -1,7 +1,8 @@
 import {createResizeHandle} from './resize-handle.js';
-import {showFetchError} from "./load-errors.js";
+import {showFetchError} from './load-errors.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
+import {loadJson} from './load-json.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -28,7 +29,6 @@ function defaultState() {
 const state = defaultState();
 
 let isMobile = false;
-let initialized = false;
 let attemptedOnCurrent = false;
 let reviewMode = false;
 
@@ -36,20 +36,21 @@ let anatomizeData = null;
 let activeImageBtn = null;
 let activeFilterBtn = null;
 
-async function loadAnatomizeData(errorContainer) {
-  if (anatomizeData) return true;
-  try {
-    const resp = await fetch('data/anatomize-data.json');
-    if (!resp.ok) {
-      showFetchError(errorContainer, 'anatomize-data.json', resp);
-      return false;
-    }
-    anatomizeData = await resp.json();
-    return true;
-  } catch (cause) {
-    showFetchError(errorContainer, 'anatomize-data.json', cause);
-    return false;
-  }
+const containerEl = document.getElementById('anatomy-anatomize-content');
+const arenaEl = document.getElementById('anat-arena');
+
+const result = await loadJson('./data/anatomize-data.json');
+if (result.ok) {
+  anatomizeData = result.data;
+  initScoreText();
+  renderImageSelector();
+  renderControls();
+  initListeners();
+  initResizeHandle();
+  startImageFromHash();
+  new ResizeObserver(drawArrows).observe(arenaEl);
+} else {
+  showFetchError(containerEl, result);
 }
 
 const RE_IMG_ID = /^anat-img-(.+)$/;
@@ -88,8 +89,8 @@ function edgePoint(box, target) {
 }
 
 function startImageFromHash() {
-  const imageIds = anatomizeData ? Object.keys(anatomizeData.images) : [];
-  if (imageIds.length === 0) return false;
+  const imageIds = Object.keys(anatomizeData.images);
+  if (imageIds.length === 0) return;
   const hashParts = location.hash.replace(/^#/, '').split('/');
   const hashImageId = (hashParts[0] === 'anatomy' &&
       hashParts[1] === 'anatomize' && hashParts[2]) ?
@@ -97,7 +98,6 @@ function startImageFromHash() {
   const startId = (hashImageId && getImageSet(hashImageId)) ?
       hashImageId : imageIds[0];
   loadImageSet(startId, true);
-  return true;
 }
 
 function initScoreText() {
@@ -135,17 +135,6 @@ function initListeners() {
     }
   });
 
-  const anatomizePanel = document.getElementById('anatomy-anatomize-content');
-  if (anatomizePanel) {
-    anatomizePanel.addEventListener('subtab-shown', () => {
-      if (!initialized && startImageFromHash()) {
-        initialized = true;
-      } else if (initialized) {
-        drawArrows();
-      }
-    });
-  }
-
   document.getElementById('anat-detail')
     .addEventListener('click', (e) => {
       const btn = e.target.closest(
@@ -158,33 +147,6 @@ function initListeners() {
     });
 }
 
-async function init() {
-  const loaded = await loadAnatomizeData('#anatomy-anatomize');
-  if (!loaded) return;
-
-  initScoreText();
-  renderImageSelector();
-  renderControls();
-  initListeners();
-  initResizeHandle();
-
-  if (startImageFromHash()) {
-    initialized = true;
-  }
-}
-
-function resetAnatomize() {
-  resetState();
-  reviewMode = false;
-  document.getElementById('anat-arena').textContent = '';
-  const nextBtn = document.getElementById('anat-next');
-  nextBtn.textContent = 'Next \u2192';
-  delete nextBtn.dataset.action;
-  nextBtn.disabled = true;
-  document.getElementById('anat-score-text').textContent = '';
-  document.getElementById('anat-detail').textContent = '';
-}
-
 function resetState() {
   Object.assign(state, defaultState());
   attemptedOnCurrent = false;
@@ -192,7 +154,6 @@ function resetState() {
 
 function renderImageSelector() {
   document.getElementById('anat-image-selector').textContent = '';
-  if (!anatomizeData) return;
 
   Object.entries(anatomizeData.images).forEach(([id, imgSet]) => {
     const btn = document.createElement('button');
@@ -266,7 +227,6 @@ function matchesFilter(structure, filter) {
 }
 
 function getImageSet(imageId) {
-  if (!anatomizeData) return null;
   const entry = anatomizeData.images[imageId];
   if (!entry) return null;
   return Object.assign({}, entry, {
@@ -281,8 +241,7 @@ function loadImageSet(imageId, skipHash) {
   state.imageId = imageId;
   state.mechanic = imgSet.mechanic;
   state.flipped = imgSet.flipped || false;
-  document.getElementById('anat-arena').classList.toggle('anatomize-dark-bg',
-      imgSet.theme === 'dark');
+  arenaEl.classList.toggle('anatomize-dark-bg', imgSet.theme === 'dark');
 
   if (!skipHash) {
     const hash = 'anatomy/anatomize/' + imageId;
@@ -323,7 +282,7 @@ function resetSession() {
   attemptedOnCurrent = false;
   reviewMode = false;
   const nextBtn = document.getElementById('anat-next');
-  nextBtn.textContent = 'Next \u2192';
+  nextBtn.textContent = 'Next →';
   delete nextBtn.dataset.action;
 
   state.structures = Object.create(null);
@@ -353,7 +312,7 @@ function resetSession() {
 
 
 function createArenaWrap(imgSet) {
-  document.getElementById('anat-arena').textContent = '';
+  arenaEl.textContent = '';
   const wrap = document.createElement('div');
   wrap.className = 'anatomize-arena-wrap';
   if (imgSet.flipped) {
@@ -443,7 +402,7 @@ function renderBlankPanels(imgSet) {
   createStructureOverlays(svg, wrap, imgSet);
 
   wrap.appendChild(svg);
-  document.getElementById('anat-arena').appendChild(wrap);
+  arenaEl.appendChild(wrap);
 
   wrap.addEventListener('click', labelClickHandler);
 
@@ -451,11 +410,10 @@ function renderBlankPanels(imgSet) {
 }
 
 function drawArrows() {
-  const wrap = document.getElementById('anat-arena')
-    ?.querySelector('.anatomize-arena-wrap');
+  const wrap = arenaEl.querySelector('.anatomize-arena-wrap');
   const svg = wrap?.querySelector('.anatomize-svg-overlay');
   if (!wrap || !svg) return;
-  
+
   const wrapRect = wrap.getBoundingClientRect();
   if (wrapRect.width === 0 || wrapRect.height === 0) return;
 
@@ -541,7 +499,7 @@ function renderLabelHunt(imgSet) {
     if (m) assessSelectedStructure(m[1]);
   });
 
-  document.getElementById('anat-arena').appendChild(wrap);
+  arenaEl.appendChild(wrap);
 
   hookImageLoad();
 }
@@ -549,7 +507,7 @@ function renderLabelHunt(imgSet) {
 function renderMobile(imgSet) {
   const wrap = createArenaWrap(imgSet);
 
-  document.getElementById('anat-arena').appendChild(wrap);
+  arenaEl.appendChild(wrap);
 
   const list = document.createElement('div');
   list.className = 'anatomize-mobile-list';
@@ -563,7 +521,7 @@ function renderMobile(imgSet) {
     if (state.mechanic === 'label_hunt') {
       btn.textContent = s.label;
     } else {
-      btn.textContent = '\u00A0';
+      btn.textContent = ' ';
     }
     list.appendChild(btn);
   });
@@ -575,7 +533,7 @@ function renderMobile(imgSet) {
     if (m) assessSelectedStructure(m[1]);
   });
 
-  document.getElementById('anat-arena').appendChild(list);
+  arenaEl.appendChild(list);
 }
 
 function promptNext() {
@@ -715,7 +673,7 @@ function flashWrongFeedback(el, wrongClass) {
   el.classList.add(wrongClass);
   const xMark = document.createElement('span');
   xMark.className = 'anatomize-x';
-  xMark.textContent = '\u2717';
+  xMark.textContent = '✗';
   el.appendChild(xMark);
   setTimeout(() => {
     xMark.remove();
@@ -735,7 +693,7 @@ function renderBlankPanelsFeedback(structureId, correct) {
     htmlLabel.classList.add('correct');
     const check = document.createElement('span');
     check.className = 'anatomize-check';
-    check.textContent = '\u2713';
+    check.textContent = '✓';
     htmlLabel.appendChild(check);
   } else {
     flashWrongFeedback(htmlLabel, 'wrong');
@@ -753,7 +711,7 @@ function renderLabelHuntFeedback(structureId, correct) {
     hitbox.classList.add(priColorClass(structure.priColor), 'correct');
     const check = document.createElement('span');
     check.className = 'anatomize-check';
-    check.textContent = '\u2713';
+    check.textContent = '✓';
     hitbox.appendChild(check);
   } else {
     flashWrongFeedback(hitbox, 'anatomize-hitbox-wrong');
@@ -769,7 +727,7 @@ function renderMobileFeedback(structureId, correct) {
 
   if (correct) {
     btn.classList.add(priColorClass(structure.priColor), 'correct');
-    btn.textContent = structure.label + ' \u2713';
+    btn.textContent = structure.label + ' ✓';
   } else {
     flashWrongFeedback(btn, 'wrong');
   }
@@ -808,7 +766,7 @@ function renderDetailPanel(structure) {
     const note = document.createElement('p');
     note.className = 'anatomize-detail-hint';
     note.textContent = structure.type === 'landmark'
-        ? 'Bony landmark \u2014 no PRI color assignment.'
+        ? 'Bony landmark — no PRI color assignment.'
         : 'Not a primary PRI muscle.';
     layer1.appendChild(note);
   }
@@ -834,7 +792,7 @@ function renderDetailPanel(structure) {
 function formatAttachments(obj) {
   const prox = (obj.proximal || []).join(', ');
   const dist = (obj.distal || []).join(', ');
-  return prox + ' \u2192 ' + dist;
+  return prox + ' → ' + dist;
 }
 
 const createDetailRow = (() => {
@@ -868,8 +826,7 @@ function endSession() {
   nextBtn.dataset.action = 'reset';
 
   if (isMobile) {
-    document.getElementById('anat-arena').querySelector('.anatomize-mobile-list')
-        ?.classList.add('review');
+    arenaEl.querySelector('.anatomize-mobile-list')?.classList.add('review');
   }
 
   const total = state.structureCount;
@@ -886,17 +843,14 @@ function endSession() {
 function updateScore() {
   document.getElementById('anat-score-text')
     .textContent = 'Score: ' + state.score
-      + ' \u00b7 ' + state.identified.size
+      + ' · ' + state.identified.size
       + ' of ' + state.structureCount;
 }
 
 function initResizeHandle() {
   const body = document.getElementById('anat-body');
-  if (!body) return;
-
   const imageCol = body.querySelector('.anatomize-image-col');
   const infoCol = body.querySelector('.anatomize-info-col');
-  if (!imageCol || !infoCol) return;
 
   createResizeHandle({
     container: body,
@@ -911,7 +865,7 @@ function initResizeHandle() {
 }
 
 function hookImageLoad() {
-  const img = document.getElementById('anat-arena').querySelector('img');
+  const img = arenaEl.querySelector('img');
   if (!img) return;
   if (img.complete && img.naturalWidth) {
     drawArrows();
@@ -919,5 +873,3 @@ function hookImageLoad() {
     img.addEventListener('load', drawArrows, {once: true});
   }
 }
-
-export {init, resetAnatomize, loadImageSet};

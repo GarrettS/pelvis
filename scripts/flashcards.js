@@ -170,12 +170,12 @@ export async function init() {
   try {
     const resp = await fetch('data/flashcard-deck.json');
     if (!resp.ok) {
-      showFetchError(wrap, 'flashcard-deck.json', resp);
+      showFetchError(wrap, { path: 'data/flashcard-deck.json', cause: resp });
       return;
     }
     FLASHCARD_DECK = await resp.json();
   } catch (cause) {
-    showFetchError(wrap, 'flashcard-deck.json', cause);
+    showFetchError(wrap, { path: 'data/flashcard-deck.json', cause });
     return;
   }
   const userCards = tryGetUserCards().map(c => ({

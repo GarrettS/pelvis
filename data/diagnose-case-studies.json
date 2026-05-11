@@ -1,0 +1,180 @@
+{
+  "bpec-case": {
+    "title": "Bilateral PEC Case",
+    "visits": [
+      {
+        "testResults": {
+          "ADT": "+ bilateral",
+          "PADT": "+ bilateral",
+          "PART": "\u2212 bilateral",
+          "SRT": "8 inches",
+          "Squat": "1/5",
+          "HALT": "1/1"
+        },
+        "question": "What pattern is this?",
+        "options": [
+          "Left AIC",
+          "Bilateral PEC",
+          "Bilateral Patho PEC"
+        ],
+        "correct": "Bilateral PEC",
+        "explanation": "Bilateral + ADT/PADT, negative PART, SRT > 0, Squat < 3/5 = B PEC. Not Patho (PART is negative, can't touch toes, low squat).",
+        "treatmentQuestion": "Select the 3 repositioning techniques:",
+        "treatmentOptions": [
+          "Standing Wall Supported Reach",
+          "90-90 Supported Hip Lift with Hemibridge",
+          "90-90 Hip Lift in Passive FA IR with Balloon",
+          "Right Sidelying Respiratory Left Adductor Pull Back",
+          "Modified All Four Belly Lift",
+          "Left Sidelying Right Glute Max"
+        ],
+        "correctTreatment": [
+          "Standing Wall Supported Reach",
+          "90-90 Hip Lift in Passive FA IR with Balloon",
+          "Modified All Four Belly Lift"
+        ],
+        "treatmentExplanation": "B PEC repositioning: bilateral techniques."
+      },
+      {
+        "testResults": {
+          "ADT": "\u2212 bilateral",
+          "PADT": "+ bilateral"
+        },
+        "question": "ADT cleared. PADT still positive. What program?",
+        "options": [
+          "Myokinematic Restoration",
+          "Pelvis Restoration",
+          "Reevaluate"
+        ],
+        "correct": "Pelvis Restoration",
+        "explanation": "\u2212 B ADT / + B PADT \u2192 Pelvis Restoration. Focus: mediastinum expansion and abs with reciprocal repositioning."
+      },
+      {
+        "testResults": {
+          "ADT": "\u2212 bilateral",
+          "PADT": "+ left / \u2212 right",
+          "PART": "\u2212 left / + right"
+        },
+        "question": "R PADT cleared but L PADT still positive. R PART is now positive. What does the R PART finding indicate?",
+        "options": [
+          "Right outlet can't abduct and left outlet can't adduct",
+          "Right hip is too tight",
+          "The repositioning failed"
+        ],
+        "correct": "Right outlet can't abduct and left outlet can't adduct",
+        "explanation": "Now showing L AIC characteristics emerging from under the B PEC. Promote L inlet adduction via L proximal iliacus."
+      },
+      {
+        "testResults": {
+          "ADT": "\u2212 bilateral",
+          "PADT": "\u2212 bilateral",
+          "PART": "\u2212 left / + right"
+        },
+        "question": "PADT now negative bilaterally. R PART still positive. What to address?",
+        "options": [
+          "Promote R inlet abduction via R posterior glute max",
+          "L AIC repositioning",
+          "Discharge"
+        ],
+        "correct": "Promote R inlet abduction via R posterior glute max",
+        "explanation": "With neutral PADT bilaterally and isolated + R PART, facilitate R glute max to address remaining R outlet/inlet deficit."
+      },
+      {
+        "testResults": {
+          "ADT": "\u2212 bilateral",
+          "PADT": "\u2212 bilateral",
+          "PART": "\u2212 bilateral",
+          "HALT": "4/4"
+        },
+        "question": "All tests negative, HALT 4/4. What to integrate next?",
+        "options": [
+          "R outlet adduction via R inferior glute max",
+          "More repositioning",
+          "PRI Kegel"
+        ],
+        "correct": "R outlet adduction via R inferior glute max",
+        "explanation": "HALT 4/4 = near-complete frontal plane control. Integrate R outlet adduction to reach HALT 5/5."
+      },
+      {
+        "testResults": {
+          "HALT": "5/5",
+          "Squat": "4/5"
+        },
+        "question": "HALT 5/5, Squat 4/5. What final phase?",
+        "options": [
+          "Reciprocal alternating function (retro walking, heel stair descents, reverse squatting)",
+          "Continue repositioning",
+          "Refer out"
+        ],
+        "correct": "Reciprocal alternating function (retro walking, heel stair descents, reverse squatting)",
+        "explanation": "Full frontal plane control achieved. Final phase: gait integration with reciprocal alternating activities."
+      }
+    ]
+  },
+  "left-aic-case": {
+    "title": "Left AIC Case",
+    "visits": [
+      {
+        "testResults": {
+          "ADT": "+ left",
+          "PADT": "+ left",
+          "PART": "+ right",
+          "SRT": "4 inches"
+        },
+        "question": "What pattern?",
+        "options": [
+          "Left AIC",
+          "Bilateral PEC",
+          "Bilateral Patho PEC"
+        ],
+        "correct": "Left AIC",
+        "explanation": "Asymmetric: + L ADT, + L PADT, + R PART. SRT > 0. Classic Left AIC.",
+        "treatmentQuestion": "Select the 3 repositioning techniques:",
+        "treatmentOptions": [
+          "Standing Wall Supported Reach",
+          "90-90 Supported Hip Lift with Hemibridge",
+          "90-90 Hip Lift in Passive FA IR with Balloon",
+          "Right Sidelying Respiratory Left Adductor Pull Back",
+          "Modified All Four Belly Lift",
+          "Left Sidelying Right Glute Max"
+        ],
+        "correctTreatment": [
+          "90-90 Supported Hip Lift with Hemibridge",
+          "Right Sidelying Respiratory Left Adductor Pull Back",
+          "Left Sidelying Right Glute Max"
+        ],
+        "treatmentExplanation": "Left AIC repositioning: asymmetric techniques."
+      },
+      {
+        "testResults": {
+          "ADT": "\u2212 bilateral",
+          "PADT": "\u2212 bilateral",
+          "PART": "+ right"
+        },
+        "question": "ADT and PADT both negative bilaterally. R PART still positive. What to do?",
+        "options": [
+          "Inhibit L posterior mediastinum, promote R inlet abduction via R glute max",
+          "Discharge \u2014 tests are mostly negative",
+          "Repeat repositioning"
+        ],
+        "correct": "Inhibit L posterior mediastinum, promote R inlet abduction via R glute max",
+        "explanation": "With neutral ADT/PADT and isolated + R PART: address remaining R posterior inlet deficit via R glute max. Also address respiratory component (L posterior mediastinum)."
+      },
+      {
+        "testResults": {
+          "ADT": "\u2212 bilateral",
+          "PADT": "\u2212 bilateral",
+          "PART": "\u2212 bilateral"
+        },
+        "question": "All tests negative. What to integrate?",
+        "options": [
+          "L IO/TAs with R outlet adduction",
+          "Restart repositioning",
+          "PRI Kegel (if HALT allows)"
+        ],
+        "correct": "L IO/TAs with R outlet adduction",
+        "explanation": "All tests negative = neutral pelvis achieved. Integrate L IO/TAs (the conduit between respiratory and pelvic diaphragms) with R outlet adduction for full reciprocal function."
+      }
+    ]
+  }
+}

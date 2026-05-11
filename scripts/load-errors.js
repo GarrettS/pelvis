@@ -6,7 +6,8 @@ export function appendErrorCallout(element, message) {
   element.appendChild(callout);
 }
 
-export function showFetchError(element, filename, error) {
+export function showFetchError(element, result) {
+  const error = result.cause;
   let reason = "unexpected error: " + (error.name || error);
   if (typeof error.status === "number") {
     reason = "server returned " + error.status;
@@ -15,6 +16,7 @@ export function showFetchError(element, filename, error) {
   } else if (error.name === "TypeError") {
     reason = "network request failed";
   }
+  const filename = result.path.slice(result.path.lastIndexOf("/") + 1);
   appendErrorCallout(element, "Couldn't load " + filename + ": " + reason + ".");
 }
 

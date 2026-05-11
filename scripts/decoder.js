@@ -10,12 +10,12 @@ export async function init() {
   try {
     const resp = await fetch('data/regions.json');
     if (!resp.ok) {
-      showFetchError(container, 'regions.json', resp);
+      showFetchError(container, { path: 'data/regions.json', cause: resp });
       return;
     }
     REGIONS = await resp.json();
   } catch (cause) {
-    showFetchError(container, 'regions.json', cause);
+    showFetchError(container, { path: 'data/regions.json', cause });
     return;
   }
   const decoderState = { side: 'Left', region: 'IP', dir: 'ER' };

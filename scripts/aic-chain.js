@@ -1,6 +1,7 @@
 import {createResizeHandle} from './resize-handle.js';
 import {appendErrorCallout, showFetchError} from './load-errors.js';
 import {expandAbbr} from './abbr-expand.js';
+import {loadJson} from './load-json.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const VIEWS = ['anterior', 'posterior'];
@@ -14,11 +15,9 @@ let imgEl = null;
 let detailEl = null;
 let imageColEl = null;
 let tabSectionEl = null;
-let subtabContentEl = null;
 
 let activeMuscle = null;
 
-let isStaticUiReady = false;
 let detailFieldRowTemplate = null;
 let detailView = null;
 let leaderView = null;
@@ -117,31 +116,17 @@ class AicMuscleFactory {
   }
 }
 
-async function init() {
-  containerEl = document.querySelector('.aic-chain-container');
-  // Dead defense: the module may be imported in a context where this tab's
-  // markup is not present yet.
-  if (!containerEl) return;
-
-  if (!resolveDomRefs()) return;
-
-  let data;
-  try {
-    const response = await fetch('data/aic-chain.json');
-    if (!response.ok) {
-      showFetchError(containerEl, 'aic-chain.json', response);
-      return;
-    }
-    data = await response.json();
-  } catch (cause) {
-    showFetchError(containerEl, 'aic-chain.json', cause);
-    return;
+containerEl = document.querySelector('.aic-chain-container');
+if (resolveDomRefs()) {
+  const result = await loadJson('./data/aic-chain.json');
+  if (result.ok) {
+    AicMuscleFactory.acceptData(result.data);
+    resetView();
+    buildPanel();
+    setupUi();
+  } else {
+    showFetchError(containerEl, result);
   }
-
-  AicMuscleFactory.acceptData(data);
-  resetView();
-  buildPanel();
-  setupStaticUi();
 }
 
 function resolveDomRefs() {
@@ -152,7 +137,6 @@ function resolveDomRefs() {
   imageColEl = containerEl.querySelector('.aic-chain-image-col');
   tabSectionEl = containerEl.parentElement;
   leaderEl = tabSectionEl.querySelector('.aic-leader-svg');
-  subtabContentEl = tabSectionEl.closest('.subtab-content');
 
   const missingRef = [
     [panelEl, 'panel'],
@@ -160,8 +144,7 @@ function resolveDomRefs() {
     [imgEl, 'image'],
     [detailEl, 'detail'],
     [imageColEl, 'image column'],
-    [leaderEl, 'leader svg'],
-    [subtabContentEl, 'subtab container']
+    [leaderEl, 'leader svg']
   ].find(([element]) => !element);
 
   if (!missingRef) return true;
@@ -187,10 +170,14 @@ function resetView() {
   leaderView = null;
 }
 
-function setupStaticUi() {
-  if (isStaticUiReady) return;
+function setupUi() {
+  panelEl.addEventListener('click', (event) => {
+    const rowEl = event.target.closest('.aic-chain-row');
+    if (!rowEl) return;
 
-  attachListeners();
+    setActiveMuscle(AicMuscleFactory.getInstance(rowEl.id));
+  });
+
   createResizeHandle({
     container: containerEl,
     insertBefore: imageColEl,
@@ -200,9 +187,8 @@ function setupStaticUi() {
     maxRatio: 0.4,
     onResize: handleResize
   });
-  window.addEventListener('resize', handleResize);
-  subtabContentEl.addEventListener('subtab-shown', handleResize);
-  isStaticUiReady = true;
+
+  new ResizeObserver(handleResize).observe(tabSectionEl);
 }
 
 function buildPanel() {
@@ -233,15 +219,6 @@ function makeChainNoteRow(text, isTerminus) {
   if (isTerminus) row.classList.add('aic-chain-terminal');
   row.textContent = text;
   return row;
-}
-
-function attachListeners() {
-  panelEl.addEventListener('click', (event) => {
-    const rowEl = event.target.closest('.aic-chain-row');
-    if (!rowEl) return;
-
-    setActiveMuscle(AicMuscleFactory.getInstance(rowEl.id));
-  });
 }
 
 function setActiveMuscle(muscle) {
@@ -456,5 +433,3 @@ function handleResize() {
 
   drawLeaderLine(activeMuscle);
 }
-
-export {init};

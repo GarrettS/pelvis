@@ -1,19 +1,36 @@
 import { showFetchError } from "./load-errors.js";
-import { getTranslations } from './study-data-cache.js';
+import { loadJson } from './load-json.js';
 import { expandAbbr } from './abbr-expand.js';
 
-let JOINTS = [];
-let translations = [];
 const KEYS = ['joint', 'type', 'motion', 'positions', 'role'];
 
-function buildJointsView() {
+const container = document.getElementById('nomenclature-content');
+
+const [jointsResult, translationsResult] = await Promise.all([
+  loadJson('./data/pelvic-joints.json'),
+  loadJson('./data/nomenclature-translations.json')
+]);
+
+if (jointsResult.ok) {
+  buildJointsView(jointsResult.data);
+} else {
+  showFetchError(container, jointsResult);
+}
+
+if (translationsResult.ok) {
+  buildTranslationTable(translationsResult.data);
+} else {
+  showFetchError(container, translationsResult);
+}
+
+function buildJointsView(joints) {
   const tbody = document.getElementById('joints-tbody');
   const cards = document.getElementById('joints-cards');
   const rowTpl = document.getElementById('joint-row-tpl').content;
   const cardTpl = document.getElementById('joint-card-tpl').content;
 
-  for (let i = 0; i < JOINTS.length; i++) {
-    const j = JOINTS[i];
+  for (let i = 0; i < joints.length; i++) {
+    const j = joints[i];
 
     const row = rowTpl.cloneNode(true);
     const cells = row.querySelector('tr').cells;
@@ -33,12 +50,11 @@ function buildJointsView() {
   }
 }
 
-function buildTranslationTable() {
+function buildTranslationTable(rows) {
   const tbody = document.getElementById('translation-tbody');
   const cards = document.getElementById('translation-cards');
   const rowTpl = document.getElementById('translation-row-tpl').content;
   const cardTpl = document.getElementById('translation-card-tpl').content;
-  const rows = translations;
 
   const ROW_KEYS = [
     'priTerm', 'realStructure', 'whatPriRenamed',
@@ -81,29 +97,4 @@ function buildTranslationTable() {
   searchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') e.preventDefault();
   });
-}
-
-export async function init() {
-  const container = document.getElementById('nomenclature-content');
-  if (!container) return;
-
-  try {
-    const jointsResp = await fetch('data/pelvic-joints.json');
-    if (!jointsResp.ok) {
-      showFetchError(container, 'pelvic-joints.json', jointsResp);
-      return;
-    }
-    JOINTS = await jointsResp.json();
-  } catch (cause) {
-    showFetchError(container, 'pelvic-joints.json', cause);
-    return;
-  }
-  try {
-    translations = await getTranslations();
-  } catch (cause) {
-    showFetchError(container, 'study-data.json', cause);
-    return;
-  }
-  buildJointsView();
-  buildTranslationTable();
 }
