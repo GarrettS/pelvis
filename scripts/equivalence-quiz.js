@@ -1,8 +1,8 @@
 import { getAllEquivalent, REGION_LABELS } from './equivalence.js';
 import { shuffle } from './shuffle.js';
+import { loadJson } from './load-json.js';
 
-const REGIONS = Object.keys(REGION_LABELS)
-  .filter((r) => r !== 'FA');
+const REGIONS = Object.keys(REGION_LABELS).filter((r) => r !== 'FA');
 const SIDES = ['L', 'R'];
 const DIRS = ['ER', 'IR'];
 
@@ -12,7 +12,11 @@ let isAnswered = false;
 let isCorrect = false;
 let selected = new Set();
 let explanations = null;
+let explanationsResult = null;
+let explanationsPromise = null;
 let sessionAnswers = [];
+
+const containerEl = document.getElementById('equivalence-content');
 
 function buildDistractors(side, region, dir) {
   const otherSide = side === 'L' ? 'R' : 'L';
@@ -76,80 +80,25 @@ function resetSession() {
 }
 
 function showQuizScreen() {
-  const section = document.getElementById('equivalence-content');
-  section.classList.remove('showing-results');
-  section.classList.add('in-session');
-}
-
-function showConfigScreen() {
-  const section = document.getElementById('equivalence-content');
-  section.classList.remove('showing-results', 'in-session');
+  containerEl.classList.remove('showing-results');
+  containerEl.classList.add('in-session');
 }
 
 function showResultsScreen() {
-  document.getElementById('equivalence-content').classList.add('showing-results');
+  containerEl.classList.add('showing-results');
 }
 
-const CLICK_DISPATCH = {
-  'equiv-submit': handleSubmit,
-  'equiv-restart': resetSession,
-  'equiv-new-session': resetSession,
-  'equiv-end-session': renderResults,
-  'equiv-retake-missed': retakeMissed
-};
+function updateResultsIfShown() {
+  if (!containerEl.classList.contains('showing-results')) return;
+  renderResults();
+}
 
 async function loadExplanations() {
-  try {
-    const resp = await fetch(
-      'data/equivalence-explanations.json'
-    );
-    if (!resp.ok) return;
-
-    explanations = await resp.json();
-  } catch (_) {
-    // User sees chain + verdict, no explanation block
-  }
-}
-
-export function init() {
-  loadExplanations();
-  const section = document.getElementById(
-    'equivalence-content'
-  );
-  const wrap = document.getElementById(
-    'equiv-quiz-wrap'
-  );
-
-  document.getElementById('equiv-count')
-    .addEventListener('change', renderQuestion);
-
-  section.addEventListener('click', (e) => {
-    const opt = e.target.closest('.equiv-opt');
-    if (opt) {
-      handleOptionToggle(opt);
-      return;
-    }
-    if (e.target.closest('.feedback-next')) {
-      sessionAnswers.push({
-        question: questions[qIdx],
-        selected: [...selected],
-        correct: isCorrect
-      });
-      qIdx++;
-      if (qIdx >= getSessionSize()) {
-        renderResults();
-      } else {
-        renderQuestion();
-      }
-      return;
-    }
-    const target = e.target.closest('[id]');
-    if (target && CLICK_DISPATCH[target.id]) {
-      CLICK_DISPATCH[target.id]();
-    }
-  });
-
-  resetSession();
+  const result = await loadJson('./data/equivalence-explanations.json');
+  explanationsResult = result;
+  explanations = result.ok ? result.data : null;
+  updateResultsIfShown();
+  return result;
 }
 
 function handleOptionToggle(opt) {
@@ -201,7 +150,7 @@ function renderQuestion() {
     </div>`;
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   if (isAnswered) return;
 
   isAnswered = true;
@@ -229,19 +178,78 @@ function handleSubmit() {
     optEl.disabled = true;
   }
 
+  renderFeedbackShell(q);
+
+  const submitQIdx = qIdx;
+  await explanationsPromise;
+  updateExplanationSlot(submitQIdx);
+}
+
+function renderFeedbackShell(q) {
   const chainHTML = buildEquivChainHTML(q);
-  const explHTML = buildExplanationHTML(q);
+  const slotHTML = explanationsResult
+    ? renderSlotContents(q)
+    : renderSlotLoading();
   const nextLabel = qIdx + 1 < getSessionSize()
-    ? 'Next Question \u2192' : 'Finish Session';
-  const feedback = document.getElementById(
-    'equiv-feedback'
-  );
-  feedback.className = 'feedback-box'
-    + (isCorrect ? '' : ' error');
+    ? 'Next Question →' : 'Finish Session';
+  const feedback = document.getElementById('equiv-feedback');
+  feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
   feedback.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong>
-    ${chainHTML}${explHTML}
+    ${chainHTML}
+    <div class="equiv-expl-slot">${slotHTML}</div>
     <button class="btn primary feedback-next">
       ${nextLabel}</button>`;
+}
+
+function renderSlotLoading() {
+  return '<div class="equiv-expl-loading">Loading explanation…</div>';
+}
+
+function renderSlotContents(q) {
+  if (!explanationsResult) return renderSlotLoading();
+  if (!explanationsResult.ok) {
+    return buildExplanationLoadFailureHTML({ withRetry: true });
+  }
+  return buildExplanationHTML(q);
+}
+
+function updateExplanationSlot(forQIdx) {
+  if (qIdx !== forQIdx) return;
+  if (!isAnswered) return;
+  const slot = document.querySelector('.equiv-expl-slot');
+  if (!slot) return;
+  slot.innerHTML = renderSlotContents(questions[forQIdx]);
+}
+
+function buildExplanationLoadFailureHTML({ withRetry }) {
+  const retryButton = withRetry
+    ? '<button type="button" class="btn equiv-expl-retry">Retry</button>'
+    : '';
+  return `<div class="equiv-expl-failure callout error">
+    Couldn't load explanations.
+    ${retryButton}
+  </div>`;
+}
+
+function buildIncompleteExplanationHTML() {
+  return `<div class="equiv-expl-failure callout error">
+    Explanation data is incomplete.
+  </div>`;
+}
+
+async function retryExplanations() {
+  if (!isAnswered) return;
+  const slot = document.querySelector('.equiv-expl-slot');
+  const retryBtn = slot?.querySelector('.equiv-expl-retry');
+  if (!retryBtn || retryBtn.disabled) return;
+
+  const retryQIdx = qIdx;
+  retryBtn.disabled = true;
+  retryBtn.textContent = 'Retrying…';
+
+  explanationsPromise = loadExplanations();
+  await explanationsPromise;
+  updateExplanationSlot(retryQIdx);
 }
 
 function parsePosition(pos) {
@@ -254,8 +262,7 @@ function parsePosition(pos) {
 }
 
 function findLink(fromId, toId) {
-  if (!explanations) return null;
-
+  if (!Array.isArray(explanations?.links)) return null;
   return explanations.links.find(
     (lk) => (lk.from === fromId && lk.to === toId)
       || (lk.from === toId && lk.to === fromId)
@@ -263,49 +270,55 @@ function findLink(fromId, toId) {
 }
 
 function buildExplanationHTML(q) {
-  if (!explanations) return '';
+  if (!explanations?.regions) return buildIncompleteExplanationHTML();
 
   const given = parsePosition(q.given);
   const region = explanations.regions[given.region];
-  if (!region) return '';
+  if (!region) return buildIncompleteExplanationHTML();
 
   const dirInfo = region[given.dir];
-  if (!dirInfo) return '';
+  if (!dirInfo) return buildIncompleteExplanationHTML();
 
   const side = q.given.split(' ')[0];
   const DIR = given.dir.toUpperCase();
   const REG = given.region.toUpperCase();
   const label = side + ' ' + region.name + ' ' + DIR
-    + ' \u2014 ' + region.anatomicalName;
+    + ' — ' + region.anatomicalName;
 
-  const linkBlocks = [...q.correctAnswers].map(
-    (answer) => {
-      const ans = parsePosition(answer);
-      const link = findLink(
-        given.region, ans.region
-      );
-      if (!link) return '';
+  const linkBlocks = [];
+  for (const answer of q.correctAnswers) {
+    const ans = parsePosition(answer);
+    const link = findLink(
+      given.region, ans.region
+    );
+    const ANS_REG = ans.region.toUpperCase();
+    const ANS_DIR = ans.dir.toUpperCase();
 
-      const ANS_REG = ans.region.toUpperCase();
-      const ANS_DIR = ans.dir.toUpperCase();
-      return `<div class="equiv-expl-link">
+    if (!link) {
+      linkBlocks.push(`<div class="equiv-expl-link">
+        <div class="equiv-expl-label">Why ${REG} ${DIR} = ${ANS_REG} ${ANS_DIR}</div>
+        ${buildIncompleteExplanationHTML()}
+      </div>`);
+      continue;
+    }
+
+    linkBlocks.push(`<div class="equiv-expl-link">
         <div class="equiv-expl-label">Why ${REG} ${DIR} = ${ANS_REG} ${ANS_DIR}</div>
         <p>${link.priReasoning}</p>
-        <div class="equiv-expl-note">Note \u2014 ${link.biomechanics}</div>
+        <div class="equiv-expl-note">Note — ${link.biomechanics}</div>
         <div class="equiv-expl-coupling">${link.couplingType}</div>
-      </div>`;
-    }
-  ).join('');
+      </div>`);
+  }
 
   return `<div class="equiv-explanation">
     <div class="equiv-expl-region">
       <div class="equiv-expl-label">${label}</div>
       <p>${dirInfo.pri}</p>
-      <div class="equiv-expl-note">Note \u2014 ${dirInfo.biomechanics}</div>
+      <div class="equiv-expl-note">Note — ${dirInfo.biomechanics}</div>
       <div class="equiv-expl-ref">${region.manualRef}</div>
     </div>
-    ${linkBlocks}
-    <div class="equiv-expl-note">Note \u2014 ${explanations.couplingDisclaimer}</div>
+    ${linkBlocks.join('')}
+    <div class="equiv-expl-note">Note — ${explanations.couplingDisclaimer}</div>
   </div>`;
 }
 
@@ -324,7 +337,7 @@ function buildEquivChainHTML(q) {
     + '<div class="equiv-chain-note">'
       + 'Full equivalence chain has '
       + totalEquiv
-      + ' positions \u2014 see Equivalence'
+      + ' positions — see Equivalence'
       + ' Chains for complete walkthrough.'
       + '</div>'
     + '</div>';
@@ -387,7 +400,7 @@ function buildResultSummary(answer) {
     const sel = answer.selected.length
       ? answer.selected.join(', ') : 'none';
     const corr = [...answer.question.correctAnswers].join(', ');
-    text += ' \u2014 You: ' + sel + ', Correct: ' + corr;
+    text += ' — You: ' + sel + ', Correct: ' + corr;
   }
   summary.textContent = text;
   return summary;
@@ -404,8 +417,19 @@ function buildResultDetail(answer) {
   detail.innerHTML =
     '<div class="equiv-given">' + q.given + '</div>'
     + '<div class="mq-result-comparison">' + optHTML + '</div>'
-    + buildEquivChainHTML(q) + buildExplanationHTML(q);
+    + buildEquivChainHTML(q)
+    + '<div class="equiv-expl-slot">'
+    + renderResultExplanationHTML(q)
+    + '</div>';
   return detail;
+}
+
+function renderResultExplanationHTML(q) {
+  if (!explanationsResult) return renderSlotLoading();
+  if (!explanationsResult.ok) {
+    return buildExplanationLoadFailureHTML({ withRetry: false });
+  }
+  return buildExplanationHTML(q);
 }
 
 function renderResultsList(container, answers) {
@@ -436,3 +460,46 @@ function retakeMissed() {
   showQuizScreen();
   renderQuestion();
 }
+
+const CLICK_DISPATCH = {
+  'equiv-submit': handleSubmit,
+  'equiv-restart': resetSession,
+  'equiv-new-session': resetSession,
+  'equiv-end-session': renderResults,
+  'equiv-retake-missed': retakeMissed
+};
+
+explanationsPromise = loadExplanations();
+
+document.getElementById('equiv-count')
+  .addEventListener('change', renderQuestion);
+
+containerEl.addEventListener('click', (e) => {
+  const opt = e.target.closest('.equiv-opt');
+  if (opt) {
+    handleOptionToggle(opt);
+    return;
+  }
+  if (e.target.closest('.equiv-expl-retry')) {
+    retryExplanations();
+    return;
+  }
+  if (e.target.closest('.feedback-next')) {
+    sessionAnswers.push({
+      question: questions[qIdx],
+      selected: [...selected],
+      correct: isCorrect
+    });
+    qIdx++;
+    if (qIdx >= getSessionSize()) {
+      renderResults();
+    } else {
+      renderQuestion();
+    }
+    return;
+  }
+  const target = e.target.closest('[id]');
+  CLICK_DISPATCH[target?.id]?.();
+});
+
+resetSession();
