@@ -121,6 +121,34 @@
       "priReasoning": "Outlet closed (IsP IR) while sacrum nutates (SI IR). Same bone, outlet side.",
       "biomechanics": "Similar to IP-IS link. The ischium position (IsP) is rigidly coupled to the innominate. The sacral position (SI) involves a separate joint. The coupling between IsP and SI depends on the SI joint moving in lockstep with innominate tilt.",
       "couplingType": "separate-joint, assumed-coupling"
+    },
+    {
+      "from": "IS",
+      "to": "IsP",
+      "priReasoning": "Posterior inlet ilium (IS IR) and anterior outlet (IsP IR) describe the same innominate tipping forward — IS at the back/top, IsP at the front/bottom, chained as one L AIC event.",
+      "biomechanics": "Both positions ride on the innominate, which is rigid in adults — when the upper end tips forward the ischium/pubis tracks in opposition. The rigid-body half of the coupling is mechanically real, same logic as IP↔IsP. Complication: IS frames the ilium relative to the sacrum, so it also implies SI joint behavior, while IsP is pure innominate geometry. The link holds cleanly only when the SI joint moves with the innominate tilt.",
+      "couplingType": "same-bone, opposite-ends"
+    },
+    {
+      "from": "IS",
+      "to": "AF",
+      "priReasoning": "Posterior inlet position (IS IR) and acetabular forward rotation on the femur (AF ER) name the same L AIC tilt — one at the SI joint side, one at the hip.",
+      "biomechanics": "IS and AF describe positions at two different articulations, with the innominate as the shared segment. IS depends on iliac motion at the SI joint; AF depends on innominate motion at the hip. The pelvis can tilt anteriorly with the sacrum staying still (no IS change) or with the femur compensating (different AF angle). PRI collapses all three — innominate, sacrum, femur — into one tag.",
+      "couplingType": "separate-joint, assumed-coupling"
+    },
+    {
+      "from": "IsP",
+      "to": "AF",
+      "priReasoning": "Outlet closed (IsP IR) and acetabulum forward over the femur (AF ER) describe the same L AIC tilt. Per manual p.21, inlet and femur move together while the outlet moves opposite, which is why IsP IR pairs with AF ER across the chain.",
+      "biomechanics": "IsP is rigidly part of the innominate, so it tracks innominate tilt directly. AF describes the innominate at the hip — a separate articulation. The coupling therefore depends on the femur staying fixed while the pelvis tilts; in closed chain that holds, but with compensatory hip motion IsP and AF dissociate. Direction tags flip across this link, reflecting the outlet-vs-femur opposition in PRI's own framing.",
+      "couplingType": "separate-joint, assumed-coupling"
+    },
+    {
+      "from": "SI",
+      "to": "AF",
+      "priReasoning": "Sacral nutation (SI IR) and acetabulum forward over the femur (AF ER) both appear when the pelvis tips as a unit in L AIC; PRI's chain treats them as one event.",
+      "biomechanics": "This is the most decoupled pair in the chain — SI describes sacrum-on-innominate at the SI joint; AF describes innominate-on-femur at the hip. Two separate articulations with the innominate as the connector, and no shared bone between the SI and AF descriptions. The link requires both joints to move in lockstep with overall pelvic tilt — the sacrum can nutate without the hip changing, and the hip can rotate without the sacrum moving. L AIC groups them because both end up displaced together, not because they are mechanically coupled.",
+      "couplingType": "separate-joint, assumed-coupling"
     }
   ]
 }

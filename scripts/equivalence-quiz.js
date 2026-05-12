@@ -2,11 +2,12 @@ import { getAllEquivalent, REGION_LABELS } from './equivalence.js';
 import { shuffle } from './shuffle.js';
 import { loadJson } from './load-json.js';
 
-// Answers load lazily on first Submit (see ensureExplanationsLoading),
-// not at module top. Eager-load would cost the same on the network —
-// the JSON ships with the app. The lazy trigger preserves the
-// architectural separation: questions render and accept input before
-// the client knows the answer key.
+// The data layer is a single closure that exposes only getCorrectAnswer.
+// Cache (bundlePromise) and all per-question lookups stay inside. UI code
+// outside the closure receives one correctAnswer per call — the closure
+// never returns the whole bundle. The closure fires the network fetch on
+// first call and caches the resolved bundle; on fetch failure the cache
+// clears so the next call retries.
 
 const REGIONS = Object.keys(REGION_LABELS).filter((r) => r !== 'FA');
 const SIDES = ['L', 'R'];
@@ -16,14 +17,95 @@ const ALL_COMBOS = SIDES.flatMap((side) =>
   REGIONS.flatMap((region) =>
     DIRS.map((dir) => ({ side, region, dir }))));
 
+const getCorrectAnswer = (() => {
+  let bundlePromise = null;
+
+  async function fetchBundle() {
+    const result = await loadJson('./data/equivalence-explanations.json');
+    return result;
+  }
+
+  function entryFor(bundle, question) {
+    const entry = bundle?.regions?.[question.region]?.[question.dir];
+    if (!Array.isArray(entry?.equivalents)) return null;
+    return entry;
+  }
+
+  function findLink(bundle, fromId, toId) {
+    if (!Array.isArray(bundle?.links)) return null;
+    return bundle.links.find((lk) =>
+      (lk.from === fromId && lk.to === toId)
+      || (lk.from === toId && lk.to === fromId)
+    ) || null;
+  }
+
+  function buildAnswerLinks(bundle, question, correctAnswers) {
+    return [...correctAnswers].map((answer) => {
+      const parts = answer.split(' ');
+      const ansRegion = parts[1];
+      const ansDir = parts[2];
+      const title = 'Why ' + question.region + ' ' + question.dir
+        + ' = ' + ansRegion + ' ' + ansDir;
+      const link = findLink(bundle, question.region, ansRegion);
+      if (!link) return { title, missing: true };
+      return {
+        title,
+        priReasoning: link.priReasoning,
+        biomechanics: link.biomechanics,
+        couplingType: link.couplingType
+      };
+    });
+  }
+
+  function buildCorrectAnswer(bundle, question) {
+    const entry = entryFor(bundle, question);
+    if (!entry) return { ok: false, reason: 'missing-entry' };
+
+    const fullCorrect = new Set(
+      entry.equivalents.map((token) => question.side + ' ' + token)
+    );
+    const correctAnswers = new Set(
+      question.options.filter((opt) => fullCorrect.has(opt))
+    );
+
+    const regionMeta = bundle.regions[question.region];
+    return {
+      ok: true,
+      side: question.side,
+      region: question.region,
+      dir: question.dir,
+      correctAnswers,
+      totalEquivalents: entry.equivalents.length,
+      regionInfo: {
+        name: regionMeta.name,
+        anatomicalName: regionMeta.anatomicalName,
+        manualRef: regionMeta.manualRef
+      },
+      dirInfo: {
+        pri: entry.pri,
+        biomechanics: entry.biomechanics
+      },
+      answerLinks: buildAnswerLinks(bundle, question, correctAnswers),
+      couplingDisclaimer: bundle.couplingDisclaimer
+    };
+  }
+
+  return async function (question) {
+    if (!bundlePromise) bundlePromise = fetchBundle();
+    const result = await bundlePromise;
+    if (!result.ok) {
+      bundlePromise = null;
+      return { ok: false, reason: 'fetch-failed' };
+    }
+    return buildCorrectAnswer(result.data, question);
+  };
+})();
+
 let questions = [];
 let qIdx = 0;
 let isAnswered = false;
-let isCorrect = false;
+let gradeResult = null;
 let selected = new Set();
-let explanations = null;
-let explanationsResult = null;
-let explanationsPromise = null;
 let sessionAnswers = [];
 
 const containerEl = document.getElementById('equivalence-content');
@@ -80,6 +162,7 @@ function resetSession() {
   qIdx = 0;
   sessionAnswers = [];
   isAnswered = false;
+  gradeResult = null;
   showQuizScreen();
   renderQuestion();
 }
@@ -91,48 +174,6 @@ function showQuizScreen() {
 
 function showResultsScreen() {
   containerEl.classList.add('showing-results');
-}
-
-function updateResultsIfShown() {
-  if (!containerEl.classList.contains('showing-results')) return;
-
-  renderResults();
-}
-
-async function loadExplanations() {
-  const result = await loadJson('./data/equivalence-explanations.json');
-  explanationsResult = result;
-  explanations = result.ok ? result.data : null;
-  updateResultsIfShown();
-  return result;
-}
-
-function ensureExplanationsLoading() {
-  if (explanationsPromise) return;
-
-  explanationsPromise = loadExplanations();
-}
-
-function correctAnswersFor(question) {
-  const dirData = dirDataFor(question);
-  if (!dirData) return null;
-
-  const fullCorrect = new Set(
-    dirData.equivalents.map((token) => question.side + ' ' + token)
-  );
-  return new Set(question.options.filter((opt) => fullCorrect.has(opt)));
-}
-
-function totalEquivalentsFor(question) {
-  return dirDataFor(question)?.equivalents.length ?? null;
-}
-
-function dirDataFor(question) {
-  if (!explanations?.regions) return null;
-  const dirData = explanations.regions[question.region]?.[question.dir];
-  if (!Array.isArray(dirData?.equivalents)) return null;
-
-  return dirData;
 }
 
 function gradeSelectionAgainst(correctAnswers, selectedList) {
@@ -160,6 +201,7 @@ function renderQuestion() {
   const q = questions[qIdx];
   selected = new Set();
   isAnswered = false;
+  gradeResult = null;
 
   const size = getSessionSize();
   document.getElementById('equiv-progress-fill').style.width =
@@ -183,12 +225,11 @@ async function handleSubmit() {
 
   lockOptionsForGrading();
   renderPendingFeedback();
-  ensureExplanationsLoading();
 
-  await explanationsPromise;
+  const correctAnswer = await getCorrectAnswer(questions[submitQIdx]);
   if (!isAnswered || qIdx !== submitQIdx) return;
 
-  applyGradingState(questions[submitQIdx]);
+  applyGradingState(questions[submitQIdx], correctAnswer);
 }
 
 function lockOptionsForGrading() {
@@ -207,24 +248,22 @@ function renderPendingFeedback() {
   feedback.innerHTML = renderSlotLoading();
 }
 
-function applyGradingState(q) {
-  if (explanationsResult && !explanationsResult.ok) {
-    renderUngradedFeedback(buildFetchFailureHTML({ withRetry: true }));
+function applyGradingState(q, correctAnswer) {
+  if (!correctAnswer.ok) {
+    gradeResult = null;
+    const slotHTML = correctAnswer.reason === 'fetch-failed'
+      ? buildFetchFailureHTML({ withRetry: true })
+      : MISSING_ENTRY_HTML;
+    renderUngradedFeedback(slotHTML);
     return;
   }
 
-  const correctAnswers = correctAnswersFor(q);
-  if (!correctAnswers) {
-    renderUngradedFeedback(buildMissingEntryHTML());
-    return;
-  }
-
-  isCorrect = gradeSelectionAgainst(correctAnswers, [...selected]);
-  paintOptionCorrectness(q, correctAnswers);
-  renderGradedFeedback(q, correctAnswers);
+  gradeResult = gradeSelectionAgainst(correctAnswer.correctAnswers, [...selected]);
+  paintOptionCorrectness(correctAnswer.correctAnswers);
+  renderGradedFeedback(q, correctAnswer);
 }
 
-function paintOptionCorrectness(q, correctAnswers) {
+function paintOptionCorrectness(correctAnswers) {
   const optEls = document.getElementById('equiv-quiz-wrap')
     .querySelectorAll('.equiv-opt');
   for (const optEl of optEls) {
@@ -246,12 +285,12 @@ function nextButtonLabel() {
     ? 'Next Question →' : 'Finish Session';
 }
 
-function renderGradedFeedback(q, correctAnswers) {
-  const chainHTML = buildEquivChainHTML(q, correctAnswers);
-  const explanationHTML = buildExplanationHTML(q, correctAnswers);
+function renderGradedFeedback(q, correctAnswer) {
+  const chainHTML = buildEquivChainHTML(q, correctAnswer);
+  const explanationHTML = buildExplanationHTML(correctAnswer);
   const feedback = document.getElementById('equiv-feedback');
-  feedback.className = 'feedback-box' + (isCorrect ? '' : ' error');
-  feedback.innerHTML = `<strong>${isCorrect ? 'Correct.' : 'Incorrect.'}</strong>
+  feedback.className = 'feedback-box' + (gradeResult ? '' : ' error');
+  feedback.innerHTML = `<strong>${gradeResult ? 'Correct.' : 'Incorrect.'}</strong>
     ${chainHTML}
     <div class="equiv-expl-slot">${explanationHTML}</div>
     <button class="btn primary feedback-next">
@@ -284,11 +323,9 @@ function buildFetchFailureHTML({ withRetry }) {
   </div>`;
 }
 
-function buildMissingEntryHTML() {
-  return `<div class="equiv-expl-failure callout error">
+const MISSING_ENTRY_HTML = `<div class="equiv-expl-failure callout error">
     Answer data missing for this question.
   </div>`;
-}
 
 async function retryExplanations() {
   if (!isAnswered) return;
@@ -300,106 +337,77 @@ async function retryExplanations() {
   retryBtn.disabled = true;
   retryBtn.textContent = 'Retrying…';
 
-  explanationsPromise = loadExplanations();
-  await explanationsPromise;
+  const correctAnswer = await getCorrectAnswer(questions[retryQIdx]);
   if (!isAnswered || qIdx !== retryQIdx) return;
 
-  applyGradingState(questions[retryQIdx]);
+  applyGradingState(questions[retryQIdx], correctAnswer);
 }
 
-const keyPattern = /(?<side>[LR]) (?<region>IP|IS|IsP|SI|AF) (?<dir>ER|IR)/;
-const parsePosition = pos => keyPattern.exec(pos).groups;
+function buildExplanationHTML(correctAnswer) {
+  const { side, dir, regionInfo, dirInfo, answerLinks, couplingDisclaimer } = correctAnswer;
+  const label = side + ' ' + regionInfo.name + ' ' + dir
+    + ' — ' + regionInfo.anatomicalName;
 
-function findLink(fromId, toId) {
-  if (!Array.isArray(explanations?.links)) return null;
-  return explanations.links.find(
-    (lk) => (lk.from === fromId && lk.to === toId)
-      || (lk.from === toId && lk.to === fromId)
-  ) || null;
-}
-
-function buildExplanationHTML(q, correctAnswers) {
-  if (!explanations?.regions) return buildMissingEntryHTML();
-
-  const given = parsePosition(q.given);
-  const region = explanations.regions[given.region];
-  if (!region) return buildMissingEntryHTML();
-
-  const dirInfo = region[given.dir];
-  if (!dirInfo) return buildMissingEntryHTML();
-
-  const label = given.side + ' ' + region.name + ' ' + given.dir
-    + ' — ' + region.anatomicalName;
-
-  const linkBlocks = [];
-  for (const answer of correctAnswers) {
-    const ans = parsePosition(answer);
-    const link = findLink(given.region, ans.region);
-
-    if (!link) {
-      linkBlocks.push(`<div class="equiv-expl-link">
-        <div class="equiv-expl-label">Why ${given.region} ${given.dir} = ${ans.region} ${ans.dir}</div>
-        ${buildMissingEntryHTML()}
-      </div>`);
-      continue;
+  const linkBlocks = answerLinks.map((link) => {
+    if (link.missing) {
+      return `<div class="equiv-expl-link">
+        <div class="equiv-expl-label">${link.title}</div>
+        ${MISSING_ENTRY_HTML}
+      </div>`;
     }
-
-    linkBlocks.push(`<div class="equiv-expl-link">
-        <div class="equiv-expl-label">Why ${given.region} ${given.dir} = ${ans.region} ${ans.dir}</div>
+    return `<div class="equiv-expl-link">
+        <div class="equiv-expl-label">${link.title}</div>
         <p>${link.priReasoning}</p>
         <div class="equiv-expl-note">Note — ${link.biomechanics}</div>
         <div class="equiv-expl-coupling">${link.couplingType}</div>
-      </div>`);
-  }
+      </div>`;
+  }).join('');
 
   return `<div class="equiv-explanation">
     <div class="equiv-expl-region">
       <div class="equiv-expl-label">${label}</div>
       <p>${dirInfo.pri}</p>
       <div class="equiv-expl-note">Note — ${dirInfo.biomechanics}</div>
-      <div class="equiv-expl-ref">${region.manualRef}</div>
+      <div class="equiv-expl-ref">${regionInfo.manualRef}</div>
     </div>
-    ${linkBlocks.join('')}
-    <div class="equiv-expl-note">Note — ${explanations.couplingDisclaimer}</div>
+    ${linkBlocks}
+    <div class="equiv-expl-note">Note — ${couplingDisclaimer}</div>
   </div>`;
 }
 
-function buildEquivChainHTML(q, correctAnswers) {
-  const shown = [q.given, ...correctAnswers];
+function buildEquivChainHTML(q, correctAnswer) {
+  const shown = [q.given, ...correctAnswer.correctAnswers];
   const lines = shown.map((pos, i) =>
     '<div class="equiv-line'
       + (i === 0 ? ' main' : '') + '">'
       + (i ? '= ' : '') + pos + '</div>'
   );
-  const totalEquiv = totalEquivalentsFor(q);
-  const noteText = totalEquiv === null
-    ? ''
-    : '<div class="equiv-chain-note">'
-      + 'Full equivalence chain has '
-      + totalEquiv
-      + ' positions — see Equivalence'
-      + ' Chains for complete walkthrough.'
-      + '</div>';
   return '<div class="equiv-chain">'
     + '<div class="equiv-chain-label">'
       + 'TESTED EQUIVALENTS:</div>'
     + lines.join('')
-    + noteText
+    + '<div class="equiv-chain-note">'
+      + 'Full equivalence chain has '
+      + correctAnswer.totalEquivalents
+      + ' positions — see Equivalence'
+      + ' Chains for complete walkthrough.'
+      + '</div>'
     + '</div>';
 }
 
-function regradeFromExplanations(answer) {
-  const correctAnswers = correctAnswersFor(answer.question);
-  if (!correctAnswers) return null;
+async function regradeIfNeeded(answer) {
+  if (answer.correct !== null) return;
 
-  return gradeSelectionAgainst(correctAnswers, answer.selected);
+  const ca = await getCorrectAnswer(answer.question);
+  if (ca.ok) {
+    answer.correct = gradeSelectionAgainst(ca.correctAnswers, answer.selected);
+  }
 }
 
-function renderResults() {
+async function renderResults() {
   showResultsScreen();
-  sessionAnswers.forEach((a) => {
-    if (a.correct === null) a.correct = regradeFromExplanations(a);
-  });
+  await Promise.all(sessionAnswers.map(regradeIfNeeded));
+
   const gradedAnswers = sessionAnswers.filter((a) => a.correct !== null);
   const total = gradedAnswers.length;
   const correctCount = gradedAnswers.filter((a) => a.correct).length;
@@ -420,10 +428,10 @@ function renderResults() {
   const missedAnswers = gradedAnswers.filter((a) => !a.correct);
   const correctAnswers = gradedAnswers.filter((a) => a.correct);
 
-  renderResultsList(
+  await renderResultsList(
     document.getElementById('equiv-incorrect-list'), missedAnswers
   );
-  renderResultsList(
+  await renderResultsList(
     document.getElementById('equiv-correct-list'), correctAnswers
   );
 
@@ -444,7 +452,7 @@ function classifyOption(opt, correctAnswers, selectedList) {
   return '';
 }
 
-function buildResultSummary(answer, correctAnswers) {
+function buildResultSummary(answer, correctAnswer) {
   const summary = document.createElement('button');
   summary.type = 'button';
   summary.className = 'mq-result-summary';
@@ -452,8 +460,8 @@ function buildResultSummary(answer, correctAnswers) {
   if (!answer.correct) {
     const sel = answer.selected.length
       ? answer.selected.join(', ') : 'none';
-    const corr = correctAnswers
-      ? [...correctAnswers].join(', ')
+    const corr = correctAnswer?.ok
+      ? [...correctAnswer.correctAnswers].join(', ')
       : '(unavailable)';
     text += ' — You: ' + sel + ', Correct: ' + corr;
   }
@@ -461,11 +469,12 @@ function buildResultSummary(answer, correctAnswers) {
   return summary;
 }
 
-function buildResultDetail(answer, correctAnswers) {
+function buildResultDetail(answer, correctAnswer) {
   const q = answer.question;
   const detail = document.createElement('div');
   detail.className = 'mq-result-detail hidden';
-  const knownCorrect = correctAnswers || new Set();
+  const knownCorrect = correctAnswer?.ok
+    ? correctAnswer.correctAnswers : new Set();
   const optHTML = q.options.map((opt) =>
     '<div class="mq-result-opt'
       + classifyOption(opt, knownCorrect, answer.selected)
@@ -474,30 +483,35 @@ function buildResultDetail(answer, correctAnswers) {
   detail.innerHTML =
     '<div class="equiv-given">' + q.given + '</div>'
     + '<div class="mq-result-comparison">' + optHTML + '</div>'
-    + buildEquivChainHTML(q, knownCorrect)
+    + (correctAnswer?.ok ? buildEquivChainHTML(q, correctAnswer) : '')
     + '<div class="equiv-expl-slot">'
-    + renderResultExplanationHTML(q, knownCorrect)
+    + renderResultExplanationHTML(correctAnswer)
     + '</div>';
   return detail;
 }
 
-function renderResultExplanationHTML(q, correctAnswers) {
-  if (!explanationsResult) return renderSlotLoading();
-  if (!explanationsResult.ok) {
-    return buildFetchFailureHTML({ withRetry: false });
+function renderResultExplanationHTML(correctAnswer) {
+  if (!correctAnswer) return renderSlotLoading();
+  if (!correctAnswer.ok) {
+    return correctAnswer.reason === 'fetch-failed'
+      ? buildFetchFailureHTML({ withRetry: false })
+      : MISSING_ENTRY_HTML;
   }
-  return buildExplanationHTML(q, correctAnswers);
+  return buildExplanationHTML(correctAnswer);
 }
 
-function renderResultsList(container, answers) {
+async function renderResultsList(container, answers) {
   container.innerHTML = '';
+  const correctAnswers = await Promise.all(
+    answers.map((a) => getCorrectAnswer(a.question))
+  );
   const rowTemplate = document.createElement('div');
   rowTemplate.className = 'mq-result-row';
-  answers.forEach((a) => {
-    const correctAnswers = correctAnswersFor(a.question);
+  answers.forEach((a, i) => {
+    const ca = correctAnswers[i];
     const row = rowTemplate.cloneNode(false);
-    const summary = buildResultSummary(a, correctAnswers);
-    const detail = buildResultDetail(a, correctAnswers);
+    const summary = buildResultSummary(a, ca);
+    const detail = buildResultDetail(a, ca);
     summary.addEventListener('click', () => {
       detail.classList.toggle('hidden');
     });
@@ -515,20 +529,16 @@ function retakeMissed() {
   qIdx = 0;
   sessionAnswers = [];
   isAnswered = false;
+  gradeResult = null;
   showQuizScreen();
   renderQuestion();
 }
 
 function recordCurrentAnswer() {
-  const q = questions[qIdx];
-  const correctAnswers = correctAnswersFor(q);
-  const gradedNow = explanationsResult?.ok && correctAnswers
-    ? isCorrect
-    : null;
   sessionAnswers.push({
-    question: q,
+    question: questions[qIdx],
     selected: [...selected],
-    correct: gradedNow
+    correct: gradeResult
   });
 }
 
