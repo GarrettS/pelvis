@@ -12,11 +12,6 @@ stateDiagram-v2
   AwaitingExplanation --> ExplanationReady: load resolves ok + complete
   AwaitingExplanation --> ExplanationLoadFailed: load resolves not ok
   AwaitingExplanation --> ExplanationDataInvalid: load resolves ok + incomplete
-  AwaitingExplanation --> ResultsAwaitingExplanation: Next/Finish
-
-  ResultsAwaitingExplanation --> ResultsExplanationReady: load resolves ok + complete
-  ResultsAwaitingExplanation --> ResultsExplanationLoadFailed: load resolves not ok
-  ResultsAwaitingExplanation --> ResultsExplanationDataInvalid: load resolves ok + incomplete
 
   ExplanationLoadFailed --> AwaitingExplanation: Retry
   ExplanationReady --> QuestionsReady: Next
@@ -59,8 +54,6 @@ shows one of these:
 - **ExplanationReady** — verdict + explanation.
 - **ExplanationLoadFailed** — load-failure callout (with Retry).
 - **ExplanationDataInvalid** — missing-entry callout; Next available.
-- **ResultsAwaitingExplanation** — results screen visible but blank;
-  populates when the first fetch resolves.
 - **ResultsExplanationReady** — score + lists of correct/incorrect
   questions; expanding a past question shows verdict + explanation.
 - **ResultsExplanationLoadFailed** — score + lists; expanded
