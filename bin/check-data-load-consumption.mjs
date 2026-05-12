@@ -176,6 +176,14 @@ function valueBindingIsConsumed(program, name) {
   return bindingHasRead(program, name);
 }
 
+function arrowWrapperLoadJson(init, loadNames) {
+  if (init?.type !== 'ArrowFunctionExpression') return null;
+  let body = init.body;
+  if (body?.type === 'AwaitExpression') body = body.argument;
+  if (body?.type !== 'CallExpression') return null;
+  return loadJsonCall(body, loadNames) ? body : null;
+}
+
 function collectVariableLoads(program, loadNames, sourceFile) {
   walk(program, (node) => {
     if (node.type !== 'VariableDeclarator') return;
@@ -187,6 +195,17 @@ function collectVariableLoads(program, loadNames, sourceFile) {
         line: init.loc.start.line,
         url,
         consumed: resultDataIsConsumed(program, node.id.name)
+      });
+      return;
+    }
+
+    const wrapperCall = arrowWrapperLoadJson(init, loadNames);
+    if (wrapperCall && isIdentifier(node.id)) {
+      staticLoads.push({
+        sourceFile,
+        line: wrapperCall.loc.start.line,
+        url: loadJsonCall(wrapperCall, loadNames),
+        consumed: true
       });
       return;
     }

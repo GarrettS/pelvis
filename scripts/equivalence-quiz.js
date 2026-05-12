@@ -1,105 +1,17 @@
+// Equivalence quiz UI/consumer. Data layer is scripts/equivalence-answers.js
+// (exports getCorrectAnswer). State machine and per-state UX:
+// prd/architecture/equivalence-quiz.md
+
 import { getAllEquivalent, REGION_LABELS } from './equivalence.js';
 import { shuffle } from './shuffle.js';
-import { loadJson } from './load-json.js';
-
-// The data layer is a single closure that exposes only getCorrectAnswer.
-// Cache (bundlePromise) and all per-question lookups stay inside. UI code
-// outside the closure receives one correctAnswer per call — the closure
-// never returns the whole bundle. The closure fires the network fetch on
-// first call and caches the resolved bundle; on fetch failure the cache
-// clears so the next call retries.
+import { getCorrectAnswer } from './equivalence-answers.js';
 
 const REGIONS = Object.keys(REGION_LABELS).filter((r) => r !== 'FA');
 const SIDES = ['L', 'R'];
 const DIRS = ['ER', 'IR'];
 
 const ALL_COMBOS = SIDES.flatMap((side) =>
-  REGIONS.flatMap((region) =>
-    DIRS.map((dir) => ({ side, region, dir }))));
-
-const getCorrectAnswer = (() => {
-  let bundlePromise = null;
-
-  async function fetchBundle() {
-    const result = await loadJson('./data/equivalence-explanations.json');
-    return result;
-  }
-
-  function entryFor(bundle, question) {
-    const entry = bundle?.regions?.[question.region]?.[question.dir];
-    if (!Array.isArray(entry?.equivalents)) return null;
-    return entry;
-  }
-
-  function findLink(bundle, fromId, toId) {
-    if (!Array.isArray(bundle?.links)) return null;
-    return bundle.links.find((lk) =>
-      (lk.from === fromId && lk.to === toId)
-      || (lk.from === toId && lk.to === fromId)
-    ) || null;
-  }
-
-  function buildAnswerLinks(bundle, question, correctAnswers) {
-    return [...correctAnswers].map((answer) => {
-      const parts = answer.split(' ');
-      const ansRegion = parts[1];
-      const ansDir = parts[2];
-      const title = 'Why ' + question.region + ' ' + question.dir
-        + ' = ' + ansRegion + ' ' + ansDir;
-      const link = findLink(bundle, question.region, ansRegion);
-      if (!link) return { title, missing: true };
-      return {
-        title,
-        priReasoning: link.priReasoning,
-        biomechanics: link.biomechanics,
-        couplingType: link.couplingType
-      };
-    });
-  }
-
-  function buildCorrectAnswer(bundle, question) {
-    const entry = entryFor(bundle, question);
-    if (!entry) return { ok: false, reason: 'missing-entry' };
-
-    const fullCorrect = new Set(
-      entry.equivalents.map((token) => question.side + ' ' + token)
-    );
-    const correctAnswers = new Set(
-      question.options.filter((opt) => fullCorrect.has(opt))
-    );
-
-    const regionMeta = bundle.regions[question.region];
-    return {
-      ok: true,
-      side: question.side,
-      region: question.region,
-      dir: question.dir,
-      correctAnswers,
-      totalEquivalents: entry.equivalents.length,
-      regionInfo: {
-        name: regionMeta.name,
-        anatomicalName: regionMeta.anatomicalName,
-        manualRef: regionMeta.manualRef
-      },
-      dirInfo: {
-        pri: entry.pri,
-        biomechanics: entry.biomechanics
-      },
-      answerLinks: buildAnswerLinks(bundle, question, correctAnswers),
-      couplingDisclaimer: bundle.couplingDisclaimer
-    };
-  }
-
-  return async function (question) {
-    if (!bundlePromise) bundlePromise = fetchBundle();
-    const result = await bundlePromise;
-    if (!result.ok) {
-      bundlePromise = null;
-      return { ok: false, reason: 'fetch-failed' };
-    }
-    return buildCorrectAnswer(result.data, question);
-  };
-})();
+  REGIONS.flatMap(region => DIRS.map(dir => ({ side, region, dir }))));
 
 let questions = [];
 let qIdx = 0;
@@ -152,10 +64,7 @@ function generateQuestions() {
   ));
 }
 
-function getSessionSize() {
-  const el = document.getElementById('equiv-count');
-  return el.valueAsNumber || +el.defaultValue;
-}
+const getSessionSize = () => document.getElementById('equiv-count').valueAsNumber;
 
 function resetSession() {
   questions = generateQuestions();
@@ -245,7 +154,7 @@ function renderPendingFeedback() {
   const feedback = document.getElementById('equiv-feedback');
   feedback.hidden = false;
   feedback.className = 'feedback-box';
-  feedback.innerHTML = renderSlotLoading();
+  feedback.innerHTML = '<div class="equiv-expl-loading">Loading answers…</div>';
 }
 
 function applyGradingState(q, correctAnswer) {
@@ -270,20 +179,17 @@ function paintOptionCorrectness(correctAnswers) {
     const val = optEl.dataset.opt;
     const isCorr = correctAnswers.has(val);
     const isSel = selected.has(val);
-    if (isCorr && isSel) {
-      optEl.classList.add('correct-reveal');
-    } else if (isCorr && !isSel) {
-      optEl.classList.add('missed');
-    } else if (!isCorr && isSel) {
+    
+    if (isCorr) {
+      optEl.classList.add(isSel ? 'correct-reveal' : 'missed');
+    } else if (isSel) {
       optEl.classList.add('wrong-reveal');
     }
   }
 }
 
-function nextButtonLabel() {
-  return qIdx + 1 < getSessionSize()
-    ? 'Next Question →' : 'Finish Session';
-}
+const nextButtonLabel = () =>
+  qIdx + 1 < getSessionSize() ? 'Next Question →' : 'Finish Session';
 
 function renderGradedFeedback(q, correctAnswer) {
   const chainHTML = buildEquivChainHTML(q, correctAnswer);
@@ -304,10 +210,6 @@ function renderUngradedFeedback(slotHTML) {
     <div class="equiv-expl-slot">${slotHTML}</div>
     <button class="btn primary feedback-next">
       ${nextButtonLabel()}</button>`;
-}
-
-function renderSlotLoading() {
-  return '<div class="equiv-expl-loading">Loading answers…</div>';
 }
 
 function buildFetchFailureHTML({ withRetry }) {
@@ -446,10 +348,8 @@ async function renderResults() {
 function classifyOption(opt, correctAnswers, selectedList) {
   const isCorr = correctAnswers.has(opt);
   const isSel = selectedList.includes(opt);
-  if (isCorr && isSel) return ' correct';
-  if (isCorr) return ' missed';
-  if (isSel) return ' incorrect';
-  return '';
+  if (isCorr) return isSel ? ' correct' : ' missed';
+  return isSel ? ' incorrect' : '';
 }
 
 function buildResultSummary(answer, correctAnswer) {
@@ -491,7 +391,6 @@ function buildResultDetail(answer, correctAnswer) {
 }
 
 function renderResultExplanationHTML(correctAnswer) {
-  if (!correctAnswer) return renderSlotLoading();
   if (!correctAnswer.ok) {
     return correctAnswer.reason === 'fetch-failed'
       ? buildFetchFailureHTML({ withRetry: false })
