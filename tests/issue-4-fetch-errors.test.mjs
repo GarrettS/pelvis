@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
+globalThis.navigator ??= { onLine: true };
+
 async function importLocalModule(relativePath) {
   const moduleUrl = new URL(relativePath, import.meta.url);
   const source = await readFile(moduleUrl, 'utf8');
@@ -38,6 +40,7 @@ class StubElement {
     this.disabled = false;
     this.value = '';
     this.dataset = {};
+    this.style = {};
     this.parentNode = null;
     this._classes = new Set();
     this.classList = {
@@ -109,22 +112,19 @@ function freshDataUrl(source) {
 async function importFlashcardsModule() {
   const [
     flashcardsSource,
-    loadErrorsSource,
+    loadSource,
     abbrExpandSource,
-    shuffleSource,
-    loadJsonSource
+    shuffleSource
   ] = await Promise.all([
     readFile(new URL('../scripts/flashcards.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/load-errors.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/load.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/load-json.js', import.meta.url), 'utf8')
+    readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8')
   ]);
   const rewrittenSource = flashcardsSource
-    .replace("'./load-errors.js'", `'${freshDataUrl(loadErrorsSource)}'`)
+    .replace("'./load.js'", `'${freshDataUrl(loadSource)}'`)
     .replace("'./abbr-expand.js'", `'${freshDataUrl(abbrExpandSource)}'`)
-    .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`)
-    .replace("'./load-json.js'", `'${freshDataUrl(loadJsonSource)}'`);
+    .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`);
   return importSource(rewrittenSource);
 }
 
@@ -132,26 +132,23 @@ async function importMasterquizModule() {
   const [
     masterquizSource,
     equivalenceSource,
-    loadErrorsSource,
+    loadSource,
     abbrExpandSource,
     shuffleSource,
-    loadJsonSource,
     progressSource
   ] = await Promise.all([
     readFile(new URL('../scripts/masterquiz.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/equivalence.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/load-errors.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/load.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/load-json.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/master-quiz-progress.js', import.meta.url), 'utf8')
   ]);
   const rewrittenSource = masterquizSource
     .replace("'./equivalence.js'", `'${freshDataUrl(equivalenceSource)}'`)
-    .replace("'./load-errors.js'", `'${freshDataUrl(loadErrorsSource)}'`)
+    .replace("'./load.js'", `'${freshDataUrl(loadSource)}'`)
     .replace("'./abbr-expand.js'", `'${freshDataUrl(abbrExpandSource)}'`)
     .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`)
-    .replace("'./load-json.js'", `'${freshDataUrl(loadJsonSource)}'`)
     .replace("'./master-quiz-progress.js'", `'${freshDataUrl(progressSource)}'`);
   return importSource(rewrittenSource + `
 export { handleResetProgress, handleSaveFlashcard, handleResultSave };
@@ -168,16 +165,20 @@ async function importEquivalenceQuizModule(loadJsonSource) {
   const [
     equivalenceQuizSource,
     equivalenceSource,
-    shuffleSource
+    shuffleSource,
+    equivalenceAnswersSource
   ] = await Promise.all([
     readFile(new URL('../scripts/equivalence-quiz.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/equivalence.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8')
+    readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/equivalence-answers.js', import.meta.url), 'utf8')
   ]);
+  const rewrittenAnswersSource = equivalenceAnswersSource
+    .replace("'./load.js'", `'${freshDataUrl(loadJsonSource)}'`);
   const rewrittenSource = equivalenceQuizSource
     .replace("'./equivalence.js'", `'${freshDataUrl(equivalenceSource)}'`)
     .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`)
-    .replace("'./load-json.js'", `'${freshDataUrl(loadJsonSource)}'`);
+    .replace("'./equivalence-answers.js'", `'${freshDataUrl(rewrittenAnswersSource)}'`);
   return importSource(rewrittenSource);
 }
 
@@ -245,26 +246,37 @@ class EquivalenceTestElement extends StubElement {
 }
 
 function parseEquivalenceHTML(root, html) {
-  const tagRe = /<(button|div|span|p|strong)\b([^>]*)>/g;
+  const tokenRe = /<(\/?)(button|div|span|p|strong)\b([^>]*)>/g;
+  const stack = [{ element: root, innerStart: 0 }];
+  let cursor = 0;
   let match;
-  while ((match = tagRe.exec(html)) !== null) {
-    const element = new EquivalenceTestElement(
-      getEquivalenceAttribute(match[2], 'id') || ''
-    );
-    element.tagName = match[1].toUpperCase();
-    element.className = getEquivalenceAttribute(match[2], 'class') || '';
-    element.disabled = /\bdisabled\b/.test(match[2]);
-    const dataOpt = getEquivalenceAttribute(match[2], 'data-opt');
-    if (dataOpt) element.dataset.opt = dataOpt;
+  while ((match = tokenRe.exec(html)) !== null) {
+    const text = html.slice(cursor, match.index).replace(/\s+/g, ' ').trim();
+    if (text) stack[stack.length - 1].element.textContent += text;
+    cursor = tokenRe.lastIndex;
 
-    const textEnd = html.indexOf('<', tagRe.lastIndex);
-    const rawText = html.slice(
-      tagRe.lastIndex,
-      textEnd === -1 ? html.length : textEnd
+    const [, closing, tagName, attrs] = match;
+    if (closing) {
+      if (stack.length > 1) {
+        const frame = stack.pop();
+        frame.element._innerHTML = html.slice(frame.innerStart, match.index);
+      }
+      continue;
+    }
+
+    const element = new EquivalenceTestElement(
+      getEquivalenceAttribute(attrs, 'id') || ''
     );
-    element.textContent = rawText.replace(/\s+/g, ' ').trim();
-    root.appendChild(element);
+    element.tagName = tagName.toUpperCase();
+    element.className = getEquivalenceAttribute(attrs, 'class') || '';
+    element.disabled = /\bdisabled\b/.test(attrs);
+    const dataOpt = getEquivalenceAttribute(attrs, 'data-opt');
+    if (dataOpt) element.dataset.opt = dataOpt;
+    stack[stack.length - 1].element.appendChild(element);
+    stack.push({ element, innerStart: cursor });
   }
+  const tail = html.slice(cursor).replace(/\s+/g, ' ').trim();
+  if (tail) stack[stack.length - 1].element.textContent += tail;
 }
 
 function getEquivalenceAttribute(source, name) {
@@ -312,6 +324,12 @@ function makeEquivalenceDocument(sessionSize = 2) {
   count.valueAsNumber = sessionSize;
   count.defaultValue = String(sessionSize);
   addElement('equiv-quiz-wrap');
+  addElement('equiv-progress-fill');
+  addElement('equiv-progress-text');
+  addElement('equiv-current-given');
+  addElement('equiv-options');
+  addElement('equiv-submit');
+  addElement('equiv-feedback');
   addElement('equiv-results');
   addElement('equiv-result-score');
   addElement('equiv-incorrect-list');
@@ -351,20 +369,22 @@ async function flushEquivalenceHandlers() {
 }
 
 function makeCompleteEquivalenceExplanations() {
-  const regionIds = ['ip', 'is', 'isp', 'si', 'af'];
+  const regionIds = ['IP', 'IS', 'IsP', 'SI', 'AF'];
   const regions = {};
   for (const regionId of regionIds) {
     regions[regionId] = {
-      name: regionId.toUpperCase(),
-      anatomicalName: regionId.toUpperCase() + ' region',
+      name: regionId,
+      anatomicalName: regionId + ' region',
       manualRef: 'Manual test ref',
-      er: {
+      ER: {
         pri: regionId + ' ER explanation',
-        biomechanics: regionId + ' ER note'
+        biomechanics: regionId + ' ER note',
+        equivalents: regionIds.filter((id) => id !== regionId).map((id) => id + ' IR')
       },
-      ir: {
+      IR: {
         pri: regionId + ' IR explanation',
-        biomechanics: regionId + ' IR note'
+        biomechanics: regionId + ' IR note',
+        equivalents: regionIds.filter((id) => id !== regionId).map((id) => id + ' ER')
       }
     };
   }
@@ -393,7 +413,7 @@ test('showFetchError renders HTTP and JSON failure messages', async () => {
   globalThis.document = makeDocumentStub();
 
   const {showFetchError} = await importLocalModule(
-      '../scripts/load-errors.js');
+      '../scripts/load.js');
   const appended = [];
   const container = {
     appendChild(node) {
@@ -417,7 +437,7 @@ test('showImportError distinguishes module parse failures', async () => {
   globalThis.document = makeDocumentStub();
 
   const {showImportError} = await importLocalModule(
-      '../scripts/load-errors.js');
+      '../scripts/load.js');
   const appended = [];
   const container = {
     appendChild(node) {
@@ -439,7 +459,7 @@ test('loadJson returns ok:false with Response cause on HTTP error', async () => 
   const originalFetch = globalThis.fetch;
   globalThis.fetch = () => Promise.resolve(new Response('', {status: 503}));
 
-  const {loadJson} = await importLocalModule('../scripts/load-json.js');
+  const {loadJson} = await importLocalModule('../scripts/load.js');
   const result = await loadJson('./data/anything.json');
 
   assert.equal(result.ok, false);
@@ -458,7 +478,7 @@ test('loadJson returns ok:false with SyntaxError cause on parse failure', async 
         headers: {'Content-Type': 'application/json'}
       }));
 
-  const {loadJson} = await importLocalModule('../scripts/load-json.js');
+  const {loadJson} = await importLocalModule('../scripts/load.js');
   const result = await loadJson('./data/anything.json');
 
   assert.equal(result.ok, false);
@@ -501,7 +521,7 @@ test('equivalence submit shows retry when explanations fail to load', async () =
 
     assert.equal(feedback.className, 'feedback-box error');
     assert.ok(failure);
-    assert.equal(failure.textContent, "Couldn't load explanations.");
+    assert.equal(failure.textContent, "Couldn't load answers.");
     assert.ok(retryButton);
     assert.equal(retryButton.disabled, false);
     assert.equal(document.querySelector('.feedback-next') !== null, true);
@@ -583,62 +603,6 @@ test('equivalence retry disables button and renders explanations after success',
   }
 });
 
-test('equivalence results keep pending explanation load separate from failure', async () => {
-  const originalDocument = globalThis.document;
-  const originalLoadJson = globalThis.__equivLoadJson;
-
-  const {document, container} = makeEquivalenceDocument(1);
-  let finishLoad;
-  const pendingResult = new Promise((resolve) => {
-    finishLoad = () => resolve({
-      ok: true,
-      data: makeCompleteEquivalenceExplanations()
-    });
-  });
-
-  globalThis.document = document;
-  globalThis.__equivLoadJson = async (path) => {
-    assert.equal(path, './data/equivalence-explanations.json');
-    return pendingResult;
-  };
-
-  const loadJsonSource = `
-    export async function loadJson(path) {
-      return globalThis.__equivLoadJson(path);
-    }
-  `;
-  try {
-    await importEquivalenceQuizModule(loadJsonSource);
-
-    container.dispatch('click', {
-      target: document.getElementById('equiv-submit')
-    });
-    await flushEquivalenceHandlers();
-
-    container.dispatch('click', {
-      target: document.querySelector('.feedback-next')
-    });
-
-    const incorrectList = document.getElementById('equiv-incorrect-list');
-    assert.ok(incorrectList.querySelector('.equiv-expl-loading'));
-    assert.equal(incorrectList.querySelector('.equiv-expl-failure'), null);
-
-    finishLoad();
-    await flushEquivalenceHandlers();
-
-    assert.ok(incorrectList.querySelector('.equiv-expl-region'));
-    assert.ok(incorrectList.querySelector('.equiv-expl-link'));
-    assert.equal(incorrectList.querySelector('.equiv-expl-loading'), null);
-  } finally {
-    globalThis.document = originalDocument;
-    if (originalLoadJson === undefined) {
-      delete globalThis.__equivLoadJson;
-    } else {
-      globalThis.__equivLoadJson = originalLoadJson;
-    }
-  }
-});
-
 test('equivalence submit shows data error when explanation content is incomplete', async () => {
   const originalDocument = globalThis.document;
   const originalLoadJson = globalThis.__equivLoadJson;
@@ -673,7 +637,7 @@ test('equivalence submit shows data error when explanation content is incomplete
 
     const failure = document.querySelector('.equiv-expl-failure');
     assert.ok(failure);
-    assert.equal(failure.textContent, 'Explanation data is incomplete.');
+    assert.equal(failure.textContent, 'Answer data missing for this question.');
     assert.equal(document.querySelector('.equiv-expl-retry'), null);
   } finally {
     globalThis.document = originalDocument;

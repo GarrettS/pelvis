@@ -18,7 +18,7 @@
 // Per-question verdict (vs end-of-test) is our UX study-tool design choice.
 
 
-import { loadJson } from './load-json.js';
+import { loadJson } from './load.js';
 
 let bundlePromise;
 

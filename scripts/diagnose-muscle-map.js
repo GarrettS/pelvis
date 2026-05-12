@@ -1,5 +1,4 @@
-import {loadJson} from './load-json.js';
-import {showFetchError} from './load-errors.js';
+import {loadAndRender, loadJson} from './load.js';
 import {expandAbbr} from './abbr-expand.js';
 
 let muscleExerciseMap = {};
@@ -11,25 +10,26 @@ let currentMView;
 const containerEl = document.getElementById('diagnose-muscle-map-content');
 const mapWrap = document.getElementById('muscle-map-wrap');
 
-const result = await loadJson('./data/diagnose-muscle-exercise-map.json');
-if (result.ok) {
-  muscleExerciseMap = result.data;
-  viewTabs = document.getElementById('muscle-view-tabs');
-  search = document.getElementById('muscle-search');
-  activeViewTab = viewTabs.querySelector('.subview-tab.activeTab');
+await loadAndRender({
+  load: () => loadJson('./data/diagnose-muscle-exercise-map.json'),
+  container: containerEl,
+  render: (data) => {
+    muscleExerciseMap = data;
+    viewTabs = document.getElementById('muscle-view-tabs');
+    search = document.getElementById('muscle-search');
+    activeViewTab = viewTabs.querySelector('.subview-tab.activeTab');
 
-  window.addEventListener('hashchange', applySubview);
-  search.addEventListener('input', () =>
-    renderMuscleView(currentMView, search.value.toLowerCase())
-  );
-  search.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') e.preventDefault();
-  });
+    window.addEventListener('hashchange', applySubview);
+    search.addEventListener('input', () =>
+      renderMuscleView(currentMView, search.value.toLowerCase())
+    );
+    search.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') e.preventDefault();
+    });
 
-  applySubview();
-} else {
-  showFetchError(containerEl, result);
-}
+    applySubview();
+  }
+});
 
 export function doesEntryMatchQuery(entry, query) {
   const fields = [

@@ -1,5 +1,4 @@
-import { showFetchError } from './load-errors.js';
-import { loadJson } from './load-json.js';
+import { loadAndRender, loadJson } from './load.js';
 
 let SYMPTOM_PATTERNS = null;
 const quizState = {
@@ -11,13 +10,14 @@ const quizState = {
 
 const containerEl = document.getElementById('symptom-quiz-wrap');
 
-const result = await loadJson('./data/symptom-patterns.json');
-if (result.ok) {
-  SYMPTOM_PATTERNS = result.data;
-  initSymptomQuiz();
-} else {
-  showFetchError(containerEl, result);
-}
+await loadAndRender({
+  load: () => loadJson('./data/symptom-patterns.json'),
+  container: containerEl,
+  render: (data) => {
+    SYMPTOM_PATTERNS = data;
+    initSymptomQuiz();
+  }
+});
 
 function initSymptomQuiz() {
   const answersEl = document.getElementById('symptom-answers');

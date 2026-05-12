@@ -1,26 +1,21 @@
-import { showFetchError } from './load-errors.js';
 import { expandAbbr } from './abbr-expand.js';
-import { loadJson } from './load-json.js';
+import { loadAndRender, loadJson } from './load.js';
 import { LevelQuiz } from './level-quiz.js';
 
 const containerEl = document.getElementById('patterns-level-quiz-content');
 
-const [haltResult, squatResult] = await Promise.all([
-  loadJson('./data/halt-levels.json'),
-  loadJson('./data/squat-levels.json')
+await Promise.all([
+  loadAndRender({
+    load: () => loadJson('./data/halt-levels.json'),
+    container: containerEl,
+    render: (data) => setupQuiz(new LevelQuiz(data), 'halt', haltPrompt, haltParts)
+  }),
+  loadAndRender({
+    load: () => loadJson('./data/squat-levels.json'),
+    container: containerEl,
+    render: (data) => setupQuiz(new LevelQuiz(data), 'squat', squatPrompt, squatParts)
+  })
 ]);
-
-if (haltResult.ok) {
-  setupQuiz(new LevelQuiz(haltResult.data), 'halt', haltPrompt, haltParts);
-} else {
-  showFetchError(containerEl, haltResult);
-}
-
-if (squatResult.ok) {
-  setupQuiz(new LevelQuiz(squatResult.data), 'squat', squatPrompt, squatParts);
-} else {
-  showFetchError(containerEl, squatResult);
-}
 
 function setupQuiz(quiz, prefix, promptFn, partsFn) {
   function render() {

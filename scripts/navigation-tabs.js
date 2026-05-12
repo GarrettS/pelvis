@@ -1,4 +1,4 @@
-import {showImportError} from "./load-errors.js";
+import {showImportError} from "./load.js";
 import {renderHomeProgress} from './home-progress.js';
 
 const lastSubtab = {};
@@ -9,6 +9,7 @@ const activeSubtabLink = {};
 const activeSubtabContent = {};
 
 const initialized = new Set();
+const pending = new Set();
 
 const LAZY_INIT = {
   'nomenclature-content':      './nomenclature.js',
@@ -52,14 +53,16 @@ function importModule(path) {
 }
 
 function lazyInit(contentId) {
-  if (initialized.has(contentId)) return;
+  if (initialized.has(contentId) || pending.has(contentId)) return;
 
   const entry = LAZY_INIT[contentId];
   if (!entry) return;
 
-  initialized.add(contentId);
   const container = document.getElementById(contentId);
   if (!container) return;
+
+  pending.add(contentId);
+  container.querySelectorAll('.callout.error').forEach((el) => el.remove());
 
   const paths = Array.isArray(entry) ? entry : [entry];
   const skeletonTimer = setTimeout(
@@ -70,10 +73,15 @@ function lazyInit(contentId) {
   Promise.all(paths.map(importModule)).then(results => {
     clearTimeout(skeletonTimer);
     clearTabLoading(container);
+    pending.delete(contentId);
 
-    results
-      .filter(r => !r.ok)
-      .forEach(r => showImportError(container, r.path, r.cause));
+    const failures = results.filter(r => !r.ok);
+    if (failures.length === 0) {
+      initialized.add(contentId);
+      return;
+    }
+
+    failures.forEach(r => showImportError(container, r.path, r.cause));
   });
 }
 

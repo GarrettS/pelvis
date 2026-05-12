@@ -1,8 +1,7 @@
 import { getAllEquivalent } from './equivalence.js';
-import { appendErrorCallout, showFetchError } from './load-errors.js';
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
-import { loadJson } from './load-json.js';
+import { appendErrorCallout, loadAndRender, loadJson } from './load.js';
 import { tryLoad as tryLoadProgress, updateEntry as updateProgress,
   getStats, clearAll as clearProgress, MASTERY_STREAK
 } from './master-quiz-progress.js';
@@ -627,14 +626,13 @@ function initListeners() {
   });
 }
 
-async function bootstrap() {
-  const result = await loadJson('./data/master-quiz.json');
-  if (!result.ok) return showFetchError(containerEl, result);
-
-  QUESTIONS = result.data;
-  renderStats();
-  syncStartButton();
-  initListeners();
-}
-
-await bootstrap();
+await loadAndRender({
+  load: () => loadJson('./data/master-quiz.json'),
+  container: containerEl,
+  render: (data) => {
+    QUESTIONS = data;
+    renderStats();
+    syncStartButton();
+    initListeners();
+  }
+});

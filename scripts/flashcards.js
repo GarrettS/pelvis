@@ -1,7 +1,6 @@
-import { appendErrorCallout, showFetchError } from './load-errors.js';
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
-import { loadJson } from './load-json.js';
+import { appendErrorCallout, loadAndRender, loadJson } from './load.js';
 
 const USER_FC_KEY = 'userFlashcards';
 
@@ -214,9 +213,8 @@ function renderCard() {
   cardWrap.appendChild(cardDiv);
 }
 
-const result = await loadJson('./data/flashcard-deck.json');
-if (result.ok) {
-  FLASHCARD_DECK = result.data;
+function setupFlashcards(deckData) {
+  FLASHCARD_DECK = deckData;
 
   const userCards = tryGetUserCards().map(c => ({
     ...c,
@@ -342,6 +340,10 @@ if (result.ok) {
     clearForm();
     renderCard();
   });
-} else {
-  showFetchError(containerEl, result);
 }
+
+await loadAndRender({
+  load: () => loadJson('./data/flashcard-deck.json'),
+  container: containerEl,
+  render: setupFlashcards
+});

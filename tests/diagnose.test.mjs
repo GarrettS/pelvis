@@ -196,14 +196,12 @@ async function importDiagnoseSubmodule(name) {
     moduleSource,
     shuffleSource,
     abbrExpandSource,
-    loadJsonSource,
-    loadErrorsSource
+    loadSource
   ] = await Promise.all([
     readFile(new URL(`../scripts/${name}.js`, import.meta.url), 'utf8'),
     readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/load-json.js', import.meta.url), 'utf8'),
-    readFile(new URL('../scripts/load-errors.js', import.meta.url), 'utf8')
+    readFile(new URL('../scripts/load.js', import.meta.url), 'utf8')
   ]);
   const freshDataUrl = (source) => {
     const nonce = `\n// ${Date.now()}-${Math.random()}`;
@@ -212,13 +210,11 @@ async function importDiagnoseSubmodule(name) {
   };
   const shuffleUrl = freshDataUrl(shuffleSource);
   const abbrExpandUrl = freshDataUrl(abbrExpandSource);
-  const loadJsonUrl = freshDataUrl(loadJsonSource);
-  const loadErrorsUrl = freshDataUrl(loadErrorsSource);
+  const loadUrl = freshDataUrl(loadSource);
   const rewritten = moduleSource
     .replace("'./shuffle.js'", `'${shuffleUrl}'`)
     .replace("'./abbr-expand.js'", `'${abbrExpandUrl}'`)
-    .replace("'./load-json.js'", `'${loadJsonUrl}'`)
-    .replace("'./load-errors.js'", `'${loadErrorsUrl}'`);
+    .replace("'./load.js'", `'${loadUrl}'`);
   return importSource(rewritten);
 }
 

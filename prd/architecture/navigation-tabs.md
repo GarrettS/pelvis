@@ -97,7 +97,7 @@ The skeleton itself is a generic placeholder (one heading skeleton + two line sk
 A lazy-loaded module:
 
 - **Performs setup at module top** as side effects on import. Module-top runs once per realm via the ES module cache. Modules may export anything they need internally; navigation-tabs does not call any function on them.
-- **Handles its own data load.** Uses `loadJson` from `scripts/load-json.js`, which returns a POJO `{ok, data, path, cause}`. Render runs only on `result.ok`; render bugs propagate as ordinary errors past the explicit `if (!result.ok)` branch.
+- **Handles its own data load.** Uses `loadJson` from `scripts/load.js`, which returns a POJO `{ok, data, path, cause}`. Render runs only on `result.ok`; render bugs propagate as ordinary errors past the explicit `if (!result.ok)` branch.
 - **Renders its own data errors** at the implementation layer (the file imported by navigation-tabs, or the file that calls per-feature `mount` functions). ADT classes / per-feature functions return or propagate the result; the implementation layer checks `result.ok` and calls `showFetchError(container, result)` on failure.
 - **For layout-sensitive features** (those needing redraw when the container becomes visible or resizes): observes its own container with `ResizeObserver`.
 - **Pre-data controls** (interactive elements present in source HTML before data loads) are either `disabled` until render or guard explicitly on data-ready in their handlers. Generated controls (those that don't exist before render) need no guard — `closest()` returns null and handlers return early.
@@ -130,13 +130,13 @@ Activation in this codebase uses CSS `display: none ↔ block` for subtab visibi
 
 ## Import-error rendering
 
-`showImportError(container, pathSpec, moduleError)` (existing helper in `scripts/load-errors.js`) renders an import error inside the container. Used by navigation-tabs's `.catch` on the import promise.
+`showImportError(container, pathSpec, moduleError)` (existing helper in `scripts/load.js`) renders an import error inside the container. Used by navigation-tabs's `.catch` on the import promise.
 
 `pathSpec` is a string — for multi-path entries, the paths joined by `', '`. Sufficient for the developer to identify which files were involved; the user-facing message says "couldn't load this section" and the path is diagnostic.
 
 ## What this doc does *not* cover
 
-- `scripts/load-json.js` and the result POJO `{ok, data, path, cause}` — see `prd/architecture/layering.md` and the diagnose migration plan.
+- `scripts/load.js` and the result POJO `{ok, data, path, cause}` — see `prd/architecture/layering.md` and the diagnose migration plan.
 - ADT class members, Decorator Factory pool — see `prd/architecture/layering.md`.
 - Per-tab module structure decisions (when does a tab module exist?) — see per-tab HLAs.
-- App-level error UI styling (`showImportError`, `showFetchError` rendering) — those helpers are app-level and live in `scripts/load-errors.js`.
+- App-level error UI styling (`showImportError`, `showFetchError` rendering) — those helpers are app-level and live in `scripts/load.js`.

@@ -57,8 +57,8 @@ The `'diagnose-content': './diagnose.js'` entry is removed. `scripts/diagnose.js
 Each diagnose feature module becomes self-running. Module-top side effects do the work on import — the same shape `patterns-cheat-sheet.js` and its siblings use.
 
 ```js
-import {loadJson} from './load-json.js';
-import {showFetchError} from './load-errors.js';
+import {loadJson} from './load.js';
+import {showFetchError} from './load.js';
 
 const container = document.getElementById('diagnose-causal-chains-content');
 
@@ -113,7 +113,7 @@ The five diagnose modules do not import each other. They share only common utili
 ### Already landed
 
 - Per-feature JSON files: `data/diagnose-causal-chains.json`, `data/diagnose-case-studies.json`, `data/diagnose-game-scenarios.json`, `data/diagnose-decision-tree.json`, `data/diagnose-muscle-exercise-map.json`, plus `data/nomenclature-translations.json` for the adjacent nomenclature migration.
-- `scripts/load-json.js` exists and returns the POJO `{ok, data, path, cause}`.
+- `scripts/load.js` exists and returns the POJO `{ok, data, path, cause}`.
 - `data/study-data.json` and `scripts/study-data-cache.js` deleted in staging.
 
 ### Pending — doctrine reconciliation

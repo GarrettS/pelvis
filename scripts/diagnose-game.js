@@ -1,5 +1,4 @@
-import {loadJson} from './load-json.js';
-import {showFetchError} from './load-errors.js';
+import {loadAndRender, loadJson} from './load.js';
 import {expandAbbr} from './abbr-expand.js';
 
 const ROUND2_STEPS = [
@@ -297,10 +296,11 @@ const GAME_DISPATCH = {
   'game-submit': handleGameSubmit
 };
 
-const result = await loadJson('./data/diagnose-game-scenarios.json');
-if (result.ok) {
-  scenarios = result.data;
-  resetGame();
-} else {
-  showFetchError(containerEl, result);
-}
+await loadAndRender({
+  load: () => loadJson('./data/diagnose-game-scenarios.json'),
+  container: containerEl,
+  render: (data) => {
+    scenarios = data;
+    resetGame();
+  }
+});

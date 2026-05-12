@@ -1,5 +1,4 @@
-import {loadJson} from './load-json.js';
-import {showFetchError} from './load-errors.js';
+import {loadAndRender, loadJson} from './load.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 
@@ -303,10 +302,11 @@ class CausalChain {
   }
 }
 
-const result = await loadJson('./data/diagnose-causal-chains.json');
-if (result.ok) {
-  causalChains = result.data;
-  renderAll(chainsWrap);
-} else {
-  showFetchError(containerEl, result);
-}
+await loadAndRender({
+  load: () => loadJson('./data/diagnose-causal-chains.json'),
+  container: containerEl,
+  render: (data) => {
+    causalChains = data;
+    renderAll(chainsWrap);
+  }
+});

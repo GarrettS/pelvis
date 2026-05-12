@@ -1,7 +1,6 @@
 import {createResizeHandle} from './resize-handle.js';
-import {appendErrorCallout, showFetchError} from './load-errors.js';
 import {expandAbbr} from './abbr-expand.js';
-import {loadJson} from './load-json.js';
+import {appendErrorCallout, loadAndRender, loadJson} from './load.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 const VIEWS = ['anterior', 'posterior'];
@@ -113,15 +112,16 @@ class AicMuscleFactory {
 
 containerEl = document.querySelector('.aic-chain-container');
 if (resolveDomRefs()) {
-  const result = await loadJson('./data/aic-chain.json');
-  if (result.ok) {
-    AicMuscleFactory.acceptData(result.data);
-    resetView();
-    buildPanel();
-    setupUi();
-  } else {
-    showFetchError(containerEl, result);
-  }
+  await loadAndRender({
+    load: () => loadJson('./data/aic-chain.json'),
+    container: containerEl,
+    render: (data) => {
+      AicMuscleFactory.acceptData(data);
+      resetView();
+      buildPanel();
+      setupUi();
+    }
+  });
 }
 
 function resolveDomRefs() {

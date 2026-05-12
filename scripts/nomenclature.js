@@ -1,27 +1,22 @@
-import { showFetchError } from "./load-errors.js";
-import { loadJson } from './load-json.js';
+import { loadAndRender, loadJson } from './load.js';
 import { expandAbbr } from './abbr-expand.js';
 
 const KEYS = ['joint', 'type', 'motion', 'positions', 'role'];
 
 const container = document.getElementById('nomenclature-content');
 
-const [jointsResult, translationsResult] = await Promise.all([
-  loadJson('./data/pelvic-joints.json'),
-  loadJson('./data/nomenclature-translations.json')
+await Promise.all([
+  loadAndRender({
+    load: () => loadJson('./data/pelvic-joints.json'),
+    container,
+    render: buildJointsView
+  }),
+  loadAndRender({
+    load: () => loadJson('./data/nomenclature-translations.json'),
+    container,
+    render: buildTranslationTable
+  })
 ]);
-
-if (jointsResult.ok) {
-  buildJointsView(jointsResult.data);
-} else {
-  showFetchError(container, jointsResult);
-}
-
-if (translationsResult.ok) {
-  buildTranslationTable(translationsResult.data);
-} else {
-  showFetchError(container, translationsResult);
-}
 
 function buildJointsView(joints) {
   const tbody = document.getElementById('joints-tbody');

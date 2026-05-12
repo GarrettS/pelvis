@@ -1,15 +1,13 @@
-import {showFetchError} from './load-errors.js';
 import {expandAbbr} from './abbr-expand.js';
-import {loadJson} from './load-json.js';
+import {loadAndRender, loadJson} from './load.js';
 
 const containerEl = document.getElementById('patterns-cheat-sheet-content');
 
-const result = await loadJson('./data/cheat-data.json');
-if (result.ok) {
-  buildCheatSheet(result.data);
-} else {
-  showFetchError(containerEl, result);
-}
+await loadAndRender({
+  load: () => loadJson('./data/cheat-data.json'),
+  container: containerEl,
+  render: buildCheatSheet
+});
 
 function buildCheatSheet(cheatData) {
   const grid = document.getElementById('cheat-sheet-grid');
@@ -35,6 +33,6 @@ function buildCheatSheet(cheatData) {
   });
   const legendLabels = document.getElementById('cheat-legend-labels');
   if (keyLabels.size) {
-    legendLabels.textContent = Array.from(keyLabels).join(', ');
+    legendLabels.textContent = [...keyLabels].join(', ');
   }
 }

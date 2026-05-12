@@ -1,5 +1,4 @@
-import { showFetchError } from './load-errors.js';
-import { loadJson } from './load-json.js';
+import { loadAndRender, loadJson } from './load.js';
 
 const CONCEPT_MAP_W = 500, CONCEPT_MAP_H = 340;
 const CONCEPT_MAP_PAD = 20;
@@ -240,10 +239,11 @@ function buildConceptMap() {
   initNodeHighlight(svg);
 }
 
-const result = await loadJson('./data/concept-map.json');
-if (result.ok) {
-  CONCEPT_MAP = result.data;
-  buildConceptMap();
-} else {
-  showFetchError(containerEl, result);
-}
+await loadAndRender({
+  load: () => loadJson('./data/concept-map.json'),
+  container: containerEl,
+  render: (data) => {
+    CONCEPT_MAP = data;
+    buildConceptMap();
+  }
+});

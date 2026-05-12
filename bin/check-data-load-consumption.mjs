@@ -87,7 +87,7 @@ function loadJsonNames(program) {
   const names = new Set();
   for (const node of program.body) {
     if (node.type !== 'ImportDeclaration') continue;
-    if (!node.source.value.endsWith('/load-json.js')) continue;
+    if (!node.source.value.endsWith('/load.js')) continue;
     for (const spec of node.specifiers) {
       if (spec.type !== 'ImportSpecifier') continue;
       if (spec.imported.name === 'loadJson') names.add(spec.local.name);
@@ -236,6 +236,23 @@ function collectLoadRefs(program, loadNames, sourceFile) {
   });
 }
 
+function collectArrowWrappedLoads(program, loadNames, sourceFile) {
+  walk(program, (node, parent) => {
+    if (node?.type !== 'ArrowFunctionExpression') return;
+    if (parent?.type === 'VariableDeclarator' && parent.init === node) return;
+
+    const body = arrowWrapperLoadJson(node, loadNames);
+    if (!body) return;
+
+    staticLoads.push({
+      sourceFile,
+      line: body.loc.start.line,
+      url: loadJsonCall(body, loadNames),
+      consumed: true
+    });
+  });
+}
+
 function collectFetchLoads(program, sourceFile) {
   const responseUrls = new Map();
   walk(program, (node) => {
@@ -304,6 +321,7 @@ function analyzeProgram(program, sourceFile) {
   const names = loadJsonNames(program);
   collectLoadRefs(program, names, sourceFile);
   collectVariableLoads(program, names, sourceFile);
+  collectArrowWrappedLoads(program, names, sourceFile);
   collectFetchLoads(program, sourceFile);
   collectUnsupportedDataRefs(program, names, sourceFile);
 }

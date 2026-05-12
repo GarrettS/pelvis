@@ -16,8 +16,8 @@ A tab is composed of:
 - **Per-feature module** — the integration site for one feature. Owns its container's listeners, its module-scope state, its data load, and its render. Self-running: module-top side effects do the work on import. Registered as a `LAZY_INIT` entry in `navigation-tabs.js`, keyed by the feature's container id.
 - **ADT class(es)** — where a feature has per-entity state worth encapsulating. Each class is page-independent: pure entity behavior, no app-level error rendering, no DOM lookups by absolute selector. Many-instance ADTs use a Factory pool.
 - **Data files** — JSON, one per feature.
-- **Shared loader** `scripts/load-json.js` — exports `loadJson(path)` which returns a POJO `{ok, data, path, cause}`. No higher-level helper; modules use `loadJson` directly and gate render on `result.ok`.
-- **App error helpers** `scripts/load-errors.js` — exports `showFetchError(container, result)` and `showImportError(container, pathSpec, error)`. Called by per-feature modules on `!result.ok`.
+- **Shared loader** `scripts/load.js` — exports `loadJson(path)` which returns a POJO `{ok, data, path, cause}`. No higher-level helper; modules use `loadJson` directly and gate render on `result.ok`.
+- **App error helpers** `scripts/load.js` — exports `showFetchError(container, result)` and `showImportError(container, pathSpec, error)`. Called by per-feature modules on `!result.ok`.
 
 There is no tab-implementation orchestrator. Both tabs that previously had one (Patterns, Diagnose) dissolved it. Subtab activation goes directly from `navigation-tabs.js` LAZY_INIT to per-feature module.
 
@@ -28,8 +28,8 @@ The integration site for one feature. Self-contained: someone reading this one f
 ### Module-top composition
 
 ```js
-import {loadJson} from './load-json.js';
-import {showFetchError} from './load-errors.js';
+import {loadJson} from './load.js';
+import {showFetchError} from './load.js';
 
 const container = document.getElementById('feature-container');
 
@@ -73,8 +73,8 @@ For features without identity-keyed entities (a singleton concept map, a statele
 A few features render twice with the same class and different data (HALT and Squat level quizzes share a class definition). The per-feature module defines the class, constructs two named instances eagerly at module top via direct `new`, binds each instance's listener in its own constructor, and calls each instance's `load(path)`.
 
 ```js
-import {loadJson} from './load-json.js';
-import {showFetchError} from './load-errors.js';
+import {loadJson} from './load.js';
+import {showFetchError} from './load.js';
 
 class LevelQuiz {
   #idx = 0;

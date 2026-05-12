@@ -1,6 +1,5 @@
 import {expandAbbr} from './abbr-expand.js';
-import {loadJson} from './load-json.js';
-import {showFetchError} from './load-errors.js';
+import {loadAndRender, loadJson} from './load.js';
 
 let caseStudies = {};
 
@@ -305,10 +304,11 @@ class CaseStudy {
   }
 }
 
-const result = await loadJson('./data/diagnose-case-studies.json');
-if (result.ok) {
-  caseStudies = result.data;
-  renderAll(caseStudyWrap);
-} else {
-  showFetchError(containerEl, result);
-}
+await loadAndRender({
+  load: () => loadJson('./data/diagnose-case-studies.json'),
+  container: containerEl,
+  render: (data) => {
+    caseStudies = data;
+    renderAll(caseStudyWrap);
+  }
+});

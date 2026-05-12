@@ -42,7 +42,7 @@ scripts/patterns-cheat-sheet.js    loads data/cheat-data.json, fills the cheat-s
 scripts/patterns-concept-map.js    loads data/concept-map.json, fills the concept-map SVG
 scripts/patterns-symptom-quiz.js   thin glue + SymptomQuiz ADT (singleton)
 scripts/patterns-level-quiz.js     thin glue + LevelQuiz ADT (two instances)
-scripts/load-json.js               shared loadJson(path) — see layering.md
+scripts/load.js               shared loadJson(path) — see layering.md
 ```
 
 `scripts/patterns.js` is deleted.
@@ -76,8 +76,8 @@ Each subtab file is the implementation layer for its subtab:
 Data-loading template (used both inside ADT `load(path)` methods and in non-ADT modules):
 
 ```js
-import {loadJson} from './load-json.js';
-import {showFetchError} from './load-errors.js';
+import {loadJson} from './load.js';
+import {showFetchError} from './load.js';
 
 // inside ADT.load(path):
 async load(path) {
@@ -266,7 +266,7 @@ In addition to the anti-patterns in `layering.md`:
 
 Each step is independently reviewable. Each subtab file is a separate commit.
 
-1. Add `scripts/load-json.js` with `loadJson(path)` returning the POJO `{ok, data, path, cause}`.
+1. Add `scripts/load.js` with `loadJson(path)` returning the POJO `{ok, data, path, cause}`.
 2. navigation-tabs prep: `lazyInit` becomes tolerant of modules with no `init` export; LAZY_INIT supports list-of-paths entries.
 3. Extract `patterns-cheat-sheet.js`. No ADT; pure render. Update LAZY_INIT to add `patterns-cheat-sheet-content`.
 4. Extract `patterns-concept-map.js`. Single active-node module state. Update LAZY_INIT to add `patterns-concept-map-content` (single path for now).

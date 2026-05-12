@@ -1,8 +1,7 @@
 import {createResizeHandle} from './resize-handle.js';
-import {showFetchError} from './load-errors.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
-import {loadJson} from './load-json.js';
+import {loadAndRender, loadJson} from './load.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
@@ -28,7 +27,7 @@ function defaultState() {
 
 const state = defaultState();
 
-let isMobile = false;
+let isNarrowViewport = false;
 let attemptedOnCurrent = false;
 let reviewMode = false;
 
@@ -39,19 +38,20 @@ let activeFilterBtn = null;
 const containerEl = document.getElementById('anatomy-anatomize-content');
 const arenaEl = document.getElementById('anat-arena');
 
-const result = await loadJson('./data/anatomize-data.json');
-if (result.ok) {
-  anatomizeData = result.data;
-  initScoreText();
-  renderImageSelector();
-  renderControls();
-  initListeners();
-  initResizeHandle();
-  startImageFromHash();
-  new ResizeObserver(drawArrows).observe(arenaEl);
-} else {
-  showFetchError(containerEl, result);
-}
+await loadAndRender({
+  load: () => loadJson('./data/anatomize-data.json'),
+  container: containerEl,
+  render: (data) => {
+    anatomizeData = data;
+    initScoreText();
+    renderImageSelector();
+    renderControls();
+    initListeners();
+    initResizeHandle();
+    startImageFromHash();
+    new ResizeObserver(drawArrows).observe(arenaEl);
+  }
+});
 
 const RE_IMG_ID = /^anat-img-(.+)$/;
 const RE_LABEL_ID = /^anat-(.+)-label$/;
@@ -108,10 +108,10 @@ function initScoreText() {
 }
 
 function initListeners() {
-  isMobile = window.matchMedia('(max-width: 600px)').matches;
+  isNarrowViewport = window.matchMedia('(max-width: 600px)').matches;
   window.matchMedia('(max-width: 600px)').addEventListener(
       'change', (e) => {
-        isMobile = e.matches;
+        isNarrowViewport = e.matches;
         if (state.imageId) {
           resetSession();
         }
@@ -295,8 +295,8 @@ function resetSession() {
 
   if (state.mechanic === 'blank_panels') {
     renderBlankPanels(imgSet);
-  } else if (isMobile) {
-    renderMobile(imgSet);
+  } else if (isNarrowViewport) {
+    renderStackedList(imgSet);
   } else if (state.mechanic === 'label_hunt') {
     renderLabelHunt(imgSet);
   }
@@ -499,19 +499,19 @@ function renderLabelHunt(imgSet) {
   hookImageLoad();
 }
 
-function renderMobile(imgSet) {
+function renderStackedList(imgSet) {
   const wrap = createArenaWrap(imgSet);
 
   arenaEl.appendChild(wrap);
 
   const list = document.createElement('div');
-  list.className = 'anatomize-mobile-list';
+  list.className = 'anatomize-stacked-list';
 
   const shuffledIds = shuffle(Object.keys(state.structures));
   shuffledIds.forEach((id) => {
     const s = state.structures[id];
     const btn = document.createElement('button');
-    btn.className = 'btn anatomize-mobile-btn';
+    btn.className = 'btn anatomize-stacked-list-button';
     btn.id = 'anat-' + id + '-btn';
     if (state.mechanic === 'label_hunt') {
       btn.textContent = s.label;
@@ -522,7 +522,7 @@ function renderMobile(imgSet) {
   });
 
   list.addEventListener('click', (e) => {
-    const btn = e.target.closest('.anatomize-mobile-btn');
+    const btn = e.target.closest('.anatomize-stacked-list-button');
     if (!btn) return;
     const m = btn.id.match(RE_BTN_ID);
     if (m) assessSelectedStructure(m[1]);
@@ -657,8 +657,8 @@ function showNextButton() {
 function renderVisualFeedback(structureId, correct) {
   if (state.mechanic === 'blank_panels') {
     renderBlankPanelsFeedback(structureId, correct);
-  } else if (isMobile) {
-    renderMobileFeedback(structureId, correct);
+  } else if (isNarrowViewport) {
+    renderStackedListFeedback(structureId, correct);
   } else if (state.mechanic === 'label_hunt') {
     renderLabelHuntFeedback(structureId, correct);
   }
@@ -713,7 +713,7 @@ function renderLabelHuntFeedback(structureId, correct) {
   }
 }
 
-function renderMobileFeedback(structureId, correct) {
+function renderStackedListFeedback(structureId, correct) {
   const btn = document.getElementById('anat-' + structureId + '-btn');
   if (!btn) return;
 
@@ -820,8 +820,8 @@ function endSession() {
   nextBtn.disabled = false;
   nextBtn.dataset.action = 'reset';
 
-  if (isMobile) {
-    arenaEl.querySelector('.anatomize-mobile-list')?.classList.add('review');
+  if (isNarrowViewport) {
+    arenaEl.querySelector('.anatomize-stacked-list')?.classList.add('review');
   }
 
   const total = state.structureCount;
