@@ -610,7 +610,24 @@
       class="btn quiz-count" value="10"
       min="5" max="50" step="5">
   </div>
-  <div id="equiv-quiz-wrap"></div>
+  <div id="equiv-quiz-wrap">
+    <div class="card">
+      <div class="quiz-progress-row">
+        <div class="quiz-progress-track">
+          <div class="quiz-progress-fill" id="equiv-progress-fill"></div>
+        </div>
+        <span class="quiz-progress-text" id="equiv-progress-text">Question 1 of 10</span>
+        <button class="btn" id="equiv-end-session">End Session</button>
+      </div>
+      <div class="equiv-given" id="equiv-current-given"></div>
+      <p class="equiv-instruction">Select all equivalent positions:</p>
+      <div class="equiv-opts" id="equiv-options"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="equiv-submit">Submit</button>
+      </div>
+      <div id="equiv-feedback" hidden></div>
+    </div>
+  </div>
   <div id="equiv-results">
     <h2 class="section-title">Results</h2>
     <div class="mq-results-score" id="equiv-result-score"></div>
