@@ -20,6 +20,9 @@ const state = {
 
 let anatomizeData = null;
 let activeImageBtn = null;
+let arrowWrap = null;
+let drawFrameId = null;
+const arrowSites = new Map();
 
 const percentBox = b => `left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%`;
 
@@ -228,6 +231,9 @@ function createSideLabels(svg, imgSet) {
 }
 
 function createStructureOverlays(svg, wrap, imgSet) {
+  arrowWrap = wrap;
+  arrowSites.clear();
+
   const markerTpl = document.createElementNS(SVG_NS, 'circle');
   markerTpl.setAttribute('r', '1.8');
   markerTpl.classList.add('anatomize-target-circle');
@@ -257,6 +263,16 @@ function createStructureOverlays(svg, wrap, imgSet) {
       labelText.textContent = s.label;
       labelDiv.appendChild(labelText);
       wrap.appendChild(labelDiv);
+
+      const line = document.createElementNS(SVG_NS, 'line');
+      line.classList.add('anatomize-arrow-line');
+      group.appendChild(line);
+
+      const head = document.createElementNS(SVG_NS, 'polygon');
+      head.classList.add('anatomize-arrowhead');
+      group.appendChild(head);
+
+      arrowSites.set(id, {line, head, labelDiv, arrowTo: s.arrowTo});
     }
 
     svg.appendChild(group);
@@ -283,69 +299,67 @@ function renderBlankPanels(imgSet) {
 }
 
 function drawArrows() {
-  const wrap = arenaEl.querySelector('.anatomize-arena-wrap');
-  const svg = wrap?.querySelector('.anatomize-svg-overlay');
-  if (!wrap || !svg) return;
+  if (drawFrameId) return;
 
-  const wrapRect = wrap.getBoundingClientRect();
-  if (wrapRect.width === 0 || wrapRect.height === 0) return;
+  drawFrameId = requestAnimationFrame(() => {
+    if (!arrowWrap) {
+      drawFrameId = null;
+      return;
+    }
 
-  for (const id in state.structures) {
-    const s = state.structures[id];
-    if (!s.panelBox) continue;
-    const group = document.getElementById('anat-' + id);
-    const labelDiv = document.getElementById('anat-' + id + '-label');
-    if (!group || !labelDiv) continue;
-    if (group.querySelector('.anatomize-arrow-line')) continue;
+    const wrapRect = arrowWrap.getBoundingClientRect();
+    if (wrapRect.width === 0 || wrapRect.height === 0) {
+      drawFrameId = null;
+      return;
+    }
 
-    const labelRect = labelDiv.getBoundingClientRect();
-    const box = {
-      x: (labelRect.left - wrapRect.left) / wrapRect.width * 100,
-      y: (labelRect.top - wrapRect.top) / wrapRect.height * 100,
-      w: labelRect.width / wrapRect.width * 100,
-      h: labelRect.height / wrapRect.height * 100
-    };
-    const ep = edgePoint(box, s.arrowTo);
+    const measurements = [];
+    for (const site of arrowSites.values()) {
+      measurements.push({
+        site,
+        labelRect: site.labelDiv.getBoundingClientRect()
+      });
+    }
 
-    const line = document.createElementNS(SVG_NS, 'line');
-    line.setAttribute('x1', ep.x);
-    line.setAttribute('y1', ep.y);
-    line.setAttribute('x2', s.arrowTo.x);
-    line.setAttribute('y2', s.arrowTo.y);
-    line.classList.add('anatomize-arrow-line');
-    group.appendChild(line);
+    for (const {site, labelRect} of measurements) {
+      const {line, head, arrowTo} = site;
+      const box = {
+        x: (labelRect.left - wrapRect.left) / wrapRect.width * 100,
+        y: (labelRect.top - wrapRect.top) / wrapRect.height * 100,
+        w: labelRect.width / wrapRect.width * 100,
+        h: labelRect.height / wrapRect.height * 100
+      };
+      const ep = edgePoint(box, arrowTo);
 
-    const arrowHead = createArrowHead(
-        ep.x, ep.y, s.arrowTo.x, s.arrowTo.y);
-    arrowHead.classList.add('anatomize-arrowhead');
-    group.appendChild(arrowHead);
-  }
+      line.setAttribute('x1', ep.x);
+      line.setAttribute('y1', ep.y);
+      line.setAttribute('x2', arrowTo.x);
+      line.setAttribute('y2', arrowTo.y);
+
+      head.setAttribute('points',
+          arrowHeadPoints(ep.x, ep.y, arrowTo.x, arrowTo.y));
+    }
+
+    drawFrameId = null;
+  });
 }
 
-function createArrowHead(x1, y1, x2, y2) {
+function arrowHeadPoints(x1, y1, x2, y2) {
   const dx = x2 - x1;
   const dy = y2 - y1;
   const len = Math.sqrt(dx * dx + dy * dy);
-  if (len === 0) {
-    const poly = document.createElementNS(SVG_NS, 'polygon');
-    poly.setAttribute('points', `${x2},${y2}`);
-    return poly;
-  }
+  if (len === 0) return `${x2},${y2}`;
   const ux = dx / len;
   const uy = dy / len;
   const size = 1.3;
+  const halfWidth = size * 0.4;
   const px = -uy;
   const py = ux;
-  const tipX = x2;
-  const tipY = y2;
-  const baseX1 = x2 - ux * size + px * size * 0.4;
-  const baseY1 = y2 - uy * size + py * size * 0.4;
-  const baseX2 = x2 - ux * size - px * size * 0.4;
-  const baseY2 = y2 - uy * size - py * size * 0.4;
-  const poly = document.createElementNS(SVG_NS, 'polygon');
-  poly.setAttribute('points',
-      `${tipX},${tipY} ${baseX1},${baseY1} ${baseX2},${baseY2}`);
-  return poly;
+  const baseX1 = x2 - ux * size + px * halfWidth;
+  const baseY1 = y2 - uy * size + py * halfWidth;
+  const baseX2 = x2 - ux * size - px * halfWidth;
+  const baseY2 = y2 - uy * size - py * halfWidth;
+  return `${x2},${y2} ${baseX1},${baseY1} ${baseX2},${baseY2}`;
 }
 
 function promptNext() {
