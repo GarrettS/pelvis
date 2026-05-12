@@ -4,7 +4,7 @@
       "arcuate_tendon_r": {
         "label": "Arcuate Tendon (R)",
         "type": "connective",
-        "priColor": "--pri-neutral",
+        "priColor": "pri-neutral",
         "panelBox": {
           "x": 0,
           "y": 14,
@@ -36,7 +36,7 @@
       "obturator_internus_r": {
         "label": "Obturator Internus (R)",
         "type": "muscle",
-        "priColor": "--pri-neutral",
+        "priColor": "pri-neutral",
         "panelBox": {
           "x": 0,
           "y": 54,
@@ -69,7 +69,7 @@
       "coccygeus_r": {
         "label": "Coccygeus (R)",
         "type": "muscle",
-        "priColor": "--pri-violet",
+        "priColor": "pri-violet",
         "panelBox": {
           "x": 0,
           "y": 64,
@@ -109,7 +109,7 @@
       "iliococcygeus_r": {
         "label": "Iliococcygeus (R)",
         "type": "muscle",
-        "priColor": "--pri-neutral",
+        "priColor": "pri-neutral",
         "panelBox": {
           "x": 0,
           "y": 32,
@@ -142,7 +142,7 @@
       "puborectalis": {
         "label": "Puborectalis (L)",
         "type": "muscle",
-        "priColor": "--pri-brown",
+        "priColor": "pri-brown",
         "panelBox": {
           "x": 86,
           "y": 8,
@@ -181,7 +181,7 @@
       "anococcygeal_ligament": {
         "label": "Anococcygeal Lig.",
         "type": "connective",
-        "priColor": "--pri-yellow",
+        "priColor": "pri-yellow",
         "panelBox": {
           "x": 36,
           "y": 92,
@@ -219,7 +219,7 @@
       "arcuate_tendon_l": {
         "label": "Arcuate Tendon (L)",
         "type": "connective",
-        "priColor": "--pri-yellow",
+        "priColor": "pri-yellow",
         "panelBox": {
           "x": 85.5,
           "y": 32,
@@ -257,7 +257,7 @@
       "medial_hamstring": {
         "label": "Medial Hamstring (L)",
         "type": "muscle",
-        "priColor": "--pri-brown",
+        "priColor": "pri-brown",
         "panelBox": {
           "x": 83.5,
           "y": 56,
@@ -296,7 +296,7 @@
       "obturator_internus_l": {
         "label": "Obturator Internus (L)",
         "type": "muscle",
-        "priColor": "--pri-green-family",
+        "priColor": "pri-green-family",
         "panelBox": {
           "x": 83,
           "y": 44,
@@ -336,7 +336,7 @@
       "glute_max_l": {
         "label": "Glute Max (L)",
         "type": "muscle",
-        "priColor": "--pri-neutral",
+        "priColor": "pri-neutral",
         "panelBox": {
           "x": 75,
           "y": 92,
@@ -372,7 +372,7 @@
       "iliococcygeus_l": {
         "label": "Iliococcygeus (L)",
         "type": "muscle",
-        "priColor": "--pri-green-family",
+        "priColor": "pri-green-family",
         "panelBox": {
           "x": 85.5,
           "y": 68,
@@ -412,7 +412,7 @@
       "pubococcygeus_l": {
         "label": "Pubococcygeus (L)",
         "type": "muscle",
-        "priColor": "--pri-brown",
+        "priColor": "pri-brown",
         "panelBox": {
           "x": 85.5,
           "y": 20,
@@ -464,7 +464,7 @@
         "puborectalis": {
           "label": "Puborectalis (L)",
           "type": "muscle",
-          "priColor": "--pri-brown",
+          "priColor": "pri-brown",
           "panelBox": {
             "x": 0,
             "y": 6,
@@ -503,7 +503,7 @@
         "pubococcygeus": {
           "label": "Pubococcygeus (L)",
           "type": "muscle",
-          "priColor": "--pri-brown",
+          "priColor": "pri-brown",
           "panelBox": {
             "x": 0,
             "y": 13,
@@ -543,7 +543,7 @@
         "arcuate_tendon": {
           "label": "Arcuate Tendon (L)",
           "type": "connective",
-          "priColor": "--pri-yellow",
+          "priColor": "pri-yellow",
           "panelBox": {
             "x": 0,
             "y": 20,
@@ -581,7 +581,7 @@
         "iliococcygeus": {
           "label": "Iliococcygeus (L)",
           "type": "muscle",
-          "priColor": "--pri-green-family",
+          "priColor": "pri-green-family",
           "panelBox": {
             "x": 0,
             "y": 40,
@@ -621,7 +621,7 @@
         "obturator_internus": {
           "label": "Obturator Internus (L)",
           "type": "muscle",
-          "priColor": "--pri-green-family",
+          "priColor": "pri-green-family",
           "panelBox": {
             "x": 0,
             "y": 30,
@@ -661,7 +661,7 @@
         "coccygeus_l": {
           "label": "Coccygeus (L)",
           "type": "muscle",
-          "priColor": "--pri-neutral",
+          "priColor": "pri-neutral",
           "panelBox": {
             "x": 0,
             "y": 50,
@@ -694,7 +694,7 @@
         "piriformis_l": {
           "label": "Piriformis (L)",
           "type": "muscle",
-          "priColor": "--pri-neutral",
+          "priColor": "pri-neutral",
           "panelBox": {
             "x": 0,
             "y": 60,
@@ -726,7 +726,7 @@
         "anococcygeal_ligament": {
           "label": "Anococcygeal Lig.",
           "type": "connective",
-          "priColor": "--pri-yellow",
+          "priColor": "pri-yellow",
           "panelBox": {
             "x": 0,
             "y": 70,
@@ -764,7 +764,7 @@
         "iliococcygeus_r": {
           "label": "Iliococcygeus (R)",
           "type": "muscle",
-          "priColor": "--pri-neutral",
+          "priColor": "pri-neutral",
           "panelBox": {
             "x": 85.5,
             "y": 38,
@@ -797,7 +797,7 @@
         "obturator_internus_r": {
           "label": "Obturator Internus (R)",
           "type": "muscle",
-          "priColor": "--pri-neutral",
+          "priColor": "pri-neutral",
           "panelBox": {
             "x": 83,
             "y": 28,
@@ -830,7 +830,7 @@
         "coccygeus_r": {
           "label": "Coccygeus (R)",
           "type": "muscle",
-          "priColor": "--pri-violet",
+          "priColor": "pri-violet",
           "panelBox": {
             "x": 89,
             "y": 50,
@@ -870,7 +870,7 @@
         "piriformis_r": {
           "label": "Piriformis (R)",
           "type": "muscle",
-          "priColor": "--pri-violet",
+          "priColor": "pri-violet",
           "panelBox": {
             "x": 88.5,
             "y": 60,
@@ -930,7 +930,7 @@
         "glute_max_l_flip": {
           "label": "Glute Max (L)",
           "type": "muscle",
-          "priColor": "--pri-neutral",
+          "priColor": "pri-neutral",
           "panelBox": {
             "x": 0,
             "y": 30,
@@ -955,7 +955,7 @@
         "coccygeus_r_flip": {
           "label": "Coccygeus (R)",
           "type": "muscle",
-          "priColor": "--pri-violet",
+          "priColor": "pri-violet",
           "panelBox": {
             "x": 83,
             "y": 75,
@@ -986,7 +986,7 @@
         "obturator_internus_l_flip": {
           "label": "Obturator Internus (L)",
           "type": "muscle",
-          "priColor": "--pri-green-family",
+          "priColor": "pri-green-family",
           "panelBox": {
             "x": 83,
             "y": 50,
@@ -1029,7 +1029,7 @@
         "iliacus": {
           "label": "Iliacus (L)",
           "type": "muscle",
-          "priColor": "--pri-red",
+          "priColor": "pri-red",
           "panelBox": {
             "x": 89,
             "y": 88,
@@ -1070,7 +1070,7 @@
         "sartorius": {
           "label": "Sartorius (R)",
           "type": "muscle",
-          "priColor": "--pri-brown",
+          "priColor": "pri-brown",
           "panelBox": {
             "x": 0,
             "y": 55,
@@ -1108,7 +1108,7 @@
         "rectus_femoris_direct": {
           "label": "Direct head of rectus femoris (R)",
           "type": "muscle",
-          "priColor": "--pri-brown",
+          "priColor": "pri-brown",
           "panelBox": {
             "x": 0,
             "y": 75,
@@ -1147,7 +1147,7 @@
         "rectus_femoris_reflected": {
           "label": "Reflected tendon of rectus femoris (R)",
           "type": "muscle",
-          "priColor": "--pri-brown",
+          "priColor": "pri-brown",
           "panelBox": {
             "x": 0,
             "y": 65,
@@ -1187,7 +1187,7 @@
         "internal_oblique_ta": {
           "label": "Int. Oblique / TA (L)",
           "type": "muscle",
-          "priColor": "--pri-yellow",
+          "priColor": "pri-yellow",
           "panelBox": {
             "x": 84,
             "y": 10,
@@ -1236,7 +1236,7 @@
         "glute_medius": {
           "label": "Gluteus Medius (L)",
           "type": "muscle",
-          "priColor": "--pri-orange",
+          "priColor": "pri-orange",
           "panelBox": {
             "x": 0,
             "y": 10,
@@ -1275,7 +1275,7 @@
         "glute_maximus_inlet": {
           "label": "Gluteus Maximus (R)",
           "type": "muscle",
-          "priColor": "--pri-violet",
+          "priColor": "pri-violet",
           "panelBox": {
             "x": 83,
             "y": 10,

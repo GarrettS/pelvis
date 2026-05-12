@@ -5,35 +5,29 @@ import {loadAndRender, loadJson} from './load.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-const STATE_DEFAULTS = {
+const state = {
   imageId: null,
-  mechanic: null,
-  flipped: false,
   structures: null,
   structureCount: 0,
   current: null,
   score: 0,
-  attempts: 0,
-  filter: 'all'
+  attemptedOnCurrent: false,
+  reviewMode: false,
+  queue: [],
+  identified: new Set(),
+  firstAttempt: new Set()
 };
-
-function defaultState() {
-  return Object.assign({}, STATE_DEFAULTS, {
-    queue: [],
-    identified: new Set(),
-    firstAttempt: new Set()
-  });
-}
-
-const state = defaultState();
-
-let isNarrowViewport = false;
-let attemptedOnCurrent = false;
-let reviewMode = false;
 
 let anatomizeData = null;
 let activeImageBtn = null;
-let activeFilterBtn = null;
+
+const percentBox = b => `left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%`;
+
+const RE_IMG_ID = /^anat-img-(.+)$/;
+const RE_LABEL_ID = /^anat-(.+)-label$/;
+
+const el = (tag, className, text = '') => Object.assign(
+    document.createElement(tag), {className, textContent: text});
 
 const containerEl = document.getElementById('anatomy-anatomize-content');
 const arenaEl = document.getElementById('anat-arena');
@@ -45,7 +39,6 @@ await loadAndRender({
     anatomizeData = data;
     initScoreText();
     renderImageSelector();
-    renderControls();
     initListeners();
     initResizeHandle();
     startImageFromHash();
@@ -53,13 +46,8 @@ await loadAndRender({
   }
 });
 
-const RE_IMG_ID = /^anat-img-(.+)$/;
-const RE_LABEL_ID = /^anat-(.+)-label$/;
-const RE_HITBOX_ID = /^anat-(.+)-hitbox$/;
-const RE_BTN_ID = /^anat-(.+)-btn$/;
-
 function priColorClass(priColor) {
-  return priColor ? priColor.replace('--', '') : 'pri-neutral';
+  return priColor || 'pri-neutral';
 }
 
 function resolveStructures(imgEntry, shared) {
@@ -108,15 +96,6 @@ function initScoreText() {
 }
 
 function initListeners() {
-  isNarrowViewport = window.matchMedia('(max-width: 600px)').matches;
-  window.matchMedia('(max-width: 600px)').addEventListener(
-      'change', (e) => {
-        isNarrowViewport = e.matches;
-        if (state.imageId) {
-          resetSession();
-        }
-      });
-
   document.getElementById('anat-reset').addEventListener('click', resetSession);
 
   const nextBtn = document.getElementById('anat-next');
@@ -128,23 +107,6 @@ function initListeners() {
     nextBtn.disabled = true;
     promptNext();
   });
-  nextBtn.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      nextBtn.click();
-    }
-  });
-
-  document.getElementById('anat-detail')
-    .addEventListener('click', (e) => {
-      const btn = e.target.closest(
-        '.anatomize-detail-btn'
-      );
-      if (!btn) return;
-
-      btn.hidden = true;
-      btn.nextElementSibling.hidden = false;
-    });
 }
 
 function renderImageSelector() {
@@ -166,61 +128,6 @@ function renderImageSelector() {
   });
 }
 
-function renderControls() {
-  document.getElementById('anat-filter').textContent = '';
-  const filters = [
-    {key: 'all', label: 'All'},
-    {key: 'muscles', label: 'Muscles'},
-    {key: 'landmarks', label: 'Landmarks'}
-  ];
-  filters.forEach((f) => {
-    const btn = document.createElement('button');
-    btn.className = 'btn';
-    btn.textContent = f.label;
-    btn.dataset.filter = f.key;
-    if (f.key === state.filter) {
-      btn.classList.add('active');
-      activeFilterBtn = btn;
-    }
-    document.getElementById('anat-filter').appendChild(btn);
-  });
-  document.getElementById('anat-filter').addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-filter]');
-    if (!btn || btn.disabled) return;
-    activeFilterBtn?.classList.remove('active');
-    btn.classList.add('active');
-    activeFilterBtn = btn;
-    state.filter = btn.dataset.filter;
-    resetSession();
-  });
-}
-
-function updateFilterDisabled() {
-  const imgSet = getImageSet(state.imageId);
-  if (!imgSet) return;
-
-  document.getElementById('anat-filter').querySelectorAll('button').forEach((btn) => {
-    const filter = btn.dataset.filter;
-    if (filter === 'all') {
-      btn.disabled = false;
-      return;
-    }
-    const count = Object.values(imgSet.structures)
-        .filter((s) => matchesFilter(s, filter)).length;
-    btn.disabled = count < 4;
-  });
-}
-
-function matchesFilter(structure, filter) {
-  if (filter === 'all') return true;
-  if (filter === 'muscles') {
-    return structure.type === 'muscle' || structure.type === 'ligament' ||
-        structure.type === 'connective';
-  }
-  if (filter === 'landmarks') return structure.type === 'landmark';
-  return true;
-}
-
 function getImageSet(imageId) {
   const entry = anatomizeData.images[imageId];
   if (!entry) return null;
@@ -234,8 +141,6 @@ function loadImageSet(imageId, skipHash) {
   if (!imgSet) return;
 
   state.imageId = imageId;
-  state.mechanic = imgSet.mechanic;
-  state.flipped = imgSet.flipped || false;
   arenaEl.classList.toggle('anatomize-dark-bg', imgSet.theme === 'dark');
 
   if (!skipHash) {
@@ -249,19 +154,6 @@ function loadImageSet(imageId, skipHash) {
   activeImageBtn = document.getElementById('anat-img-' + imageId);
   activeImageBtn?.classList.add('active');
 
-  const vals = Object.values(imgSet.structures);
-  const hasMuscles = vals.some(
-      (s) => s.type === 'muscle' || s.type === 'ligament');
-  const hasLandmarks = vals.some(
-      (s) => s.type === 'landmark');
-  const showFilter = hasMuscles && hasLandmarks;
-  document.getElementById('anat-filter').hidden = !showFilter;
-  document.getElementById('anat-reset').hidden = !showFilter;
-
-  if (!showFilter) {
-    state.filter = 'all';
-  }
-  updateFilterDisabled();
   resetSession();
 }
 
@@ -272,34 +164,21 @@ function resetSession() {
   state.score = 0;
   state.identified = new Set();
   state.firstAttempt = new Set();
-  state.attempts = 0;
   state.current = null;
-  attemptedOnCurrent = false;
-  reviewMode = false;
+  state.attemptedOnCurrent = false;
+  state.reviewMode = false;
   const nextBtn = document.getElementById('anat-next');
   nextBtn.textContent = 'Next →';
   delete nextBtn.dataset.action;
 
-  state.structures = Object.create(null);
-  state.structureCount = 0;
-  for (const id in imgSet.structures) {
-    if (matchesFilter(imgSet.structures[id], state.filter)) {
-      state.structures[id] = imgSet.structures[id];
-      state.structureCount++;
-    }
-  }
+  state.structures = imgSet.structures;
+  state.structureCount = Object.keys(imgSet.structures).length;
   state.queue = shuffle(Object.keys(state.structures));
 
   document.getElementById('anat-detail').textContent = '';
   nextBtn.disabled = true;
 
-  if (state.mechanic === 'blank_panels') {
-    renderBlankPanels(imgSet);
-  } else if (isNarrowViewport) {
-    renderStackedList(imgSet);
-  } else if (state.mechanic === 'label_hunt') {
-    renderLabelHunt(imgSet);
-  }
+  renderBlankPanels(imgSet);
 
   updateScore();
   promptNext();
@@ -371,8 +250,7 @@ function createStructureOverlays(svg, wrap, imgSet) {
       labelDiv.classList.add(priColorClass(s.priColor));
       labelDiv.id = 'anat-' + id + '-label';
       // CSS min-width: fit-content ensures readability on small images.
-      labelDiv.style.cssText = 'left:' + pb.x + '%;top:' + pb.y
-          + '%;width:' + pb.w + '%;height:' + pb.h + '%'
+      labelDiv.style.cssText = percentBox(pb)
           + (imgSet.flipped ? ';transform:scaleX(-1)' : '');
       const labelText = document.createElement('span');
       labelText.className = 'anatomize-label-text';
@@ -470,74 +348,13 @@ function createArrowHead(x1, y1, x2, y2) {
   return poly;
 }
 
-function renderLabelHunt(imgSet) {
-  const wrap = createArenaWrap(imgSet);
-
-  for (const id in state.structures) {
-    const s = state.structures[id];
-    if (!s.hitbox) continue;
-    const hitbox = document.createElement('div');
-    hitbox.className = 'anatomize-hitbox';
-    hitbox.id = 'anat-' + id + '-hitbox';
-    hitbox.style.cssText = 'left:' + s.hitbox.x + '%;top:' + s.hitbox.y
-        + '%;width:' + s.hitbox.w + '%;height:' + s.hitbox.h + '%';
-    hitbox.setAttribute('role', 'button');
-    hitbox.setAttribute('tabindex', '0');
-    hitbox.setAttribute('aria-label', s.label);
-    wrap.appendChild(hitbox);
-  }
-
-  wrap.addEventListener('click', (e) => {
-    const hitbox = e.target.closest('.anatomize-hitbox');
-    if (!hitbox) return;
-    const m = hitbox.id.match(RE_HITBOX_ID);
-    if (m) assessSelectedStructure(m[1]);
-  });
-
-  arenaEl.appendChild(wrap);
-
-  hookImageLoad();
-}
-
-function renderStackedList(imgSet) {
-  const wrap = createArenaWrap(imgSet);
-
-  arenaEl.appendChild(wrap);
-
-  const list = document.createElement('div');
-  list.className = 'anatomize-stacked-list';
-
-  const shuffledIds = shuffle(Object.keys(state.structures));
-  shuffledIds.forEach((id) => {
-    const s = state.structures[id];
-    const btn = document.createElement('button');
-    btn.className = 'btn anatomize-stacked-list-button';
-    btn.id = 'anat-' + id + '-btn';
-    if (state.mechanic === 'label_hunt') {
-      btn.textContent = s.label;
-    } else {
-      btn.textContent = ' ';
-    }
-    list.appendChild(btn);
-  });
-
-  list.addEventListener('click', (e) => {
-    const btn = e.target.closest('.anatomize-stacked-list-button');
-    if (!btn) return;
-    const m = btn.id.match(RE_BTN_ID);
-    if (m) assessSelectedStructure(m[1]);
-  });
-
-  arenaEl.appendChild(list);
-}
-
 function promptNext() {
   if (state.queue.length === 0) {
     endSession();
     return;
   }
   state.current = state.queue.shift();
-  attemptedOnCurrent = false;
+  state.attemptedOnCurrent = false;
   document.getElementById('anat-next').disabled = true;
 
   const structure = state.structures[state.current];
@@ -546,42 +363,34 @@ function promptNext() {
   }
 }
 
-const createNameRow = (() => {
-  const rowTpl = document.createElement('div');
-  rowTpl.className = 'anatomize-detail-name-row';
-  const bullet = document.createElement('span');
-  bullet.className = 'anatomize-detail-bullet';
-  rowTpl.appendChild(bullet);
-  const nameTpl = document.createElement('span');
-  nameTpl.className = 'anatomize-detail-name';
-  rowTpl.appendChild(nameTpl);
+function createNameRow(label) {
+  const row = el('div', 'anatomize-detail-name-row');
+  row.append(
+      el('span', 'anatomize-detail-bullet'),
+      el('span', 'anatomize-detail-name', label));
+  return row;
+}
 
-  return function createNameRow(label) {
-    const row = rowTpl.cloneNode(true);
-    row.lastChild.textContent = label;
-    return row;
-  };
-})();
+function createDetailRow(label, value) {
+  const text = (value?.proximal || value?.distal)
+      ? formatAttachments(value) : value;
+  const valueEl = el('span', 'detail-value');
+  valueEl.innerHTML = expandAbbr(text);
+  const row = el('div', 'detail-row');
+  row.append(el('span', 'detail-label', label), valueEl);
+  return row;
+}
 
-const createRevealLayer = (() => {
-  const layerTpl = document.createElement('div');
-  layerTpl.className = 'anatomize-detail-layer';
-  layerTpl.hidden = true;
-
-  const btnTpl = document.createElement('button');
-  btnTpl.className = 'btn anatomize-detail-btn';
-
-  return function createRevealLayer(fields, buttonLabel, panel) {
-    const wrapper = layerTpl.cloneNode(false);
-    fields.forEach(([, label, data]) => {
-      if (data) wrapper.appendChild(createDetailRow(label, data));
-    });
-    const btn = btnTpl.cloneNode(false);
-    btn.textContent = buttonLabel;
-    panel.appendChild(btn);
-    panel.appendChild(wrapper);
-  };
-})();
+function createRevealLayer(fields, buttonLabel, panel) {
+  const details = document.createElement('details');
+  const layer = el('div', 'anatomize-detail-layer');
+  fields.forEach(([, label, data]) =>
+      data && layer.append(createDetailRow(label, data)));
+  details.append(
+      el('summary', 'btn anatomize-detail-btn', buttonLabel),
+      layer);
+  panel.append(details);
+}
 
 function renderPromptPanel(structure) {
   document.getElementById('anat-detail').textContent = '';
@@ -607,7 +416,7 @@ function labelClickHandler(e) {
 }
 
 function assessSelectedStructure(structureId) {
-  if (reviewMode) {
+  if (state.reviewMode) {
     const structure = state.structures[structureId];
     if (structure) {
       renderDetailPanel(structure);
@@ -622,14 +431,13 @@ function assessSelectedStructure(structureId) {
 }
 
 function scoreAttempt(structureId, correct) {
-  state.attempts++;
   if (correct) {
     state.score++;
     state.identified.add(structureId);
-    if (!attemptedOnCurrent) {
+    if (!state.attemptedOnCurrent) {
       state.firstAttempt.add(structureId);
     }
-    renderVisualFeedback(structureId, true);
+    renderBlankPanelsFeedback(structureId, true);
     updateScore();
 
     const structure = state.structures[structureId];
@@ -640,8 +448,8 @@ function scoreAttempt(structureId, correct) {
     showNextButton();
   } else {
     state.score--;
-    attemptedOnCurrent = true;
-    renderVisualFeedback(structureId, false);
+    state.attemptedOnCurrent = true;
+    renderBlankPanelsFeedback(structureId, false);
     updateScore();
   }
 }
@@ -651,16 +459,6 @@ function showNextButton() {
   nextBtn.disabled = false;
   if (state.queue.length === 0) {
     nextBtn.textContent = 'Finish';
-  }
-}
-
-function renderVisualFeedback(structureId, correct) {
-  if (state.mechanic === 'blank_panels') {
-    renderBlankPanelsFeedback(structureId, correct);
-  } else if (isNarrowViewport) {
-    renderStackedListFeedback(structureId, correct);
-  } else if (state.mechanic === 'label_hunt') {
-    renderLabelHuntFeedback(structureId, correct);
   }
 }
 
@@ -692,39 +490,6 @@ function renderBlankPanelsFeedback(structureId, correct) {
     htmlLabel.appendChild(check);
   } else {
     flashWrongFeedback(htmlLabel, 'wrong');
-  }
-}
-
-function renderLabelHuntFeedback(structureId, correct) {
-  const hitbox = document.getElementById('anat-' + structureId + '-hitbox');
-  if (!hitbox) return;
-
-  const structure = state.structures[structureId];
-  if (!structure) return;
-
-  if (correct) {
-    hitbox.classList.add(priColorClass(structure.priColor), 'correct');
-    const check = document.createElement('span');
-    check.className = 'anatomize-check';
-    check.textContent = '✓';
-    hitbox.appendChild(check);
-  } else {
-    flashWrongFeedback(hitbox, 'anatomize-hitbox-wrong');
-  }
-}
-
-function renderStackedListFeedback(structureId, correct) {
-  const btn = document.getElementById('anat-' + structureId + '-btn');
-  if (!btn) return;
-
-  const structure = state.structures[structureId];
-  if (!structure) return;
-
-  if (correct) {
-    btn.classList.add(priColorClass(structure.priColor), 'correct');
-    btn.textContent = structure.label + ' ✓';
-  } else {
-    flashWrongFeedback(btn, 'wrong');
   }
 }
 
@@ -790,39 +555,14 @@ function formatAttachments(obj) {
   return prox + ' → ' + dist;
 }
 
-const createDetailRow = (() => {
-  const rowTpl = document.createElement('div');
-  rowTpl.className = 'detail-row';
-  const labelTpl = document.createElement('span');
-  labelTpl.className = 'detail-label';
-  rowTpl.appendChild(labelTpl);
-  const valTpl = document.createElement('span');
-  valTpl.className = 'detail-value';
-  rowTpl.appendChild(valTpl);
-
-  return function createDetailRow(label, value) {
-    const row = rowTpl.cloneNode(true);
-    row.firstChild.textContent = label;
-    const text = (typeof value === 'object' && value !== null &&
-        (value.proximal || value.distal)) ?
-        formatAttachments(value) : value;
-    row.lastChild.innerHTML = expandAbbr(text);
-    return row;
-  };
-})();
-
 function endSession() {
   state.current = null;
-  reviewMode = true;
+  state.reviewMode = true;
 
   const nextBtn = document.getElementById('anat-next');
   nextBtn.textContent = 'Reset';
   nextBtn.disabled = false;
   nextBtn.dataset.action = 'reset';
-
-  if (isNarrowViewport) {
-    arenaEl.querySelector('.anatomize-stacked-list')?.classList.add('review');
-  }
 
   const total = state.structureCount;
   const accuracy = total > 0 ?
