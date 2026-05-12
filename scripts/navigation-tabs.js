@@ -228,6 +228,4 @@ function initNavigationTabs() {
   }
 }
 
-export {initNavigationTabs};
-
 document.addEventListener('DOMContentLoaded', initNavigationTabs);
