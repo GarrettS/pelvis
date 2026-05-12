@@ -481,18 +481,18 @@ function renderResultsList(container, answers, showSave) {
     detailHTML += '</div>';
     detailHTML += '<div class="callout">' + expandAbbr(q.explanation) + '</div>';
 
+    detail.innerHTML = detailHTML;
+
     if (showSave) {
       const alreadySaved = isAlreadySaved(q.id);
-      const saveLabel = alreadySaved
-        ? 'Already saved' : 'Save as Flashcard';
-      detailHTML += '<button type="button"'
-        + ' class="btn mq-result-save"'
-        + ' value="' + q.id + '"'
-        + (alreadySaved ? ' disabled' : '')
-        + '>' + saveLabel + '</button>';
+      const saveBtn = document.createElement('button');
+      saveBtn.type = 'button';
+      saveBtn.className = 'btn mq-result-save';
+      saveBtn.value = q.id;
+      saveBtn.disabled = alreadySaved;
+      saveBtn.textContent = alreadySaved ? 'Already saved' : 'Save as Flashcard';
+      detail.appendChild(saveBtn);
     }
-
-    detail.innerHTML = detailHTML;
 
     row.appendChild(summary);
     row.appendChild(detail);
