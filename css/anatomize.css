@@ -392,31 +392,31 @@ g.correct .anatomize-target-circle {
   font-size: var(--text-xs);
 }
 
-.anatomize-mobile-list {
+.anatomize-stacked-list {
   display: flex;
   flex-direction: column;
   gap: .5rem;
   margin-top: 1rem;
 }
 
-.anatomize-mobile-btn {
+.anatomize-stacked-list-button {
   text-align: left;
   transition: all var(--dur-fast);
 }
 
-.anatomize-mobile-btn.wrong {
+.anatomize-stacked-list-button.wrong {
   border-color: var(--error-border);
   background-color: var(--error-bg);
 }
 
-.anatomize-mobile-btn.correct {
+.anatomize-stacked-list-button.correct {
   border-color: var(--pri-fg);
   background-color: var(--pri-bg);
   color: var(--pri-fg);
   pointer-events: none;
 }
 
-.anatomize-mobile-list.review .anatomize-mobile-btn.correct {
+.anatomize-stacked-list.review .anatomize-stacked-list-button.correct {
   pointer-events: auto;
 }
 
