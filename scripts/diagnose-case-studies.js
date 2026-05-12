@@ -14,7 +14,7 @@ export function renderCaseVisit(caseStudy, caseEl) {
       `<div class="callout">
         <strong>Case complete.</strong>
         <div class="btn-row">
-          <button class="btn case-restart">Restart Case</button>
+          <button class="case-restart">Restart Case</button>
         </div></div>`;
     return;
   }

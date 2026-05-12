@@ -248,7 +248,7 @@ function renderGameComplete() {
     <strong>Game complete.</strong>
     ${scoreText()}.
     <div class="btn-row">
-      <button class="btn primary"
+      <button class="primary"
         id="game-restart">Restart</button>
     </div></div>`;
 }
@@ -256,7 +256,7 @@ function renderGameComplete() {
 function appendNextButton(card) {
   const btnRow = document.createElement('div');
   btnRow.className = 'btn-row';
-  btnRow.innerHTML = '<button class="btn primary"'
+  btnRow.innerHTML = '<button class="primary"'
     + ' id="game-next">Next →</button>';
   card.appendChild(btnRow);
 }

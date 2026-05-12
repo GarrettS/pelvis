@@ -123,8 +123,8 @@ function buildChainCard(chain, { title, start, end }) {
       + expandAbbr(end) + '</div>'
     + '<ol class="chain-list" id="' + chain.id + '"></ol>'
     + '<div class="btn-row">'
-      + '<button class="btn primary chain-check">Check Order</button>'
-      + '<button class="btn chain-reset">Reset</button></div>'
+      + '<button class="primary chain-check">Check Order</button>'
+      + '<button class="chain-reset">Reset</button></div>'
     + '<div class="feedback-gap chain-feedback"></div>';
   return {
     card,

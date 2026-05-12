@@ -137,10 +137,12 @@
 
 .equiv-opt:hover:not(:disabled) {
   border-color: var(--accent-dim);
+  color: inherit;
 }
 
 .equiv-opt:disabled {
   cursor: default;
+  opacity: 1;
 }
 
 .equiv-opt.selected {

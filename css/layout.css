@@ -555,7 +555,7 @@ p:last-child {
   height: .6rem;
 }
 
-.btn {
+button, .quiz-count {
   font-family: var(--mono);
   font-size: var(--text-xs);
   background: var(--surface2);
@@ -567,17 +567,17 @@ p:last-child {
   cursor: pointer;
 }
 
-.btn:hover {
+button:hover, .quiz-count:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.btn:disabled {
+button:disabled, .quiz-count:disabled {
   opacity: .4;
   cursor: default;
 }
 
-.btn.primary {
+button.primary {
   font-size: var(--text-sm);
   padding: .55rem 1.2rem;
   background: var(--accent);
@@ -586,23 +586,23 @@ p:last-child {
   font-weight: 600;
 }
 
-.btn.primary:hover {
+button.primary:hover {
   box-shadow: var(--box-shadow-md);
   opacity: .9;
 }
 
-.btn.warn {
+button.warn {
   border-color: var(--warn);
   color: var(--warn);
   background: var(--warn-bg);
 }
 
-.btn.warn:hover {
+button.warn:hover {
   background: var(--warn);
   color: var(--bg);
 }
 
-.btn.active {
+button.active {
   background: var(--accent);
   color: var(--bg);
   border-color: var(--accent);

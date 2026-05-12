@@ -199,7 +199,7 @@ function renderGradedFeedback(q, correctAnswer) {
   feedback.innerHTML = `<strong>${gradeResult ? 'Correct.' : 'Incorrect.'}</strong>
     ${chainHTML}
     <div class="equiv-expl-slot">${explanationHTML}</div>
-    <button class="btn primary feedback-next">
+    <button class="primary feedback-next">
       ${nextButtonLabel()}</button>`;
 }
 
@@ -208,7 +208,7 @@ function renderUngradedFeedback(slotHTML) {
   feedback.className = 'feedback-box error';
   feedback.innerHTML = `
     <div class="equiv-expl-slot">${slotHTML}</div>
-    <button class="btn primary feedback-next">
+    <button class="primary feedback-next">
       ${nextButtonLabel()}</button>`;
 }
 
@@ -217,7 +217,7 @@ function buildFetchFailureHTML({ withRetry }) {
     ? "Couldn't load answers."
     : 'You appear to be offline. Reconnect and click Retry.';
   const retryButton = withRetry
-    ? '<button type="button" class="btn equiv-expl-retry">Retry</button>'
+    ? '<button type="button" class="equiv-expl-retry">Retry</button>'
     : '';
   return `<div class="equiv-expl-failure callout error">
     ${offlineMsg}

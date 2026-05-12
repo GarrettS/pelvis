@@ -144,26 +144,26 @@
           <div class="control-group">
             <div class="control-label">Side</div>
             <div class="control-btns" id="decoder-side-btns">
-              <button class="btn active" data-val="Left">Left</button>
-              <button class="btn" data-val="Right">Right</button>
+              <button class="active" data-val="Left">Left</button>
+              <button data-val="Right">Right</button>
             </div>
           </div>
           <div class="control-group">
             <div class="control-label">Region</div>
             <div class="control-btns" id="decoder-region-btns">
-              <button class="btn active" data-val="IP"><abbr title="Ilio-Pubo">IP</abbr></button>
-              <button class="btn" data-val="IS"><abbr title="Ilio-Sacral">IS</abbr></button>
-              <button class="btn" data-val="IsP"><abbr title="Ischio-Pubo">IsP</abbr></button>
-              <button class="btn" data-val="SI"><abbr title="Sacro-Ilio">SI</abbr></button>
-              <button class="btn" data-val="AF"><abbr title="Acetabulo-Femoral">AF</abbr></button>
-              <button class="btn" data-val="FA"><abbr title="Femoro-Acetabular">FA</abbr></button>
+              <button class="active" data-val="IP"><abbr title="Ilio-Pubo">IP</abbr></button>
+              <button data-val="IS"><abbr title="Ilio-Sacral">IS</abbr></button>
+              <button data-val="IsP"><abbr title="Ischio-Pubo">IsP</abbr></button>
+              <button data-val="SI"><abbr title="Sacro-Ilio">SI</abbr></button>
+              <button data-val="AF"><abbr title="Acetabulo-Femoral">AF</abbr></button>
+              <button data-val="FA"><abbr title="Femoro-Acetabular">FA</abbr></button>
             </div>
           </div>
           <div class="control-group">
             <div class="control-label">Direction</div>
             <div class="control-btns" id="decoder-dir-btns">
-              <button class="btn active" data-val="ER"><abbr title="External Rotation">ER</abbr></button>
-              <button class="btn" data-val="IR"><abbr title="Internal Rotation">IR</abbr></button>
+              <button class="active" data-val="ER"><abbr title="External Rotation">ER</abbr></button>
+              <button data-val="IR"><abbr title="Internal Rotation">IR</abbr></button>
             </div>
           </div>
         </div>
@@ -434,7 +434,7 @@
         </div>
         <div id="symptom-feedback" class="hidden"></div>
         <div class="btn-row">
-          <button class="btn primary hidden" id="symptom-next">Next</button>
+          <button class="primary hidden" id="symptom-next">Next</button>
         </div>
         </fieldset>
       </div>
@@ -471,13 +471,13 @@
     <h4 class="subsection-title mt-2"><abbr title="Hruska Abduction Lift Test">HALT</abbr> Level Quiz</h4>
     <div id="halt-quiz-wrap" class="quiz-card">
       <div id="halt-question"></div>
-      <div class="btn-row"><button class="btn" id="halt-reveal">Show Answer</button><button class="btn" id="halt-next">Next Level</button></div>
+      <div class="btn-row"><button id="halt-reveal">Show Answer</button><button id="halt-next">Next Level</button></div>
     </div>
 
     <h4 class="subsection-title mt-1-5">Squat Level Quiz</h4>
     <div id="squat-quiz-wrap" class="quiz-card">
       <div id="squat-question"></div>
-      <div class="btn-row"><button class="btn" id="squat-reveal">Show Answer</button><button class="btn" id="squat-next">Next Level</button></div>
+      <div class="btn-row"><button id="squat-reveal">Show Answer</button><button id="squat-next">Next Level</button></div>
     </div>
   </div>
   </div>
@@ -534,7 +534,7 @@
   <div class="fc-container">
     <div class="fc-header">
       <div class="fc-progress" id="fc-progress">0 of 0 remaining</div>
-      <button class="btn" id="fc-add-btn">+ Add Card</button>
+      <button id="fc-add-btn">+ Add Card</button>
     </div>
     <form id="fc-add-form" class="fc-add-form hidden">
       <h3 id="fc-form-title">New Card</h3>
@@ -557,15 +557,15 @@
           <div class="fc-char-count" id="fc-detail-count">0 / 380</div>
         </div>
         <div class="fc-form-actions">
-          <button type="button" class="btn" id="fc-form-cancel">Cancel</button>
-          <button type="button" class="btn primary" id="fc-form-preview" disabled>Preview</button>
+          <button type="button" id="fc-form-cancel">Cancel</button>
+          <button type="button" class="primary" id="fc-form-preview" disabled>Preview</button>
         </div>
       </div>
       <div id="fc-preview-section" class="hidden">
         <div id="fc-preview-card"></div>
         <div class="fc-form-actions fc-preview-actions">
-          <button type="button" class="btn" id="fc-form-edit-back">&larr; Edit</button>
-          <button type="button" class="btn primary" id="fc-form-save">Save</button>
+          <button type="button" id="fc-form-edit-back">&larr; Edit</button>
+          <button type="button" class="primary" id="fc-form-save">Save</button>
         </div>
       </div>
     </form>
@@ -584,7 +584,7 @@
       <button class="fc-filter-btn" data-weight="medium">Medium Priority</button>
     </div>
     <div class="btn-row btn-row-center">
-      <button class="btn" id="fc-reset">Reset Deck</button>
+      <button id="fc-reset">Reset Deck</button>
     </div>
     <div id="fc-done" class="hidden callout fc-done-text">
       Deck complete. All cards marked "Got It." Reset to study again.
@@ -606,7 +606,7 @@
   <div class="equiv-session-config">
     <label class="mono-label" for="equiv-count">Questions:</label>
     <input type="number" id="equiv-count"
-      class="btn quiz-count" value="10"
+      class="quiz-count" value="10"
       min="5" max="50" step="5">
   </div>
   <div id="equiv-quiz-wrap">
@@ -616,13 +616,13 @@
           <div class="quiz-progress-fill" id="equiv-progress-fill"></div>
         </div>
         <span class="quiz-progress-text" id="equiv-progress-text">Question 1 of 10</span>
-        <button class="btn" id="equiv-end-session">End Session</button>
+        <button id="equiv-end-session">End Session</button>
       </div>
       <div class="equiv-given" id="equiv-current-given"></div>
       <p class="equiv-instruction">Select all equivalent positions:</p>
       <div class="equiv-opts" id="equiv-options"></div>
       <div class="btn-row">
-        <button class="btn primary" id="equiv-submit">Submit</button>
+        <button class="primary" id="equiv-submit">Submit</button>
       </div>
       <div id="equiv-feedback" hidden></div>
     </div>
@@ -643,8 +643,8 @@
       </details>
     </div>
     <div class="btn-row mt-1-5">
-      <button type="button" class="btn primary" id="equiv-retake-missed">Retake Missed</button>
-      <button type="button" class="btn primary" id="equiv-new-session">New Session</button>
+      <button type="button" class="primary" id="equiv-retake-missed">Retake Missed</button>
+      <button type="button" class="primary" id="equiv-new-session">New Session</button>
     </div>
   </div>
 </section>
@@ -664,15 +664,15 @@
       <label><input type="checkbox" id="mq-domain-clinical" checked> Clinical</label>
     </div>
     <div class="btn-row">
-      <button type="button" class="btn" id="mq-select-all">Select All</button>
-      <button type="button" class="btn" id="mq-deselect-all">Deselect All</button>
+      <button type="button" id="mq-select-all">Select All</button>
+      <button type="button" id="mq-deselect-all">Deselect All</button>
     </div>
 
     <h3 class="subsection-title">Questions</h3>
     <div class="mq-config-row">
       <label class="mono-label" for="mq-count">Questions:</label>
       <input type="number" id="mq-count"
-        class="btn quiz-count" value="25"
+        class="quiz-count" value="25"
         min="5" max="100" step="5">
     </div>
     <div class="mq-config-row">
@@ -681,7 +681,7 @@
 
     <div id="mq-stats" class="mq-stats"></div>
 
-    <button type="button" class="btn primary" id="mq-start">Start Quiz</button>
+    <button type="button" class="primary" id="mq-start">Start Quiz</button>
   </div>
 
   <div id="mq-quiz" class="tab-section">
@@ -690,7 +690,7 @@
         <div class="quiz-progress-track"><div class="quiz-progress-fill" id="mq-progress-fill"></div></div>
         <span class="quiz-progress-text" id="mq-progress-text">Question 1 of 25</span>
       </div>
-      <button type="button" class="btn" id="mq-end-session">End Session</button>
+      <button type="button" id="mq-end-session">End Session</button>
     </div>
 
     <span class="mq-domain-badge" id="mq-domain-badge"></span>
@@ -699,12 +699,12 @@
     <div class="mq-options" id="mq-options"></div>
 
     <div class="btn-row">
-      <button type="button" class="btn primary" id="mq-submit" disabled>Submit</button>
-      <button type="button" class="btn primary hidden" id="mq-next">Next Question &rarr;</button>
+      <button type="button" class="primary" id="mq-submit" disabled>Submit</button>
+      <button type="button" class="primary hidden" id="mq-next">Next Question &rarr;</button>
     </div>
 
     <div id="mq-explanation" class="hidden"></div>
-    <button type="button" class="btn hidden" id="mq-save-flashcard">Save as Flashcard</button>
+    <button type="button" class="hidden" id="mq-save-flashcard">Save as Flashcard</button>
     <div id="mq-equiv-wrap" class="equiv-chain hidden"></div>
   </div>
 
@@ -727,9 +727,9 @@
     </div>
 
     <div class="btn-row mt-1-5">
-      <button type="button" class="btn primary" id="mq-retake-missed">Retake Missed</button>
-      <button type="button" class="btn primary" id="mq-new-session">New Session</button>
-      <button type="button" class="btn warn" id="mq-reset-progress">Reset All Progress</button>
+      <button type="button" class="primary" id="mq-retake-missed">Retake Missed</button>
+      <button type="button" class="primary" id="mq-new-session">New Session</button>
+      <button type="button" class="warn" id="mq-reset-progress">Reset All Progress</button>
     </div>
   </div>
 
