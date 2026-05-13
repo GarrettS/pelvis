@@ -20,9 +20,7 @@ const state = {
 
 let anatomizeData = null;
 let activeImageBtn = null;
-let arrowWrap = null;
 let drawFrameId = null;
-const arrowSites = new Map();
 
 const percentBox = b => `left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%`;
 
@@ -34,20 +32,6 @@ const el = (tag, className, text = '') => Object.assign(
 
 const containerEl = document.getElementById('anatomy-anatomize-content');
 const arenaEl = document.getElementById('anat-arena');
-
-await loadAndRender({
-  load: () => loadJson('./data/anatomize-data.json'),
-  container: containerEl,
-  render: (data) => {
-    anatomizeData = data;
-    initScoreText();
-    renderImageSelector();
-    initListeners();
-    initResizeHandle();
-    startImageFromHash();
-    new ResizeObserver(drawArrows).observe(arenaEl);
-  }
-});
 
 function priColorClass(priColor) {
   return priColor || 'pri-neutral';
@@ -78,6 +62,145 @@ function edgePoint(box, target) {
   const s = Math.min(sx, sy);
   return {x: cx + dx * s, y: cy + dy * s};
 }
+
+class BlankPanelSite {
+  static #instances = Object.create(null);
+  static #KEY = Symbol();
+
+  #structure;
+  #group;
+  #labelDiv;
+  #line;
+  #head;
+
+  static getInstance = (id, structure) => BlankPanelSite.#instances[id] ??=
+      new BlankPanelSite(id, structure, BlankPanelSite.#KEY);
+
+  static all() {
+    return Object.values(BlankPanelSite.#instances);
+  }
+
+  static clear() {
+    BlankPanelSite.#instances = Object.create(null);
+  }
+
+  constructor(id, structure, key) {
+    if (key !== BlankPanelSite.#KEY) {
+      throw new Error('Use BlankPanelSite.getInstance(id, structure) instead of new');
+    }
+    if (!structure) {
+      throw new Error(`BlankPanelSite.getInstance('${id}') called for unknown structure`);
+    }
+    this.id = id;
+    this.#structure = structure;
+    this.#build();
+  }
+
+  #build() {
+    const s = this.#structure;
+    const svg = document.getElementById('anat-arena-svg');
+    const wrap = document.getElementById('anat-arena-wrap');
+    const colorClass = priColorClass(s.priColor);
+
+    this.#group = document.createElementNS(SVG_NS, 'g');
+    this.#group.id = 'anat-' + this.id;
+    this.#group.classList.add(colorClass);
+
+    const marker = document.createElementNS(SVG_NS, 'circle');
+    marker.setAttribute('r', '1.8');
+    marker.classList.add('anatomize-target-circle');
+    marker.setAttribute('cx', s.arrowTo.x);
+    marker.setAttribute('cy', s.arrowTo.y);
+    this.#group.appendChild(marker);
+
+    if (s.panelBox) {
+      this.#labelDiv = document.createElement('div');
+      this.#labelDiv.className = 'anatomize-label ' + colorClass;
+      this.#labelDiv.id = 'anat-' + this.id + '-label';
+      this.#labelDiv.style.cssText = percentBox(s.panelBox);
+
+      const labelText = document.createElement('span');
+      labelText.className = 'anatomize-label-text';
+      labelText.textContent = s.label;
+      this.#labelDiv.appendChild(labelText);
+      wrap.appendChild(this.#labelDiv);
+
+      this.#line = document.createElementNS(SVG_NS, 'line');
+      this.#line.classList.add('anatomize-arrow-line');
+      this.#group.appendChild(this.#line);
+
+      this.#head = document.createElementNS(SVG_NS, 'polygon');
+      this.#head.classList.add('anatomize-arrowhead');
+      this.#group.appendChild(this.#head);
+    }
+
+    svg.appendChild(this.#group);
+  }
+
+  measure() {
+    return this.#labelDiv?.getBoundingClientRect() ?? null;
+  }
+
+  draw(wrapRect, labelRect) {
+    if (!labelRect) return;
+
+    const arrowTo = this.#structure.arrowTo;
+    const box = {
+      x: (labelRect.left - wrapRect.left) / wrapRect.width * 100,
+      y: (labelRect.top - wrapRect.top) / wrapRect.height * 100,
+      w: labelRect.width / wrapRect.width * 100,
+      h: labelRect.height / wrapRect.height * 100
+    };
+    const ep = edgePoint(box, arrowTo);
+
+    this.#line.setAttribute('x1', ep.x);
+    this.#line.setAttribute('y1', ep.y);
+    this.#line.setAttribute('x2', arrowTo.x);
+    this.#line.setAttribute('y2', arrowTo.y);
+
+    this.#head.setAttribute('points',
+        arrowHeadPoints(ep.x, ep.y, arrowTo.x, arrowTo.y));
+  }
+
+  markCorrect() {
+    if (!this.#labelDiv) return;
+
+    this.#group.classList.add('correct');
+    this.#labelDiv.classList.add('correct');
+    const check = document.createElement('span');
+    check.className = 'anatomize-check';
+    check.textContent = '✓';
+    this.#labelDiv.appendChild(check);
+  }
+
+  flashWrong() {
+    if (!this.#labelDiv) return;
+
+    this.#labelDiv.classList.add('wrong');
+    const xMark = document.createElement('span');
+    xMark.className = 'anatomize-x';
+    xMark.textContent = '✗';
+    this.#labelDiv.appendChild(xMark);
+    setTimeout(() => {
+      xMark.remove();
+      this.#labelDiv.classList.remove('wrong');
+    }, 1000);
+  }
+}
+
+await loadAndRender({
+  load: () => loadJson('./data/anatomize-data.json'),
+  container: containerEl,
+  render: (data) => {
+    anatomizeData = data;
+    initScoreText();
+    renderImageSelector();
+    initListeners();
+    initResizeHandle();
+    startImageFromHash();
+    new ResizeObserver(drawArrows).observe(arenaEl);
+  }
+});
 
 function startImageFromHash() {
   const imageIds = Object.keys(anatomizeData.images);
@@ -192,9 +315,7 @@ function createArenaWrap(imgSet) {
   arenaEl.textContent = '';
   const wrap = document.createElement('div');
   wrap.className = 'anatomize-arena-wrap';
-  if (imgSet.flipped) {
-    wrap.classList.add('anatomize-flipped');
-  }
+  wrap.id = 'anat-arena-wrap';
   const img = document.createElement('img');
   img.src = imgSet.imageSrc;
   img.alt = imgSet.label;
@@ -218,10 +339,6 @@ function createSideLabels(svg, imgSet) {
     shadow.setAttribute('font-size', 3);
     shadow.classList.add('anatomize-side-label-shadow');
     shadow.textContent = cfg.text;
-    if (imgSet.flipped) {
-      shadow.setAttribute('transform',
-          'translate(' + cfg.x + ',5) scale(-1,1) translate(' + -cfg.x + ',-5)');
-    }
     svg.appendChild(shadow);
 
     const label = shadow.cloneNode(true);
@@ -230,68 +347,26 @@ function createSideLabels(svg, imgSet) {
   });
 }
 
-function createStructureOverlays(svg, wrap, imgSet) {
-  arrowWrap = wrap;
-  arrowSites.clear();
-
-  const markerTpl = document.createElementNS(SVG_NS, 'circle');
-  markerTpl.setAttribute('r', '1.8');
-  markerTpl.classList.add('anatomize-target-circle');
-
+function createStructureOverlays() {
+  BlankPanelSite.clear();
   for (const id in state.structures) {
-    const s = state.structures[id];
-    const group = document.createElementNS(SVG_NS, 'g');
-    group.id = 'anat-' + id;
-    group.classList.add(priColorClass(s.priColor));
-
-    const marker = markerTpl.cloneNode(false);
-    marker.setAttribute('cx', s.arrowTo.x);
-    marker.setAttribute('cy', s.arrowTo.y);
-    group.appendChild(marker);
-
-    if (s.panelBox) {
-      const pb = s.panelBox;
-      const labelDiv = document.createElement('div');
-      labelDiv.className = 'anatomize-label';
-      labelDiv.classList.add(priColorClass(s.priColor));
-      labelDiv.id = 'anat-' + id + '-label';
-      // CSS min-width: fit-content ensures readability on small images.
-      labelDiv.style.cssText = percentBox(pb)
-          + (imgSet.flipped ? ';transform:scaleX(-1)' : '');
-      const labelText = document.createElement('span');
-      labelText.className = 'anatomize-label-text';
-      labelText.textContent = s.label;
-      labelDiv.appendChild(labelText);
-      wrap.appendChild(labelDiv);
-
-      const line = document.createElementNS(SVG_NS, 'line');
-      line.classList.add('anatomize-arrow-line');
-      group.appendChild(line);
-
-      const head = document.createElementNS(SVG_NS, 'polygon');
-      head.classList.add('anatomize-arrowhead');
-      group.appendChild(head);
-
-      arrowSites.set(id, {line, head, labelDiv, arrowTo: s.arrowTo});
-    }
-
-    svg.appendChild(group);
+    BlankPanelSite.getInstance(id, state.structures[id]);
   }
 }
 
 function renderBlankPanels(imgSet) {
   const wrap = createArenaWrap(imgSet);
+  arenaEl.appendChild(wrap);
 
   const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.id = 'anat-arena-svg';
   svg.setAttribute('viewBox', '0 0 100 100');
   svg.setAttribute('preserveAspectRatio', 'none');
   svg.classList.add('anatomize-svg-overlay');
+  wrap.appendChild(svg);
 
   createSideLabels(svg, imgSet);
-  createStructureOverlays(svg, wrap, imgSet);
-
-  wrap.appendChild(svg);
-  arenaEl.appendChild(wrap);
+  createStructureOverlays();
 
   wrap.addEventListener('click', labelClickHandler);
 
@@ -302,42 +377,20 @@ function drawArrows() {
   if (drawFrameId) return;
 
   drawFrameId = requestAnimationFrame(() => {
-    if (!arrowWrap) {
+    const wrap = document.getElementById('anat-arena-wrap');
+    const wrapRect = wrap?.getBoundingClientRect();
+    if (!wrapRect || wrapRect.width === 0 || wrapRect.height === 0) {
       drawFrameId = null;
       return;
     }
 
-    const wrapRect = arrowWrap.getBoundingClientRect();
-    if (wrapRect.width === 0 || wrapRect.height === 0) {
-      drawFrameId = null;
-      return;
+    const sites = BlankPanelSite.all();
+    const rects = new Array(sites.length);
+    for (let i = 0; i < sites.length; i++) {
+      rects[i] = sites[i].measure();
     }
-
-    const measurements = [];
-    for (const site of arrowSites.values()) {
-      measurements.push({
-        site,
-        labelRect: site.labelDiv.getBoundingClientRect()
-      });
-    }
-
-    for (const {site, labelRect} of measurements) {
-      const {line, head, arrowTo} = site;
-      const box = {
-        x: (labelRect.left - wrapRect.left) / wrapRect.width * 100,
-        y: (labelRect.top - wrapRect.top) / wrapRect.height * 100,
-        w: labelRect.width / wrapRect.width * 100,
-        h: labelRect.height / wrapRect.height * 100
-      };
-      const ep = edgePoint(box, arrowTo);
-
-      line.setAttribute('x1', ep.x);
-      line.setAttribute('y1', ep.y);
-      line.setAttribute('x2', arrowTo.x);
-      line.setAttribute('y2', arrowTo.y);
-
-      head.setAttribute('points',
-          arrowHeadPoints(ep.x, ep.y, arrowTo.x, arrowTo.y));
+    for (let i = 0; i < sites.length; i++) {
+      sites[i].draw(wrapRect, rects[i]);
     }
 
     drawFrameId = null;
@@ -476,34 +529,12 @@ function showNextButton() {
   }
 }
 
-function flashWrongFeedback(el, wrongClass) {
-  el.classList.add(wrongClass);
-  const xMark = document.createElement('span');
-  xMark.className = 'anatomize-x';
-  xMark.textContent = '✗';
-  el.appendChild(xMark);
-  setTimeout(() => {
-    xMark.remove();
-    el.classList.remove(wrongClass);
-  }, 1000);
-}
-
 function renderBlankPanelsFeedback(structureId, correct) {
-  const group = document.getElementById('anat-' + structureId);
-  if (!group) return;
-
-  const htmlLabel = document.getElementById('anat-' + structureId + '-label');
-  if (!htmlLabel) return;
-
+  const site = BlankPanelSite.getInstance(structureId);
   if (correct) {
-    group.classList.add('correct');
-    htmlLabel.classList.add('correct');
-    const check = document.createElement('span');
-    check.className = 'anatomize-check';
-    check.textContent = '✓';
-    htmlLabel.appendChild(check);
+    site.markCorrect();
   } else {
-    flashWrongFeedback(htmlLabel, 'wrong');
+    site.flashWrong();
   }
 }
 
@@ -515,7 +546,6 @@ function renderDetailPanel(structure) {
     + priColorClass(structure.priColor);
 
   const priDetail = structure.priDetail;
-  const hasLayers = priDetail && (priDetail.layer2 || priDetail.layer3);
 
   const layer1 = document.createElement('div');
   layer1.className = 'anatomize-detail-layer';
@@ -533,16 +563,6 @@ function renderDetailPanel(structure) {
     ].forEach(([key, label]) => {
       if (l1[key]) layer1.appendChild(createDetailRow(label, l1[key]));
     });
-  }
-
-  if (!hasLayers && priDetail && priDetail.layer1 &&
-      !priDetail.layer1.pri) {
-    const note = document.createElement('p');
-    note.className = 'anatomize-detail-hint';
-    note.textContent = structure.type === 'landmark'
-        ? 'Bony landmark — no PRI color assignment.'
-        : 'Not a primary PRI muscle.';
-    layer1.appendChild(note);
   }
 
   panel.appendChild(layer1);
