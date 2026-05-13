@@ -442,10 +442,7 @@ function drawArrows() {
   drawFrameId = requestAnimationFrame(() => {
     const wrap = document.getElementById('anat-arena-wrap');
     const wrapRect = wrap?.getBoundingClientRect();
-    if (!wrapRect || wrapRect.width === 0 || wrapRect.height === 0) {
-      drawFrameId = null;
-      return;
-    }
+    if (!wrapRect || !wrapRect.width || !wrapRect.height) return drawFrameId = null;
 
     const sites = BlankPanelSite.all();
 
