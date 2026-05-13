@@ -344,6 +344,11 @@
   stroke-width: 1.8;
 }
 
+.tilt-anterior #pelvis-motion-post,
+.tilt-posterior #pelvis-motion-ant {
+  display: none;
+}
+
 .pelvis-status-box-inlet {
   fill: var(--surface);
   stroke: var(--inlet);
