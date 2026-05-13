@@ -2,21 +2,12 @@ import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 import {loadAndRender, loadJson} from './load.js';
+import * as progress from './anatomize-progress.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
-const state = {
-  imageId: null,
-  structures: null,
-  structureCount: 0,
-  current: null,
-  score: 0,
-  attemptedOnCurrent: false,
-  reviewMode: false,
-  queue: [],
-  identified: new Set(),
-  firstAttempt: new Set()
-};
+const sessions = Object.create(null);
+let activeSession = null;
 
 let anatomizeData = null;
 let activeImageBtn = null;
@@ -202,6 +193,55 @@ await loadAndRender({
   }
 });
 
+function snapshotSession(session) {
+  return {
+    score: session.score,
+    identified: [...session.identified],
+    firstAttempt: [...session.firstAttempt],
+    queue: session.queue.slice(),
+    current: session.current,
+    attemptedOnCurrent: session.attemptedOnCurrent,
+    reviewMode: session.reviewMode
+  };
+}
+
+function persistActive() {
+  if (!activeSession) return;
+
+  progress.saveImage(activeSession.imageId, snapshotSession(activeSession));
+}
+
+function createSession(imgSet, imageId) {
+  const structureIds = Object.keys(imgSet.structures);
+  const persisted = progress.loadImage(imageId);
+  if (persisted) {
+    return {
+      imageId,
+      structures: imgSet.structures,
+      structureCount: structureIds.length,
+      score: persisted.score ?? 0,
+      identified: new Set(persisted.identified ?? []),
+      firstAttempt: new Set(persisted.firstAttempt ?? []),
+      queue: persisted.queue ?? shuffle(structureIds),
+      current: persisted.current ?? null,
+      attemptedOnCurrent: persisted.attemptedOnCurrent ?? false,
+      reviewMode: persisted.reviewMode ?? false
+    };
+  }
+  return {
+    imageId,
+    structures: imgSet.structures,
+    structureCount: structureIds.length,
+    score: 0,
+    identified: new Set(),
+    firstAttempt: new Set(),
+    queue: shuffle(structureIds),
+    current: null,
+    attemptedOnCurrent: false,
+    reviewMode: false
+  };
+}
+
 function startImageFromHash() {
   const imageIds = Object.keys(anatomizeData.images);
   if (imageIds.length === 0) return;
@@ -266,7 +306,6 @@ function loadImageSet(imageId, skipHash) {
   const imgSet = getImageSet(imageId);
   if (!imgSet) return;
 
-  state.imageId = imageId;
   arenaEl.classList.toggle('anatomize-dark-bg', imgSet.theme === 'dark');
 
   if (!skipHash) {
@@ -280,32 +319,65 @@ function loadImageSet(imageId, skipHash) {
   activeImageBtn = document.getElementById('anat-img-' + imageId);
   activeImageBtn?.classList.add('active');
 
-  resetSession();
+  activeSession = sessions[imageId] ??= createSession(imgSet, imageId);
+  renderActiveSession(imgSet);
+}
+
+function renderActiveSession(imgSet) {
+  const session = activeSession;
+  const nextBtn = document.getElementById('anat-next');
+
+  document.getElementById('anat-detail').textContent = '';
+  renderBlankPanels(imgSet);
+
+  for (const structureId of session.identified) {
+    BlankPanelSite.getInstance(structureId, session.structures[structureId])
+        .markCorrect();
+  }
+
+  updateScore();
+
+  if (session.reviewMode) {
+    nextBtn.textContent = 'Reset';
+    nextBtn.disabled = false;
+    nextBtn.dataset.action = 'reset';
+    renderEndSummary();
+    return;
+  }
+
+  nextBtn.textContent = 'Next →';
+  delete nextBtn.dataset.action;
+  nextBtn.disabled = true;
+
+  if (session.current && session.structures[session.current]) {
+    renderPromptPanel(session.structures[session.current]);
+    return;
+  }
+
+  promptNext();
 }
 
 function resetSession() {
-  const imgSet = getImageSet(state.imageId);
-  if (!imgSet) return;
+  if (!activeSession) return;
+  const session = activeSession;
 
-  state.score = 0;
-  state.identified = new Set();
-  state.firstAttempt = new Set();
-  state.current = null;
-  state.attemptedOnCurrent = false;
-  state.reviewMode = false;
+  session.score = 0;
+  session.identified = new Set();
+  session.firstAttempt = new Set();
+  session.queue = shuffle(Object.keys(session.structures));
+  session.current = null;
+  session.attemptedOnCurrent = false;
+  session.reviewMode = false;
+
+  progress.removeImage(session.imageId);
+
   const nextBtn = document.getElementById('anat-next');
   nextBtn.textContent = 'Next →';
   delete nextBtn.dataset.action;
-
-  state.structures = imgSet.structures;
-  state.structureCount = Object.keys(imgSet.structures).length;
-  state.queue = shuffle(Object.keys(state.structures));
-
   document.getElementById('anat-detail').textContent = '';
   nextBtn.disabled = true;
 
-  renderBlankPanels(imgSet);
-
+  renderBlankPanels(getImageSet(session.imageId));
   updateScore();
   promptNext();
 }
@@ -349,8 +421,8 @@ function createSideLabels(svg, imgSet) {
 
 function createStructureOverlays() {
   BlankPanelSite.clear();
-  for (const id in state.structures) {
-    BlankPanelSite.getInstance(id, state.structures[id]);
+  for (const id in activeSession.structures) {
+    BlankPanelSite.getInstance(id, activeSession.structures[id]);
   }
 }
 
@@ -416,18 +488,19 @@ function arrowHeadPoints(x1, y1, x2, y2) {
 }
 
 function promptNext() {
-  if (state.queue.length === 0) {
+  if (activeSession.queue.length === 0) {
     endSession();
     return;
   }
-  state.current = state.queue.shift();
-  state.attemptedOnCurrent = false;
+  activeSession.current = activeSession.queue.shift();
+  activeSession.attemptedOnCurrent = false;
   document.getElementById('anat-next').disabled = true;
 
-  const structure = state.structures[state.current];
+  const structure = activeSession.structures[activeSession.current];
   if (structure) {
     renderPromptPanel(structure);
   }
+  persistActive();
 }
 
 function createNameRow(label) {
@@ -483,48 +556,49 @@ function labelClickHandler(e) {
 }
 
 function assessSelectedStructure(structureId) {
-  if (state.reviewMode) {
-    const structure = state.structures[structureId];
+  if (activeSession.reviewMode) {
+    const structure = activeSession.structures[structureId];
     if (structure) {
       renderDetailPanel(structure);
     }
     return;
   }
-  if (!state.current) return;
-  if (state.identified.has(structureId)) return;
+  if (!activeSession.current) return;
+  if (activeSession.identified.has(structureId)) return;
 
-  const correct = structureId === state.current;
+  const correct = structureId === activeSession.current;
   scoreAttempt(structureId, correct);
 }
 
 function scoreAttempt(structureId, correct) {
   if (correct) {
-    state.score++;
-    state.identified.add(structureId);
-    if (!state.attemptedOnCurrent) {
-      state.firstAttempt.add(structureId);
+    activeSession.score++;
+    activeSession.identified.add(structureId);
+    if (!activeSession.attemptedOnCurrent) {
+      activeSession.firstAttempt.add(structureId);
     }
     renderBlankPanelsFeedback(structureId, true);
     updateScore();
 
-    const structure = state.structures[structureId];
+    const structure = activeSession.structures[structureId];
     if (structure) {
       renderDetailPanel(structure);
     }
 
     showNextButton();
   } else {
-    state.score--;
-    state.attemptedOnCurrent = true;
+    activeSession.score--;
+    activeSession.attemptedOnCurrent = true;
     renderBlankPanelsFeedback(structureId, false);
     updateScore();
   }
+  persistActive();
 }
 
 function showNextButton() {
   const nextBtn = document.getElementById('anat-next');
   nextBtn.disabled = false;
-  if (state.queue.length === 0) {
+  if (activeSession.queue.length === 0) {
     nextBtn.textContent = 'Finish';
   }
 }
@@ -590,30 +664,35 @@ function formatAttachments(obj) {
 }
 
 function endSession() {
-  state.current = null;
-  state.reviewMode = true;
+  activeSession.current = null;
+  activeSession.reviewMode = true;
 
   const nextBtn = document.getElementById('anat-next');
   nextBtn.textContent = 'Reset';
   nextBtn.disabled = false;
   nextBtn.dataset.action = 'reset';
 
-  const total = state.structureCount;
+  renderEndSummary();
+  persistActive();
+}
+
+function renderEndSummary() {
+  const total = activeSession.structureCount;
   const accuracy = total > 0 ?
-      Math.round((state.firstAttempt.size / total) * 100) : 0;
+      Math.round((activeSession.firstAttempt.size / total) * 100) : 0;
 
   const summary = document.createElement('div');
   summary.className = 'anatomize-end-summary';
   summary.textContent =
-      `Complete. Score: ${state.score}. Accuracy: ${accuracy}%.`;
+      `Complete. Score: ${activeSession.score}. Accuracy: ${accuracy}%.`;
   document.getElementById('anat-detail').appendChild(summary);
 }
 
 function updateScore() {
   document.getElementById('anat-score-text')
-    .textContent = 'Score: ' + state.score
-      + ' · ' + state.identified.size
-      + ' of ' + state.structureCount;
+    .textContent = 'Score: ' + activeSession.score
+      + ' · ' + activeSession.identified.size
+      + ' of ' + activeSession.structureCount;
 }
 
 function initResizeHandle() {
