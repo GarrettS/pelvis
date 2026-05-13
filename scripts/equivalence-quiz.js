@@ -317,7 +317,7 @@ async function renderResults() {
     ? Math.round((correctCount / total) * 100)
     : 0;
 
-  let scoreClass = 'mq-score-green';
+  let scoreClass = 'mq-score-correct';
   if (pct < 60) scoreClass = 'mq-score-red';
   else if (pct < 80) scoreClass = 'mq-score-yellow';
 
