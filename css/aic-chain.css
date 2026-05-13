@@ -103,6 +103,7 @@
 
 .aic-leader-path {
   fill: none;
+  stroke: var(--pri-fg);
   stroke-width: 1.5;
   transition: stroke-dashoffset var(--dur-normal) ease-out;
 }

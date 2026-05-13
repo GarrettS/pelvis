@@ -1,3 +1,6 @@
+// L AIC Chain tab: chain panel, anchor overlay, leader lines, detail panel.
+// Architecture: prd/architecture/aic-chain.txt
+
 import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
 import {appendErrorCallout, loadAndRender, loadJson} from './load.js';
@@ -19,17 +22,66 @@ let activeMuscle = null;
 
 let detailFieldRowTemplate = null;
 let detailView = null;
-let leaderView = null;
+let leaderDefsMounted = false;
+let drawFrameId = null;
+
+function createSvg(tag, attrs) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const key of Object.keys(attrs)) {
+    el.setAttribute(key, attrs[key]);
+  }
+  return el;
+}
 
 class AicMuscle {
+  static #instances = Object.create(null);
+  static #chainData = {};
+  static #detailData = {};
+  static #fieldLabels = {};
+  static #KEY = Symbol();
+  static #toXY = ([x, y]) => ({x, y});
+
+  static acceptData(data) {
+    ({
+      chain: AicMuscle.#chainData,
+      detail: AicMuscle.#detailData,
+      fieldLabels: AicMuscle.#fieldLabels
+    } = data);
+  }
+
+  static getInstance(id) {
+    return AicMuscle.#instances[id] ??= new AicMuscle(
+        id,
+        AicMuscle.#chainData[id],
+        AicMuscle.#detailData[id],
+        AicMuscle.#KEY);
+  }
+
+  static forEachEntry(callback) {
+    Object.entries(AicMuscle.#chainData).forEach(([id, entry]) => {
+      callback(id, entry);
+    });
+  }
+
+  static fieldLabelEntries() {
+    return Object.entries(AicMuscle.#fieldLabels);
+  }
+
   #id;
   #chainEntry;
   #detailEntry;
   #rowEl = null;
   #circlesByView = new Map();
+  #leaderPathsByView = new Map();
   #mounted = false;
 
-  constructor(id, chainEntry, detailEntry) {
+  constructor(id, chainEntry, detailEntry, key) {
+    if (key !== AicMuscle.#KEY) {
+      throw new Error('Use AicMuscle.getInstance(id) instead of new');
+    }
+    if (!chainEntry) {
+      throw new Error(`AicMuscle.getInstance('${id}') called for unknown muscle`);
+    }
     this.#id = id;
     this.#chainEntry = chainEntry;
     this.#detailEntry = detailEntry;
@@ -38,11 +90,11 @@ class AicMuscle {
   label() { return this.#chainEntry.label; }
   priColor() { return this.#chainEntry.priColor; }
   rowEl() { return this.#rowEl; }
-  anchor(view) { return this.#chainEntry.anchor[view]; }
+  anchor(view) { return AicMuscle.#toXY(this.#chainEntry.anchor[view]); }
   hasDetail() { return Boolean(this.#detailEntry); }
   field(key) { return this.#detailEntry?.[key]; }
 
-  mount(overlayEl) {
+  mount() {
     if (this.#mounted) return;
 
     this.#rowEl = document.getElementById(this.#id);
@@ -50,6 +102,10 @@ class AicMuscle {
       const circle = this.#buildCircle(view);
       overlayEl.appendChild(circle);
       this.#circlesByView.set(view, circle);
+
+      const path = this.#buildLeaderPath();
+      leaderEl.appendChild(path);
+      this.#leaderPathsByView.set(view, path);
     });
     this.#mounted = true;
   }
@@ -67,46 +123,42 @@ class AicMuscle {
     this.#circlesByView.forEach((circle) => {
       circle.classList.remove('activeMuscle');
     });
+    this.#leaderPathsByView.forEach((path) => path.removeAttribute('d'));
   }
 
-  #buildCircle(view) {
-    const circle = document.createElementNS(SVG_NS, 'circle');
-    const [cx, cy] = this.#chainEntry.anchor[view];
-    circle.setAttribute('cx', cx);
-    circle.setAttribute('cy', cy);
-    circle.classList.add(this.#chainEntry.priColor);
-    return circle;
-  }
-}
-
-class AicMuscleFactory {
-  static #instances = Object.create(null);
-  static #chainData = {};
-  static #detailData = {};
-  static #fieldLabels = {};
-
-  static acceptData(data) {
-    AicMuscleFactory.#chainData = data.chain;
-    AicMuscleFactory.#detailData = data.detail;
-    AicMuscleFactory.#fieldLabels = data.fieldLabels;
-    AicMuscleFactory.#instances = Object.create(null);
+  drawLeader(rowRect, imageRect, sectionRect) {
+    const start = {
+      x: rowRect.right - sectionRect.left,
+      y: rowRect.top + rowRect.height / 2 - sectionRect.top
+    };
+    for (let i = 0; i < VIEWS.length; i++) {
+      const view = VIEWS[i];
+      const end = anchorPointInSection(this.anchor(view), imageRect, sectionRect);
+      applyLeaderPathState(
+          this.#leaderPathsByView.get(view),
+          buildLeaderPathState({start, end}));
+    }
+    this.#kickAnimation();
   }
 
-  static getInstance(id) {
-    return AicMuscleFactory.#instances[id] ??= new AicMuscle(
-        id,
-        AicMuscleFactory.#chainData[id],
-        AicMuscleFactory.#detailData[id]);
-  }
-
-  static forEachEntry(callback) {
-    Object.entries(AicMuscleFactory.#chainData).forEach(([id, entry]) => {
-      callback(id, entry);
+  #kickAnimation() {
+    requestAnimationFrame(() => {
+      for (const path of this.#leaderPathsByView.values()) {
+        path.style.strokeDashoffset = '0';
+      }
     });
   }
 
-  static fieldLabelEntries() {
-    return Object.entries(AicMuscleFactory.#fieldLabels);
+  #buildCircle(view) {
+    const {x: cx, y: cy} = this.anchor(view);
+    return createSvg('circle', {cx, cy, class: this.priColor()});
+  }
+
+  #buildLeaderPath() {
+    return createSvg('path', {
+      class: `aic-leader-path ${this.priColor()}`,
+      'marker-end': `url(#${ARROWHEAD_ID})`
+    });
   }
 }
 
@@ -116,8 +168,7 @@ if (resolveDomRefs()) {
     load: () => loadJson('./data/aic-chain.json'),
     container: containerEl,
     render: (data) => {
-      AicMuscleFactory.acceptData(data);
-      resetView();
+      AicMuscle.acceptData(data);
       buildPanel();
       setupUi();
     }
@@ -152,25 +203,14 @@ function resolveDomRefs() {
   return false;
 }
 
-function resetView() {
-  if (activeMuscle) {
-    activeMuscle.deactivate();
-    activeMuscle = null;
-  }
-  panelEl.textContent = '';
-  overlayEl.textContent = '';
-  leaderEl.textContent = '';
-  detailEl.textContent = '';
-  detailView = null;
-  leaderView = null;
-}
-
 function setupUi() {
+  ensureLeaderDefs();
+
   panelEl.addEventListener('click', (event) => {
     const rowEl = event.target.closest('.aic-chain-row');
     if (!rowEl) return;
 
-    setActiveMuscle(AicMuscleFactory.getInstance(rowEl.id));
+    setActiveMuscle(AicMuscle.getInstance(rowEl.id));
   });
 
   createResizeHandle({
@@ -180,15 +220,29 @@ function setupUi() {
     cssProperty: '--panel-w',
     minWidth: 100,
     maxRatio: 0.4,
-    onResize: handleResize
+    onResize: drawLeaderLine
   });
 
-  new ResizeObserver(handleResize).observe(tabSectionEl);
+  new ResizeObserver(drawLeaderLine).observe(tabSectionEl);
+}
+
+function ensureLeaderDefs() {
+  if (leaderDefsMounted) return;
+
+  leaderEl.insertAdjacentHTML('afterbegin', `
+    <defs>
+      <marker id="${ARROWHEAD_ID}" markerWidth="8" markerHeight="6"
+              refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <polygon points="0 0, 8 3, 0 6" fill="context-stroke"/>
+      </marker>
+    </defs>
+  `);
+  leaderDefsMounted = true;
 }
 
 function buildPanel() {
   const fragment = document.createDocumentFragment();
-  AicMuscleFactory.forEachEntry((id, chainEntry) => {
+  AicMuscle.forEachEntry((id, chainEntry) => {
     fragment.appendChild(makeMuscleRow(id, chainEntry));
     if (chainEntry.connection) {
       fragment.appendChild(makeChainNoteRow(chainEntry.connection, false));
@@ -221,9 +275,9 @@ function setActiveMuscle(muscle) {
 
   if (activeMuscle) activeMuscle.deactivate();
   activeMuscle = muscle;
-  muscle.mount(overlayEl);
+  muscle.mount();
   muscle.activate();
-  drawLeaderLine(muscle);
+  drawLeaderLine();
   showDetail(muscle);
 }
 
@@ -270,7 +324,7 @@ function getOrCreateDetailView() {
   panel.appendChild(heading);
 
   const valueElsByKey = new Map();
-  AicMuscleFactory.fieldLabelEntries().forEach(([key, label]) => {
+  AicMuscle.fieldLabelEntries().forEach(([key, label]) => {
     const row = makeDetailFieldRow(label, '');
     panel.appendChild(row);
     valueElsByKey.set(key, row.lastElementChild);
@@ -283,37 +337,20 @@ function getOrCreateDetailView() {
   return detailView;
 }
 
-function resolveColor(priColor) {
-  return getComputedStyle(document.documentElement)
-      .getPropertyValue('--' + priColor)
-      .trim();
-}
+function drawLeaderLine() {
+  if (drawFrameId || !activeMuscle) return;
 
-function drawLeaderLine(muscle) {
-  const sectionRect = tabSectionEl.getBoundingClientRect();
-  sizeLeaderSvg(sectionRect);
+  drawFrameId = requestAnimationFrame(() => {
+    const muscle = activeMuscle;
+    const sectionRect = tabSectionEl.getBoundingClientRect();
+    const rowRect = muscle.rowEl().getBoundingClientRect();
+    const imageRect = imgEl.getBoundingClientRect();
 
-  const color = resolveColor(muscle.priColor());
-  const currentLeaderView = getOrCreateLeaderView();
-  currentLeaderView.polygon.setAttribute('fill', color);
+    sizeLeaderSvg(sectionRect);
+    muscle.drawLeader(rowRect, imageRect, sectionRect);
 
-  const rowRect = muscle.rowEl().getBoundingClientRect();
-  const start = [
-    rowRect.right - sectionRect.left,
-    rowRect.top + rowRect.height / 2 - sectionRect.top
-  ];
-  const imageRect = imgEl.getBoundingClientRect();
-
-  const pathStates = VIEWS.map((view) => buildLeaderPathState({
-    start,
-    end: anchorPointInSection(muscle.anchor(view), imageRect, sectionRect),
-    color
-  }));
-  currentLeaderView.paths.forEach((path, index) => {
-    applyLeaderPathState(path, pathStates[index]);
+    drawFrameId = null;
   });
-
-  kickAnimation(currentLeaderView.paths);
 }
 
 function sizeLeaderSvg(sectionRect) {
@@ -325,94 +362,41 @@ function sizeLeaderSvg(sectionRect) {
 }
 
 function anchorPointInSection(anchor, imageRect, sectionRect) {
-  return [
-    imageRect.left + (anchor[0] / 100) * imageRect.width - sectionRect.left,
-    imageRect.top + (anchor[1] / 100) * imageRect.height - sectionRect.top
-  ];
+  return {
+    x: imageRect.left + (anchor.x / 100) * imageRect.width - sectionRect.left,
+    y: imageRect.top + (anchor.y / 100) * imageRect.height - sectionRect.top
+  };
 }
 
-function buildLeaderPathState({start, end, color}) {
-  const control = [start[0] + (end[0] - start[0]) * 0.5, start[1]];
-  const pathD = 'M ' + start[0] + ' ' + start[1]
-      + ' Q ' + control[0] + ' ' + control[1]
-      + ' ' + end[0] + ' ' + end[1];
+function buildLeaderPathState({start, end}) {
+  const control = {x: start.x + (end.x - start.x) * 0.5, y: start.y};
+  const pathD = `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`;
   const totalLength = approximateQuadLength(start, control, end);
-  return {pathD, color, totalLength};
+  return {pathD, totalLength};
 }
 
-function applyLeaderPathState(path, {pathD, color, totalLength}) {
+function applyLeaderPathState(path, {pathD, totalLength}) {
   path.setAttribute('d', pathD);
-  path.setAttribute('stroke', color);
   path.style.cssText =
       'stroke-dasharray: ' + totalLength + ';'
       + ' stroke-dashoffset: ' + totalLength + ';';
 }
 
-function getOrCreateLeaderView() {
-  if (leaderView) return leaderView;
-
-  leaderEl.textContent = '';
-  leaderEl.appendChild(makeArrowDefs());
-
-  const polygon = leaderEl.querySelector('polygon');
-  const paths = VIEWS.map(() =>
-      leaderEl.appendChild(makeLeaderPathEl()));
-
-  leaderView = {polygon, paths};
-  return leaderView;
-}
-
-function makeArrowDefs() {
-  const defs = document.createElementNS(SVG_NS, 'defs');
-  const marker = document.createElementNS(SVG_NS, 'marker');
-  marker.setAttribute('id', ARROWHEAD_ID);
-  marker.setAttribute('markerWidth', '8');
-  marker.setAttribute('markerHeight', '6');
-  marker.setAttribute('refX', '8');
-  marker.setAttribute('refY', '3');
-  marker.setAttribute('orient', 'auto');
-  marker.setAttribute('markerUnits', 'strokeWidth');
-
-  const polygon = document.createElementNS(SVG_NS, 'polygon');
-  polygon.setAttribute('points', '0 0, 8 3, 0 6');
-  marker.appendChild(polygon);
-  defs.appendChild(marker);
-  return defs;
-}
-
-function makeLeaderPathEl() {
-  const path = document.createElementNS(SVG_NS, 'path');
-  path.classList.add('aic-leader-path');
-  path.setAttribute('marker-end', 'url(#' + ARROWHEAD_ID + ')');
-  return path;
-}
-
-function kickAnimation(paths) {
-  requestAnimationFrame(() => {
-    paths.forEach((path) => {
-      path.style.strokeDashoffset = '0';
-    });
-  });
-}
-
 function approximateQuadLength(start, control, end) {
-  const [x0, y0] = start;
-  const [cx, cy] = control;
-  const [x1, y1] = end;
   let length = 0;
-  let prevX = x0;
-  let prevY = y0;
+  let prevX = start.x;
+  let prevY = start.y;
   const steps = 20;
 
   for (let stepIndex = 1; stepIndex <= steps; stepIndex++) {
     const progress = stepIndex / steps;
     const inverseProgress = 1 - progress;
-    const px = inverseProgress * inverseProgress * x0
-        + 2 * inverseProgress * progress * cx
-        + progress * progress * x1;
-    const py = inverseProgress * inverseProgress * y0
-        + 2 * inverseProgress * progress * cy
-        + progress * progress * y1;
+    const px = inverseProgress * inverseProgress * start.x
+        + 2 * inverseProgress * progress * control.x
+        + progress * progress * end.x;
+    const py = inverseProgress * inverseProgress * start.y
+        + 2 * inverseProgress * progress * control.y
+        + progress * progress * end.y;
     const dx = px - prevX;
     const dy = py - prevY;
     length += Math.sqrt(dx * dx + dy * dy);
@@ -421,10 +405,4 @@ function approximateQuadLength(start, control, end) {
   }
 
   return length;
-}
-
-function handleResize() {
-  if (!activeMuscle) return;
-
-  drawLeaderLine(activeMuscle);
 }
