@@ -235,10 +235,14 @@ function initNavigationTabs() {
   window.addEventListener('hashchange', applyHash);
   applyHash();
   initScrollAffordance();
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
 }
 
 document.addEventListener('DOMContentLoaded', initNavigationTabs);
+
+// Service worker registration runs on load (not DOMContentLoaded) so
+// install doesn't contend with first-paint resource fetches.
+window.addEventListener('load', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+});
