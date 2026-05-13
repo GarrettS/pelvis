@@ -34,6 +34,7 @@ const PRECACHE_URLS = [
   './scripts/equivalence-answers.js',
   './scripts/equivalence-quiz.js',
   './scripts/load.js',
+  './scripts/error-ui.js',
   './scripts/flashcards.js',
   './scripts/masterquiz.js',
   './scripts/navigation-tabs.js',

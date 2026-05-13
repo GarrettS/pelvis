@@ -516,6 +516,16 @@ p:last-child {
   margin-bottom: 0;
 }
 
+.nav-tab.loading, .subtab.loading {
+  cursor: wait;
+  opacity: .7;
+}
+
+.content.loading .callout-retry {
+  pointer-events: none;
+  opacity: .5;
+}
+
 .tab-loading {
   display: flex;
   flex-direction: column;

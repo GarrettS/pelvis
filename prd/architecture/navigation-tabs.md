@@ -1,27 +1,51 @@
 # Navigation-Tabs Contract
 
-`scripts/navigation-tabs.js` imports a tab's module on first
-activation. Import failures render inside the tab. A delayed skeleton
-appears for loads over a threshold.
+`scripts/navigation-tabs.js` imports each tab's module the first time
+the tab is activated. Import failures render inside the tab with a
+retry button; re-activating the tab also retries. A delayed skeleton
+appears for loads over a threshold, and the clicked tab itself shows
+a `.loading` style for the duration of the import.
 
 ## Recovery
 
 ```js
 const initialized = new Set();  // imports that resolved ok
 const pending     = new Set();  // imports in flight
+const failed      = new Set();  // imports that resolved with error
 ```
 
-`lazyInit` adds to `pending` before starting an import and to
-`initialized` only when every import in the entry resolved ok. A
-failed import lands in neither set, so re-activating the tab re-enters
-`lazyInit` and retries. The tab is the retry affordance.
+`lazyInit` adds the contentId to `pending` before starting an import.
+On resolution it removes from `pending` and lands in exactly one of
+`initialized` (ok) or `failed` (error). On failure, `handleImportError`
+renders a callout whose retry button calls `lazyInit` again.
+Re-clicking the tab calls `lazyInit` too. The tab and the retry
+button share one lifecycle: while the import is in flight, the tab
+dims and the retry button is locked by CSS cascade — see "Idempotent
+retry path" below.
+
+A dynamic `import()` caches its outcome — including failure — in the
+module map, so re-importing the same path returns the cached error
+without re-fetching. To force a real retry, `lazyInit` appends a
+cache-busting query suffix when `failed.has(contentId)`:
+
+```js
+const path = failed.has(contentId) ? entry + '?r=' + Date.now() : entry;
+failed.delete(contentId);
+```
+
+`handleNavClick` short-circuits same-hash clicks. Assigning the
+same value to `location.hash` fires no `hashchange` event, so
+re-clicking the failed tab would otherwise be a no-op. When the
+clicked link's hash equals `location.hash`, `handleNavClick` calls
+`applyHash()` directly.
 
 ```mermaid
 stateDiagram-v2
   [*]     --> Idle
   Idle    --> Pending: tab activation
-  Pending --> Loaded:  all imports ok
-  Pending --> Idle:    any import failed
+  Pending --> Loaded:  import ok
+  Pending --> Failed:  import error
+  Failed  --> Pending: re-activation or retry button (cache-busted)
   Pending --> Pending: re-activate while pending (dedupe)
   Loaded  --> Loaded:  re-activate after success (dedupe)
 ```
@@ -30,32 +54,58 @@ Data-load failure (module imported ok but `loadJson` returned
 `{ok: false}`) is handled by `loadAndRender` in `scripts/load.js`,
 called per-module — not this contract.
 
-## Failed import doesn't tank siblings
+## Idempotent retry path
 
-A broken module does not blank the tab. The importer wraps `import()`
-so it always resolves to a result POJO:
+The tab (or subtab) and the retry button are two actuators for the
+same state transition: `Failed → Pending` for a given contentId. The
+state machine cares about the contentId, not which actuator triggered
+it. Both routes land in the same `lazyInit(contentId, link)` call.
 
-```js
-function importModule(path) {
-  return import(path).then(
-    ()    => ({ok: true,  path}),
-    cause => ({ok: false, path, cause})
-  );
-}
+`.loading` is the in-flight signal. `lazyInit` writes it to two
+surfaces:
 
-Promise.all(paths.map(importModule)).then((results) => {
-  // results is always populated, including failed paths
-});
-```
+- The actuator (`link`) — `.nav-tab.loading` / `.subtab.loading` dim
+  the tab and set `cursor: wait` so the user sees their click landed.
+- The container — `.content.loading` is the ancestor signal for any
+  retry buttons inside. `css/layout.css` declares
+  `.content.loading .callout-retry { pointer-events: none; opacity: 0.5; }`,
+  so a callout still on screen during retry has its button dimmed and
+  disabled by cascade — no JavaScript toggles `button.disabled` or
+  rewrites the label.
 
-`Promise.all` is sufficient — no `Promise.allSettled` — because each
-thenable always resolves. Partial failure is
-`results.filter(r => !r.ok)`, not a try/catch dance around `await`.
+Spam-clicks have two independent guards:
 
-Successful imports' module-top setup ran before `Promise.all`
-settled, so their UI is in the container; only the failed paths get
-inline errors. The one multi-path entry today is the concept-map
-subtab; future entries should be single paths.
+1. **JS-side**, `lazyInit` returns early when `pending.has(contentId)`.
+2. **CSS-side**, `.content.loading .callout-retry` makes the button
+   uninteractive while `.loading` is set.
+
+The renderer is a separate concern from the loader. `load.js`
+diagnoses failures and delegates rendering through a callback.
+`handleImportError(result, {render, onRetry})` translates
+`result.cause` into a user-readable message, then invokes
+`render(message, onRetry)`. The render delegate lives in
+`error-ui.js` as `renderImportError`, which constructs the callout
+and retry button. The loader names no DOM element; swapping the
+renderer for an anchor, a web component, or a console writer leaves
+`load.js` untouched.
+
+The retry button itself is presentation-only: its `click` handler is
+exactly `onRetry`. It does not manipulate its own state or remove the
+callout. Callout lifecycle belongs to the state machine: `lazyInit`
+clears `.callout.error` from the container after the import resolves
+(before either re-rendering content or showing a fresh callout), and
+`loadAndRender` (in `load.js`) does the symmetric thing for data-load
+retries by tracking the prior callout in closure and removing it on
+each new attempt.
+
+## Single path per entry
+
+`LAZY_INIT` maps each contentId to one module path. When two modules
+share a tab, the relationship lives in the modules: the entry-point
+module statically imports the sibling at module-top. ES module static
+imports propagate failure — if the sibling fails to fetch, parse, or
+evaluate, the importer's body does not execute — so partial-state
+"half-wired UI plus an error callout" is impossible by construction.
 
 ## Skeleton
 

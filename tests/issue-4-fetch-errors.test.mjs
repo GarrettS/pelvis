@@ -433,25 +433,17 @@ test('showFetchError renders HTTP and JSON failure messages', async () => {
       "Couldn't load study-data.json: response wasn't valid JSON.");
 });
 
-test('showImportError distinguishes module parse failures', async () => {
-  globalThis.document = makeDocumentStub();
-
-  const {showImportError} = await importLocalModule(
+test('handleImportError distinguishes module parse failures', async () => {
+  const {handleImportError} = await importLocalModule(
       '../scripts/load.js');
-  const appended = [];
-  const container = {
-    appendChild(node) {
-      appended.push(node);
-    }
-  };
+  let captured = null;
 
-  showImportError(
-      container,
-      './diagnose-game.js',
-      new SyntaxError('Unexpected token export'));
+  handleImportError(
+      {path: './diagnose-game.js',
+       cause: new SyntaxError('Unexpected token export')},
+      {render: (message) => { captured = message; }});
 
-  assert.equal(
-      appended[0].textContent,
+  assert.equal(captured,
       "Couldn't load ./diagnose-game.js: module failed to parse.");
 });
 

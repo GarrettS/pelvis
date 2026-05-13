@@ -12,6 +12,12 @@ class StubElement {
     this.children = [];
     this.listeners = {};
     this.parentNode = null;
+    const classes = new Set();
+    this.classList = {
+      add: (cls) => classes.add(cls),
+      remove: (cls) => classes.delete(cls),
+      contains: (cls) => classes.has(cls)
+    };
   }
 
   appendChild(node) {
@@ -129,11 +135,9 @@ test('Retry click on persistent failure replaces the old callout with a fresh on
 
   const newButton = container.children[0].children[0];
   assert.equal(newButton.textContent, 'Retry');
-  assert.equal(newButton.disabled, false,
-      'fresh button is enabled even though prior attempt was disabled');
 });
 
-test('Retry button shows in-flight state while the loader is pending', async () => {
+test('Container carries the loading class while the loader is pending', async () => {
   const {loadAndRender} = await importLoadModule();
   const container = new StubElement('div');
   let calls = 0;
@@ -146,18 +150,65 @@ test('Retry button shows in-flight state while the loader is pending', async () 
 
   await loadAndRender({load: loader, container, render: () => {}});
 
+  assert.equal(container.classList.contains('loading'), false,
+      'loading class cleared after the first attempt resolves');
+
   const button = container.children[0].children[0];
   const clickPromise = button.dispatch('click');
 
-  assert.equal(button.disabled, true,
-      'button disabled synchronously when click handler enters');
-  assert.equal(button.textContent, 'Retrying…',
-      'button label shows in-flight state synchronously');
+  assert.equal(container.classList.contains('loading'), true,
+      'loading class added synchronously when retry is initiated');
 
   resolveSecondCall({ok: true, data: 'final'});
   await clickPromise;
 
+  assert.equal(container.classList.contains('loading'), false,
+      'loading class cleared after retry resolves');
   assert.equal(container.children.length, 0);
+});
+
+test('handleImportError diagnoses SyntaxError as a parse failure', async () => {
+  const {handleImportError} = await importLoadModule();
+  let captured = null;
+  const cause = new SyntaxError('unexpected token');
+
+  handleImportError({ok: false, path: './foo.js', cause}, {
+    render: (message, retry) => { captured = {message, retry}; },
+    onRetry: () => {}
+  });
+
+  assert.equal(captured.message,
+      "Couldn't load ./foo.js: module failed to parse.");
+  assert.equal(typeof captured.retry, 'function');
+});
+
+test('handleImportError diagnoses TypeError as a network failure', async () => {
+  const {handleImportError} = await importLoadModule();
+  let captured = null;
+  const cause = new TypeError('Failed to fetch');
+
+  handleImportError({ok: false, path: './foo.js', cause}, {
+    render: (message) => { captured = message; }
+  });
+
+  assert.equal(captured,
+      "Couldn't load ./foo.js: network request failed.");
+});
+
+test('handleImportError passes onRetry to the render delegate', async () => {
+  const {handleImportError} = await importLoadModule();
+  let retryCalls = 0;
+  let receivedRetry = null;
+
+  handleImportError(
+      {ok: false, path: './foo.js', cause: new Error('boom')},
+      {
+        render: (_message, retry) => { receivedRetry = retry; },
+        onRetry: () => { retryCalls++; }
+      });
+
+  receivedRetry();
+  assert.equal(retryCalls, 1);
 });
 
 test('loadAndRender renders directly when the first load succeeds (no callout, no retry)', async () => {

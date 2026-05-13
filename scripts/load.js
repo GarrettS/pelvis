@@ -23,22 +23,14 @@ export function appendErrorCallout(element, message) {
   return callout;
 }
 
-function attachRetryButton(callout, onRetry) {
+export function attachRetryButton(callout, onRetry) {
   if (!callout) return;
 
   const button = document.createElement("button");
   button.type = "button";
   button.className = "btn callout-retry";
   button.textContent = "Retry";
-  button.addEventListener("click", async function () {
-    this.disabled = true;
-    this.textContent = "Retrying…";
-    try {
-      await onRetry();
-    } finally {
-      callout.remove();
-    }
-  });
+  button.addEventListener("click", onRetry);
   callout.appendChild(button);
 }
 
@@ -60,24 +52,30 @@ export function showFetchError(element, result, options) {
 }
 
 export async function loadAndRender({load, container, render}) {
+  let priorCallout = null;
   async function attempt() {
+    container.classList.add("loading");
     const result = await load();
+    container.classList.remove("loading");
+    priorCallout?.remove();
+    priorCallout = null;
     if (result.ok) {
       render(result.data);
       return;
     }
 
-    showFetchError(container, result, {onRetry: attempt});
+    priorCallout = showFetchError(container, result, {onRetry: attempt});
   }
   return attempt();
 }
 
-export function showImportError(element, modulePath, error) {
-  let reason = "unexpected error: " + (error.name || error);
-  if (error.name === "SyntaxError") {
+export function handleImportError(result, {render, onRetry}) {
+  const cause = result.cause;
+  let reason = "unexpected error: " + (cause.name || cause);
+  if (cause.name === "SyntaxError") {
     reason = "module failed to parse";
-  } else if (error.name === "TypeError") {
+  } else if (cause.name === "TypeError") {
     reason = "network request failed";
   }
-  appendErrorCallout(element, "Couldn't load " + modulePath + ": " + reason + ".");
+  render("Couldn't load " + result.path + ": " + reason + ".", onRetry);
 }

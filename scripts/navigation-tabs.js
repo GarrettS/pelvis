@@ -1,4 +1,5 @@
-import {showImportError} from "./load.js";
+import {handleImportError} from "./load.js";
+import {renderImportError} from "./error-ui.js";
 import {renderHomeProgress} from './home-progress.js';
 
 const lastSubtab = {};
@@ -10,11 +11,12 @@ const activeSubtabContent = {};
 
 const initialized = new Set();
 const pending = new Set();
+const failed = new Set();
 
 const LAZY_INIT = {
   'nomenclature-content':      './nomenclature.js',
   'patterns-cheat-sheet-content': './patterns-cheat-sheet.js',
-  'patterns-concept-map-content': ['./patterns-concept-map.js', './patterns-symptom-quiz.js'],
+  'patterns-concept-map-content': './patterns-concept-map.js',
   'patterns-level-quiz-content': './patterns-level-quiz.js',
   'diagnose-game-content':          './diagnose-game.js',
   'diagnose-case-studies-content':  './diagnose-case-studies.js',
@@ -52,7 +54,7 @@ function importModule(path) {
   );
 }
 
-function lazyInit(contentId) {
+function lazyInit(contentId, link) {
   if (initialized.has(contentId) || pending.has(contentId)) return;
 
   const entry = LAZY_INIT[contentId];
@@ -62,26 +64,33 @@ function lazyInit(contentId) {
   if (!container) return;
 
   pending.add(contentId);
-  container.querySelectorAll('.callout.error').forEach((el) => el.remove());
+  link?.classList.add('loading');
+  container.classList.add('loading');
 
-  const paths = Array.isArray(entry) ? entry : [entry];
   const skeletonTimer = setTimeout(
-    () => showTabLoading(container),
-    SHOW_SKELETON_AFTER_MS
-  );
+      showTabLoading, SHOW_SKELETON_AFTER_MS, container);
 
-  Promise.all(paths.map(importModule)).then(results => {
+  const path = failed.has(contentId) ? entry + '?r=' + Date.now() : entry;
+  failed.delete(contentId);
+
+  importModule(path).then((result) => {
     clearTimeout(skeletonTimer);
     clearTabLoading(container);
     pending.delete(contentId);
+    link?.classList.remove('loading');
+    container.classList.remove('loading');
+    container.querySelectorAll('.callout.error').forEach((el) => el.remove());
 
-    const failures = results.filter(r => !r.ok);
-    if (failures.length === 0) {
+    if (result.ok) {
       initialized.add(contentId);
       return;
     }
 
-    failures.forEach(r => showImportError(container, r.path, r.cause));
+    failed.add(contentId);
+    handleImportError(result, {
+      render: (message, retry) => renderImportError(container, message, retry),
+      onRetry: () => lazyInit(contentId, link)
+    });
   });
 }
 
@@ -128,7 +137,7 @@ function activateTab(tab, subtab) {
 
   if (tab === 'home') renderHomeProgress();
   updateLocationBar();
-  lazyInit(sectionId);
+  lazyInit(sectionId, activeNavTab);
 
   if (activeSubtabRow) activateSubtab(tab, subtab);
 }
@@ -178,7 +187,7 @@ function activateSubtab(tab, subtab) {
   lastSubtab[tab] = subtab;
 
   updateLocationBar();
-  lazyInit(contentId);
+  lazyInit(contentId, link);
 }
 
 function applyHash() {
@@ -189,10 +198,12 @@ function applyHash() {
 
 function handleNavClick(e) {
   const link = e.target.closest('.nav-tab, .subtab');
-  if (!link) return;
+  if (!link?.hash) return;
 
   e.preventDefault();
-  if (link.hash) location.hash = link.hash;
+  if (link.hash === location.hash) return applyHash();
+
+  location.hash = link.hash;
 }
 
 function handleSubviewClick(e) {

@@ -1,4 +1,7 @@
 import { loadAndRender, loadJson } from './load.js';
+// Sibling tab module — shares patterns-concept-map-content. Static import
+// ties their load atomically: if one fails, neither runs.
+import './patterns-symptom-quiz.js';
 
 const CONCEPT_MAP_W = 500, CONCEPT_MAP_H = 340;
 const CONCEPT_MAP_PAD = 20;
