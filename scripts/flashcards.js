@@ -1,10 +1,10 @@
-import { expandAbbr } from './abbr-expand.js';
-import { shuffle } from './shuffle.js';
-import { appendErrorCallout, loadAndRender, loadJson } from './load.js';
+import {expandAbbr} from './abbr-expand.js';
+import {shuffle} from './shuffle.js';
+import {appendErrorCallout, loadAndRender, loadJson} from './load.js';
+import {newEl} from './el-create.js';
 
 const USER_FC_KEY = 'userFlashcards';
 
-let FLASHCARD_DECK = [];
 let allCards = [];
 let activeCat = 'all';
 let activeWeight = 'all';
@@ -14,28 +14,15 @@ let cardsRemaining = 0;
 
 const containerEl = document.getElementById('flashcards-content');
 
-function getUserCards() {
-  const raw = localStorage.getItem(USER_FC_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
-
 function tryGetUserCards() {
   try {
-    return getUserCards();
+    const raw = localStorage.getItem(USER_FC_KEY);
+    return raw ? JSON.parse(raw) : [];
   } catch (anyError) {
     // Background storage — not user-initiated. Flashcards
     // function without persistence; user loses custom cards only.
     return [];
   }
-}
-
-function withUserCard(cards, card) {
-  return [...cards, card];
-}
-
-function showSaveFailure(container, message) {
-  container.querySelector('.callout.error')?.remove();
-  appendErrorCallout(container, message);
 }
 
 function saveUserFlashcard(card) {
@@ -63,7 +50,7 @@ function saveUserFlashcard(card) {
 
   let serializedCards;
   try {
-    serializedCards = JSON.stringify(withUserCard(savedCards, card));
+    serializedCards = JSON.stringify([...savedCards, card]);
   } catch (stringifyError) {
     return {
       ok: false,
@@ -82,11 +69,11 @@ function saveUserFlashcard(card) {
     };
   }
 
-  return { ok: true };
+  return {ok: true};
 }
 
 function getFilteredCards() {
-  return allCards.filter(c => {
+  return allCards.filter((c) => {
     const catOk = activeCat === 'all' || c.category === activeCat;
     const weightOk = activeWeight === 'all' || c.examWeight === activeWeight;
     return catOk && weightOk;
@@ -100,75 +87,102 @@ function resetDeck() {
   renderCard();
 }
 
-function buildCardDOM(card) {
-  const cardDiv = document.createElement('div');
-  cardDiv.className = 'fc-card';
+function nextCard() {
+  if (!deck.length) return;
 
-  const frontMain = document.createElement('div');
-  frontMain.className = 'fc-front-main';
-  frontMain.textContent = card.front;
-  cardDiv.appendChild(frontMain);
+  cardsRemaining--;
+  currentIdx = (currentIdx + 1) % deck.length;
+  if (currentIdx === 0) cardsRemaining = deck.length;
+  renderCard();
+}
 
-  if (card.frontHint) {
-    const hintEl = document.createElement('div');
-    hintEl.className = 'fc-front-hint';
-    hintEl.innerHTML = expandAbbr(card.frontHint);
-    cardDiv.appendChild(hintEl);
-  }
+function flipCard(e) {
+  e.target.closest('.fc-card')?.classList.toggle('fc-flipped');
+}
 
-  const backArea = document.createElement('div');
-  backArea.className = 'fc-back hidden';
+const CARD_ACTIONS = {
+  flip: flipCard,
+  next: nextCard
+};
 
-  const backMain = document.createElement('div');
-  backMain.className = 'fc-back-main';
-  backMain.innerHTML = expandAbbr(card.back);
-  backArea.appendChild(backMain);
+function cardActionHandler(e) {
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  CARD_ACTIONS[action]?.(e);
+}
 
-  if (card.backDetail) {
-    const showMoreBtn = document.createElement('button');
-    showMoreBtn.className = 'btn fc-show-more';
-    showMoreBtn.textContent = 'Show More';
-    backArea.appendChild(showMoreBtn);
-
-    const detailEl = document.createElement('div');
-    detailEl.className = 'fc-detail hidden';
-    detailEl.innerHTML = expandAbbr(card.backDetail);
-    backArea.appendChild(detailEl);
-
-    showMoreBtn.addEventListener('click', () => {
-      detailEl.classList.remove('hidden');
-      showMoreBtn.disabled = true;
-      showMoreBtn.textContent = 'Detail shown';
-    });
-  }
-
-  cardDiv.appendChild(backArea);
-
-  const actions = document.createElement('div');
-  actions.className = 'fc-actions';
-
-  const flipBtn = document.createElement('button');
-  flipBtn.className = 'btn primary';
-  flipBtn.textContent = 'Flip';
-
-  let isFlipped = false;
-  flipBtn.addEventListener('click', () => {
-    isFlipped = !isFlipped;
-    backArea.classList.toggle('hidden', !isFlipped);
+function actionBtn(action, label, primary = false) {
+  const btn = newEl('button', {
+    type: 'button',
+    className: primary ? 'primary' : '',
+    textContent: label
   });
+  btn.dataset.action = action;
+  return btn;
+}
 
-  actions.appendChild(flipBtn);
-  cardDiv.appendChild(actions);
+function buildCard(card, includeNext = false) {
+  const backChildren = [
+    newEl('div', {
+      className: 'fc-back-main',
+      innerHTML: expandAbbr(card.back)
+    })
+  ];
+  if (card.backDetail) {
+    backChildren.push(newEl('details', {children: [
+      newEl('summary', {
+        className: 'fc-show-more',
+        textContent: 'Show More'
+      }),
+      newEl('div', {
+        className: 'fc-detail',
+        innerHTML: expandAbbr(card.backDetail)
+      })
+    ]}));
+  }
 
-  return { cardDiv, actions };
+  const cardChildren = [
+    newEl('div', {className: 'fc-front-main', textContent: card.front})
+  ];
+  if (card.frontHint) {
+    cardChildren.push(newEl('div', {
+      className: 'fc-front-hint',
+      innerHTML: expandAbbr(card.frontHint)
+    }));
+  }
+  cardChildren.push(
+      newEl('div', {className: 'fc-back', children: backChildren}),
+      newEl('div', {
+        className: 'fc-actions',
+        children: includeNext
+            ? [actionBtn('flip', 'Flip', true), actionBtn('next', 'Next →')]
+            : [actionBtn('flip', 'Flip', true)]
+      })
+  );
+
+  return newEl('div', {className: 'fc-card', children: cardChildren});
+}
+
+function renderCard() {
+  const progressEl = document.getElementById('fc-progress');
+  const cardWrap = document.getElementById('fc-card-wrap');
+
+  progressEl.textContent = `${cardsRemaining} of ${deck.length} remaining`;
+
+  if (!deck.length) {
+    cardWrap.replaceChildren(newEl('div', {
+      className: 'callout',
+      textContent: 'No cards match the current filters.'
+    }));
+    return;
+  }
+
+  cardWrap.replaceChildren(buildCard(deck[currentIdx], true));
 }
 
 function clearForm() {
   document.getElementById('fc-add-form').reset();
-  document.getElementById('fc-detail-count')
-    .textContent = '0 / 380';
-  document.getElementById('fc-form-preview')
-    .disabled = true;
+  document.getElementById('fc-detail-count').textContent = '0 / 380';
+  document.getElementById('fc-form-preview').disabled = true;
 }
 
 function showEditStep() {
@@ -177,86 +191,27 @@ function showEditStep() {
   document.getElementById('fc-form-title').textContent = 'New Card';
 }
 
-function renderCard() {
-  const progressEl = document.getElementById('fc-progress');
-  const cardWrap = document.getElementById('fc-card-wrap');
-
-  progressEl.textContent = cardsRemaining + ' of ' + deck.length + ' remaining';
-
-  if (!deck.length) {
-    cardWrap.innerHTML = '';
-    const msg = document.createElement('div');
-    msg.className = 'callout';
-    msg.textContent = 'No cards match the current filters.';
-    cardWrap.appendChild(msg);
-    return;
-  }
-
-  const card = deck[currentIdx];
-  const { cardDiv, actions } = buildCardDOM(card);
-
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'btn';
-  nextBtn.textContent = 'Next →';
-  nextBtn.addEventListener('click', () => {
-    cardsRemaining--;
-    currentIdx = (currentIdx + 1) % deck.length;
-    if (currentIdx === 0) {
-      cardsRemaining = deck.length;
-    }
-    renderCard();
-  });
-
-  actions.appendChild(nextBtn);
-
-  cardWrap.innerHTML = '';
-  cardWrap.appendChild(cardDiv);
+function showSaveFailure(container, message) {
+  container.querySelector('.callout.error')?.remove();
+  appendErrorCallout(container, message);
 }
 
-function setupFlashcards(deckData) {
-  FLASHCARD_DECK = deckData;
-
-  const userCards = tryGetUserCards().map(c => ({
-    ...c,
-    category: c.category || 'user_created',
-    examWeight: c.examWeight || 'high',
-  }));
-  allCards = [...FLASHCARD_DECK, ...userCards];
-  deck = shuffle([...allCards]);
-  currentIdx = 0;
-  cardsRemaining = deck.length;
-  renderCard();
-
-  document.getElementById('fc-reset').addEventListener('click', resetDeck);
-
-  let activeCatBtn = document.querySelector('#fc-cat-filters .fc-filter-btn.active');
-  let activeWeightBtn = document.querySelector(
-    '#fc-weight-filters .fc-filter-btn.active'
-  );
-
-  document.getElementById('fc-cat-filters').addEventListener('click', e => {
-    const btn = e.target.closest('[data-cat]');
+function bindFilterGroup(containerId, dataKey, onChange) {
+  const container = document.getElementById(containerId);
+  let activeBtn = container.querySelector('.fc-filter-btn.active');
+  container.addEventListener('click', (e) => {
+    const btn = e.target.closest(`[data-${dataKey}]`);
     if (!btn) return;
 
-    activeCat = btn.dataset.cat;
-    activeCatBtn?.classList.remove('active');
+    onChange(btn.dataset[dataKey]);
+    activeBtn?.classList.remove('active');
     btn.classList.add('active');
-    activeCatBtn = btn;
+    activeBtn = btn;
     resetDeck();
   });
+}
 
-  document.getElementById('fc-weight-filters').addEventListener('click', e => {
-    const btn = e.target.closest('[data-weight]');
-    if (!btn) return;
-
-    activeWeight = btn.dataset.weight;
-    activeWeightBtn?.classList.remove('active');
-    btn.classList.add('active');
-    activeWeightBtn = btn;
-    resetDeck();
-  });
-
-  const addBtn = document.getElementById('fc-add-btn');
+function setupAddForm() {
   const addForm = document.getElementById('fc-add-form');
   const frontInput = document.getElementById('fc-input-front');
   const hintInput = document.getElementById('fc-input-hint');
@@ -265,8 +220,10 @@ function setupFlashcards(deckData) {
   const charCount = document.getElementById('fc-detail-count');
   const previewBtn = document.getElementById('fc-form-preview');
 
-  [frontInput, hintInput, backInput, detailInput].forEach(el => {
-    el.addEventListener('keydown', e => { if (e.key === 'Enter') e.preventDefault(); });
+  addForm.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.matches('input, textarea')) {
+      e.preventDefault();
+    }
   });
 
   const syncPreviewBtn = () => {
@@ -277,12 +234,14 @@ function setupFlashcards(deckData) {
 
   detailInput.addEventListener('input', () => {
     const len = detailInput.value.length;
-    charCount.textContent = len + ' / 380';
+    charCount.textContent = `${len} / 380`;
     charCount.classList.toggle('warn', len > 340);
     if (len > 380) detailInput.value = detailInput.value.slice(0, 380);
   });
 
-  addBtn.addEventListener('click', () => addForm.classList.toggle('hidden'));
+  document.getElementById('fc-add-btn').addEventListener('click', () => {
+    addForm.classList.toggle('hidden');
+  });
 
   document.getElementById('fc-form-cancel').addEventListener('click', () => {
     addForm.classList.add('hidden');
@@ -295,23 +254,23 @@ function setupFlashcards(deckData) {
       front: frontInput.value.trim(),
       frontHint: hintInput.value.trim() || null,
       back: backInput.value.trim(),
-      backDetail: detailInput.value.trim() || null,
+      backDetail: detailInput.value.trim() || null
     };
-    const previewContainer = document.getElementById('fc-preview-card');
-    previewContainer.innerHTML = '';
-    previewContainer.appendChild(buildCardDOM(previewCard).cardDiv);
-
+    document.getElementById('fc-preview-card')
+        .replaceChildren(buildCard(previewCard));
     document.getElementById('fc-edit-section').classList.add('hidden');
     document.getElementById('fc-preview-section').classList.remove('hidden');
     document.getElementById('fc-form-title').textContent = 'Preview';
   });
 
-  document.getElementById('fc-form-edit-back').addEventListener('click', showEditStep);
+  document.getElementById('fc-form-edit-back')
+      .addEventListener('click', showEditStep);
 
   document.getElementById('fc-form-save').addEventListener('click', () => {
     const front = frontInput.value.trim();
     const back = backInput.value.trim();
     if (!front || !back) return;
+
     addForm.querySelector('.callout.error')?.remove();
 
     const newCard = {
@@ -321,7 +280,7 @@ function setupFlashcards(deckData) {
       front,
       frontHint: hintInput.value.trim() || null,
       back,
-      backDetail: detailInput.value.trim() || null,
+      backDetail: detailInput.value.trim() || null
     };
 
     const saveResult = saveUserFlashcard(newCard);
@@ -340,6 +299,24 @@ function setupFlashcards(deckData) {
     clearForm();
     renderCard();
   });
+}
+
+function setupFlashcards(deckData) {
+  const userCards = tryGetUserCards().map((c) => ({
+    ...c,
+    category: c.category || 'user_created',
+    examWeight: c.examWeight || 'high'
+  }));
+  allCards = [...deckData, ...userCards];
+  deck = shuffle([...allCards]);
+  cardsRemaining = deck.length;
+  renderCard();
+
+  containerEl.addEventListener('click', cardActionHandler);
+  document.getElementById('fc-reset').addEventListener('click', resetDeck);
+  bindFilterGroup('fc-cat-filters', 'cat', (val) => { activeCat = val; });
+  bindFilterGroup('fc-weight-filters', 'weight', (val) => { activeWeight = val; });
+  setupAddForm();
 }
 
 await loadAndRender({
