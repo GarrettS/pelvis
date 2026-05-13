@@ -4,8 +4,8 @@
 import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
 import {appendErrorCallout, loadAndRender, loadJson} from './load.js';
+import {newEl, newSvg} from './el-create.js';
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
 const VIEWS = ['anterior', 'posterior'];
 const ARROWHEAD_ID = 'aic-arrowhead';
 
@@ -20,18 +20,8 @@ let tabSectionEl = null;
 
 let activeMuscle = null;
 
-let detailFieldRowTemplate = null;
-let detailView = null;
 let leaderDefsMounted = false;
 let drawFrameId = null;
-
-function createSvg(tag, attrs) {
-  const el = document.createElementNS(SVG_NS, tag);
-  for (const key of Object.keys(attrs)) {
-    el.setAttribute(key, attrs[key]);
-  }
-  return el;
-}
 
 class AicMuscle {
   static #instances = Object.create(null);
@@ -99,14 +89,13 @@ class AicMuscle {
 
     this.#rowEl = document.getElementById(this.#id);
     VIEWS.forEach((view) => {
-      const circle = this.#buildCircle(view);
-      overlayEl.appendChild(circle);
-      this.#circlesByView.set(view, circle);
-
-      const path = this.#buildLeaderPath();
-      leaderEl.appendChild(path);
-      this.#leaderPathsByView.set(view, path);
+      this.#circlesByView.set(view, this.#buildCircle(view));
+      this.#leaderPathsByView.set(view, this.#buildLeaderPath());
     });
+
+    overlayEl.append(...this.#circlesByView.values());
+    leaderEl.append(...this.#leaderPathsByView.values());
+
     this.#mounted = true;
   }
 
@@ -151,12 +140,12 @@ class AicMuscle {
 
   #buildCircle(view) {
     const {x: cx, y: cy} = this.anchor(view);
-    return createSvg('circle', {cx, cy, class: this.priColor()});
+    return newSvg('circle', {cx, cy, className: this.priColor()});
   }
 
   #buildLeaderPath() {
-    return createSvg('path', {
-      class: `aic-leader-path ${this.priColor()}`,
+    return newSvg('path', {
+      className: `aic-leader-path ${this.priColor()}`,
       'marker-end': `url(#${ARROWHEAD_ID})`
     });
   }
@@ -243,31 +232,32 @@ function ensureLeaderDefs() {
 function buildPanel() {
   const fragment = document.createDocumentFragment();
   AicMuscle.forEachEntry((id, chainEntry) => {
-    fragment.appendChild(makeMuscleRow(id, chainEntry));
+    fragment.append(makeMuscleRow(id, chainEntry));
     if (chainEntry.connection) {
-      fragment.appendChild(makeChainNoteRow(chainEntry.connection, false));
+      fragment.append(makeChainNoteRow(chainEntry.connection, false));
     }
     if (chainEntry.terminus) {
-      fragment.appendChild(makeChainNoteRow(chainEntry.terminus, true));
+      fragment.append(makeChainNoteRow(chainEntry.terminus, true));
     }
   });
-  panelEl.appendChild(fragment);
+  panelEl.append(fragment);
 }
 
 function makeMuscleRow(id, chainEntry) {
-  const row = document.createElement('div');
-  row.classList.add('aic-chain-row', chainEntry.priColor);
-  row.id = id;
-  row.textContent = chainEntry.label;
-  return row;
+  return newEl('div', {
+    id,
+    className: `aic-chain-row ${chainEntry.priColor}`,
+    textContent: chainEntry.label
+  });
 }
 
 function makeChainNoteRow(text, isTerminus) {
-  const row = document.createElement('div');
-  row.classList.add('aic-chain-connection');
-  if (isTerminus) row.classList.add('aic-chain-terminal');
-  row.textContent = text;
-  return row;
+  return newEl('div', {
+    className: isTerminus
+        ? 'aic-chain-connection aic-chain-terminal'
+        : 'aic-chain-connection',
+    textContent: text
+  });
 }
 
 function setActiveMuscle(muscle) {
@@ -284,57 +274,19 @@ function setActiveMuscle(muscle) {
 function showDetail(muscle) {
   if (!muscle.hasDetail()) return;
 
-  const view = getOrCreateDetailView();
-  view.panel.className = 'detail-panel ' + muscle.priColor();
-  view.heading.textContent = muscle.label();
-  view.valueElsByKey.forEach((valueEl, key) => {
-    valueEl.innerHTML = expandAbbr(muscle.field(key));
-  });
-}
-
-function makeDetailFieldRow(label, value) {
-  const row = getDetailFieldRowTemplate().cloneNode(true);
-  const labelEl = row.firstElementChild;
-  const valueEl = row.lastElementChild;
-  labelEl.textContent = label;
-  valueEl.innerHTML = expandAbbr(value);
-  return row;
-}
-
-function getDetailFieldRowTemplate() {
-  if (detailFieldRowTemplate) return detailFieldRowTemplate;
-
-  const row = document.createElement('div');
-  row.className = 'detail-row';
-  const labelEl = document.createElement('span');
-  labelEl.className = 'detail-label';
-  row.appendChild(labelEl);
-  row.appendChild(document.createElement('span'));
-  detailFieldRowTemplate = row;
-  return detailFieldRowTemplate;
-}
-
-function getOrCreateDetailView() {
-  if (detailView) return detailView;
-
-  const panel = document.createElement('div');
-  panel.className = 'detail-panel';
-
-  const heading = document.createElement('h3');
-  panel.appendChild(heading);
-
-  const valueElsByKey = new Map();
-  AicMuscle.fieldLabelEntries().forEach(([key, label]) => {
-    const row = makeDetailFieldRow(label, '');
-    panel.appendChild(row);
-    valueElsByKey.set(key, row.lastElementChild);
-  });
-
-  detailEl.textContent = '';
-  detailEl.appendChild(panel);
-
-  detailView = {panel, heading, valueElsByKey};
-  return detailView;
+  detailEl.replaceChildren(newEl('div', {
+    className: `detail-panel ${muscle.priColor()}`,
+    children: [
+      newEl('h3', {textContent: muscle.label()}),
+      ...AicMuscle.fieldLabelEntries().map(([key, label]) => newEl('div', {
+        className: 'detail-row',
+        children: [
+          newEl('span', {className: 'detail-label', textContent: label}),
+          newEl('span', {innerHTML: expandAbbr(muscle.field(key))})
+        ]
+      }))
+    ]
+  }));
 }
 
 function drawLeaderLine() {
@@ -353,20 +305,13 @@ function drawLeaderLine() {
   });
 }
 
-function sizeLeaderSvg(sectionRect) {
-  leaderEl.setAttribute('viewBox',
-      '0 0 ' + sectionRect.width + ' ' + sectionRect.height);
-  leaderEl.style.cssText =
-      'width: ' + sectionRect.width + 'px;'
-      + ' height: ' + sectionRect.height + 'px;';
-}
+const sizeLeaderSvg = ({width: w, height: h}) =>
+    leaderEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
-function anchorPointInSection(anchor, imageRect, sectionRect) {
-  return {
-    x: imageRect.left + (anchor.x / 100) * imageRect.width - sectionRect.left,
-    y: imageRect.top + (anchor.y / 100) * imageRect.height - sectionRect.top
-  };
-}
+const anchorPointInSection = ({x, y}, img, section) => ({
+  x: img.left + (x / 100) * img.width - section.left,
+  y: img.top + (y / 100) * img.height - section.top
+});
 
 function buildLeaderPathState({start, end}) {
   const control = {x: start.x + (end.x - start.x) * 0.5, y: start.y};

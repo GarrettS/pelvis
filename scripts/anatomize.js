@@ -2,9 +2,8 @@ import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 import {loadAndRender, loadJson} from './load.js';
+import {newEl, newSvg} from './el-create.js';
 import * as progress from './anatomize-progress.js';
-
-const SVG_NS = 'http://www.w3.org/2000/svg';
 
 const sessions = Object.create(null);
 let activeSession = null;
@@ -17,9 +16,6 @@ const percentBox = b => `left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%`;
 
 const RE_IMG_ID = /^anat-img-(.+)$/;
 const RE_LABEL_ID = /^anat-(.+)-label$/;
-
-const el = (tag, className, text = '') => Object.assign(
-    document.createElement(tag), {className, textContent: text});
 
 const containerEl = document.getElementById('anatomy-anatomize-content');
 const arenaEl = document.getElementById('anat-arena');
@@ -89,41 +85,37 @@ class BlankPanelSite {
 
   #build() {
     const s = this.#structure;
-    const svg = document.getElementById('anat-arena-svg');
-    const wrap = document.getElementById('anat-arena-wrap');
-    const colorClass = priColorClass(s.priColor);
+    const color = priColorClass(s.priColor);
 
-    this.#group = document.createElementNS(SVG_NS, 'g');
-    this.#group.id = 'anat-' + this.id;
-    this.#group.classList.add(colorClass);
+    this.#line = newSvg('line', {className: 'anatomize-arrow-line'});
+    this.#head = newSvg('polygon', {className: 'anatomize-arrowhead'});
+    this.#group = newSvg('g', {
+      id: `anat-${this.id}`,
+      className: color,
+      children: [
+        newSvg('circle', {
+          className: 'anatomize-target-circle',
+          r: 1.8,
+          cx: s.arrowTo.x,
+          cy: s.arrowTo.y
+        }),
+        this.#line,
+        this.#head
+      ]
+    });
 
-    const marker = document.createElementNS(SVG_NS, 'circle');
-    marker.setAttribute('r', '1.8');
-    marker.classList.add('anatomize-target-circle');
-    marker.setAttribute('cx', s.arrowTo.x);
-    marker.setAttribute('cy', s.arrowTo.y);
-    this.#group.appendChild(marker);
+    this.#labelDiv = newEl('div', {
+      id: `anat-${this.id}-label`,
+      className: `anatomize-label ${color}`,
+      style: percentBox(s.panelBox),
+      children: [newEl('span', {
+        className: 'anatomize-label-text',
+        textContent: s.label
+      })]
+    });
 
-    this.#labelDiv = document.createElement('div');
-    this.#labelDiv.className = 'anatomize-label ' + colorClass;
-    this.#labelDiv.id = 'anat-' + this.id + '-label';
-    this.#labelDiv.style.cssText = percentBox(s.panelBox);
-
-    const labelText = document.createElement('span');
-    labelText.className = 'anatomize-label-text';
-    labelText.textContent = s.label;
-    this.#labelDiv.appendChild(labelText);
-    wrap.appendChild(this.#labelDiv);
-
-    this.#line = document.createElementNS(SVG_NS, 'line');
-    this.#line.classList.add('anatomize-arrow-line');
-    this.#group.appendChild(this.#line);
-
-    this.#head = document.createElementNS(SVG_NS, 'polygon');
-    this.#head.classList.add('anatomize-arrowhead');
-    this.#group.appendChild(this.#head);
-
-    svg.appendChild(this.#group);
+    document.getElementById('anat-arena-svg').append(this.#group);
+    document.getElementById('anat-arena-wrap').append(this.#labelDiv);
   }
 
   static measure(site) {
@@ -152,18 +144,19 @@ class BlankPanelSite {
   markCorrect() {
     this.#group.classList.add('correct');
     this.#labelDiv.classList.add('correct');
-    const check = document.createElement('span');
-    check.className = 'anatomize-check';
-    check.textContent = '✓';
-    this.#labelDiv.appendChild(check);
+    this.#labelDiv.append(newEl('span', {
+      className: 'anatomize-check',
+      textContent: '✓'
+    }));
   }
 
   flashWrong() {
     this.#labelDiv.classList.add('wrong');
-    const xMark = document.createElement('span');
-    xMark.className = 'anatomize-x';
-    xMark.textContent = '✗';
-    this.#labelDiv.appendChild(xMark);
+    const xMark = newEl('span', {
+      className: 'anatomize-x',
+      textContent: '✗'
+    });
+    this.#labelDiv.append(xMark);
     setTimeout(() => {
       xMark.remove();
       this.#labelDiv.classList.remove('wrong');
@@ -247,10 +240,10 @@ function startImageFromHash() {
 }
 
 function initScoreText() {
-  const scoreText = document.createElement('span');
-  scoreText.className = 'score-display';
-  scoreText.id = 'anat-score-text';
-  document.getElementById('anat-score').appendChild(scoreText);
+  document.getElementById('anat-score').append(newEl('span', {
+    id: 'anat-score-text',
+    className: 'score-display'
+  }));
 }
 
 function initListeners() {
@@ -268,17 +261,18 @@ function initListeners() {
 }
 
 function renderImageSelector() {
-  document.getElementById('anat-image-selector').textContent = '';
+  const selector = document.getElementById('anat-image-selector');
+  selector.textContent = '';
 
   Object.entries(anatomizeData.images).forEach(([id, imgSet]) => {
-    const btn = document.createElement('button');
-    btn.className = 'btn';
-    btn.id = 'anat-img-' + id;
-    btn.textContent = imgSet.label;
-    document.getElementById('anat-image-selector').appendChild(btn);
+    selector.append(newEl('button', {
+      id: 'anat-img-' + id,
+      className: 'btn',
+      textContent: imgSet.label
+    }));
   });
 
-  document.getElementById('anat-image-selector').addEventListener('click', (e) => {
+  selector.addEventListener('click', (e) => {
     const btn = e.target.closest('.btn');
     if (!btn) return;
     const m = btn.id.match(RE_IMG_ID);
@@ -376,15 +370,15 @@ function resetSession() {
 
 function createArenaWrap(imgSet) {
   arenaEl.textContent = '';
-  const wrap = document.createElement('div');
-  wrap.className = 'anatomize-arena-wrap';
-  wrap.id = 'anat-arena-wrap';
-  const img = document.createElement('img');
-  img.src = imgSet.imageSrc;
-  img.alt = imgSet.label;
-  img.draggable = false;
-  wrap.appendChild(img);
-  return wrap;
+  return newEl('div', {
+    id: 'anat-arena-wrap',
+    className: 'anatomize-arena-wrap',
+    children: [newEl('img', {
+      src: imgSet.imageSrc,
+      alt: imgSet.label,
+      draggable: false
+    })]
+  });
 }
 
 function createSideLabels(svg, imgSet) {
@@ -395,18 +389,19 @@ function createSideLabels(svg, imgSet) {
     {text: sl.left, x: 8, anchor: 'start'},
     {text: sl.right, x: 92, anchor: 'end'}
   ].forEach((cfg) => {
-    const shadow = document.createElementNS(SVG_NS, 'text');
-    shadow.setAttribute('x', cfg.x);
-    shadow.setAttribute('y', 5);
-    shadow.setAttribute('text-anchor', cfg.anchor);
-    shadow.setAttribute('font-size', 3);
-    shadow.classList.add('anatomize-side-label-shadow');
-    shadow.textContent = cfg.text;
-    svg.appendChild(shadow);
+    const shadow = newSvg('text', {
+      x: cfg.x,
+      y: 5,
+      'text-anchor': cfg.anchor,
+      'font-size': 3,
+      className: 'anatomize-side-label-shadow',
+      children: [cfg.text]
+    });
+    svg.append(shadow);
 
     const label = shadow.cloneNode(true);
     label.classList.replace('anatomize-side-label-shadow', 'anatomize-side-label');
-    svg.appendChild(label);
+    svg.append(label);
   });
 }
 
@@ -419,14 +414,15 @@ function createStructureOverlays() {
 
 function renderBlankPanels(imgSet) {
   const wrap = createArenaWrap(imgSet);
-  arenaEl.appendChild(wrap);
+  arenaEl.append(wrap);
 
-  const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.id = 'anat-arena-svg';
-  svg.setAttribute('viewBox', '0 0 100 100');
-  svg.setAttribute('preserveAspectRatio', 'none');
-  svg.classList.add('anatomize-svg-overlay');
-  wrap.appendChild(svg);
+  const svg = newSvg('svg', {
+    id: 'anat-arena-svg',
+    viewBox: '0 0 100 100',
+    preserveAspectRatio: 'none',
+    className: 'anatomize-svg-overlay'
+  });
+  wrap.append(svg);
 
   createSideLabels(svg, imgSet);
   createStructureOverlays();
@@ -490,47 +486,57 @@ function promptNext() {
 }
 
 function createNameRow(label) {
-  const row = el('div', 'anatomize-detail-name-row');
-  row.append(
-      el('span', 'anatomize-detail-bullet'),
-      el('span', 'anatomize-detail-name', label));
-  return row;
+  return newEl('div', {
+    className: 'anatomize-detail-name-row',
+    children: [
+      newEl('span', {className: 'anatomize-detail-bullet'}),
+      newEl('span', {className: 'anatomize-detail-name', textContent: label})
+    ]
+  });
 }
 
 function createDetailRow(label, value) {
   const text = (value?.proximal || value?.distal)
       ? formatAttachments(value) : value;
-  const valueEl = el('span', 'detail-value');
+  const valueEl = newEl('span', {className: 'detail-value'});
   valueEl.innerHTML = expandAbbr(text);
-  const row = el('div', 'detail-row');
-  row.append(el('span', 'detail-label', label), valueEl);
-  return row;
+  return newEl('div', {
+    className: 'detail-row',
+    children: [
+      newEl('span', {className: 'detail-label', textContent: label}),
+      valueEl
+    ]
+  });
 }
 
 function createRevealLayer(fields, buttonLabel, panel) {
-  const details = document.createElement('details');
-  const layer = el('div', 'anatomize-detail-layer');
+  const layer = newEl('div', {className: 'anatomize-detail-layer'});
   fields.forEach(([, label, data]) =>
       data && layer.append(createDetailRow(label, data)));
-  details.append(
-      el('summary', 'btn anatomize-detail-btn', buttonLabel),
-      layer);
-  panel.append(details);
+  panel.append(newEl('details', {
+    children: [
+      newEl('summary', {
+        className: 'btn anatomize-detail-btn',
+        textContent: buttonLabel
+      }),
+      layer
+    ]
+  }));
 }
 
 function renderPromptPanel(structure) {
-  document.getElementById('anat-detail').textContent = '';
-  const panel = document.createElement('div');
-  panel.className = 'anatomize-detail-panel '
-    + priColorClass(structure.priColor);
-  panel.appendChild(createNameRow(structure.label));
-
-  const hint = document.createElement('p');
-  hint.className = 'anatomize-detail-hint';
-  hint.textContent = 'Identify on image';
-  panel.appendChild(hint);
-
-  document.getElementById('anat-detail').appendChild(panel);
+  const detail = document.getElementById('anat-detail');
+  detail.textContent = '';
+  detail.append(newEl('div', {
+    className: 'anatomize-detail-panel ' + priColorClass(structure.priColor),
+    children: [
+      createNameRow(structure.label),
+      newEl('p', {
+        className: 'anatomize-detail-hint',
+        textContent: 'Identify on image'
+      })
+    ]
+  }));
 }
 
 function labelClickHandler(e) {
@@ -599,18 +605,15 @@ function renderBlankPanelsFeedback(structureId, correct) {
 }
 
 function renderDetailPanel(structure) {
-  document.getElementById('anat-detail').textContent = '';
+  const detail = document.getElementById('anat-detail');
+  detail.textContent = '';
 
-  const panel = document.createElement('div');
-  panel.className = 'anatomize-detail-panel '
-    + priColorClass(structure.priColor);
+  const layer1 = newEl('div', {
+    className: 'anatomize-detail-layer',
+    children: [createNameRow(structure.label)]
+  });
 
   const priDetail = structure.priDetail;
-
-  const layer1 = document.createElement('div');
-  layer1.className = 'anatomize-detail-layer';
-  layer1.appendChild(createNameRow(structure.label));
-
   if (priDetail && priDetail.layer1) {
     const l1 = priDetail.layer1;
     [
@@ -621,11 +624,14 @@ function renderDetailPanel(structure) {
       ['pri', 'PRI'],
       ['chain', 'Chain']
     ].forEach(([key, label]) => {
-      if (l1[key]) layer1.appendChild(createDetailRow(label, l1[key]));
+      if (l1[key]) layer1.append(createDetailRow(label, l1[key]));
     });
   }
 
-  panel.appendChild(layer1);
+  const panel = newEl('div', {
+    className: 'anatomize-detail-panel ' + priColorClass(structure.priColor),
+    children: [layer1]
+  });
 
   if (priDetail && priDetail.layer2) {
     createRevealLayer([
@@ -640,7 +646,7 @@ function renderDetailPanel(structure) {
     ], 'Show Treatment', panel);
   }
 
-  document.getElementById('anat-detail').appendChild(panel);
+  detail.append(panel);
 }
 
 function formatAttachments(obj) {
@@ -667,11 +673,10 @@ function renderEndSummary() {
   const accuracy = total > 0 ?
       Math.round((activeSession.firstAttempt.size / total) * 100) : 0;
 
-  const summary = document.createElement('div');
-  summary.className = 'anatomize-end-summary';
-  summary.textContent =
-      `Complete. Score: ${activeSession.score}. Accuracy: ${accuracy}%.`;
-  document.getElementById('anat-detail').appendChild(summary);
+  document.getElementById('anat-detail').append(newEl('div', {
+    className: 'anatomize-end-summary',
+    textContent: `Complete. Score: ${activeSession.score}. Accuracy: ${accuracy}%.`
+  }));
 }
 
 function updateScore() {
