@@ -104,37 +104,33 @@ class BlankPanelSite {
     marker.setAttribute('cy', s.arrowTo.y);
     this.#group.appendChild(marker);
 
-    if (s.panelBox) {
-      this.#labelDiv = document.createElement('div');
-      this.#labelDiv.className = 'anatomize-label ' + colorClass;
-      this.#labelDiv.id = 'anat-' + this.id + '-label';
-      this.#labelDiv.style.cssText = percentBox(s.panelBox);
+    this.#labelDiv = document.createElement('div');
+    this.#labelDiv.className = 'anatomize-label ' + colorClass;
+    this.#labelDiv.id = 'anat-' + this.id + '-label';
+    this.#labelDiv.style.cssText = percentBox(s.panelBox);
 
-      const labelText = document.createElement('span');
-      labelText.className = 'anatomize-label-text';
-      labelText.textContent = s.label;
-      this.#labelDiv.appendChild(labelText);
-      wrap.appendChild(this.#labelDiv);
+    const labelText = document.createElement('span');
+    labelText.className = 'anatomize-label-text';
+    labelText.textContent = s.label;
+    this.#labelDiv.appendChild(labelText);
+    wrap.appendChild(this.#labelDiv);
 
-      this.#line = document.createElementNS(SVG_NS, 'line');
-      this.#line.classList.add('anatomize-arrow-line');
-      this.#group.appendChild(this.#line);
+    this.#line = document.createElementNS(SVG_NS, 'line');
+    this.#line.classList.add('anatomize-arrow-line');
+    this.#group.appendChild(this.#line);
 
-      this.#head = document.createElementNS(SVG_NS, 'polygon');
-      this.#head.classList.add('anatomize-arrowhead');
-      this.#group.appendChild(this.#head);
-    }
+    this.#head = document.createElementNS(SVG_NS, 'polygon');
+    this.#head.classList.add('anatomize-arrowhead');
+    this.#group.appendChild(this.#head);
 
     svg.appendChild(this.#group);
   }
 
-  measure() {
-    return this.#labelDiv?.getBoundingClientRect() ?? null;
+  static measure(site) {
+    return site.#labelDiv.getBoundingClientRect();
   }
 
   draw(wrapRect, labelRect) {
-    if (!labelRect) return;
-
     const arrowTo = this.#structure.arrowTo;
     const box = {
       x: (labelRect.left - wrapRect.left) / wrapRect.width * 100,
@@ -154,8 +150,6 @@ class BlankPanelSite {
   }
 
   markCorrect() {
-    if (!this.#labelDiv) return;
-
     this.#group.classList.add('correct');
     this.#labelDiv.classList.add('correct');
     const check = document.createElement('span');
@@ -165,8 +159,6 @@ class BlankPanelSite {
   }
 
   flashWrong() {
-    if (!this.#labelDiv) return;
-
     this.#labelDiv.classList.add('wrong');
     const xMark = document.createElement('span');
     xMark.className = 'anatomize-x';
@@ -219,13 +211,13 @@ function createSession(imgSet, imageId) {
       imageId,
       structures: imgSet.structures,
       structureCount: structureIds.length,
-      score: persisted.score ?? 0,
-      identified: new Set(persisted.identified ?? []),
-      firstAttempt: new Set(persisted.firstAttempt ?? []),
-      queue: persisted.queue ?? shuffle(structureIds),
-      current: persisted.current ?? null,
-      attemptedOnCurrent: persisted.attemptedOnCurrent ?? false,
-      reviewMode: persisted.reviewMode ?? false
+      score: persisted.score,
+      identified: new Set(persisted.identified),
+      firstAttempt: new Set(persisted.firstAttempt),
+      queue: persisted.queue,
+      current: persisted.current,
+      attemptedOnCurrent: persisted.attemptedOnCurrent,
+      reviewMode: persisted.reviewMode
     };
   }
   return {
@@ -382,7 +374,6 @@ function resetSession() {
   promptNext();
 }
 
-
 function createArenaWrap(imgSet) {
   arenaEl.textContent = '';
   const wrap = document.createElement('div');
@@ -457,10 +448,8 @@ function drawArrows() {
     }
 
     const sites = BlankPanelSite.all();
-    const rects = new Array(sites.length);
-    for (let i = 0; i < sites.length; i++) {
-      rects[i] = sites[i].measure();
-    }
+
+    const rects = sites.map(BlankPanelSite.measure);
     for (let i = 0; i < sites.length; i++) {
       sites[i].draw(wrapRect, rects[i]);
     }
