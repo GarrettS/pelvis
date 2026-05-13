@@ -26,6 +26,12 @@ This file (`project.md`) is the project overlay. Project-specific decisions live
 - `prd/anatomize-this.md` — Anatomize This interactive anatomy feature
 - `prd/coord-picker-workflow.md` — coordinate picker tools and image data workflow
 
+## Architecture
+- `prd/architecture/navigation-tabs.md` — lazy-load contract: two-set retry recovery (tab is the retry affordance), always-resolving importer, partial-failure handling for multi-path tabs.
+- `prd/architecture/equivalence-quiz.md` — state machine over fetch outcomes: pending, ready, load-failure with retry, missing-entry.
+- `prd/architecture/aic-chain.txt` — L AIC Chain tab: muscle ADT class, factory with static cache, SVG overlay with leader lines, single-active-muscle selection.
+- `prd/architecture/patterns.md` — dissolved-orchestrator tab: subtabs as direct LAZY_INIT entries, no `patterns.js`.
+
 ## Directory Structure
 ```
 bin/          dev tooling (pre-commit-check.sh)
