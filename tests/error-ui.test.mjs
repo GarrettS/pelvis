@@ -11,6 +11,12 @@ class StubElement {
     this.children = [];
     this.listeners = {};
     this.parentNode = null;
+    const classes = new Set();
+    this.classList = {
+      add: (cls) => classes.add(cls),
+      remove: (cls) => classes.delete(cls),
+      contains: (cls) => classes.has(cls)
+    };
   }
 
   appendChild(node) {
@@ -52,6 +58,10 @@ async function importErrorUiModule() {
   return import(
       `data:text/javascript;base64,${
         Buffer.from(errorUiSrc + nonce).toString('base64')}`);
+}
+
+function fetchFailure(status = 503) {
+  return {ok: false, path: './data/test.json', cause: {status}};
 }
 
 test('renderImportError appends a callout with the given message', async () => {
@@ -104,4 +114,127 @@ test('Retry click invokes the onRetry callback', async () => {
   await button.dispatch('click');
 
   assert.equal(retryCalls, 1);
+});
+
+test('loadAndRender appends an error callout with a Retry button on failure',
+    async () => {
+  const {loadAndRender} = await importErrorUiModule();
+  const container = new StubElement('div');
+
+  await loadAndRender({
+    load: async () => fetchFailure(),
+    container,
+    render: () => { throw new Error('render must not run on failure'); }
+  });
+
+  assert.equal(container.children.length, 1);
+  const callout = container.children[0];
+  assert.equal(callout.className, 'callout error');
+  assert.equal(callout.children.length, 1);
+
+  const button = callout.children[0];
+  assert.equal(button.tagName, 'button');
+  assert.equal(button.className, 'btn callout-retry');
+  assert.equal(button.textContent, 'Retry');
+});
+
+test('Retry click re-runs the loader and renders on success', async () => {
+  const {loadAndRender} = await importErrorUiModule();
+  const container = new StubElement('div');
+  let calls = 0;
+  const loader = async () => {
+    calls++;
+    return calls === 1
+        ? fetchFailure()
+        : {ok: true, data: {hello: 'world'}};
+  };
+  const rendered = [];
+
+  await loadAndRender({
+    load: loader,
+    container,
+    render: (data) => rendered.push(data)
+  });
+
+  assert.equal(calls, 1);
+  assert.equal(rendered.length, 0);
+
+  const button = container.children[0].children[0];
+  await button.dispatch('click');
+
+  assert.equal(calls, 2);
+  assert.deepEqual(rendered, [{hello: 'world'}]);
+  assert.equal(container.children.length, 0,
+      'original callout removed after successful retry');
+});
+
+test('Retry click on persistent failure replaces the old callout with a fresh one',
+    async () => {
+  const {loadAndRender} = await importErrorUiModule();
+  const container = new StubElement('div');
+  let calls = 0;
+  const loader = async () => {
+    calls++;
+    return fetchFailure();
+  };
+
+  await loadAndRender({load: loader, container, render: () => {}});
+
+  const originalCallout = container.children[0];
+  const originalButton = originalCallout.children[0];
+  await originalButton.dispatch('click');
+
+  assert.equal(calls, 2);
+  assert.equal(container.children.length, 1);
+  assert.notStrictEqual(container.children[0], originalCallout,
+      'callout was replaced, not reused');
+
+  const newButton = container.children[0].children[0];
+  assert.equal(newButton.textContent, 'Retry');
+});
+
+test('Container carries the loading class while the loader is pending',
+    async () => {
+  const {loadAndRender} = await importErrorUiModule();
+  const container = new StubElement('div');
+  let calls = 0;
+  let resolveSecondCall;
+  const loader = () => {
+    calls++;
+    if (calls === 1) return Promise.resolve(fetchFailure());
+    return new Promise((resolve) => { resolveSecondCall = resolve; });
+  };
+
+  await loadAndRender({load: loader, container, render: () => {}});
+
+  assert.equal(container.classList.contains('loading'), false,
+      'loading class cleared after the first attempt resolves');
+
+  const button = container.children[0].children[0];
+  const clickPromise = button.dispatch('click');
+
+  assert.equal(container.classList.contains('loading'), true,
+      'loading class added synchronously when retry is initiated');
+
+  resolveSecondCall({ok: true, data: 'final'});
+  await clickPromise;
+
+  assert.equal(container.classList.contains('loading'), false,
+      'loading class cleared after retry resolves');
+  assert.equal(container.children.length, 0);
+});
+
+test('loadAndRender renders directly when the first load succeeds', async () => {
+  const {loadAndRender} = await importErrorUiModule();
+  const container = new StubElement('div');
+  const rendered = [];
+
+  await loadAndRender({
+    load: async () => ({ok: true, data: 42}),
+    container,
+    render: (data) => rendered.push(data)
+  });
+
+  assert.deepEqual(rendered, [42]);
+  assert.equal(container.children.length, 0);
 });

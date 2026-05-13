@@ -1,4 +1,5 @@
-import { loadAndRender, loadJson } from './load.js';
+import { loadJson } from './load.js';
+import { loadAndRender } from './error-ui.js';
 // Sibling tab module — shares patterns-concept-map-content. Static import
 // ties their load atomically: if one fails, neither runs.
 import './patterns-symptom-quiz.js';

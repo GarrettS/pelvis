@@ -1,6 +1,7 @@
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
-import {appendErrorCallout, loadAndRender, loadJson} from './load.js';
+import {loadJson} from './load.js';
+import {appendErrorCallout, loadAndRender} from './error-ui.js';
 import {newEl} from './el-create.js';
 
 const USER_FC_KEY = 'userFlashcards';

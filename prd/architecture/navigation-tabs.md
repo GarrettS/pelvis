@@ -94,9 +94,9 @@ exactly `onRetry`. It does not manipulate its own state or remove the
 callout. Callout lifecycle belongs to the state machine: `lazyInit`
 clears `.callout.error` from the container after the import resolves
 (before either re-rendering content or showing a fresh callout), and
-`loadAndRender` (in `load.js`) does the symmetric thing for data-load
-retries by tracking the prior callout in closure and removing it on
-each new attempt.
+`loadAndRender` (in `error-ui.js`) does the symmetric thing for
+data-load retries by tracking the prior callout in closure and
+removing it on each new attempt.
 
 ## Single path per entry
 

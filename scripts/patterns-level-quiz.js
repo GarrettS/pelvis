@@ -1,5 +1,6 @@
 import { expandAbbr } from './abbr-expand.js';
-import { loadAndRender, loadJson } from './load.js';
+import { loadJson } from './load.js';
+import { loadAndRender } from './error-ui.js';
 import { LevelQuiz } from './level-quiz.js';
 
 const containerEl = document.getElementById('patterns-level-quiz-content');

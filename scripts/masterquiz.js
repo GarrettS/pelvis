@@ -1,7 +1,8 @@
 import { getAllEquivalent } from './equivalence.js';
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
-import { appendErrorCallout, loadAndRender, loadJson } from './load.js';
+import { loadJson } from './load.js';
+import { appendErrorCallout, loadAndRender } from './error-ui.js';
 import { tryLoad as tryLoadProgress, updateEntry as updateProgress,
   getStats, clearAll as clearProgress, MASTERY_STREAK
 } from './master-quiz-progress.js';

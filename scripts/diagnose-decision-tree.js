@@ -1,4 +1,5 @@
-import {loadAndRender, loadJson} from './load.js';
+import {loadJson} from './load.js';
+import {loadAndRender} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
 
 const containerEl = document.getElementById('diagnose-decision-tree-content');

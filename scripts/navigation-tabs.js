@@ -1,3 +1,5 @@
+// Contract for loading and recovery: prd/architecture/navigation-tabs.md
+
 import {handleImportError} from "./load.js";
 import {renderImportError} from "./error-ui.js";
 import {renderHomeProgress} from './home-progress.js';

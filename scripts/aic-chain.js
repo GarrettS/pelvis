@@ -3,7 +3,8 @@
 
 import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
-import {appendErrorCallout, loadAndRender, loadJson} from './load.js';
+import {loadJson} from './load.js';
+import {appendErrorCallout, loadAndRender} from './error-ui.js';
 import {newEl, newSvg} from './el-create.js';
 
 const VIEWS = ['anterior', 'posterior'];

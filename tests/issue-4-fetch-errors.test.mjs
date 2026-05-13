@@ -17,18 +17,6 @@ function importSource(source) {
         Buffer.from(source + nonce).toString('base64')}`);
 }
 
-function makeDocumentStub() {
-  return {
-    createElement(tagName) {
-      return {
-        tagName,
-        className: '',
-        textContent: '',
-      };
-    }
-  };
-}
-
 class StubElement {
   constructor(id = '') {
     this.id = id;
@@ -113,16 +101,22 @@ async function importFlashcardsModule() {
   const [
     flashcardsSource,
     loadSource,
+    errorUiSource,
     abbrExpandSource,
     shuffleSource
   ] = await Promise.all([
     readFile(new URL('../scripts/flashcards.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/load.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/error-ui.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8')
   ]);
+  const loadUrl = freshDataUrl(loadSource);
+  const errorUiUrl = freshDataUrl(
+      errorUiSource.replace("'./load.js'", `'${loadUrl}'`));
   const rewrittenSource = flashcardsSource
-    .replace("'./load.js'", `'${freshDataUrl(loadSource)}'`)
+    .replace("'./load.js'", `'${loadUrl}'`)
+    .replace("'./error-ui.js'", `'${errorUiUrl}'`)
     .replace("'./abbr-expand.js'", `'${freshDataUrl(abbrExpandSource)}'`)
     .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`);
   return importSource(rewrittenSource);
@@ -133,6 +127,7 @@ async function importMasterquizModule() {
     masterquizSource,
     equivalenceSource,
     loadSource,
+    errorUiSource,
     abbrExpandSource,
     shuffleSource,
     progressSource
@@ -140,13 +135,18 @@ async function importMasterquizModule() {
     readFile(new URL('../scripts/masterquiz.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/equivalence.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/load.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/error-ui.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/master-quiz-progress.js', import.meta.url), 'utf8')
   ]);
+  const loadUrl = freshDataUrl(loadSource);
+  const errorUiUrl = freshDataUrl(
+      errorUiSource.replace("'./load.js'", `'${loadUrl}'`));
   const rewrittenSource = masterquizSource
     .replace("'./equivalence.js'", `'${freshDataUrl(equivalenceSource)}'`)
-    .replace("'./load.js'", `'${freshDataUrl(loadSource)}'`)
+    .replace("'./load.js'", `'${loadUrl}'`)
+    .replace("'./error-ui.js'", `'${errorUiUrl}'`)
     .replace("'./abbr-expand.js'", `'${freshDataUrl(abbrExpandSource)}'`)
     .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`)
     .replace("'./master-quiz-progress.js'", `'${freshDataUrl(progressSource)}'`);
@@ -409,27 +409,24 @@ function makeCompleteEquivalenceExplanations() {
   };
 }
 
-test('showFetchError renders HTTP and JSON failure messages', async () => {
-  globalThis.document = makeDocumentStub();
-
-  const {showFetchError} = await importLocalModule(
+test('handleFetchError renders HTTP and JSON failure messages', async () => {
+  const {handleFetchError} = await importLocalModule(
       '../scripts/load.js');
-  const appended = [];
-  const container = {
-    appendChild(node) {
-      appended.push(node);
-    }
-  };
+  const messages = [];
+  const capture = (message) => messages.push(message);
 
-  showFetchError(container, { path: 'study-data.json', cause: new Response('', {status: 404}) });
-  showFetchError(container, { path: 'study-data.json', cause: new SyntaxError('Unexpected token < in JSON at position 0') });
+  handleFetchError(
+      {path: 'study-data.json',
+       cause: new Response('', {status: 404})},
+      {render: capture});
+  handleFetchError(
+      {path: 'study-data.json',
+       cause: new SyntaxError('Unexpected token < in JSON at position 0')},
+      {render: capture});
 
-  assert.equal(appended[0].className, 'callout error');
-  assert.equal(
-      appended[0].textContent,
+  assert.equal(messages[0],
       "Couldn't load study-data.json: server returned 404.");
-  assert.equal(
-      appended[1].textContent,
+  assert.equal(messages[1],
       "Couldn't load study-data.json: response wasn't valid JSON.");
 });
 

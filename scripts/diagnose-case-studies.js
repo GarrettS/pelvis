@@ -1,5 +1,6 @@
 import {expandAbbr} from './abbr-expand.js';
-import {loadAndRender, loadJson} from './load.js';
+import {loadJson} from './load.js';
+import {loadAndRender} from './error-ui.js';
 
 let caseStudies = {};
 

@@ -1,7 +1,8 @@
 import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
-import {loadAndRender, loadJson} from './load.js';
+import {loadJson} from './load.js';
+import {loadAndRender} from './error-ui.js';
 import {newEl, newSvg} from './el-create.js';
 import * as progress from './anatomize-progress.js';
 

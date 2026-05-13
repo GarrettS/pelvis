@@ -1,4 +1,5 @@
-import { loadAndRender, loadJson } from './load.js';
+import { loadJson } from './load.js';
+import { loadAndRender } from './error-ui.js';
 
 let SYMPTOM_PATTERNS = null;
 const quizState = {
