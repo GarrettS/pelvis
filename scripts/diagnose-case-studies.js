@@ -226,7 +226,7 @@ class CaseStudy {
     if (!definition) throw new Error(
       'CaseStudy: no definition for "' + id + '"'
     );
-    return new CaseStudy(id, definition, CaseStudy.#KEY);
+    return (caseStudies[id] ??= new CaseStudy(id, definition, CaseStudy.#KEY));
   }
 
   static discard(id) {
