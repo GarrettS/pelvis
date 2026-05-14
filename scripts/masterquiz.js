@@ -65,17 +65,11 @@ function showScreen(cls) {
   activeScreenClass = cls;
 }
 
-function getSelectedDomains() {
-  return DOMAINS.filter(d => {
-    const cb = document.getElementById('mq-domain-' + d);
-    return cb && cb.checked;
-  });
-}
+const getSelectedDomains = () =>
+  DOMAINS.filter(d => document.getElementById('mq-domain-' + d)?.checked);
 
-function getQuestionCount() {
-  const el = document.getElementById('mq-count');
-  return el.valueAsNumber || +el.defaultValue;
-}
+const getQuestionCount = () =>
+  document.getElementById('mq-count').valueAsNumber;
 
 function renderStats() {
   const domains = getSelectedDomains();
@@ -92,10 +86,9 @@ function renderStats() {
     `${stats.mastered} mastered (excluded)`;
 }
 
-function syncStartButton() {
+const syncStartButton = () =>
   document.getElementById('mq-start').disabled =
-    getSelectedDomains().length === 0;
-}
+      getSelectedDomains().length === 0;
 
 function handleStart() {
   const domains = getSelectedDomains();
@@ -155,13 +148,11 @@ function renderQuestion() {
   }
 }
 
-function makeOptionButton(opt) {
-  return newEl('button', {
-    type: 'button',
-    value: opt.key,
-    innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`
-  });
-}
+const makeOptionButton = opt => newEl('button', {
+  type: 'button',
+  value: opt.key,
+  innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`
+});
 
 function handleOptionSelect(key) {
   if (submitted) return;
@@ -441,7 +432,7 @@ function makeResultRow(answer, showSave) {
     const alreadySaved = isAlreadySaved(q.id);
     detailChildren.push(newEl('button', {
       type: 'button',
-      className: 'btn mq-result-save',
+      className: 'mq-result-save',
       value: q.id,
       disabled: alreadySaved,
       textContent: alreadySaved ? 'Already saved' : 'Save as Flashcard'
@@ -458,9 +449,8 @@ function makeResultRow(answer, showSave) {
   ]});
 }
 
-function renderResultsList(container, answers, showSave) {
+const renderResultsList = (container, answers, showSave) =>
   container.replaceChildren(...answers.map(a => makeResultRow(a, showSave)));
-}
 
 function handleResultSave(btn) {
   const q = QUESTIONS.find(qu => qu.id === btn.value);

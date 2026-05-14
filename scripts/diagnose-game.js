@@ -160,7 +160,7 @@ function renderRound2(wrap, s) {
 
   if (isMultiSelect(q)) {
     const submitBtn = document.createElement('button');
-    submitBtn.className = 'btn primary submit-gap';
+    submitBtn.className = 'primary submit-gap';
     submitBtn.id = 'game-submit';
     submitBtn.textContent = 'Check Answer';
     card.appendChild(submitBtn);
