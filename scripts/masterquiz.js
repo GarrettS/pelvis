@@ -369,13 +369,18 @@ function handleSaveFlashcard() {
   saveBtn.disabled = true;
 }
 
+function renderResultGroup(type, data) {
+  renderResultsList(document.getElementById(`mq-${type}-list`), data);
+  document.getElementById('mq-results')
+      .classList.toggle(`has-${type}`, data.length > 0);
+}
+
 function renderResults() {
   showScreen('screen-results');
   const correct = sessionAnswers.filter(a => a.correct);
   const incorrect = sessionAnswers.filter(a => !a.correct);
   const total = sessionAnswers.length;
   const pct = total > 0 ? Math.round((correct.length / total) * 100) : 0;
-  const hasIncorrect = incorrect.length > 0;
 
   const scoreClass = 'mq-score-' + (pct < 60 ? 'fail' : pct < 80 ? 'warn' : 'pass');
 
@@ -384,14 +389,10 @@ function renderResults() {
   resultScore.textContent =
       `Session Complete: ${correct.length} / ${total} correct (${pct}%)`;
 
-  renderResultsList(document.getElementById('mq-incorrect-list'), incorrect);
-  renderResultsList(document.getElementById('mq-correct-list'), correct);
+  renderResultGroup('correct', correct);
+  renderResultGroup('incorrect', incorrect);
 
-  const resultsEl = document.getElementById('mq-results');
-  resultsEl.classList.toggle('has-incorrect', hasIncorrect);
-  resultsEl.classList.toggle('has-correct', correct.length > 0);
-
-  document.getElementById('mq-incorrect-details').open = hasIncorrect;
+  document.getElementById('mq-incorrect-details').open = incorrect.length > 0;
 }
 
 function resultOptClass(opt, q, answer) {
