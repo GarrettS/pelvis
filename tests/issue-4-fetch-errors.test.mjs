@@ -60,6 +60,21 @@ class StubElement {
     return node;
   }
 
+  append(...nodes) {
+    nodes.forEach((node) => {
+      const child = typeof node === 'string'
+          ? Object.assign(new StubElement(), {textContent: node})
+          : node;
+      child.parentNode = this;
+      this.children.push(child);
+    });
+  }
+
+  replaceChildren(...nodes) {
+    this.children = [];
+    this.append(...nodes);
+  }
+
   addEventListener(type, handler) {
     this.listeners[type] = this.listeners[type] || [];
     this.listeners[type].push(handler);
@@ -79,6 +94,13 @@ class StubElement {
       return this.children.find((child) => child.className === 'callout error') || null;
     }
     return null;
+  }
+
+  querySelectorAll(selector) {
+    if (selector === '.callout.error') {
+      return this.children.filter((child) => child.className === 'callout error');
+    }
+    return [];
   }
 
   remove() {
@@ -122,6 +144,7 @@ async function importFlashcardsModule() {
   const rewrittenSource = flashcardsSource
     .replace("'./load.js'", `'${loadUrl}'`)
     .replace("'./error-ui.js'", `'${errorUiUrl}'`)
+    .replace("'./el-create.js'", `'${elCreateUrl}'`)
     .replace("'./abbr-expand.js'", `'${freshDataUrl(abbrExpandSource)}'`)
     .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`);
   return importSource(rewrittenSource);
@@ -157,6 +180,7 @@ async function importMasterquizModule() {
     .replace("'./equivalence.js'", `'${freshDataUrl(equivalenceSource)}'`)
     .replace("'./load.js'", `'${loadUrl}'`)
     .replace("'./error-ui.js'", `'${errorUiUrl}'`)
+    .replace("'./el-create.js'", `'${elCreateUrl}'`)
     .replace("'./abbr-expand.js'", `'${freshDataUrl(abbrExpandSource)}'`)
     .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`)
     .replace("'./master-quiz-progress.js'", `'${freshDataUrl(progressSource)}'`);
@@ -190,6 +214,92 @@ async function importEquivalenceQuizModule(loadJsonSource) {
     .replace("'./shuffle.js'", `'${freshDataUrl(shuffleSource)}'`)
     .replace("'./equivalence-answers.js'", `'${freshDataUrl(rewrittenAnswersSource)}'`);
   return importSource(rewrittenSource);
+}
+
+const MASTERQUIZ_QUEUE_CARD = {
+  id: 'q1',
+  stem: 'Question stem',
+  domain: 'anatomy',
+  answer: 'A',
+  explanation: 'Because.',
+  options: [{key: 'A', text: 'Correct'}]
+};
+
+const FLASHCARDS_ELEMENT_IDS = [
+  'flashcards-content', 'fc-card-wrap', 'fc-progress', 'fc-reset',
+  'fc-cat-filters', 'fc-weight-filters', 'fc-add-btn', 'fc-add-form',
+  'fc-input-front', 'fc-input-hint', 'fc-input-back', 'fc-input-detail',
+  'fc-detail-count', 'fc-form-preview', 'fc-form-cancel', 'fc-preview-card',
+  'fc-edit-section', 'fc-preview-section', 'fc-form-title',
+  'fc-form-edit-back', 'fc-form-save'
+];
+
+function jsonResponse(body) {
+  return new Response(body,
+      {status: 200, headers: {'Content-Type': 'application/json'}});
+}
+
+async function withMasterquizEnv(
+    {document: docHandler = {}, localStorage, confirm}, body) {
+  const snapshot = {
+    document: globalThis.document,
+    fetch: globalThis.fetch,
+    localStorage: globalThis.localStorage,
+    confirm: globalThis.confirm
+  };
+  const container = new StubElement('masterquiz-content');
+  globalThis.document = {
+    createElement: docHandler.createElement
+        || ((tag) => new StubElement(tag)),
+    getElementById(id) {
+      if (id === 'masterquiz-content') return container;
+      return docHandler.getElementById?.(id) ?? null;
+    }
+  };
+  globalThis.fetch = () => Promise.resolve(new Response('', {status: 503}));
+  globalThis.localStorage = localStorage;
+  if (confirm) globalThis.confirm = confirm;
+  try {
+    const mod = await importMasterquizModule();
+    await body({container, ...mod});
+  } finally {
+    globalThis.document = snapshot.document;
+    globalThis.fetch = snapshot.fetch;
+    globalThis.localStorage = snapshot.localStorage;
+    globalThis.confirm = snapshot.confirm;
+  }
+}
+
+async function withFlashcardsEnv(
+    {localStorage, deck = [{front: 'Term', back: 'Definition'}]}, body) {
+  const snapshot = {
+    document: globalThis.document,
+    fetch: globalThis.fetch,
+    localStorage: globalThis.localStorage
+  };
+  const elements = new Map(
+      FLASHCARDS_ELEMENT_IDS.map((id) => [id, new StubElement(id)]));
+  const activeCatBtn = new StubElement();
+  const activeWeightBtn = new StubElement();
+  globalThis.document = {
+    createElement: (tag) => new StubElement(tag),
+    getElementById: (id) => elements.get(id) ?? null,
+    querySelector(selector) {
+      if (selector === '#fc-cat-filters .fc-filter-btn.active') return activeCatBtn;
+      if (selector === '#fc-weight-filters .fc-filter-btn.active') return activeWeightBtn;
+      return null;
+    }
+  };
+  globalThis.fetch = () => Promise.resolve(jsonResponse(JSON.stringify(deck)));
+  globalThis.localStorage = localStorage;
+  try {
+    await importFlashcardsModule();
+    await body({elements});
+  } finally {
+    globalThis.document = snapshot.document;
+    globalThis.fetch = snapshot.fetch;
+    globalThis.localStorage = snapshot.localStorage;
+  }
 }
 
 class EquivalenceTestElement extends StubElement {
@@ -650,368 +760,217 @@ test('equivalence submit shows data error when explanation content is incomplete
 
 
 test('flashcards save click shows inline feedback when saved cards cannot be read', async () => {
-  const originalDocument = globalThis.document;
-  const originalFetch = globalThis.fetch;
-  const originalLocalStorage = globalThis.localStorage;
-
-  const elements = new Map();
-  function addElement(id) {
-    const element = new StubElement(id);
-    elements.set(id, element);
-    return element;
-  }
-
-  const wrap = addElement('fc-card-wrap');
-  addElement('fc-progress');
-  addElement('fc-reset');
-  addElement('fc-cat-filters');
-  addElement('fc-weight-filters');
-  addElement('fc-add-btn');
-  const addForm = addElement('fc-add-form');
-  const frontInput = addElement('fc-input-front');
-  addElement('fc-input-hint');
-  const backInput = addElement('fc-input-back');
-  addElement('fc-input-detail');
-  addElement('fc-detail-count');
-  addElement('fc-form-preview');
-  addElement('fc-form-cancel');
-  addElement('fc-preview-card');
-  addElement('fc-edit-section');
-  addElement('fc-preview-section');
-  addElement('fc-form-title');
-  addElement('fc-form-edit-back');
-  const saveButton = addElement('fc-form-save');
-  const activeCatBtn = new StubElement();
-  const activeWeightBtn = new StubElement();
-
-  globalThis.document = {
-    createElement(tagName) {
-      return new StubElement(tagName);
-    },
-    getElementById(id) {
-      return elements.get(id) || null;
-    },
-    querySelector(selector) {
-      if (selector === '#fc-cat-filters .fc-filter-btn.active') {
-        return activeCatBtn;
-      }
-      if (selector === '#fc-weight-filters .fc-filter-btn.active') {
-        return activeWeightBtn;
-      }
-      return null;
+  await withFlashcardsEnv({
+    localStorage: {
+      getItem() { return '{'; },
+      setItem() { throw new Error('should not write after unreadable saved cards'); }
     }
-  };
-  globalThis.fetch = () => Promise.resolve(
-      new Response(
-          JSON.stringify([{front: 'Term', back: 'Definition'}]),
-          {status: 200, headers: {'Content-Type': 'application/json'}}));
-  globalThis.localStorage = {
-    getItem() {
-      return '{';
-    },
-    setItem() {
-      throw new Error('should not write after unreadable saved cards');
-    }
-  };
+  }, async ({elements}) => {
+    const addForm = elements.get('fc-add-form');
+    const frontInput = elements.get('fc-input-front');
+    const backInput = elements.get('fc-input-back');
+    const saveButton = elements.get('fc-form-save');
+    const wrap = elements.get('fc-card-wrap');
 
-  await importFlashcardsModule();
+    frontInput.value = 'Front';
+    backInput.value = 'Back';
+    saveButton.dispatch('click');
 
-  frontInput.value = 'Front';
-  backInput.value = 'Back';
-  saveButton.dispatch('click');
-
-  const errorCallout = addForm.querySelector('.callout.error');
-  assert.ok(errorCallout);
-  assert.equal(
-      errorCallout.textContent,
-      "Couldn't save flashcard: saved card data is corrupt: "
-        + "Unexpected end of JSON input");
-  assert.equal(wrap.children.length > 0, true);
-
-  globalThis.document = originalDocument;
-  globalThis.fetch = originalFetch;
-  globalThis.localStorage = originalLocalStorage;
+    const errorCallout = addForm.querySelector('.callout.error');
+    assert.ok(errorCallout);
+    assert.equal(
+        errorCallout.textContent,
+        "Couldn't save flashcard: saved card data is corrupt: "
+          + "Unexpected end of JSON input");
+    assert.equal(wrap.children.length > 0, true);
+  });
 });
 
 test('masterquiz save button shows inline feedback when saved cards cannot be read', async () => {
-  const originalDocument = globalThis.document;
-  const originalLocalStorage = globalThis.localStorage;
-
   const saveButton = {textContent: '', disabled: false};
   const explanation = new StubElement('mq-explanation');
-  globalThis.document = {
-    createElement(tagName) {
-      return new StubElement(tagName);
+
+  await withMasterquizEnv({
+    document: {
+      getElementById(id) {
+        if (id === 'mq-save-flashcard') return saveButton;
+        if (id === 'mq-explanation') return explanation;
+        return null;
+      }
     },
-    getElementById(id) {
-      if (id === 'mq-save-flashcard') return saveButton;
-      if (id === 'mq-explanation') return explanation;
-      return null;
+    localStorage: {
+      getItem(key) { return key === 'userFlashcards' ? '{' : null; },
+      setItem() {}
     }
-  };
-  globalThis.localStorage = {
-    getItem(key) {
-      return key === 'userFlashcards' ? '{' : null;
-    },
-    setItem() {}
-  };
+  }, async ({handleSaveFlashcard, __setMasterquizState}) => {
+    __setMasterquizState({
+      queue: [MASTERQUIZ_QUEUE_CARD],
+      qIdx: 0,
+      submitted: true
+    });
+    handleSaveFlashcard();
 
-  const {handleSaveFlashcard, __setMasterquizState} = await importMasterquizModule();
-  __setMasterquizState({
-    queue: [{
-      id: 'q1',
-      stem: 'Question stem',
-      domain: 'anatomy',
-      answer: 'A',
-      explanation: 'Because.',
-      options: [{key: 'A', text: 'Correct'}]
-    }],
-    qIdx: 0,
-    submitted: true
+    const errorCallout = explanation.querySelector('.callout.error');
+    assert.ok(errorCallout);
+    assert.equal(
+        errorCallout.textContent,
+        "Couldn't save flashcard: saved card data is corrupt: "
+          + "Unexpected end of JSON input");
+    assert.equal(saveButton.textContent, '');
+    assert.equal(saveButton.disabled, true);
   });
-  handleSaveFlashcard();
-
-  const errorCallout = explanation.querySelector('.callout.error');
-  assert.ok(errorCallout);
-  assert.equal(
-      errorCallout.textContent,
-      "Couldn't save flashcard: saved card data is corrupt: "
-        + "Unexpected end of JSON input");
-  assert.equal(saveButton.textContent, '');
-  assert.equal(saveButton.disabled, true);
-
-  globalThis.document = originalDocument;
-  globalThis.localStorage = originalLocalStorage;
 });
 
 test('masterquiz duplicate save is treated as already satisfied without extra noise', async () => {
-  const originalDocument = globalThis.document;
-  const originalLocalStorage = globalThis.localStorage;
-
   const saveButton = {textContent: '', disabled: false};
-  globalThis.document = {
-    getElementById(id) {
-      return id === 'mq-save-flashcard' ? saveButton : null;
-    }
-  };
-  globalThis.localStorage = {
-    getItem(key) {
-      if (key !== 'userFlashcards') return null;
-      return JSON.stringify([{id: 'user-mq-q1'}]);
+
+  await withMasterquizEnv({
+    document: {
+      getElementById(id) { return id === 'mq-save-flashcard' ? saveButton : null; }
     },
-    setItem() {
-      throw new Error('should not write duplicate save');
+    localStorage: {
+      getItem(key) {
+        if (key !== 'userFlashcards') return null;
+        return JSON.stringify([{id: 'user-mq-q1'}]);
+      },
+      setItem() { throw new Error('should not write duplicate save'); }
     }
-  };
+  }, async ({handleSaveFlashcard, __setMasterquizState}) => {
+    __setMasterquizState({
+      queue: [MASTERQUIZ_QUEUE_CARD],
+      qIdx: 0,
+      submitted: true
+    });
+    handleSaveFlashcard();
 
-  const {handleSaveFlashcard, __setMasterquizState} = await importMasterquizModule();
-  __setMasterquizState({
-    queue: [{
-      id: 'q1',
-      stem: 'Question stem',
-      domain: 'anatomy',
-      answer: 'A',
-      explanation: 'Because.',
-      options: [{key: 'A', text: 'Correct'}]
-    }],
-    qIdx: 0,
-    submitted: true
+    assert.equal(saveButton.textContent, 'Already saved');
+    assert.equal(saveButton.disabled, true);
   });
-  handleSaveFlashcard();
-
-  assert.equal(saveButton.textContent, 'Already saved');
-  assert.equal(saveButton.disabled, true);
-
-  globalThis.document = originalDocument;
-  globalThis.localStorage = originalLocalStorage;
 });
 
 test('masterquiz failed write does not mark empty storage card as saved in memory', async () => {
-  const originalDocument = globalThis.document;
-  const originalLocalStorage = globalThis.localStorage;
-
   const firstButton = {textContent: '', disabled: false};
   const secondButton = {textContent: '', disabled: false};
   const explanation = new StubElement('mq-explanation');
   let activeButton = firstButton;
-  globalThis.document = {
-    createElement(tagName) {
-      return new StubElement(tagName);
-    },
-    getElementById(id) {
-      if (id === 'mq-save-flashcard') return activeButton;
-      if (id === 'mq-explanation') return explanation;
-      return null;
-    }
-  };
-  globalThis.localStorage = {
-    getItem() {
-      return null;
-    },
-    setItem() {
-      throw new Error('quota exceeded');
-    }
-  };
 
-  const {handleSaveFlashcard, __setMasterquizState} = await importMasterquizModule();
-  __setMasterquizState({
-    queue: [{
-      id: 'q1',
-      stem: 'Question stem',
-      domain: 'anatomy',
-      answer: 'A',
-      explanation: 'Because.',
-      options: [{key: 'A', text: 'Correct'}]
-    }],
-    qIdx: 0,
-    submitted: true
+  await withMasterquizEnv({
+    document: {
+      getElementById(id) {
+        if (id === 'mq-save-flashcard') return activeButton;
+        if (id === 'mq-explanation') return explanation;
+        return null;
+      }
+    },
+    localStorage: {
+      getItem() { return null; },
+      setItem() { throw new Error('quota exceeded'); }
+    }
+  }, async ({handleSaveFlashcard, __setMasterquizState}) => {
+    __setMasterquizState({
+      queue: [MASTERQUIZ_QUEUE_CARD],
+      qIdx: 0,
+      submitted: true
+    });
+
+    handleSaveFlashcard();
+    activeButton = secondButton;
+    handleSaveFlashcard();
+
+    assert.equal(firstButton.textContent, '');
+    assert.equal(secondButton.textContent, '');
+    assert.equal(explanation.children.length, 1);
+    assert.equal(
+        explanation.children[0].textContent,
+        "Couldn't save flashcard: browser storage is unavailable: quota exceeded");
   });
-
-  handleSaveFlashcard();
-  activeButton = secondButton;
-  handleSaveFlashcard();
-
-  assert.equal(firstButton.textContent, '');
-  assert.equal(secondButton.textContent, '');
-  assert.equal(explanation.children.length, 1);
-  assert.equal(
-      explanation.children[0].textContent,
-      "Couldn't save flashcard: browser storage is unavailable: quota exceeded");
-
-  globalThis.document = originalDocument;
-  globalThis.localStorage = originalLocalStorage;
 });
 
 test('masterquiz save shows preparation feedback when saved cards cannot stringify', async () => {
-  const originalDocument = globalThis.document;
-  const originalLocalStorage = globalThis.localStorage;
   const originalJSONstringify = JSON.stringify;
-
   const saveButton = {textContent: '', disabled: false};
   const explanation = new StubElement('mq-explanation');
-  globalThis.document = {
-    createElement(tagName) {
-      return new StubElement(tagName);
-    },
-    getElementById(id) {
-      if (id === 'mq-save-flashcard') return saveButton;
-      if (id === 'mq-explanation') return explanation;
-      return null;
-    }
-  };
-  globalThis.localStorage = {
-    getItem() {
-      return null;
-    },
-    setItem() {
-      throw new Error('should not write unprepared cards');
-    }
-  };
-  JSON.stringify = () => {
-    throw new TypeError('cyclic card data');
-  };
+  JSON.stringify = () => { throw new TypeError('cyclic card data'); };
 
-  const {handleSaveFlashcard, __setMasterquizState} = await importMasterquizModule();
-  __setMasterquizState({
-    queue: [{
-      id: 'q1',
-      stem: 'Question stem',
-      domain: 'anatomy',
-      answer: 'A',
-      explanation: 'Because.',
-      options: [{key: 'A', text: 'Correct'}]
-    }],
-    qIdx: 0,
-    submitted: true
-  });
-  handleSaveFlashcard();
+  try {
+    await withMasterquizEnv({
+      document: {
+        getElementById(id) {
+          if (id === 'mq-save-flashcard') return saveButton;
+          if (id === 'mq-explanation') return explanation;
+          return null;
+        }
+      },
+      localStorage: {
+        getItem() { return null; },
+        setItem() { throw new Error('should not write unprepared cards'); }
+      }
+    }, async ({handleSaveFlashcard, __setMasterquizState}) => {
+      __setMasterquizState({
+        queue: [MASTERQUIZ_QUEUE_CARD],
+        qIdx: 0,
+        submitted: true
+      });
+      handleSaveFlashcard();
 
-  const errorCallout = explanation.querySelector('.callout.error');
-  assert.ok(errorCallout);
-  assert.equal(
-      errorCallout.textContent,
-      "Couldn't save flashcard: saved card data couldn't be prepared: "
-        + "cyclic card data");
-  assert.equal(saveButton.disabled, true);
-
-  JSON.stringify = originalJSONstringify;
-  globalThis.document = originalDocument;
-  globalThis.localStorage = originalLocalStorage;
+      const errorCallout = explanation.querySelector('.callout.error');
+      assert.ok(errorCallout);
+      assert.equal(
+          errorCallout.textContent,
+          "Couldn't save flashcard: saved card data couldn't be prepared: "
+            + "cyclic card data");
+      assert.equal(saveButton.disabled, true);
+    });
+  } finally {
+    JSON.stringify = originalJSONstringify;
+  }
 });
 
 test('masterquiz result save button shows inline feedback when storage is unavailable', async () => {
-  const originalDocument = globalThis.document;
-  const originalLocalStorage = globalThis.localStorage;
-
   const resultButton = {textContent: '', disabled: false, value: 'q1'};
   const resultDetail = new StubElement('mq-result-detail');
   resultButton.parentNode = resultDetail;
-  globalThis.document = {
-    createElement(tagName) {
-      return new StubElement(tagName);
+
+  await withMasterquizEnv({
+    document: {
+      getElementById() {}
     },
-    getElementById() {}
-  };
-  globalThis.localStorage = {
-    getItem() {
-      return '[]';
-    },
-    setItem() {
-      throw new Error('quota exceeded');
+    localStorage: {
+      getItem() { return '[]'; },
+      setItem() { throw new Error('quota exceeded'); }
     }
-  };
+  }, async ({handleResultSave, __setMasterquizState}) => {
+    __setMasterquizState({
+      QUESTIONS: [MASTERQUIZ_QUEUE_CARD]
+    });
+    handleResultSave(resultButton);
 
-  const {handleResultSave, __setMasterquizState} = await importMasterquizModule();
-  __setMasterquizState({
-    QUESTIONS: [{
-      id: 'q1',
-      stem: 'Question stem',
-      domain: 'anatomy',
-      answer: 'A',
-      explanation: 'Because.',
-      options: [{key: 'A', text: 'Correct'}]
-    }]
+    const errorCallout = resultDetail.querySelector('.callout.error');
+    assert.ok(errorCallout);
+    assert.equal(
+        errorCallout.textContent,
+        "Couldn't save flashcard: browser storage is unavailable: quota exceeded");
+    assert.equal(resultButton.textContent, '');
+    assert.equal(resultButton.disabled, true);
   });
-  handleResultSave(resultButton);
-
-  const errorCallout = resultDetail.querySelector('.callout.error');
-  assert.ok(errorCallout);
-  assert.equal(
-      errorCallout.textContent,
-      "Couldn't save flashcard: browser storage is unavailable: quota exceeded");
-  assert.equal(resultButton.textContent, '');
-  assert.equal(resultButton.disabled, true);
-
-  globalThis.document = originalDocument;
-  globalThis.localStorage = originalLocalStorage;
 });
 
 test('masterquiz reset progress shows stats feedback when storage removal fails', async () => {
-  const originalConfirm = globalThis.confirm;
-  const originalDocument = globalThis.document;
-  const originalLocalStorage = globalThis.localStorage;
-
   const stats = {textContent: ''};
-  globalThis.confirm = () => true;
-  globalThis.document = {
-    getElementById(id) {
-      return id === 'mq-stats' ? stats : null;
-    }
-  };
-  globalThis.localStorage = {
-    removeItem() {
-      throw new Error('storage unavailable');
-    }
-  };
 
-  const {handleResetProgress} = await importMasterquizModule();
-  handleResetProgress();
+  await withMasterquizEnv({
+    document: {
+      getElementById(id) { return id === 'mq-stats' ? stats : null; }
+    },
+    localStorage: {
+      removeItem() { throw new Error('storage unavailable'); }
+    },
+    confirm: () => true
+  }, async ({handleResetProgress}) => {
+    handleResetProgress();
 
-  assert.equal(
-      stats.textContent,
-      "Couldn't reset progress: browser storage is unavailable.");
-
-  globalThis.confirm = originalConfirm;
-  globalThis.document = originalDocument;
-  globalThis.localStorage = originalLocalStorage;
+    assert.equal(
+        stats.textContent,
+        "Couldn't reset progress: browser storage is unavailable.");
+  });
 });

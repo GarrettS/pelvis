@@ -39,7 +39,8 @@ function buildDistractors(side, region, dir) {
   ];
 }
 
-function buildQuestion(side, region, dir) {
+function buildQuestion(combo) {
+  const {side, region, dir} = combo;
   const equiv = getAllEquivalent(region, dir);
   const allEquiv = Object.entries(equiv)
     .filter(([rid]) => rid !== region)
@@ -50,19 +51,13 @@ function buildQuestion(side, region, dir) {
     .filter((d) => !correctPick.includes(d))
     .slice(0, 2);
   return {
+    ...combo,
     given: side + ' ' + region + ' ' + dir,
-    side: side,
-    region: region,
-    dir: dir,
     options: shuffle(correctPick.concat(distPick))
   };
 }
 
-function generateQuestions() {
-  return shuffle(ALL_COMBOS.map(
-    ({ side, region, dir }) => buildQuestion(side, region, dir)
-  ));
-}
+const generateQuestions = () => shuffle(ALL_COMBOS.map(buildQuestion));
 
 const getSessionSize = () => document.getElementById('equiv-count').valueAsNumber;
 
