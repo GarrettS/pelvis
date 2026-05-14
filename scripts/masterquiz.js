@@ -32,14 +32,6 @@ let activeScreenClass = 'screen-config';
 
 const truncate = (s, n) => s.length > n ? s.slice(0, n) + '…' : s;
 
-// Local until proven; may promote to el-create.js if other callers want it.
-const syncEl = (id, {children, style, ...props} = {}) => {
-  const el = document.getElementById(id);
-  if (style) el.style.cssText = style;
-  Object.assign(el, props);
-  if (children) el.replaceChildren(...children);
-};
-
 function buildQueue(domains, count, priorityMode) {
   const eligible = QUESTIONS.filter(q => domains.includes(q.domain));
   if (!priorityMode) return shuffle(eligible).slice(0, count);
@@ -124,13 +116,14 @@ function handleStart() {
 }
 
 function updateQuizUI(q, index, total) {
-  syncEl('mq-progress-fill',
-      {style: `width: ${(index / total) * 100}%`});
-  syncEl('mq-progress-text',
-      {textContent: `Question ${index + 1} of ${total}`});
-  syncEl('mq-domain-badge', {textContent: q.domain});
-  syncEl('mq-stem', {innerHTML: expandAbbr(q.stem)});
-  syncEl('mq-options', {children: q.options.map(makeOptionButton)});
+  document.getElementById('mq-progress-fill').style.width =
+      `${(index / total) * 100}%`;
+  document.getElementById('mq-progress-text').textContent =
+      `Question ${index + 1} of ${total}`;
+  document.getElementById('mq-domain-badge').textContent = q.domain;
+  document.getElementById('mq-stem').innerHTML = expandAbbr(q.stem);
+  document.getElementById('mq-options')
+      .replaceChildren(...q.options.map(makeOptionButton));
 }
 
 function renderQuestion() {
@@ -146,17 +139,10 @@ function renderQuestion() {
 
   updateQuizUI(q, qIdx, queue.length);
 
-  const submitBtn = document.getElementById('mq-submit');
-  submitBtn.disabled = true;
-  submitBtn.classList.remove('hidden');
-  document.getElementById('mq-next').classList.add('hidden');
-
-  const explanationEl = document.getElementById('mq-explanation');
-  explanationEl.classList.add('hidden');
-  explanationEl.replaceChildren();
+  document.getElementById('mq-submit').disabled = true;
+  document.getElementById('mq-explanation').replaceChildren();
 
   const saveBtn = document.getElementById('mq-save-flashcard');
-  saveBtn.classList.add('hidden');
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save as Flashcard';
 
@@ -209,22 +195,16 @@ function handleSubmit() {
   document.getElementById('mq-quiz').classList.add(
       correct ? 'answered-correct' : 'answered-incorrect');
 
-  document.getElementById('mq-submit').classList.add('hidden');
-  const nextBtn = document.getElementById('mq-next');
-  nextBtn.classList.remove('hidden');
-  nextBtn.textContent = qIdx + 1 < queue.length
-      ? 'Next Question →' : 'Finish Session';
+  document.getElementById('mq-next').textContent =
+      qIdx + 1 < queue.length ? 'Next Question →' : 'Finish Session';
 
-  const explanationEl = document.getElementById('mq-explanation');
-  explanationEl.replaceChildren(newEl('div', {
+  document.getElementById('mq-explanation').replaceChildren(newEl('div', {
     className: 'callout',
     innerHTML: expandAbbr(q.explanation)
   }));
-  explanationEl.classList.remove('hidden');
 
-  const saveBtn = document.getElementById('mq-save-flashcard');
-  saveBtn.classList.remove('hidden');
   if (isAlreadySaved(q.id)) {
+    const saveBtn = document.getElementById('mq-save-flashcard');
     saveBtn.textContent = 'Already saved';
     saveBtn.disabled = true;
   }

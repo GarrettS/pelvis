@@ -161,6 +161,14 @@
 #mq-quiz {
   &.answered-correct .mq-stem { border-left-color: var(--correct); }
   &.answered-incorrect .mq-stem { border-left-color: var(--error); }
+
+  &:not(.answered-correct):not(.answered-incorrect) {
+    #mq-next, #mq-explanation, #mq-save-flashcard { display: none; }
+  }
+
+  &.answered-correct, &.answered-incorrect {
+    #mq-submit { display: none; }
+  }
 }
 
 #mq-verdict {
