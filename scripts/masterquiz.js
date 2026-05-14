@@ -3,8 +3,9 @@ import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
 import { loadJson } from './load.js';
 import { appendErrorCallout, attemptLoad } from './error-ui.js';
-import { tryLoad as tryLoadProgress, updateEntry as updateProgress,
-  getStats, clearAll as clearProgress, MASTERY_STREAK
+import { getAllProgress, setTotal as setMasterQuizTotal,
+  updateEntry as updateProgress, getStats,
+  clearAll as clearProgress, MASTERY_STREAK
 } from './master-quiz-progress.js';
 import { newEl } from './el-create.js';
 
@@ -35,7 +36,7 @@ function buildQueue(domains, count, priorityMode) {
   const eligible = QUESTIONS.filter(q => domains.includes(q.domain));
   if (!priorityMode) return shuffle(eligible).slice(0, count);
 
-  const progress = tryLoadProgress();
+  const progress = getAllProgress();
   const missedQs = [];
   const unseen = [];
   const inProgress = [];
@@ -590,6 +591,7 @@ await attemptLoad({
   container: containerEl,
   render: (data) => {
     QUESTIONS = data;
+    setMasterQuizTotal(QUESTIONS.length);
     renderStats();
     syncStartButton();
     initListeners();
