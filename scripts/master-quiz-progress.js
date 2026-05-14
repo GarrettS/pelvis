@@ -72,6 +72,7 @@ function getStats(questions) {
   let mastered = 0;
   for (const q of questions) {
     const p = progress[q.id];
+    if (!p) continue;
     if (p.totalAttempts > 0) attempted++;
     if (p.correctStreak === 0 && p.totalAttempts > 0) missed++;
     if (p.correctStreak >= MASTERY_STREAK) mastered++;
