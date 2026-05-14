@@ -216,17 +216,17 @@
   border-radius: 6px;
 }
 
-.mq-score-correct {
+.mq-score-pass {
   color: var(--correct);
   background: var(--correct-bg);
 }
 
-.mq-score-yellow {
+.mq-score-warn {
   color: var(--warn);
   background: var(--warn-bg);
 }
 
-.mq-score-red {
+.mq-score-fail {
   color: var(--error);
   background: var(--error-bg);
 }
@@ -301,6 +301,8 @@
 .mq-result-save {
   margin-top: .5rem;
 }
+
+#mq-correct-list .mq-result-save { display: none; }
 
 @media (max-width:600px) {
 

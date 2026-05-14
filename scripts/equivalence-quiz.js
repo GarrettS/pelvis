@@ -312,9 +312,7 @@ async function renderResults() {
     ? Math.round((correctCount / total) * 100)
     : 0;
 
-  let scoreClass = 'mq-score-correct';
-  if (pct < 60) scoreClass = 'mq-score-red';
-  else if (pct < 80) scoreClass = 'mq-score-yellow';
+  const scoreClass = 'mq-score-' + (pct < 60 ? 'fail' : pct < 80 ? 'warn' : 'pass');
 
   const resultScore = document.getElementById('equiv-result-score');
   resultScore.className = 'mq-results-score ' + scoreClass;

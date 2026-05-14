@@ -375,9 +375,7 @@ function renderResults() {
   const correctCount = sessionAnswers.filter(a => a.correct).length;
   const pct = total > 0 ? Math.round((correctCount / total) * 100) : 0;
 
-  let scoreClass = 'mq-score-correct';
-  if (pct < 60) scoreClass = 'mq-score-red';
-  else if (pct < 80) scoreClass = 'mq-score-yellow';
+  const scoreClass = 'mq-score-' + (pct < 60 ? 'fail' : pct < 80 ? 'warn' : 'pass');
 
   const resultScore = document.getElementById('mq-result-score');
   resultScore.className = 'mq-results-score ' + scoreClass;
@@ -387,19 +385,14 @@ function renderResults() {
   const incorrect = sessionAnswers.filter(a => !a.correct);
   const correct = sessionAnswers.filter(a => a.correct);
 
-  renderResultsList(document.getElementById('mq-incorrect-list'), incorrect, true);
-  renderResultsList(document.getElementById('mq-correct-list'), correct, false);
+  renderResultsList(document.getElementById('mq-incorrect-list'), incorrect);
+  renderResultsList(document.getElementById('mq-correct-list'), correct);
 
   const resultsEl = document.getElementById('mq-results');
   resultsEl.classList.toggle('has-incorrect', incorrect.length > 0);
   resultsEl.classList.toggle('has-correct', correct.length > 0);
 
-  if (incorrect.length > 0) {
-    document.getElementById('mq-incorrect-details').open = true;
-  }
-  if (correct.length > 0) {
-    document.getElementById('mq-correct-details').open = false;
-  }
+  document.getElementById('mq-incorrect-details').open = incorrect.length > 0;
 }
 
 function resultOptClass(opt, q, answer) {
@@ -409,34 +402,22 @@ function resultOptClass(opt, q, answer) {
   return cls;
 }
 
-function makeResultRow(answer, showSave) {
+function makeSaveButton(qId) {
+  const alreadySaved = isAlreadySaved(qId);
+  return newEl('button', {
+    type: 'button',
+    className: 'mq-result-save',
+    value: qId,
+    disabled: alreadySaved,
+    textContent: alreadySaved ? 'Already saved' : 'Save as Flashcard'
+  });
+}
+
+function makeResultRow(answer) {
   const q = answer.question;
   let summaryText = truncate(q.stem, STEM_PREVIEW_MAX);
   if (!answer.correct) {
     summaryText += ` — You: ${answer.chosen}, Correct: ${q.answer}`;
-  }
-
-  const detailChildren = [
-    newEl('p', {className: 'mq-result-stem', innerHTML: expandAbbr(q.stem)}),
-    newEl('div', {
-      className: 'mq-result-comparison',
-      children: q.options.map(opt => newEl('div', {
-        className: resultOptClass(opt, q, answer),
-        innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`
-      }))
-    }),
-    newEl('div', {className: 'callout', innerHTML: expandAbbr(q.explanation)})
-  ];
-
-  if (showSave) {
-    const alreadySaved = isAlreadySaved(q.id);
-    detailChildren.push(newEl('button', {
-      type: 'button',
-      className: 'mq-result-save',
-      value: q.id,
-      disabled: alreadySaved,
-      textContent: alreadySaved ? 'Already saved' : 'Save as Flashcard'
-    }));
   }
 
   return newEl('div', {className: 'mq-result-row', children: [
@@ -445,12 +426,23 @@ function makeResultRow(answer, showSave) {
       className: 'mq-result-summary',
       textContent: summaryText
     }),
-    newEl('div', {className: 'mq-result-detail hidden', children: detailChildren})
+    newEl('div', {className: 'mq-result-detail hidden', children: [
+      newEl('p', {className: 'mq-result-stem', innerHTML: expandAbbr(q.stem)}),
+      newEl('div', {
+        className: 'mq-result-comparison',
+        children: q.options.map(opt => newEl('div', {
+          className: resultOptClass(opt, q, answer),
+          innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`
+        }))
+      }),
+      newEl('div', {className: 'callout', innerHTML: expandAbbr(q.explanation)}),
+      makeSaveButton(q.id)
+    ]})
   ]});
 }
 
-const renderResultsList = (container, answers, showSave) =>
-  container.replaceChildren(...answers.map(a => makeResultRow(a, showSave)));
+const renderResultsList = (container, answers) =>
+  container.replaceChildren(...answers.map(makeResultRow));
 
 function handleResultSave(btn) {
   const q = QUESTIONS.find(qu => qu.id === btn.value);
