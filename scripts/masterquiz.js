@@ -32,6 +32,14 @@ let activeScreenClass = 'screen-config';
 
 const truncate = (s, n) => s.length > n ? s.slice(0, n) + '…' : s;
 
+// Local until proven; may promote to el-create.js if other callers want it.
+const syncEl = (id, {children, style, ...props} = {}) => {
+  const el = document.getElementById(id);
+  if (style) el.style.cssText = style;
+  Object.assign(el, props);
+  if (children) el.replaceChildren(...children);
+};
+
 function buildQueue(domains, count, priorityMode) {
   const eligible = QUESTIONS.filter(q => domains.includes(q.domain));
   if (!priorityMode) return shuffle(eligible).slice(0, count);
@@ -115,6 +123,16 @@ function handleStart() {
   renderQuestion();
 }
 
+function updateQuizUI(q, index, total) {
+  syncEl('mq-progress-fill',
+      {style: `width: ${(index / total) * 100}%`});
+  syncEl('mq-progress-text',
+      {textContent: `Question ${index + 1} of ${total}`});
+  syncEl('mq-domain-badge', {textContent: q.domain});
+  syncEl('mq-stem', {innerHTML: expandAbbr(q.stem)});
+  syncEl('mq-options', {children: q.options.map(makeOptionButton)});
+}
+
 function renderQuestion() {
   if (qIdx >= queue.length) {
     renderResults();
@@ -126,15 +144,7 @@ function renderQuestion() {
   document.getElementById('mq-quiz').classList.remove(
       'answered-correct', 'answered-incorrect');
 
-  document.getElementById('mq-progress-fill').style.width =
-      `${(qIdx / queue.length) * 100}%`;
-  document.getElementById('mq-progress-text').textContent =
-      `Question ${qIdx + 1} of ${queue.length}`;
-  document.getElementById('mq-domain-badge').textContent = q.domain;
-  document.getElementById('mq-stem').innerHTML = expandAbbr(q.stem);
-
-  document.getElementById('mq-options')
-      .replaceChildren(...q.options.map(makeOptionButton));
+  updateQuizUI(q, qIdx, queue.length);
 
   const submitBtn = document.getElementById('mq-submit');
   submitBtn.disabled = true;
