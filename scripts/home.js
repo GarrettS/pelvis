@@ -1,7 +1,7 @@
 import {getSummary} from './master-quiz-progress.js';
 import {newEl} from './el-create.js';
 
-function renderHomeProgress() {
+function renderMasterQuizProgress() {
   const card = document.getElementById('home-card-masterquiz');
   card.querySelector('.home-card-progress')?.remove();
 
@@ -27,4 +27,9 @@ function renderHomeProgress() {
   }));
 }
 
-export { renderHomeProgress };
+function sectionVisibilityHandler([entry]) {
+  if (entry.isIntersecting) renderMasterQuizProgress();
+}
+
+new IntersectionObserver(sectionVisibilityHandler)
+  .observe(document.getElementById('home-content'));

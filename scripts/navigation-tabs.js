@@ -2,7 +2,6 @@
 
 import {handleImportError} from "./load.js";
 import {clearErrors, renderError} from "./error-ui.js";
-import {renderHomeProgress} from './home-progress.js';
 import {newEl} from './el-create.js';
 
 const lastSubtab = {};
@@ -17,6 +16,7 @@ const pending = new Set();
 const failed = new Set();
 
 const LAZY_INIT = {
+  'home-content':              './home.js',
   'nomenclature-content':      './nomenclature.js',
   'patterns-cheat-sheet-content': './patterns-cheat-sheet.js',
   'patterns-concept-map-content': './patterns-concept-map.js',
@@ -136,7 +136,6 @@ function activateTab(tab, subtab) {
   activeSection.classList.add('activeTab');
   activeSubtabRow?.classList.add('activeTab');
 
-  if (tab === 'home') renderHomeProgress();
   updateLocationBar();
   lazyInit(sectionId, activeNavTab);
 
