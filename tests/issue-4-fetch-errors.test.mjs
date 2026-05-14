@@ -101,19 +101,24 @@ async function importFlashcardsModule() {
   const [
     flashcardsSource,
     loadSource,
+    elCreateSource,
     errorUiSource,
     abbrExpandSource,
     shuffleSource
   ] = await Promise.all([
     readFile(new URL('../scripts/flashcards.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/load.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/el-create.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/error-ui.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8')
   ]);
   const loadUrl = freshDataUrl(loadSource);
+  const elCreateUrl = freshDataUrl(elCreateSource);
   const errorUiUrl = freshDataUrl(
-      errorUiSource.replace("'./load.js'", `'${loadUrl}'`));
+      errorUiSource
+          .replace("'./load.js'", `'${loadUrl}'`)
+          .replace("'./el-create.js'", `'${elCreateUrl}'`));
   const rewrittenSource = flashcardsSource
     .replace("'./load.js'", `'${loadUrl}'`)
     .replace("'./error-ui.js'", `'${errorUiUrl}'`)
@@ -127,6 +132,7 @@ async function importMasterquizModule() {
     masterquizSource,
     equivalenceSource,
     loadSource,
+    elCreateSource,
     errorUiSource,
     abbrExpandSource,
     shuffleSource,
@@ -135,14 +141,18 @@ async function importMasterquizModule() {
     readFile(new URL('../scripts/masterquiz.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/equivalence.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/load.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/el-create.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/error-ui.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/abbr-expand.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/shuffle.js', import.meta.url), 'utf8'),
     readFile(new URL('../scripts/master-quiz-progress.js', import.meta.url), 'utf8')
   ]);
   const loadUrl = freshDataUrl(loadSource);
+  const elCreateUrl = freshDataUrl(elCreateSource);
   const errorUiUrl = freshDataUrl(
-      errorUiSource.replace("'./load.js'", `'${loadUrl}'`));
+      errorUiSource
+          .replace("'./load.js'", `'${loadUrl}'`)
+          .replace("'./el-create.js'", `'${elCreateUrl}'`));
   const rewrittenSource = masterquizSource
     .replace("'./equivalence.js'", `'${freshDataUrl(equivalenceSource)}'`)
     .replace("'./load.js'", `'${loadUrl}'`)

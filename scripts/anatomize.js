@@ -2,7 +2,7 @@ import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 import {loadJson} from './load.js';
-import {loadAndRender} from './error-ui.js';
+import {attemptLoad} from './error-ui.js';
 import {newEl, newSvg} from './el-create.js';
 import * as progress from './anatomize-progress.js';
 
@@ -165,8 +165,8 @@ class BlankPanelSite {
   }
 }
 
-await loadAndRender({
-  load: () => loadJson('./data/anatomize-data.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/anatomize-data.json'),
   container: containerEl,
   render: (data) => {
     anatomizeData = data;

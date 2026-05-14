@@ -1,5 +1,5 @@
 import { loadJson } from './load.js';
-import { loadAndRender } from './error-ui.js';
+import { attemptLoad } from './error-ui.js';
 import { expandAbbr } from './abbr-expand.js';
 
 const KEYS = ['joint', 'type', 'motion', 'positions', 'role'];
@@ -7,13 +7,13 @@ const KEYS = ['joint', 'type', 'motion', 'positions', 'role'];
 const container = document.getElementById('nomenclature-content');
 
 await Promise.all([
-  loadAndRender({
-    load: () => loadJson('./data/pelvic-joints.json'),
+  attemptLoad({
+    loader: () => loadJson('./data/pelvic-joints.json'),
     container,
     render: buildJointsView
   }),
-  loadAndRender({
-    load: () => loadJson('./data/nomenclature-translations.json'),
+  attemptLoad({
+    loader: () => loadJson('./data/nomenclature-translations.json'),
     container,
     render: buildTranslationTable
   })

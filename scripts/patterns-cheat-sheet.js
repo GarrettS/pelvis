@@ -1,11 +1,11 @@
 import {expandAbbr} from './abbr-expand.js';
 import {loadJson} from './load.js';
-import {loadAndRender} from './error-ui.js';
+import {attemptLoad} from './error-ui.js';
 
 const containerEl = document.getElementById('patterns-cheat-sheet-content');
 
-await loadAndRender({
-  load: () => loadJson('./data/cheat-data.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/cheat-data.json'),
   container: containerEl,
   render: buildCheatSheet
 });

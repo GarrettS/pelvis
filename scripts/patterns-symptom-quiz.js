@@ -1,5 +1,5 @@
 import { loadJson } from './load.js';
-import { loadAndRender } from './error-ui.js';
+import { attemptLoad } from './error-ui.js';
 
 let SYMPTOM_PATTERNS = null;
 const quizState = {
@@ -11,8 +11,8 @@ const quizState = {
 
 const containerEl = document.getElementById('symptom-quiz-wrap');
 
-await loadAndRender({
-  load: () => loadJson('./data/symptom-patterns.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/symptom-patterns.json'),
   container: containerEl,
   render: (data) => {
     SYMPTOM_PATTERNS = data;

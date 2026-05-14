@@ -4,7 +4,7 @@
 import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
 import {loadJson} from './load.js';
-import {appendErrorCallout, loadAndRender} from './error-ui.js';
+import {appendErrorCallout, attemptLoad} from './error-ui.js';
 import {newEl, newSvg} from './el-create.js';
 
 const VIEWS = ['anterior', 'posterior'];
@@ -154,8 +154,8 @@ class AicMuscle {
 
 containerEl = document.querySelector('.aic-chain-container');
 if (resolveDomRefs()) {
-  await loadAndRender({
-    load: () => loadJson('./data/aic-chain.json'),
+  await attemptLoad({
+    loader: () => loadJson('./data/aic-chain.json'),
     container: containerEl,
     render: (data) => {
       AicMuscle.acceptData(data);

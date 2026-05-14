@@ -2,7 +2,7 @@ import { getAllEquivalent } from './equivalence.js';
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
 import { loadJson } from './load.js';
-import { appendErrorCallout, loadAndRender } from './error-ui.js';
+import { appendErrorCallout, attemptLoad } from './error-ui.js';
 import { tryLoad as tryLoadProgress, updateEntry as updateProgress,
   getStats, clearAll as clearProgress, MASTERY_STREAK
 } from './master-quiz-progress.js';
@@ -585,8 +585,8 @@ function initListeners() {
   });
 }
 
-await loadAndRender({
-  load: () => loadJson('./data/master-quiz.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/master-quiz.json'),
   container: containerEl,
   render: (data) => {
     QUESTIONS = data;

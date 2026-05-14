@@ -25,6 +25,13 @@ class StubElement {
     return node;
   }
 
+  querySelectorAll(selector) {
+    if (selector === '.callout.error') {
+      return this.children.filter((c) => c.className === 'callout error');
+    }
+    return [];
+  }
+
   addEventListener(type, handler) {
     (this.listeners[type] ||= []).push(handler);
   }
@@ -48,27 +55,30 @@ async function importErrorUiModule() {
     createElement: (tagName) => new StubElement(tagName)
   };
   const nonce = `\n// ${Date.now()}-${Math.random()}`;
-  const loadSrc = await readFile(
-      new URL('../scripts/load.js', import.meta.url), 'utf8');
-  const loadUrl = `data:text/javascript;base64,${
-      Buffer.from(loadSrc + nonce).toString('base64')}`;
-  const errorUiSrc = (await readFile(
-      new URL('../scripts/error-ui.js', import.meta.url), 'utf8'))
-      .replace(/from ['"]\.\/load\.js['"]/, `from '${loadUrl}'`);
-  return import(
-      `data:text/javascript;base64,${
-        Buffer.from(errorUiSrc + nonce).toString('base64')}`);
+  const freshDataUrl = (src) => `data:text/javascript;base64,${
+      Buffer.from(src + nonce).toString('base64')}`;
+  const [loadSrc, elCreateSrc, errorUiSrc] = await Promise.all([
+    readFile(new URL('../scripts/load.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/el-create.js', import.meta.url), 'utf8'),
+    readFile(new URL('../scripts/error-ui.js', import.meta.url), 'utf8')
+  ]);
+  const loadUrl = freshDataUrl(loadSrc);
+  const elCreateUrl = freshDataUrl(elCreateSrc);
+  const rewritten = errorUiSrc
+      .replace(/from ['"]\.\/load\.js['"]/, `from '${loadUrl}'`)
+      .replace(/from ['"]\.\/el-create\.js['"]/, `from '${elCreateUrl}'`);
+  return import(freshDataUrl(rewritten));
 }
 
 function fetchFailure(status = 503) {
   return {ok: false, path: './data/test.json', cause: {status}};
 }
 
-test('renderImportError appends a callout with the given message', async () => {
-  const {renderImportError} = await importErrorUiModule();
+test('renderError appends a callout with the given message', async () => {
+  const {renderError} = await importErrorUiModule();
   const container = new StubElement('div');
 
-  renderImportError(container, 'Couldn\'t load ./foo.js.', () => {});
+  renderError(container, 'Couldn\'t load ./foo.js.', () => {});
 
   assert.equal(container.children.length, 1);
   const callout = container.children[0];
@@ -76,39 +86,39 @@ test('renderImportError appends a callout with the given message', async () => {
   assert.equal(callout.textContent, 'Couldn\'t load ./foo.js.');
 });
 
-test('renderImportError attaches a Retry button when onRetry is provided',
+test('renderError attaches a Retry button when onRetry is provided',
     async () => {
-  const {renderImportError} = await importErrorUiModule();
+  const {renderError} = await importErrorUiModule();
   const container = new StubElement('div');
 
-  renderImportError(container, 'msg', () => {});
+  renderError(container, 'msg', () => {});
 
   const callout = container.children[0];
   assert.equal(callout.children.length, 1);
   const button = callout.children[0];
   assert.equal(button.tagName, 'button');
   assert.equal(button.type, 'button');
-  assert.equal(button.className, 'btn callout-retry');
+  assert.equal(button.className, 'callout-retry');
   assert.equal(button.textContent, 'Retry');
 });
 
-test('renderImportError omits the Retry button when onRetry is absent',
+test('renderError omits the Retry button when onRetry is absent',
     async () => {
-  const {renderImportError} = await importErrorUiModule();
+  const {renderError} = await importErrorUiModule();
   const container = new StubElement('div');
 
-  renderImportError(container, 'msg');
+  renderError(container, 'msg');
 
   assert.equal(container.children.length, 1);
   assert.equal(container.children[0].children.length, 0);
 });
 
 test('Retry click invokes the onRetry callback', async () => {
-  const {renderImportError} = await importErrorUiModule();
+  const {renderError} = await importErrorUiModule();
   const container = new StubElement('div');
   let retryCalls = 0;
 
-  renderImportError(container, 'msg', () => { retryCalls++; });
+  renderError(container, 'msg', () => { retryCalls++; });
 
   const button = container.children[0].children[0];
   await button.dispatch('click');
@@ -116,13 +126,13 @@ test('Retry click invokes the onRetry callback', async () => {
   assert.equal(retryCalls, 1);
 });
 
-test('loadAndRender appends an error callout with a Retry button on failure',
+test('attemptLoad appends an error callout with a Retry button on failure',
     async () => {
-  const {loadAndRender} = await importErrorUiModule();
+  const {attemptLoad} = await importErrorUiModule();
   const container = new StubElement('div');
 
-  await loadAndRender({
-    load: async () => fetchFailure(),
+  await attemptLoad({
+    loader: async () => fetchFailure(),
     container,
     render: () => { throw new Error('render must not run on failure'); }
   });
@@ -134,12 +144,12 @@ test('loadAndRender appends an error callout with a Retry button on failure',
 
   const button = callout.children[0];
   assert.equal(button.tagName, 'button');
-  assert.equal(button.className, 'btn callout-retry');
+  assert.equal(button.className, 'callout-retry');
   assert.equal(button.textContent, 'Retry');
 });
 
 test('Retry click re-runs the loader and renders on success', async () => {
-  const {loadAndRender} = await importErrorUiModule();
+  const {attemptLoad} = await importErrorUiModule();
   const container = new StubElement('div');
   let calls = 0;
   const loader = async () => {
@@ -150,8 +160,8 @@ test('Retry click re-runs the loader and renders on success', async () => {
   };
   const rendered = [];
 
-  await loadAndRender({
-    load: loader,
+  await attemptLoad({
+    loader,
     container,
     render: (data) => rendered.push(data)
   });
@@ -170,7 +180,7 @@ test('Retry click re-runs the loader and renders on success', async () => {
 
 test('Retry click on persistent failure replaces the old callout with a fresh one',
     async () => {
-  const {loadAndRender} = await importErrorUiModule();
+  const {attemptLoad} = await importErrorUiModule();
   const container = new StubElement('div');
   let calls = 0;
   const loader = async () => {
@@ -178,7 +188,7 @@ test('Retry click on persistent failure replaces the old callout with a fresh on
     return fetchFailure();
   };
 
-  await loadAndRender({load: loader, container, render: () => {}});
+  await attemptLoad({loader, container, render: () => {}});
 
   const originalCallout = container.children[0];
   const originalButton = originalCallout.children[0];
@@ -195,7 +205,7 @@ test('Retry click on persistent failure replaces the old callout with a fresh on
 
 test('Container carries the loading class while the loader is pending',
     async () => {
-  const {loadAndRender} = await importErrorUiModule();
+  const {attemptLoad} = await importErrorUiModule();
   const container = new StubElement('div');
   let calls = 0;
   let resolveSecondCall;
@@ -205,7 +215,7 @@ test('Container carries the loading class while the loader is pending',
     return new Promise((resolve) => { resolveSecondCall = resolve; });
   };
 
-  await loadAndRender({load: loader, container, render: () => {}});
+  await attemptLoad({loader, container, render: () => {}});
 
   assert.equal(container.classList.contains('loading'), false,
       'loading class cleared after the first attempt resolves');
@@ -224,13 +234,13 @@ test('Container carries the loading class while the loader is pending',
   assert.equal(container.children.length, 0);
 });
 
-test('loadAndRender renders directly when the first load succeeds', async () => {
-  const {loadAndRender} = await importErrorUiModule();
+test('attemptLoad renders directly when the first load succeeds', async () => {
+  const {attemptLoad} = await importErrorUiModule();
   const container = new StubElement('div');
   const rendered = [];
 
-  await loadAndRender({
-    load: async () => ({ok: true, data: 42}),
+  await attemptLoad({
+    loader: async () => ({ok: true, data: 42}),
     container,
     render: (data) => rendered.push(data)
   });

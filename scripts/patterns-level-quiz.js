@@ -1,18 +1,18 @@
 import { expandAbbr } from './abbr-expand.js';
 import { loadJson } from './load.js';
-import { loadAndRender } from './error-ui.js';
+import { attemptLoad } from './error-ui.js';
 import { LevelQuiz } from './level-quiz.js';
 
 const containerEl = document.getElementById('patterns-level-quiz-content');
 
 await Promise.all([
-  loadAndRender({
-    load: () => loadJson('./data/halt-levels.json'),
+  attemptLoad({
+    loader: () => loadJson('./data/halt-levels.json'),
     container: containerEl,
     render: (data) => setupQuiz(new LevelQuiz(data), 'halt', haltPrompt, haltParts)
   }),
-  loadAndRender({
-    load: () => loadJson('./data/squat-levels.json'),
+  attemptLoad({
+    loader: () => loadJson('./data/squat-levels.json'),
     container: containerEl,
     render: (data) => setupQuiz(new LevelQuiz(data), 'squat', squatPrompt, squatParts)
   })

@@ -1,5 +1,5 @@
 import { loadJson } from './load.js';
-import { loadAndRender } from './error-ui.js';
+import { attemptLoad } from './error-ui.js';
 // Sibling tab module — shares patterns-concept-map-content. Static import
 // ties their load atomically: if one fails, neither runs.
 import './patterns-symptom-quiz.js';
@@ -243,8 +243,8 @@ function buildConceptMap() {
   initNodeHighlight(svg);
 }
 
-await loadAndRender({
-  load: () => loadJson('./data/concept-map.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/concept-map.json'),
   container: containerEl,
   render: (data) => {
     CONCEPT_MAP = data;

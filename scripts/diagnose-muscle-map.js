@@ -1,5 +1,5 @@
 import {loadJson} from './load.js';
-import {loadAndRender} from './error-ui.js';
+import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
 
 let muscleExerciseMap = {};
@@ -11,8 +11,8 @@ let currentMView;
 const containerEl = document.getElementById('diagnose-muscle-map-content');
 const mapWrap = document.getElementById('muscle-map-wrap');
 
-await loadAndRender({
-  load: () => loadJson('./data/diagnose-muscle-exercise-map.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/diagnose-muscle-exercise-map.json'),
   container: containerEl,
   render: (data) => {
     muscleExerciseMap = data;

@@ -1,7 +1,7 @@
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 import {loadJson} from './load.js';
-import {appendErrorCallout, loadAndRender} from './error-ui.js';
+import {appendErrorCallout, attemptLoad} from './error-ui.js';
 import {newEl} from './el-create.js';
 
 const USER_FC_KEY = 'userFlashcards';
@@ -320,8 +320,8 @@ function setupFlashcards(deckData) {
   setupAddForm();
 }
 
-await loadAndRender({
-  load: () => loadJson('./data/flashcard-deck.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/flashcard-deck.json'),
   container: containerEl,
   render: setupFlashcards
 });

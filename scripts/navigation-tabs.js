@@ -1,8 +1,9 @@
 // Contract for loading and recovery: prd/architecture/navigation-tabs.md
 
 import {handleImportError} from "./load.js";
-import {renderImportError} from "./error-ui.js";
+import {clearErrors, renderError} from "./error-ui.js";
 import {renderHomeProgress} from './home-progress.js';
+import {newEl} from './el-create.js';
 
 const lastSubtab = {};
 let activeNavTab = document.querySelector('.nav-tab.activeTab');
@@ -34,13 +35,14 @@ const LAZY_INIT = {
 };
 
 function showTabLoading(container) {
-  const div = document.createElement('div');
-  div.className = 'tab-loading';
-  div.innerHTML =
-    '<div class="skeleton skeleton-heading"></div>'
-    + '<div class="skeleton skeleton-line"></div>'
-    + '<div class="skeleton skeleton-line-short"></div>';
-  container.appendChild(div);
+  container.append(newEl('div', {
+    className: 'tab-loading skeleton',
+    children: [
+      newEl('div', {className: 'skeleton-heading'}),
+      newEl('div', {className: 'skeleton-line'}),
+      newEl('div', {className: 'skeleton-line-short'})
+    ]
+  }));
 }
 
 function clearTabLoading(container) {
@@ -49,12 +51,9 @@ function clearTabLoading(container) {
 
 const SHOW_SKELETON_AFTER_MS = 250;
 
-function importModule(path) {
-  return import(path).then(
+const importModule = path => import(path).then(
     ()    => ({ok: true,  path}),
-    cause => ({ok: false, path, cause})
-  );
-}
+    cause => ({ok: false, path, cause}));
 
 function lazyInit(contentId, link) {
   if (initialized.has(contentId) || pending.has(contentId)) return;
@@ -81,7 +80,7 @@ function lazyInit(contentId, link) {
     pending.delete(contentId);
     link?.classList.remove('loading');
     container.classList.remove('loading');
-    container.querySelectorAll('.callout.error').forEach((el) => el.remove());
+    clearErrors(container);
 
     if (result.ok) {
       initialized.add(contentId);
@@ -90,7 +89,7 @@ function lazyInit(contentId, link) {
 
     failed.add(contentId);
     handleImportError(result, {
-      render: (message, retry) => renderImportError(container, message, retry),
+      render: (message, retry) => renderError(container, message, retry),
       onRetry: () => lazyInit(contentId, link)
     });
   });
@@ -238,11 +237,6 @@ function initNavigationTabs() {
 }
 
 document.addEventListener('DOMContentLoaded', initNavigationTabs);
-
-// Service worker registration runs on load (not DOMContentLoaded) so
-// install doesn't contend with first-paint resource fetches.
-window.addEventListener('load', () => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
-});
+window.addEventListener('load', () => 
+    navigator.serviceWorker?.register('./sw.js').catch(() => {})
+);

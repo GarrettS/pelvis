@@ -1,5 +1,5 @@
 import {loadJson} from './load.js';
-import {loadAndRender} from './error-ui.js';
+import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
 
 const containerEl = document.getElementById('diagnose-decision-tree-content');
@@ -65,8 +65,8 @@ const branchTemplate = (() => {
   return branchDetails;
 })();
 
-await loadAndRender({
-  load: () => loadJson('./data/diagnose-decision-tree.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/diagnose-decision-tree.json'),
   container: containerEl,
   render: (data) => renderTree(data, treeWrap)
 });

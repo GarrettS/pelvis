@@ -1,5 +1,5 @@
 import {loadJson} from './load.js';
-import {loadAndRender} from './error-ui.js';
+import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 
@@ -303,8 +303,8 @@ class CausalChain {
   }
 }
 
-await loadAndRender({
-  load: () => loadJson('./data/diagnose-causal-chains.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/diagnose-causal-chains.json'),
   container: containerEl,
   render: (data) => {
     causalChains = data;

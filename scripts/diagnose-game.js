@@ -1,5 +1,5 @@
 import {loadJson} from './load.js';
-import {loadAndRender} from './error-ui.js';
+import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
 
 const ROUND2_STEPS = [
@@ -297,8 +297,8 @@ const GAME_DISPATCH = {
   'game-submit': handleGameSubmit
 };
 
-await loadAndRender({
-  load: () => loadJson('./data/diagnose-game-scenarios.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/diagnose-game-scenarios.json'),
   container: containerEl,
   render: (data) => {
     scenarios = data;

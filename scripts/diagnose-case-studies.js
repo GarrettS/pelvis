@@ -1,6 +1,6 @@
 import {expandAbbr} from './abbr-expand.js';
 import {loadJson} from './load.js';
-import {loadAndRender} from './error-ui.js';
+import {attemptLoad} from './error-ui.js';
 
 let caseStudies = {};
 
@@ -305,8 +305,8 @@ class CaseStudy {
   }
 }
 
-await loadAndRender({
-  load: () => loadJson('./data/diagnose-case-studies.json'),
+await attemptLoad({
+  loader: () => loadJson('./data/diagnose-case-studies.json'),
   container: containerEl,
   render: (data) => {
     caseStudies = data;

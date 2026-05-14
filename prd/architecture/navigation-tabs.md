@@ -51,7 +51,7 @@ stateDiagram-v2
 ```
 
 Data-load failure (module imported ok but `loadJson` returned
-`{ok: false}`) is handled by `loadAndRender` in `scripts/load.js`,
+`{ok: false}`) is handled by `attemptLoad` in `scripts/error-ui.js`,
 called per-module — not this contract.
 
 ## Idempotent retry path
@@ -84,17 +84,17 @@ diagnoses failures and delegates rendering through a callback.
 `handleImportError(result, {render, onRetry})` translates
 `result.cause` into a user-readable message, then invokes
 `render(message, onRetry)`. The render delegate lives in
-`error-ui.js` as `renderImportError`, which constructs the callout
-and retry button. The loader names no DOM element; swapping the
-renderer for an anchor, a web component, or a console writer leaves
-`load.js` untouched.
+`error-ui.js` as `renderError`, which constructs the callout and
+retry button. The loader names no DOM element; swapping the renderer
+for an anchor, a web component, or a console writer leaves `load.js`
+untouched.
 
 The retry button itself is presentation-only: its `click` handler is
 exactly `onRetry`. It does not manipulate its own state or remove the
 callout. Callout lifecycle belongs to the state machine: `lazyInit`
 clears `.callout.error` from the container after the import resolves
 (before either re-rendering content or showing a fresh callout), and
-`loadAndRender` (in `error-ui.js`) does the symmetric thing for
+`attemptLoad` (in `error-ui.js`) does the symmetric thing for
 data-load retries by tracking the prior callout in closure and
 removing it on each new attempt.
 

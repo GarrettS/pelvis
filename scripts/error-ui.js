@@ -1,49 +1,45 @@
 import {handleFetchError} from './load.js';
+import {newEl} from './el-create.js';
 
 export function appendErrorCallout(element, message) {
-  if (!element) return null;
-
-  const callout = document.createElement("div");
-  callout.className = "callout error";
-  callout.textContent = message;
-  element.appendChild(callout);
-  return callout;
+  return element.appendChild(newEl('div', {
+    className: 'callout error',
+    textContent: message
+  }));
 }
 
 function attachRetryButton(callout, onRetry) {
-  if (!callout) return;
-
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "btn callout-retry";
-  button.textContent = "Retry";
-  button.addEventListener("click", onRetry);
+  const button = newEl('button', {
+    type: 'button',
+    className: 'callout-retry',
+    textContent: 'Retry'
+  });
+  button.addEventListener('click', onRetry);
   callout.appendChild(button);
 }
 
-export function renderImportError(container, message, onRetry) {
+export const clearErrors = (container) =>
+    container.querySelectorAll('.callout.error').forEach((el) => el.remove());
+
+export function renderError(container, message, onRetry) {
   const callout = appendErrorCallout(container, message);
   if (onRetry) attachRetryButton(callout, onRetry);
+  return callout;
 }
 
-export async function loadAndRender({load, container, render}) {
-  let priorCallout = null;
+export async function attemptLoad({loader, container, render}) {
   async function attempt() {
-    container.classList.add("loading");
-    const result = await load();
-    container.classList.remove("loading");
-    priorCallout?.remove();
-    priorCallout = null;
+    container.classList.add('loading');
+    const result = await loader();
+    container.classList.remove('loading');
+    clearErrors(container);
+
     if (result.ok) {
-      render(result.data);
-      return;
+      return render(result.data);
     }
 
     handleFetchError(result, {
-      render: (message, retry) => {
-        priorCallout = appendErrorCallout(container, message);
-        if (retry) attachRetryButton(priorCallout, retry);
-      },
+      render: (message, retry) => renderError(container, message, retry),
       onRetry: attempt
     });
   }

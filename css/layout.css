@@ -539,7 +539,7 @@ p:last-child {
   100% { background-position: -200% 0; }
 }
 
-.skeleton {
+.skeleton > * {
   background: linear-gradient(
     90deg,
     var(--surface) 25%,
