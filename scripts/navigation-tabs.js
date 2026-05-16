@@ -6,12 +6,15 @@ import {newEl} from './el-create.js';
 
 const byId = id => document.getElementById(id);
 
-const lastSubtab = {};
+const ROUTE_REGEX = /^#(?<tab>[^/]+)(?:\/(?<subtab>[^/]+))?/;
+
 let activeNavTab = document.querySelector('.nav-tab[aria-current]');
 let activeSection = document.querySelector('section.content:not([hidden])');
 let activeSubtabRow = document.querySelector('.subtab-row:not([hidden])');
 const activeSubtabLink = {};
 const activeSubtabContent = {};
+const defaultTabId = ROUTE_REGEX.exec(
+    document.querySelector('.nav-tab').hash).groups.tab;
 
 const initialized = new Set();
 const pending = new Set();
@@ -97,9 +100,9 @@ function lazyInit(contentId, link) {
   });
 }
 
-function updateBreadcrumb(tab, subtab) {
-  const navTab = byId(tabKey.navLink(tab));
-  const subtabLink = subtab ? byId(tabKey.subtabLink(tab, subtab)) : null;
+function updateBreadcrumb(tabId, subtabId) {
+  const navTab = byId(tabKey.navLink(tabId));
+  const subtabLink = subtabId ? byId(tabKey.subtabLink(tabId, subtabId)) : null;
   const show = navTab && subtabLink;
 
   byId('breadcrumb').classList.toggle('hidden', !show);
@@ -111,88 +114,66 @@ function updateBreadcrumb(tab, subtab) {
 
 // Shared Key: tab-related element id is derived from tabId — derive here, not inline.
 const tabKey = {
-  navLink:       tabId           => 'nav-' + tabId,
-  section:       tabId           => tabId + '-content',
-  subtabRow:     tabId           => tabId + '-subtabs',
-  subtabContent: (tabId, subtab) => tabId + '-' + subtab + '-content',
-  subtabLink:    (tabId, subtab) => tabId + '-' + subtab + '-subtab'
+  navLink:       tabId             => 'nav-' + tabId,
+  section:       tabId             => tabId + '-content',
+  subtabRow:     tabId             => tabId + '-subtabs',
+  subtabContent: (tabId, subtabId) => tabId + '-' + subtabId + '-content',
+  subtabLink:    (tabId, subtabId) => tabId + '-' + subtabId + '-subtab'
 };
 
-function activateTab(tab, subtab) {
-  const sectionId = tabKey.section(tab);
-  const section = byId(sectionId);
-
-  if (!section || !section.classList.contains('content')) {
-    if (tab !== 'home') { activateTab('home'); return; }
-    return;
-  }
-
-  activeNavTab?.removeAttribute('aria-current');
-  activeSection?.setAttribute('hidden', '');
-  activeSubtabRow?.setAttribute('hidden', '');
-
-  activeNavTab = byId(tabKey.navLink(tab));
-  activeSection = section;
-  activeSubtabRow = byId(tabKey.subtabRow(tab));
-
-  activeNavTab?.setAttribute('aria-current', 'page');
-  activeSection.removeAttribute('hidden');
-  activeSubtabRow?.removeAttribute('hidden');
-
-  updateBreadcrumb(tab, subtab);
-  lazyInit(sectionId, activeNavTab);
-
-  if (activeSubtabRow) activateSubtab(tab, subtab);
+function swapAriaCurrent(prev, next, value = 'true') {
+  prev.removeAttribute('aria-current');
+  next.setAttribute('aria-current', value);
+  return next;
 }
 
-function activateSubtab(tab, subtab) {
-  const row = byId(tabKey.subtabRow(tab));
-  if (!row) return;
+// prev is null at load (all subtab-rows hidden); next is null for
+// row-less tabs (home, flashcards, equivalence, masterquiz).
+function swapHidden(prev, next) {
+  if (prev) prev.hidden = true;
+  if (next) next.hidden = false;
+  return next;
+}
 
-  let link = subtab
-    ? byId(tabKey.subtabLink(tab, subtab))
-    : null;
-  if (!link && lastSubtab[tab]) {
-    subtab = lastSubtab[tab];
-    link = byId(tabKey.subtabLink(tab, subtab));
-  }
-  if (!link) {
-    const firstLink = row.querySelector('.subtab');
-    if (!firstLink) return;
+function activateTab(tabId, subtabId) {
+  activeNavTab    = swapAriaCurrent(activeNavTab, byId(tabKey.navLink(tabId)), 'page');
+  activeSection   = swapHidden(activeSection, byId(tabKey.section(tabId)));
+  activeSubtabRow = swapHidden(activeSubtabRow, byId(tabKey.subtabRow(tabId)));
 
-    subtab = firstLink.hash.substring(1).split('/')[1];
-    if (!subtab) return;
-    link = firstLink;
-  }
+  updateBreadcrumb(tabId, subtabId);
+  lazyInit(tabKey.section(tabId), activeNavTab);
 
-  activeSubtabLink[tab] ??= row.querySelector('.subtab[aria-current]');
-  activeSubtabLink[tab]?.removeAttribute('aria-current');
-  link.setAttribute('aria-current', 'true');
-  activeSubtabLink[tab] = link;
+  if (activeSubtabRow) activateSubtab(tabId, subtabId);
+}
 
-  const section = byId(tabKey.section(tab));
-  if (!section) return;
+function activateSubtab(tabId, subtabId) {
+  const row = byId(tabKey.subtabRow(tabId));
+  activeSubtabLink[tabId] ??= row.querySelector('.subtab[aria-current]');
 
-  activeSubtabContent[tab] ??=
-    section.querySelector('.subtab-content:not([hidden])');
-  activeSubtabContent[tab]?.setAttribute('hidden', '');
+  const link = (subtabId && byId(tabKey.subtabLink(tabId, subtabId)))
+            || activeSubtabLink[tabId]
+            || row.querySelector('.subtab');
+  if (!link) return;
 
-  const contentId = tabKey.subtabContent(tab, subtab);
-  const target = byId(contentId);
-  if (target) {
-    target.removeAttribute('hidden');
-  }
-  activeSubtabContent[tab] = target;
-  lastSubtab[tab] = subtab;
+  subtabId = ROUTE_REGEX.exec(link.hash)?.groups.subtab;
+  if (!subtabId) return;
 
-  updateBreadcrumb(tab, subtab);
-  lazyInit(contentId, link);
+  activeSubtabLink[tabId] = swapAriaCurrent(activeSubtabLink[tabId], link);
+
+  activeSubtabContent[tabId] ??=
+    byId(tabKey.section(tabId)).querySelector('.subtab-content:not([hidden])');
+  activeSubtabContent[tabId] =
+    swapHidden(activeSubtabContent[tabId], byId(tabKey.subtabContent(tabId, subtabId)));
+
+  updateBreadcrumb(tabId, subtabId);
+  lazyInit(tabKey.subtabContent(tabId, subtabId), link);
 }
 
 function applyHash() {
-  const h = location.hash.substring(1);
-  const [tab = 'home', subtab] = h.split('/');
-  activateTab(tab, subtab);
+  let {tab: tabId = defaultTabId, subtab: subtabId} =
+      ROUTE_REGEX.exec(location.hash)?.groups || {};
+  if (!byId(tabKey.navLink(tabId))) { tabId = defaultTabId; subtabId = undefined; }
+  activateTab(tabId, subtabId);
 }
 
 function handleNavClick(e) {
