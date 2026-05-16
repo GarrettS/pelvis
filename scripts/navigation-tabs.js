@@ -4,6 +4,8 @@ import {handleImportError} from "./load.js";
 import {clearErrors, renderError} from "./error-ui.js";
 import {newEl} from './el-create.js';
 
+const byId = id => document.getElementById(id);
+
 const lastSubtab = {};
 let activeNavTab = document.querySelector('.nav-tab.activeTab');
 let activeSection = document.querySelector('section.content.activeTab');
@@ -61,7 +63,7 @@ function lazyInit(contentId, link) {
   const entry = LAZY_INIT[contentId];
   if (!entry) return;
 
-  const container = document.getElementById(contentId);
+  const container = byId(contentId);
   if (!container) return;
 
   pending.add(contentId);
@@ -95,29 +97,29 @@ function lazyInit(contentId, link) {
   });
 }
 
-function updateLocationBar() {
-  const bar = document.getElementById('location-bar');
-  if (!bar) return;
+function updateBreadcrumb() {
+  const subtabLink = activeSubtabRow?.querySelector('.subtab.activeTab');
+  const show = subtabLink && activeNavTab;
 
-  const subtabLink = activeSubtabRow
-    ? activeSubtabRow.querySelector('.subtab.activeTab')
-    : null;
+  byId('breadcrumb').classList.toggle('hidden', !show);
+  if (!show) return;
 
-  if (!subtabLink || !activeNavTab) {
-    bar.classList.add('hidden');
-    return;
-  }
-
-  document.getElementById('location-tab').textContent =
-    activeNavTab.textContent;
-  document.getElementById('location-subtab').textContent =
-    subtabLink.textContent;
-  bar.classList.remove('hidden');
+  byId('breadcrumb-tab').textContent    = activeNavTab.textContent;
+  byId('breadcrumb-subtab').textContent = subtabLink.textContent;
 }
 
+// Shared Key: tab-related element id is derived from tabId — derive here, not inline.
+const tabKey = {
+  navLink:       tabId           => 'nav-' + tabId,
+  section:       tabId           => tabId + '-content',
+  subtabRow:     tabId           => tabId + '-subtabs',
+  subtabContent: (tabId, subtab) => tabId + '-' + subtab + '-content',
+  subtabHref:    (tabId, subtab) => '#' + tabId + '/' + subtab
+};
+
 function activateTab(tab, subtab) {
-  const sectionId = tab + '-content';
-  const section = document.getElementById(sectionId);
+  const sectionId = tabKey.section(tab);
+  const section = byId(sectionId);
 
   if (!section || !section.classList.contains('content')) {
     if (tab !== 'home') { activateTab('home'); return; }
@@ -128,35 +130,35 @@ function activateTab(tab, subtab) {
   activeSection?.classList.remove('activeTab');
   activeSubtabRow?.classList.remove('activeTab');
 
-  activeNavTab = document.getElementById('nav:' + tab);
+  activeNavTab = byId(tabKey.navLink(tab));
   activeSection = section;
-  activeSubtabRow = document.getElementById(tab + '-subtabs');
+  activeSubtabRow = byId(tabKey.subtabRow(tab));
 
   activeNavTab?.classList.add('activeTab');
   activeSection.classList.add('activeTab');
   activeSubtabRow?.classList.add('activeTab');
 
-  updateLocationBar();
+  updateBreadcrumb();
   lazyInit(sectionId, activeNavTab);
 
   if (activeSubtabRow) activateSubtab(tab, subtab);
 }
 
 function activateSubtab(tab, subtab) {
-  const row = document.getElementById(tab + '-subtabs');
+  const row = byId(tabKey.subtabRow(tab));
   if (!row) return;
 
   let link = subtab
-    ? row.querySelector('[href="#' + tab + '/' + subtab + '"]')
+    ? row.querySelector('[href="' + tabKey.subtabHref(tab, subtab) + '"]')
     : null;
   if (!link && lastSubtab[tab]) {
     subtab = lastSubtab[tab];
-    link = row.querySelector('[href="#' + tab + '/' + subtab + '"]');
+    link = row.querySelector('[href="' + tabKey.subtabHref(tab, subtab) + '"]');
   }
   if (!link) {
     const firstLink = row.querySelector('.subtab');
     if (!firstLink) return;
-    
+
     subtab = firstLink.hash.substring(1).split('/')[1];
     if (!subtab) return;
     link = firstLink;
@@ -169,7 +171,7 @@ function activateSubtab(tab, subtab) {
   link.classList.add('activeTab');
   activeSubtabLink[tab] = link;
 
-  const section = document.getElementById(tab + '-content');
+  const section = byId(tabKey.section(tab));
   if (!section) return;
 
   if (!activeSubtabContent[tab]) {
@@ -178,15 +180,15 @@ function activateSubtab(tab, subtab) {
   }
   activeSubtabContent[tab]?.classList.remove('activeTab');
 
-  const contentId = tab + '-' + subtab + '-content';
-  const target = document.getElementById(contentId);
+  const contentId = tabKey.subtabContent(tab, subtab);
+  const target = byId(contentId);
   if (target) {
     target.classList.add('activeTab');
   }
   activeSubtabContent[tab] = target;
   lastSubtab[tab] = subtab;
 
-  updateLocationBar();
+  updateBreadcrumb();
   lazyInit(contentId, link);
 }
 
@@ -215,7 +217,7 @@ function handleSubviewClick(e) {
 }
 
 function initScrollAffordance() {
-  const tabs = document.getElementById('nav-tabs');
+  const tabs = byId('nav-tabs');
   if (!tabs) return;
 
   function checkScroll() {

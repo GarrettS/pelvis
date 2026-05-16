@@ -220,7 +220,7 @@ nav {
   font-weight: 600;
 }
 
-.location-bar {
+.breadcrumb {
   display: none;
   font-family: var(--mono);
   font-size: var(--text-xs);
@@ -231,12 +231,12 @@ nav {
 }
 
 @media (max-width: 600px) {
-  .location-bar:not(.hidden) {
+  .breadcrumb:not(.hidden) {
     display: block;
   }
 }
 
-.location-sep {
+.breadcrumb-sep {
   margin: 0 .25rem;
 }
 
