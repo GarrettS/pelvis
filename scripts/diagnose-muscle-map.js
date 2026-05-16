@@ -18,7 +18,7 @@ await attemptLoad({
     muscleExerciseMap = data;
     viewTabs = document.getElementById('muscle-view-tabs');
     search = document.getElementById('muscle-search');
-    activeViewTab = viewTabs.querySelector('.subview-tab.activeTab');
+    activeViewTab = viewTabs.querySelector('.subview-tab[aria-current]');
 
     window.addEventListener('hashchange', applySubview);
     search.addEventListener('input', () =>
@@ -49,8 +49,8 @@ function applySubview() {
 
   const view = getSubviewFromHash(link.hash);
   if (link !== activeViewTab) {
-    activeViewTab?.classList.remove('activeTab');
-    link.classList.add('activeTab');
+    activeViewTab?.removeAttribute('aria-current');
+    link.setAttribute('aria-current', 'true');
     activeViewTab = link;
   }
   if (view !== currentMView) {
@@ -69,7 +69,7 @@ function resolveSubviewLink(viewTabs) {
     const link = viewTabs.querySelector('[href="#diagnose/muscle-map/' + hashView + '"]');
     if (link) return link;
   }
-  return viewTabs.querySelector('.subview-tab.activeTab')
+  return viewTabs.querySelector('.subview-tab[aria-current]')
     || viewTabs.querySelector('.subview-tab');
 }
 

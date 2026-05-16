@@ -21,7 +21,7 @@
 <body>
 <nav>
   <menu id="nav-tabs">
-    <li><a class="nav-tab activeTab" id="nav-home" href="#home">PRI · Pelvis</a></li>
+    <li><a class="nav-tab" aria-current="page" id="nav-home" href="#home">PRI · Pelvis</a></li>
     <li><a class="nav-tab" id="nav-anatomy" href="#anatomy">Anatomy</a></li>
     <li><a class="nav-tab" id="nav-nomenclature" href="#nomenclature">Nomenclature</a></li>
     <li><a class="nav-tab" id="nav-patterns" href="#patterns">Patterns</a></li>
@@ -30,22 +30,22 @@
     <li><a class="nav-tab" id="nav-equivalence" href="#equivalence">Equivalence</a></li>
     <li><a class="nav-tab" id="nav-masterquiz" href="#masterquiz">Master Quiz</a></li>
   </menu>
-  <menu class="subtab-row" id="anatomy-subtabs">
-    <li><a class="subtab" id="anatomy-anatomize-subtab" href="#anatomy/anatomize">Anatomize This!</a></li>
+  <menu class="subtab-row" hidden id="anatomy-subtabs">
+    <li><a class="subtab" aria-current="true" id="anatomy-anatomize-subtab" href="#anatomy/anatomize">Anatomize This!</a></li>
     <li><a class="subtab" id="anatomy-decoder-subtab" href="#anatomy/decoder">Pelvis Decoder</a></li>
     <li><a class="subtab" id="anatomy-aic-subtab" href="#anatomy/aic">L AIC Chain</a></li>
   </menu>
-  <menu class="subtab-row" id="nomenclature-subtabs">
-    <li><a class="subtab activeTab" id="nomenclature-joints-subtab" href="#nomenclature/joints">Joints</a></li>
+  <menu class="subtab-row" hidden id="nomenclature-subtabs">
+    <li><a class="subtab" aria-current="true" id="nomenclature-joints-subtab" href="#nomenclature/joints">Joints</a></li>
     <li><a class="subtab" id="nomenclature-translation-subtab" href="#nomenclature/translation">Translation Table</a></li>
   </menu>
-  <menu class="subtab-row" id="patterns-subtabs">
-    <li><a class="subtab activeTab" id="patterns-cheat-sheet-subtab" href="#patterns/cheat-sheet">Cheat Sheet</a></li>
+  <menu class="subtab-row" hidden id="patterns-subtabs">
+    <li><a class="subtab" aria-current="true" id="patterns-cheat-sheet-subtab" href="#patterns/cheat-sheet">Cheat Sheet</a></li>
     <li><a class="subtab" id="patterns-concept-map-subtab" href="#patterns/concept-map">Concept Map</a></li>
     <li><a class="subtab" id="patterns-level-quiz-subtab" href="#patterns/level-quiz">Test Reference</a></li>
   </menu>
-  <menu class="subtab-row" id="diagnose-subtabs">
-    <li><a class="subtab activeTab" id="diagnose-game-subtab" href="#diagnose/game">Pattern ID</a></li>
+  <menu class="subtab-row" hidden id="diagnose-subtabs">
+    <li><a class="subtab" aria-current="true" id="diagnose-game-subtab" href="#diagnose/game">Pattern ID</a></li>
     <li><a class="subtab" id="diagnose-case-studies-subtab" href="#diagnose/case-studies">Case Studies</a></li>
     <li><a class="subtab" id="diagnose-causal-chains-subtab" href="#diagnose/causal-chains">Causal Chains</a></li>
     <li><a class="subtab" id="diagnose-decision-tree-subtab" href="#diagnose/decision-tree">Decision Tree</a></li>
@@ -59,7 +59,7 @@
 </div>
 <main>
 
-<section id="home-content" class="content activeTab">
+<section id="home-content" class="content">
   <div class="tab-section home-landing">
 
     <h1 class="home-title">PRI · Pelvis</h1>
@@ -112,8 +112,8 @@
   </div>
 </section>
 
-<section id="anatomy-content" class="content">
-  <div class="subtab-content activeTab" id="anatomy-anatomize-content">
+<section id="anatomy-content" class="content" hidden>
+  <div class="subtab-content" id="anatomy-anatomize-content">
     <div class="tab-section">
       <div class="anatomize-controls">
         <div class="anatomize-control-row">
@@ -136,7 +136,7 @@
     </div>
   </div>
 
-  <div class="subtab-content" id="anatomy-decoder-content">
+  <div class="subtab-content" hidden id="anatomy-decoder-content">
   <div class="tab-section">
     <div class="decoder-body">
       <div class="decoder-svg-col">
@@ -230,7 +230,7 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="anatomy-aic-content">
+  <div class="subtab-content" hidden id="anatomy-aic-content">
     <div class="tab-section">
       <div class="aic-chain-container">
         <div class="aic-chain-panel"></div>
@@ -248,8 +248,8 @@
   </div>
 </section>
 
-<section id="nomenclature-content" class="content">
-  <div class="subtab-content activeTab" id="nomenclature-joints-content">
+<section id="nomenclature-content" class="content" hidden>
+  <div class="subtab-content" id="nomenclature-joints-content">
     <div class="tab-section" id="joints-view">
       <h2 class="section-title">Pelvic Joints</h2>
       <p>The pelvis contains five joints. PRI's position-naming system references three of them — the sacroiliac joint, the pubic symphysis, and the hip joint. The other two (lumbosacral and sacrococcygeal) are anatomically present but excluded from PRI's framework because they do not involve innominate displacement.</p>
@@ -304,7 +304,7 @@
       </div>
     </div>
   </div>
-  <div class="subtab-content" id="nomenclature-translation-content">
+  <div class="subtab-content" hidden id="nomenclature-translation-content">
   <div class="tab-section">
     <h2 class="section-title">Translation Table</h2>
     <div class="callout">
@@ -393,9 +393,9 @@
   </div>
 </template>
 
-<section id="patterns-content" class="content">
+<section id="patterns-content" class="content" hidden>
 
-  <div class="subtab-content activeTab" id="patterns-cheat-sheet-content">
+  <div class="subtab-content" id="patterns-cheat-sheet-content">
   <div class="tab-section">
     <h2 class="section-title">Pattern Comparison Cheat Sheet</h2>
     <div class="grid-3" id="cheat-sheet-grid"></div>
@@ -403,7 +403,7 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="patterns-concept-map-content">
+  <div class="subtab-content" hidden id="patterns-concept-map-content">
   <div class="tab-section" id="concept-map-wrap">
     <h2 class="section-title">Concept Map</h2>
     <p class="text-dim instruction-text">Click a node to highlight its connections.</p>
@@ -442,7 +442,7 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="patterns-level-quiz-content">
+  <div class="subtab-content" hidden id="patterns-level-quiz-content">
   <div class="tab-section">
     <h2 class="section-title">Test Reference</h2>
     <h4 class="subsection-title">Test Profile by Pattern</h4>
@@ -483,23 +483,23 @@
   </div>
 </section>
 
-<section id="diagnose-content" class="content">
+<section id="diagnose-content" class="content" hidden>
 
-  <div class="subtab-content activeTab" id="diagnose-game-content">
+  <div class="subtab-content" id="diagnose-game-content">
   <div class="tab-section">
     <h2 class="section-title">Pattern Identifier</h2>
     <div id="game-wrap"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-case-studies-content">
+  <div class="subtab-content" hidden id="diagnose-case-studies-content">
   <div class="tab-section">
     <h2 class="section-title">Case Studies</h2>
     <div id="case-study-wrap"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-causal-chains-content">
+  <div class="subtab-content" hidden id="diagnose-causal-chains-content">
   <div class="tab-section">
     <h2 class="section-title">Causal Chains</h2>
     <p class="text-dim instruction-text-lg">Drag (or tap) to reorder the steps in each causal chain. Click "Check" when done.</p>
@@ -507,18 +507,18 @@
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-decision-tree-content">
+  <div class="subtab-content" hidden id="diagnose-decision-tree-content">
   <div class="tab-section">
     <h2 class="section-title">Decision Tree</h2>
     <div id="tree-wrap" class="tree-node"></div>
   </div>
   </div>
 
-  <div class="subtab-content" id="diagnose-muscle-map-content">
+  <div class="subtab-content" hidden id="diagnose-muscle-map-content">
   <div class="tab-section">
     <h2 class="section-title">Muscle-to-Exercise Map</h2>
     <menu class="subview-tabs" id="muscle-view-tabs">
-      <li><a class="subview-tab activeTab" href="#diagnose/muscle-map/byMuscle">By Muscle</a></li>
+      <li><a class="subview-tab" aria-current="true" href="#diagnose/muscle-map/byMuscle">By Muscle</a></li>
       <li><a class="subview-tab" href="#diagnose/muscle-map/byFinding">By Finding</a></li>
     </menu>
     <div class="search-wrap">
@@ -529,7 +529,7 @@
   </div>
 </section>
 
-<section id="flashcards-content" class="content">
+<section id="flashcards-content" class="content" hidden>
   <h2 class="section-title">Flashcards</h2>
   <div class="fc-container">
     <div class="fc-header">
@@ -590,7 +590,7 @@
   </div>
 </section>
 
-<section id="equivalence-content" class="content">
+<section id="equivalence-content" class="content" hidden>
   <h2 class="section-title">Equivalence Quiz</h2>
   <div class="decoder-rule decoder-rule-intro">
     Inlet direction matches femur direction. Outlet direction is always opposite.
@@ -646,7 +646,7 @@
   </div>
 </section>
 
-<section id="masterquiz-content" class="content screen-config">
+<section id="masterquiz-content" class="content screen-config" hidden>
 
   <div id="mq-config" class="tab-section">
     <h2 class="section-title">Master Quiz</h2>

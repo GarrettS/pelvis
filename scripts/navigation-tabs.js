@@ -7,9 +7,9 @@ import {newEl} from './el-create.js';
 const byId = id => document.getElementById(id);
 
 const lastSubtab = {};
-let activeNavTab = document.querySelector('.nav-tab.activeTab');
-let activeSection = document.querySelector('section.content.activeTab');
-let activeSubtabRow = document.querySelector('.subtab-row.activeTab');
+let activeNavTab = document.querySelector('.nav-tab[aria-current]');
+let activeSection = document.querySelector('section.content:not([hidden])');
+let activeSubtabRow = document.querySelector('.subtab-row:not([hidden])');
 const activeSubtabLink = {};
 const activeSubtabContent = {};
 
@@ -97,14 +97,15 @@ function lazyInit(contentId, link) {
   });
 }
 
-function updateBreadcrumb() {
-  const subtabLink = activeSubtabRow?.querySelector('.subtab.activeTab');
-  const show = subtabLink && activeNavTab;
+function updateBreadcrumb(tab, subtab) {
+  const navTab = byId(tabKey.navLink(tab));
+  const subtabLink = subtab ? byId(tabKey.subtabLink(tab, subtab)) : null;
+  const show = navTab && subtabLink;
 
   byId('breadcrumb').classList.toggle('hidden', !show);
   if (!show) return;
 
-  byId('breadcrumb-tab').textContent    = activeNavTab.textContent;
+  byId('breadcrumb-tab').textContent    = navTab.textContent;
   byId('breadcrumb-subtab').textContent = subtabLink.textContent;
 }
 
@@ -126,19 +127,19 @@ function activateTab(tab, subtab) {
     return;
   }
 
-  activeNavTab?.classList.remove('activeTab');
-  activeSection?.classList.remove('activeTab');
-  activeSubtabRow?.classList.remove('activeTab');
+  activeNavTab?.removeAttribute('aria-current');
+  activeSection?.setAttribute('hidden', '');
+  activeSubtabRow?.setAttribute('hidden', '');
 
   activeNavTab = byId(tabKey.navLink(tab));
   activeSection = section;
   activeSubtabRow = byId(tabKey.subtabRow(tab));
 
-  activeNavTab?.classList.add('activeTab');
-  activeSection.classList.add('activeTab');
-  activeSubtabRow?.classList.add('activeTab');
+  activeNavTab?.setAttribute('aria-current', 'page');
+  activeSection.removeAttribute('hidden');
+  activeSubtabRow?.removeAttribute('hidden');
 
-  updateBreadcrumb();
+  updateBreadcrumb(tab, subtab);
   lazyInit(sectionId, activeNavTab);
 
   if (activeSubtabRow) activateSubtab(tab, subtab);
@@ -164,31 +165,27 @@ function activateSubtab(tab, subtab) {
     link = firstLink;
   }
 
-  if (!activeSubtabLink[tab]) {
-    activeSubtabLink[tab] = row.querySelector('.subtab.activeTab');
-  }
-  activeSubtabLink[tab]?.classList.remove('activeTab');
-  link.classList.add('activeTab');
+  activeSubtabLink[tab] ??= row.querySelector('.subtab[aria-current]');
+  activeSubtabLink[tab]?.removeAttribute('aria-current');
+  link.setAttribute('aria-current', 'true');
   activeSubtabLink[tab] = link;
 
   const section = byId(tabKey.section(tab));
   if (!section) return;
 
-  if (!activeSubtabContent[tab]) {
-    activeSubtabContent[tab] =
-      section.querySelector('.subtab-content.activeTab');
-  }
-  activeSubtabContent[tab]?.classList.remove('activeTab');
+  activeSubtabContent[tab] ??=
+    section.querySelector('.subtab-content:not([hidden])');
+  activeSubtabContent[tab]?.setAttribute('hidden', '');
 
   const contentId = tabKey.subtabContent(tab, subtab);
   const target = byId(contentId);
   if (target) {
-    target.classList.add('activeTab');
+    target.removeAttribute('hidden');
   }
   activeSubtabContent[tab] = target;
   lastSubtab[tab] = subtab;
 
-  updateBreadcrumb();
+  updateBreadcrumb(tab, subtab);
   lazyInit(contentId, link);
 }
 
