@@ -13,8 +13,7 @@ let activeSection = document.querySelector('section.content:not([hidden])');
 let activeSubtabRow = document.querySelector('.subtab-row:not([hidden])');
 const activeSubtabLink = {};
 const activeSubtabContent = {};
-const defaultTabId = ROUTE_REGEX.exec(
-    document.querySelector('.nav-tab').hash).groups.tab;
+const defaultTabId = ROUTE_REGEX.exec(activeNavTab.hash).groups.tab;
 
 const initialized = new Set();
 const pending = new Set();
@@ -153,10 +152,8 @@ function activateSubtab(tabId, subtabId) {
   const link = (subtabId && byId(tabKey.subtabLink(tabId, subtabId)))
             || activeSubtabLink[tabId]
             || row.querySelector('.subtab');
-  if (!link) return;
 
-  subtabId = ROUTE_REGEX.exec(link.hash)?.groups.subtab;
-  if (!subtabId) return;
+  subtabId = ROUTE_REGEX.exec(link.hash).groups.subtab;
 
   activeSubtabLink[tabId] = swapAriaCurrent(activeSubtabLink[tabId], link);
 
