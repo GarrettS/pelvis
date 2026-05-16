@@ -145,7 +145,6 @@ nav {
 }
 
 .subtab-row {
-  display: none;
   gap: 0;
   width: 100%;
   background: var(--surface2);
@@ -252,11 +251,6 @@ main:has(#anatomy-content:not([hidden])) {
 
 
 section.content {
-  display: none;
-}
-
-section.content:not([hidden]) {
-  display: block;
   animation: fadeIn var(--dur-normal) ease-out;
 }
 
@@ -463,11 +457,6 @@ p:last-child {
 }
 
 .subtab-content {
-  display: none;
-}
-
-.subtab-content:not([hidden]) {
-  display: block;
   animation: fadeIn var(--dur-normal) ease-out;
 }
 
