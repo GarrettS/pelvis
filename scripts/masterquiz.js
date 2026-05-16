@@ -10,13 +10,15 @@ import { getAllProgress, setTotal as setMasterQuizTotal,
 import { newEl } from './el-create.js';
 
 const containerEl = document.getElementById('masterquiz-content');
+const quizForm = document.getElementById('mq-quiz-form');
+const submitBtn = quizForm.elements.namedItem('mq-submit');
 
 const DOMAINS = [
   'nomenclature', 'tests', 'treatment',
   'anatomy', 'procedures', 'clinical'
 ];
 const USER_FC_KEY = 'userFlashcards';
-const RE_POSITION = /\b(IP|IS|IsP|SI|AF|FA)\s+(ER|IR)\b/g;
+const RE_POSITION = /\b(?<region>IP|IS|IsP|SI|AF|FA)\s+(?<dir>ER|IR)\b/g;
 const STEM_PREVIEW_MAX = 80;
 const FLASHCARD_FRONT_MAX = 200;
 const FLASHCARD_DETAIL_MAX = 380;
@@ -25,9 +27,9 @@ let QUESTIONS = [];
 let queue = [];
 let qIdx = 0;
 let sessionAnswers = [];
-let selectedKey = null;
 let submitted = false;
 let equivPinned = false;
+let savedCardIds = null;
 let activeScreenClass = 'screen-config';
 
 const truncate = (s, n) => s.length > n ? s.slice(0, n) + '…' : s;
@@ -116,7 +118,7 @@ function updateQuizUI(q, index, total) {
   document.getElementById('mq-domain-badge').textContent = q.domain;
   document.getElementById('mq-stem').innerHTML = expandAbbr(q.stem);
   document.getElementById('mq-options')
-      .replaceChildren(...q.options.map(makeOptionButton));
+      .replaceChildren(...q.options.map(makeOptionRadio));
 }
 
 function renderQuestion() {
@@ -125,14 +127,13 @@ function renderQuestion() {
     return;
   }
   const q = queue[qIdx];
-  selectedKey = null;
   submitted = false;
   document.getElementById('mq-quiz').classList.remove(
       'answered-correct', 'answered-incorrect');
 
   updateQuizUI(q, qIdx, queue.length);
 
-  document.getElementById('mq-submit').disabled = true;
+  submitBtn.disabled = true;
   document.getElementById('mq-explanation').replaceChildren();
 
   const saveBtn = document.getElementById('mq-save-flashcard');
@@ -148,38 +149,28 @@ function renderQuestion() {
   }
 }
 
-const makeOptionButton = opt => newEl('button', {
-  type: 'button',
-  value: opt.key,
-  innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`
-});
-
-function handleOptionSelect(key) {
-  if (submitted) return;
-
-  selectedKey = key;
-  for (const btn of document.getElementById('mq-options').querySelectorAll('button')) {
-    btn.classList.toggle('selected', btn.value === key);
-  }
-  document.getElementById('mq-submit').disabled = false;
-}
+const makeOptionRadio = opt => newEl('label', {className: 'mq-option', children: [
+  newEl('input', {type: 'radio', name: 'answer', value: opt.key}),
+  newEl('span', {innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`})
+]});
 
 function handleSubmit() {
-  if (submitted || !selectedKey) return;
+  const chosen = quizForm.elements.answer.value;
+  if (submitted || !chosen) return;
 
   submitted = true;
   const q = queue[qIdx];
-  const correct = selectedKey === q.answer;
+  const correct = chosen === q.answer;
 
-  sessionAnswers.push({ question: q, chosen: selectedKey, correct });
+  sessionAnswers.push({ question: q, chosen, correct });
   updateProgress(q.id, correct);
 
-  for (const btn of document.getElementById('mq-options').querySelectorAll('button')) {
-    btn.classList.add('locked');
-    if (btn.value === q.answer) {
-      btn.classList.add('correct');
-    } else if (btn.value === selectedKey && !correct) {
-      btn.classList.add('incorrect');
+  for (const radio of quizForm.elements.answer) {
+    radio.disabled = true;
+    if (radio.value === q.answer) {
+      radio.parentElement.classList.add('correct');
+    } else if (radio.value === chosen && !correct) {
+      radio.parentElement.classList.add('incorrect');
     }
   }
 
@@ -210,48 +201,46 @@ function handleNext() {
 
 function detectEquivalence(q) {
   const text = `${q.stem} ${q.options.map(o => o.text).join(' ')} ${q.explanation}`;
-  const matches = [...text.matchAll(RE_POSITION)]
-      .map(m => ({ region: m[1], dir: m[2] }));
-  return matches.length > 0 ? matches : null;
+  const matches = Array.from(
+      text.matchAll(RE_POSITION),
+      ({ groups }) => `${groups.region}_${groups.dir}`);
+  return matches.length ? matches : null;
 }
 
-function makeChainNodes(equiv, formatEntry) {
-  const nodes = [];
+function makeChainLines(equiv, matched) {
+  const main = [];
+  const inverse = [];
   for (const [rid, d] of Object.entries(equiv)) {
     if (rid === 'FA') continue;
-    if (nodes.length) nodes.push(' = ');
-    nodes.push(formatEntry(rid, d));
+    if (main.length) { main.push(' = '); inverse.push(' = '); }
+    main.push(matched.has(`${rid}_${d}`)
+        ? newEl('span', {className: 'mq-equiv-highlight', textContent: `${rid} ${d}`})
+        : `${rid} ${d}`);
+    inverse.push(`${rid} ${d === 'ER' ? 'IR' : 'ER'}`);
   }
-  return nodes;
+  return { main, inverse };
 }
 
 function renderEquivChain(q) {
-  const matches = detectEquivalence(q);
+  const positions = detectEquivalence(q);
   const equivWrap = document.getElementById('mq-equiv-wrap');
-  if (!matches) {
+  if (!positions) {
     if (!equivPinned) equivWrap.classList.add('hidden');
     return;
   }
 
-  const first = matches[0];
-  const equiv = getAllEquivalent(first.region, first.dir);
-  const matchedPositions = new Set(
-      matches.map(m => `${m.region}_${m.dir}`));
+  const [region, dir] = positions[0].split('_');
+  const equiv = getAllEquivalent(region, dir);
+  const matched = new Set(positions);
 
-  const mainLine = makeChainNodes(equiv, (rid, d) =>
-      matchedPositions.has(`${rid}_${d}`)
-          ? newEl('span', {className: 'mq-equiv-highlight', textContent: `${rid} ${d}`})
-          : `${rid} ${d}`);
-
-  const inverseLine = makeChainNodes(equiv, (rid, d) =>
-      `${rid} ${d === 'ER' ? 'IR' : 'ER'}`);
+  const {main, inverse} = makeChainLines(equiv, matched);
 
   equivWrap.replaceChildren(
       newEl('div', {className: 'mono-label', textContent: 'EQUIVALENCE CHAIN'}),
-      newEl('div', {className: 'equiv-line main', children: mainLine}),
+      newEl('div', {className: 'equiv-line main', children: main}),
       newEl('div', {className: 'equiv-line', children: [
         newEl('span', {className: 'text-dim',
-          children: ['Inverse: ', ...inverseLine]})
+          children: ['Inverse: ', ...inverse]})
       ]}),
       newEl('label', {className: 'mq-pin-label', children: [
         newEl('input', {type: 'checkbox', id: 'mq-pin-equiv', checked: equivPinned}),
@@ -268,19 +257,21 @@ function clearEquivHighlights() {
   }
 }
 
-function tryGetUserCards() {
+function tryGetSavedCardIds() {
+  if (savedCardIds) return savedCardIds;
   try {
     const rawCards = localStorage.getItem(USER_FC_KEY);
-    return rawCards ? JSON.parse(rawCards) : [];
+    const cards = rawCards ? JSON.parse(rawCards) : [];
+    savedCardIds = new Set(cards.map(c => c.id));
   } catch (anyError) {
     // Background saved-status check — not user-initiated.
     // Save handlers read again and show an error if saved-card data is corrupt.
-    return [];
+    savedCardIds = new Set();
   }
+  return savedCardIds;
 }
 
-const isAlreadySaved = qId =>
-    tryGetUserCards().some(c => c.id === 'user-mq-' + qId);
+const isAlreadySaved = qId => tryGetSavedCardIds().has('user-mq-' + qId);
 
 function buildFlashcard(q) {
   const correctOpt = q.options.find(o => o.key === q.answer);
@@ -324,6 +315,7 @@ function saveUserFlashcard(card) {
   }
 
   if (savedCards.some(c => c.id === card.id)) {
+    savedCardIds = new Set(savedCards.map(c => c.id));
     return { ok: true, duplicate: true };
   }
 
@@ -348,6 +340,7 @@ function saveUserFlashcard(card) {
     };
   }
 
+  savedCardIds = new Set([...savedCards, card].map(c => c.id));
   return { ok: true, duplicate: false };
 }
 
@@ -420,13 +413,9 @@ function makeResultRow(answer) {
     summaryText += ` — You: ${answer.chosen}, Correct: ${q.answer}`;
   }
 
-  return newEl('div', {className: 'mq-result-row', children: [
-    newEl('button', {
-      type: 'button',
-      className: 'mq-result-summary',
-      textContent: summaryText
-    }),
-    newEl('div', {className: 'mq-result-detail hidden', children: [
+  return newEl('details', {className: 'mq-result-row', children: [
+    newEl('summary', {className: 'mq-result-summary', textContent: summaryText}),
+    newEl('div', {className: 'mq-result-detail', children: [
       newEl('p', {className: 'mq-result-stem', innerHTML: expandAbbr(q.stem)}),
       newEl('div', {
         className: 'mq-result-comparison',
@@ -507,7 +496,6 @@ function setAllDomains(checked) {
 }
 
 const CLICK_DISPATCH = {
-  'mq-submit': handleSubmit,
   'mq-next': handleNext,
   'mq-save-flashcard': handleSaveFlashcard,
   'mq-start': handleStart,
@@ -520,42 +508,23 @@ const CLICK_DISPATCH = {
 };
 
 function initListeners() {
+  const domainFilters = containerEl.querySelector('.mq-domain-filters');
+  const equivWrap = document.getElementById('mq-equiv-wrap');
+
   containerEl.addEventListener('click', (e) => {
-    const action = e.target.closest(
-        '.mq-options button, .mq-result-summary, .mq-result-save');
-    if (action) {
-      if (action.matches('.mq-options button')) {
-        handleOptionSelect(action.value);
-      } else if (action.matches('.mq-result-summary')) {
-        action.nextElementSibling.classList.toggle('hidden');
-      } else {
-        handleResultSave(action);
-      }
+    const save = e.target.closest('.mq-result-save');
+    if (save) {
+      handleResultSave(save);
       return;
     }
     const target = e.target.closest('[id]');
-    if (target && CLICK_DISPATCH[target.id]) {
-      CLICK_DISPATCH[target.id]();
-    }
+    if (target && CLICK_DISPATCH[target.id]) CLICK_DISPATCH[target.id]();
   });
 
-  containerEl.addEventListener('change', (e) => {
-    const pinCheckbox = e.target.closest('#mq-pin-equiv');
-    if (pinCheckbox) {
-      equivPinned = pinCheckbox.checked;
-      return;
-    }
-    if (e.target.closest('.mq-domain-filters input')) {
-      syncStartButton();
-      renderStats();
-    }
-  });
-
-  containerEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && /^(?:INPUT|SELECT)/.test(e.target.tagName)) {
-      e.preventDefault();
-    }
-  });
+  quizForm.addEventListener('change', () => submitBtn.disabled = false);
+  quizForm.addEventListener('submit', (e) => { e.preventDefault(); handleSubmit(); });
+  domainFilters.addEventListener('change', () => { syncStartButton(); renderStats(); });
+  equivWrap.addEventListener('change', (e) => equivPinned = e.target.checked);
 }
 
 await attemptLoad({

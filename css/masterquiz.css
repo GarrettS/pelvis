@@ -101,14 +101,16 @@
   padding-left: .7rem;
 }
 
-.mq-options {
+#mq-options {
   display: flex;
   flex-direction: column;
   gap: .5rem;
   margin-bottom: 1rem;
 }
 
-.mq-options > button {
+.mq-option {
+  display: block;
+  position: relative;
   font-family: var(--mono);
   font-size: var(--text-sm);
   background: var(--surface);
@@ -116,46 +118,60 @@
   color: var(--text);
   padding: .7rem 1rem;
   border-radius: 6px;
-  text-align: left;
   cursor: pointer;
   box-shadow: var(--box-shadow-sm);
   transition: all var(--dur-fast);
   min-height: 44px;
 }
 
-.mq-options > button:hover:not(.locked) {
+.mq-option input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.mq-option:has(input:enabled):hover {
   border-color: var(--accent-dim);
 }
 
-.mq-options > button.selected {
+.mq-option:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+#mq-quiz:not(.answered-correct):not(.answered-incorrect)
+  #mq-options .mq-option:has(input:checked) {
   border-color: var(--accent);
   background: var(--accent-bg);
   color: var(--accent);
 }
 
-.mq-options > button.correct {
+.mq-option.correct {
   border-color: var(--correct-border);
   background: var(--correct-bg);
   color: var(--correct);
 }
 
-.mq-options > button.incorrect {
+.mq-option.incorrect {
   border-color: var(--error-border);
   background: var(--error-bg);
   color: var(--error);
 }
 
-.mq-options > button.correct::before {
+.mq-option.correct::before {
   content: '\2713\a0';
 }
 
-.mq-options > button.incorrect::before {
+.mq-option.incorrect::before {
   content: '\2717\a0';
 }
 
-.mq-options > button.locked {
+.mq-option:has(input:disabled) {
   cursor: default;
-  pointer-events: none;
 }
 
 #mq-quiz {
@@ -250,7 +266,12 @@
   color: var(--text);
   padding: .5rem .25rem;
   cursor: pointer;
+  list-style: none;
   transition: color var(--dur-fast);
+}
+
+.mq-result-summary::-webkit-details-marker {
+  display: none;
 }
 
 .mq-result-summary:hover {

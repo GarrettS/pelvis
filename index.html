@@ -693,12 +693,14 @@
     <span class="mq-domain-badge" id="mq-domain-badge"></span>
     <p class="mq-stem" id="mq-stem"></p>
     <p id="mq-verdict"></p>
-    <div class="mq-options" id="mq-options"></div>
+    <form id="mq-quiz-form">
+      <div id="mq-options" role="radiogroup" aria-labelledby="mq-stem"></div>
 
-    <div class="btn-row">
-      <button type="button" class="primary" id="mq-submit" disabled>Submit</button>
-      <button type="button" class="primary" id="mq-next">Next Question &rarr;</button>
-    </div>
+      <div class="btn-row">
+        <button type="submit" class="primary" id="mq-submit" disabled>Submit</button>
+        <button type="button" class="primary" id="mq-next">Next Question &rarr;</button>
+      </div>
+    </form>
 
     <div id="mq-explanation"></div>
     <button type="button" id="mq-save-flashcard">Save as Flashcard</button>
