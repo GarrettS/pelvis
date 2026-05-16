@@ -114,7 +114,7 @@ const tabKey = {
   section:       tabId           => tabId + '-content',
   subtabRow:     tabId           => tabId + '-subtabs',
   subtabContent: (tabId, subtab) => tabId + '-' + subtab + '-content',
-  subtabHref:    (tabId, subtab) => '#' + tabId + '/' + subtab
+  subtabLink:    (tabId, subtab) => tabId + '-' + subtab + '-subtab'
 };
 
 function activateTab(tab, subtab) {
@@ -149,11 +149,11 @@ function activateSubtab(tab, subtab) {
   if (!row) return;
 
   let link = subtab
-    ? row.querySelector('[href="' + tabKey.subtabHref(tab, subtab) + '"]')
+    ? byId(tabKey.subtabLink(tab, subtab))
     : null;
   if (!link && lastSubtab[tab]) {
     subtab = lastSubtab[tab];
-    link = row.querySelector('[href="' + tabKey.subtabHref(tab, subtab) + '"]');
+    link = byId(tabKey.subtabLink(tab, subtab));
   }
   if (!link) {
     const firstLink = row.querySelector('.subtab');
