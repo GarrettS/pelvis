@@ -346,8 +346,7 @@ function classifyOption(opt, correctAnswers, selectedList) {
 }
 
 function buildResultSummary(answer, correctAnswer) {
-  const summary = document.createElement('button');
-  summary.type = 'button';
+  const summary = document.createElement('summary');
   summary.className = 'mq-result-summary';
   let text = answer.question.given;
   if (!answer.correct) {
@@ -365,7 +364,7 @@ function buildResultSummary(answer, correctAnswer) {
 function buildResultDetail(answer, correctAnswer) {
   const q = answer.question;
   const detail = document.createElement('div');
-  detail.className = 'mq-result-detail hidden';
+  detail.className = 'mq-result-detail';
   const knownCorrect = correctAnswer?.ok
     ? correctAnswer.correctAnswers : new Set();
   const optHTML = q.options.map((opt) =>
@@ -397,18 +396,13 @@ async function renderResultsList(container, answers) {
   const correctAnswers = await Promise.all(
     answers.map((a) => getCorrectAnswer(a.question))
   );
-  const rowTemplate = document.createElement('div');
+  const rowTemplate = document.createElement('details');
   rowTemplate.className = 'mq-result-row';
   answers.forEach((a, i) => {
     const ca = correctAnswers[i];
     const row = rowTemplate.cloneNode(false);
-    const summary = buildResultSummary(a, ca);
-    const detail = buildResultDetail(a, ca);
-    summary.addEventListener('click', () => {
-      detail.classList.toggle('hidden');
-    });
-    row.appendChild(summary);
-    row.appendChild(detail);
+    row.appendChild(buildResultSummary(a, ca));
+    row.appendChild(buildResultDetail(a, ca));
     container.appendChild(row);
   });
 }
