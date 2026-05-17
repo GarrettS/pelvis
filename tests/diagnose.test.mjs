@@ -12,6 +12,7 @@ class TestElement {
     this.listeners = {};
     this.parentNode = null;
     this.dataset = {};
+    this.attributes = {};
     this.disabled = false;
     this.value = '';
     this.textContent = '';
@@ -102,6 +103,18 @@ class TestElement {
     return clone;
   }
 
+  setAttribute(name, value) {
+    this.attributes[name] = String(value);
+  }
+
+  removeAttribute(name) {
+    delete this.attributes[name];
+  }
+
+  getAttribute(name) {
+    return name in this.attributes ? this.attributes[name] : null;
+  }
+
   addEventListener(type, handler) {
     this.listeners[type] = this.listeners[type] || [];
     this.listeners[type].push(handler);
@@ -144,12 +157,20 @@ function findAll(root, predicate, found = []) {
 }
 
 function matches(el, selector) {
-  if (selector.startsWith('[href="')) {
-    return el.href === selector.slice(7, -2);
+  const attr = selector.match(/\[([^\]=]+)(?:="([^"]*)")?\]\s*$/);
+  let base = selector;
+  if (attr) {
+    base = selector.slice(0, attr.index);
+    const [, name, value] = attr;
+    const actual = name === 'href' ? el.href : el.getAttribute(name);
+    if (value === undefined ? actual == null : actual !== value) {
+      return false;
+    }
   }
-  if (selector.startsWith('.')) {
-    const classes = selector.slice(1).split('.');
-    return classes.every((token) => el.classList.contains(token));
+  if (base === '') return true;
+  if (base.startsWith('.')) {
+    return base.slice(1).split('.').every((token) =>
+      el.classList.contains(token));
   }
   return false;
 }
@@ -249,7 +270,8 @@ function setupMuscleMapDom(initialHash) {
     tagName: 'a',
     href: '#diagnose/muscle-map/byMuscle'
   });
-  byMuscleLink.className = 'subview-tab activeTab';
+  byMuscleLink.className = 'subview-tab';
+  byMuscleLink.setAttribute('aria-current', 'true');
   const byFindingLink = new TestElement('', {
     tagName: 'a',
     href: '#diagnose/muscle-map/byFinding'
@@ -257,14 +279,17 @@ function setupMuscleMapDom(initialHash) {
   byFindingLink.className = 'subview-tab';
   viewTabs.appendChild(byMuscleLink);
   viewTabs.appendChild(byFindingLink);
+  const searchForm = new TestElement('', {tagName: 'form'});
   const search = document.register(new TestElement('muscle-search', {
     tagName: 'input'
   }));
+  searchForm.appendChild(search);
+  search.form = searchForm;
 
   globalThis.document = document;
   globalThis.window = window;
   globalThis.location = {hash: initialHash};
-  return {wrap, search, window};
+  return {wrap, search, searchForm, window};
 }
 
 test('doesEntryMatchQuery matches expanded abbreviation titles', async () => {
@@ -308,6 +333,28 @@ test('muscle map preserves active search query across subview hash changes', asy
     globalThis.location.hash = '#diagnose/muscle-map/byFinding';
     window.dispatch('hashchange');
 
+    assert.equal(wrap.children.length, 1);
+  } finally {
+    restoreFetch();
+  }
+});
+
+test('muscle map form submit runs the active search and blocks navigation', async () => {
+  const {wrap, search, searchForm} =
+    setupMuscleMapDom('#diagnose/muscle-map/byMuscle');
+
+  const restoreFetch = mockFetchOnce({
+    byMuscle: [{muscle: 'L IO/TA', pattern: 'Corrects L AIC', exercises: []}],
+    byFinding: []
+  });
+  try {
+    await importDiagnoseSubmodule('diagnose-muscle-map');
+
+    search.value = 'anterior interior chain';
+    let prevented = false;
+    searchForm.dispatch('submit', {preventDefault() { prevented = true; }});
+
+    assert.equal(prevented, true);
     assert.equal(wrap.children.length, 1);
   } finally {
     restoreFetch();

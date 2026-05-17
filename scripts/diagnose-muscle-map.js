@@ -21,11 +21,12 @@ await attemptLoad({
     activeViewTab = viewTabs.querySelector('.subview-tab[aria-current]');
 
     window.addEventListener('hashchange', applySubview);
-    search.addEventListener('input', () =>
-      renderMuscleView(currentMView, search.value.toLowerCase())
-    );
-    search.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') e.preventDefault();
+    const runSearch = () =>
+      renderMuscleView(currentMView, search.value.toLowerCase());
+    search.addEventListener('input', runSearch);
+    search.form.addEventListener('submit', (e) => {
+      e.preventDefault();   // intent: run the search in place, no navigation
+      runSearch();
     });
 
     applySubview();
