@@ -1,9 +1,9 @@
 :root {
   /* AIC overlay marks (leader lines + anchor rings) render almost
      entirely over the fixed light anatomical image, not the themed
-     surface, so the casing color is one theme-independent value —
-     intentionally no dark-mode variant. */
+     surface, so the casing color is theme-independent. */
   --aic-casing: rgba(0, 0, 0, .7);
+  --scroll-fade-size: 2rem;
 }
 
 #anatomy-aic-content .tab-section {
@@ -24,10 +24,38 @@
   background: var(--surface);
 }
 
+/* Scroll-fade: the scroll edges fade via a luminance mask (alpha, not
+   color — it reveals the themed surface behind, so it needs no theme
+   vars). Scroll-driven; browsers without scroll timelines get no fade,
+   content still scrolls. */
+@property --top-mask-size {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0rem;
+}
+
+@property --bottom-mask-size {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0rem;
+}
+
+@keyframes scroll-fade {
+  0% { --top-mask-size: 0rem; --bottom-mask-size: var(--scroll-fade-size); }
+  100% { --top-mask-size: var(--scroll-fade-size); --bottom-mask-size: 0rem; }
+}
+
 .aic-chain-scroll {
   position: absolute;
   inset: 0;
   overflow-y: auto;
+  mask-image: linear-gradient(
+      transparent 0,
+      black var(--top-mask-size),
+      black calc(100% - var(--bottom-mask-size)),
+      transparent 100%);
+  animation: scroll-fade linear;
+  animation-timeline: scroll(self);
 }
 
 .aic-chain-row {
