@@ -42,32 +42,27 @@ const ABBRS = [
   ['COG', 'Center of Gravity'],
 ];
 
-const ABBR_TITLES = {};
+const ABBR_TITLES = Object.create(null);
 for (const [abbr, title] of ABBRS) {
   ABBR_TITLES[abbr] = title;
 }
 
-const longestFirst = ABBRS.map(([a]) => a)
-  .sort((a, b) => b.length - a.length);
+const longestFirst = ABBRS.map(([a]) => a).sort((a, b) => b.length - a.length);
 const abbrPattern = longestFirst
   .map(a => a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
   .join('|');
 const ABBR_RE = new RegExp('\\b(' + abbrPattern + ')\\b', 'g');
 
-function escapeHtml(str) {
-  return str
+const escapeHtml = str => str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-}
 
-function expandAbbr(text) {
-  return escapeHtml(text).replace(
-    ABBR_RE, (match) =>
+const expandAbbr = text => escapeHtml(text).replace(
+    ABBR_RE, match =>
       '<abbr title="' + ABBR_TITLES[match] + '">'
         + match + '</abbr>'
   );
-}
 
 export { expandAbbr };
