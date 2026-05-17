@@ -3,6 +3,17 @@ import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
 import {newEl} from './el-create.js';
 
+// Structural: third hash segment is the subview — no positional [2],
+// no '#diagnose/muscle-map/' literal duplicating the route shape.
+const SUBVIEW_REGEX = /^#[^/]+\/[^/]+\/(?<view>[^/]+)/;
+const subviewId = view => 'muscle-view-' + view;
+const subviewFromHash = hash => SUBVIEW_REGEX.exec(hash)?.groups.view;
+
+// expandAbbr returns pre-escaped HTML (<abbr>); innerHTML is its
+// documented, sanctioned sink. Structure is built as nodes, not strings.
+const abbrDiv = (className, text) =>
+  newEl('div', {className, innerHTML: expandAbbr(text)});
+
 let muscleExerciseMap = {};
 let viewTabs;
 let search;
@@ -45,11 +56,18 @@ export function doesEntryMatchQuery(entry, query) {
     && expandAbbr(String(field)).toLowerCase().includes(query));
 }
 
+function resolveSubviewLink() {
+  const view = subviewFromHash(location.hash);
+  return (view && document.getElementById(subviewId(view)))
+    || viewTabs.querySelector('.subview-tab[aria-current]')
+    || viewTabs.querySelector('.subview-tab');
+}
+
 function applySubview() {
-  const link = resolveSubviewLink(viewTabs);
+  const link = resolveSubviewLink();
   if (!link) return;
 
-  const view = getSubviewFromHash(link.hash);
+  const view = subviewFromHash(link.hash);
   if (link !== activeViewTab) {
     activeViewTab?.removeAttribute('aria-current');
     link.setAttribute('aria-current', 'true');
@@ -59,26 +77,6 @@ function applySubview() {
     currentMView = view;
     renderMuscleView(currentMView, search.value.trim().toLowerCase());
   }
-}
-
-function getSubviewFromHash(url) {
-  return url.substring(1).split('/')[2];
-}
-
-function resolveSubviewLink(viewTabs) {
-  const hashView = getSubviewFromHash(location.hash);
-  if (hashView) {
-    const link = viewTabs.querySelector('[href="#diagnose/muscle-map/' + hashView + '"]');
-    if (link) return link;
-  }
-  return viewTabs.querySelector('.subview-tab[aria-current]')
-    || viewTabs.querySelector('.subview-tab');
-}
-
-// expandAbbr returns pre-escaped HTML (<abbr>); innerHTML is its
-// documented, sanctioned sink. Structure is built as nodes, not strings.
-function abbrDiv(className, rawText) {
-  return newEl('div', {className, innerHTML: expandAbbr(String(rawText))});
 }
 
 function createEntryCard(entry) {

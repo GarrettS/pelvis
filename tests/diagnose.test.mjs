@@ -290,16 +290,16 @@ function setupMuscleMapDom(initialHash) {
   document.register(new TestElement('diagnose-muscle-map-content'));
   const wrap = document.register(new TestElement('muscle-map-wrap'));
   const viewTabs = document.register(new TestElement('muscle-view-tabs'));
-  const byMuscleLink = new TestElement('', {
+  const byMuscleLink = document.register(new TestElement('muscle-view-byMuscle', {
     tagName: 'a',
     href: '#diagnose/muscle-map/byMuscle'
-  });
+  }));
   byMuscleLink.className = 'subview-tab';
   byMuscleLink.setAttribute('aria-current', 'true');
-  const byFindingLink = new TestElement('', {
+  const byFindingLink = document.register(new TestElement('muscle-view-byFinding', {
     tagName: 'a',
     href: '#diagnose/muscle-map/byFinding'
-  });
+  }));
   byFindingLink.className = 'subview-tab';
   viewTabs.appendChild(byMuscleLink);
   viewTabs.appendChild(byFindingLink);
