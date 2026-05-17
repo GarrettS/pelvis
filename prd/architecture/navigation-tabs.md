@@ -2,6 +2,8 @@
 
 `scripts/navigation-tabs.js` maps the URL hash to a tab and imports that tab's module the first time the tab is activated. The hash is `#tab` or `#tab/subtab`.
 
+Scope is loading and recovery: the scroll-shadow affordance (`initScrollAffordance`) and service-worker registration also live in this file but are outside this contract. A hash may carry a third `/subview` segment; navigation-tabs forwards it untouched and the owning module reads it — only `diagnose-muscle-map.js`, today.
+
 ## Recovery
 
 ```js
@@ -10,38 +12,49 @@ const pending     = new Set();  // imports in flight
 const failed      = new Set();  // imports that resolved with error
 ```
 
-`lazyInit` adds the contentId to `pending` before starting an import. On resolution it removes from `pending` and lands in exactly one of `initialized` (ok) or `failed` (error). On failure, `handleImportError` renders a callout whose retry button calls `lazyInit` again. Re-clicking the tab calls `lazyInit` too. The tab and the retry button share one lifecycle: while the import is in flight, the tab dims and the retry button is locked by CSS cascade — see "Idempotent retry path" below.
+`lazyInit` adds the contentId to `pending` before starting an import. On resolution, it removes from `pending` and adds it to either `initialized` (ok) or `failed` (error).
 
-A dynamic `import()` caches its outcome — including failure — in the module map, so re-importing the same path returns the cached error without re-fetching. To force a real retry, `lazyInit` appends a cache-busting query suffix when `failed.has(contentId)`:
+`importModule` wraps `import()` so it always resolves — never rejects — to the `result` that `handleImportError` later branches on:
+
+```js
+const importModule = path => import(path).then(
+    ()    => ({ok: true,  path}),
+    cause => ({ok: false, path, cause}));
+```
+
+On failure, `handleImportError` renders a callout whose retry button calls `lazyInit` again. Re-clicking the tab calls `lazyInit` too. The tab and the retry button share one lifecycle: while the import is in flight, the tab dims and the retry button is locked by CSS cascade — see "Idempotent retry path" below.
+
+```
+                  tab activation              import ok
+  start ──▶ Idle ──────────────────▶ Pending ───────────────▶ Loaded
+                                       │  ▲
+                         import error  │  │ re-activation or retry
+                                       ▼  │ button (cache-busted)
+                                     Failed ┘
+
+  Re-activating a tab that is already loading or loaded is a no-op (dedupe):
+    Pending stays Pending while its import is still in flight.
+    Loaded stays Loaded after a successful import.
+```
+
+Data-load failure (module imported ok but `loadJson` returned `{ok: false}`) is handled by `attemptLoad` in `scripts/error-ui.js`, called per-module — not this contract.
+
+### Cache-Busting
+
+Dynamic `import` cache outcome — including failure — in the module map. To enable retry, `lazyInit` appends cache-busting query when `failed.has(contentId)`:
 
 ```js
 const path = failed.has(contentId) ? entry + '?r=' + Date.now() : entry;
 failed.delete(contentId);
 ```
 
-`handleNavClick` short-circuits same-hash clicks. Assigning the same value to `location.hash` fires no `hashchange` event, so re-clicking the failed tab would otherwise be a no-op. When the clicked link's hash equals `location.hash`, `handleNavClick` calls `applyHash()` directly.
-
-```mermaid
-stateDiagram-v2
-  [*]     --> Idle
-  Idle    --> Pending: tab activation
-  Pending --> Loaded:  import ok
-  Pending --> Failed:  import error
-  Failed  --> Pending: re-activation or retry button (cache-busted)
-  Pending --> Pending: re-activate while pending (dedupe)
-  Loaded  --> Loaded:  re-activate after success (dedupe)
-```
-
-Data-load failure (module imported ok but `loadJson` returned `{ok: false}`) is handled by `attemptLoad` in `scripts/error-ui.js`, called per-module — not this contract.
-
 ## Idempotent retry path
 
 The tab (or subtab) and the retry button are two actuators for the same state transition: `Failed → Pending` for a given contentId. The state machine cares about the contentId, not which actuator triggered it. Both routes land in the same `lazyInit(contentId, link)` call.
 
-`.loading` is the in-flight signal. `lazyInit` writes it to two surfaces:
+While the import is in flight `lazyInit` adds `.loading` to the clicked link and to the content container. `.nav-tab.loading` / `.subtab.loading` dim the tab and set `cursor: wait`; `.content.loading` cascades to `.callout-retry`, dimming and disabling any retry button still on screen.
 
-- The actuator (`link`) — `.nav-tab.loading` / `.subtab.loading` dim the tab and set `cursor: wait`.
-- The container — `.content.loading` is the ancestor signal for any retry buttons inside. `css/layout.css` declares `.content.loading .callout-retry { pointer-events: none; opacity: 0.5; }`, so a callout still on screen during retry has its button dimmed and disabled by cascade — no JavaScript toggles `button.disabled` or rewrites the label.
+`handleNavClick` short-circuits same-hash clicks. Assigning the same value to `location.hash` fires no `hashchange` event, so re-clicking the failed tab would otherwise be a no-op. When the clicked link's hash equals `location.hash`, `handleNavClick` calls `applyHash()` directly.
 
 Spam-clicks have two independent guards:
 
@@ -78,7 +91,7 @@ function setupFlashcards(deckData) { // module init — runs once, not a render
 }
 ```
 
-To a React-trained reader this trips the effect-without-cleanup alarm — an `addEventListener` plus an `observe()` with no teardown is what leaks when a component re-renders or remounts. There is no render here: by the rule above the function runs once per page, so there is nothing to tear down. The delegated handler stays safe under churn for the same reason — card actions resolve through that one `containerEl` listener, so `buildCard` adds no per-node handlers and `resetDeck()` cannot accumulate them.
+To a React-trained reader, this trips the effect-without-cleanup alarm — `addEventListener` plus an `observe()` with no teardown leaks when a component re-renders or remounts. There is no render here: by the rule above the function runs once per page, so there is nothing to tear down. The delegated handler stays safe under churn for the same reason — card actions resolve through that one `containerEl` listener, so `buildCard` adds no per-node handlers and `resetDeck()` cannot accumulate them.
 
 `home.js` is the corollary in practice: it must refresh each time its tab is shown, so it holds one long-lived `IntersectionObserver` on `#home-content` and re-runs `renderMasterQuizProgress` on each display — one observer firing repeatedly, not a new observer per show.
 
