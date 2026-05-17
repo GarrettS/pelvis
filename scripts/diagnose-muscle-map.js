@@ -1,6 +1,7 @@
 import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
+import {newEl} from './el-create.js';
 
 let muscleExerciseMap = {};
 let viewTabs;
@@ -22,7 +23,7 @@ await attemptLoad({
 
     window.addEventListener('hashchange', applySubview);
     const runSearch = () =>
-      renderMuscleView(currentMView, search.value.toLowerCase());
+      renderMuscleView(currentMView, search.value.trim().toLowerCase());
     search.addEventListener('input', runSearch);
     search.form.addEventListener('submit', (e) => {
       e.preventDefault();   // intent: run the search in place, no navigation
@@ -56,7 +57,7 @@ function applySubview() {
   }
   if (view !== currentMView) {
     currentMView = view;
-    renderMuscleView(currentMView, search.value.toLowerCase());
+    renderMuscleView(currentMView, search.value.trim().toLowerCase());
   }
 }
 
@@ -74,41 +75,47 @@ function resolveSubviewLink(viewTabs) {
     || viewTabs.querySelector('.subview-tab');
 }
 
+// expandAbbr returns pre-escaped HTML (<abbr>); innerHTML is its
+// documented, sanctioned sink. Structure is built as nodes, not strings.
+function abbrDiv(className, rawText) {
+  return newEl('div', {className, innerHTML: expandAbbr(String(rawText))});
+}
+
+function createEntryCard(entry) {
+  const meta = [
+    ['Pattern',   entry.pattern],
+    ['Hierarchy', entry.hierarchyStep],
+    ['Muscles',   entry.muscles]
+  ]
+    .filter(([, value]) => value)
+    .map(([label, value]) => abbrDiv('muscle-meta', label + ': ' + value));
+
+  const exerciseTags = (entry.exercises || []).map((ex) =>
+    newEl('span', {className: 'exercise-tag', textContent: ex}));
+
+  return newEl('div', {
+    className: 'muscle-entry',
+    children: [
+      abbrDiv('muscle-name', entry.muscle || entry.finding || ''),
+      abbrDiv('muscle-meta', entry.action || entry.meaning || ''),
+      ...meta,
+      newEl('div', {className: 'exercise-tags', children: exerciseTags})
+    ]
+  });
+}
+
 function renderMuscleView(view, query = '') {
   const entries = muscleExerciseMap[view] || [];
-  mapWrap.innerHTML = '';
-  entries.forEach((entry) => {
-    const nameKey = entry.muscle || entry.finding || '';
-    if (query && !doesEntryMatchQuery(entry, query)) return;
-    const div = document.createElement('div');
-    div.className = 'muscle-entry';
-    const exercises = (entry.exercises || []).map((e) =>
-      `<span class="exercise-tag">${e}</span>`).join('');
-    const meta = entry.action || entry.meaning || '';
-    const patternLine = entry.pattern
-      ? '<div class="muscle-meta">Pattern: '
-        + expandAbbr(entry.pattern) + '</div>'
-      : '';
-    const hierarchyLine = entry.hierarchyStep
-      ? '<div class="muscle-meta">Hierarchy: '
-        + expandAbbr(entry.hierarchyStep) + '</div>'
-      : '';
-    const musclesLine = entry.muscles
-      ? '<div class="muscle-meta">Muscles: '
-        + expandAbbr(entry.muscles) + '</div>'
-      : '';
-    div.innerHTML =
-      '<div class="muscle-name">'
-        + expandAbbr(nameKey) + '</div>'
-      + '<div class="muscle-meta">'
-        + expandAbbr(meta) + '</div>'
-      + patternLine + hierarchyLine + musclesLine
-      + '<div class="exercise-tags">'
-        + exercises + '</div>';
-    mapWrap.appendChild(div);
-  });
-  if (!mapWrap.children.length) {
-    mapWrap.innerHTML =
-      '<div class="empty-message">No entries match.</div>';
+  const fragment = document.createDocumentFragment();
+
+  for (const entry of entries) {
+    if (query && !doesEntryMatchQuery(entry, query)) continue;
+    fragment.append(createEntryCard(entry));
   }
+  if (!fragment.childNodes.length) {
+    fragment.append(newEl('div', {
+      className: 'empty-message', textContent: 'No entries match.'
+    }));
+  }
+  mapWrap.replaceChildren(fragment);
 }

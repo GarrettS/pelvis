@@ -84,6 +84,26 @@ class TestElement {
     return node;
   }
 
+  get childNodes() {
+    return this.children;
+  }
+
+  append(...nodes) {
+    for (const node of nodes) {
+      if (node && node.tagName === 'FRAGMENT') {
+        node.children.splice(0).forEach((child) => this.appendChild(child));
+      } else {
+        this.appendChild(node);
+      }
+    }
+  }
+
+  replaceChildren(...nodes) {
+    this.children = [];
+    this._innerHTML = '';
+    this.append(...nodes);
+  }
+
   cloneNode(deep = false) {
     const clone = new TestElement('', {
       tagName: this.tagName,
@@ -181,6 +201,9 @@ function makeDocument() {
     createElement(tagName) {
       return new TestElement('', {tagName});
     },
+    createDocumentFragment() {
+      return new TestElement('', {tagName: 'fragment'});
+    },
     getElementById(id) {
       return elements.get(id) || null;
     },
@@ -245,6 +268,7 @@ async function importDiagnoseSubmodule(name) {
     .replace("'./shuffle.js'", `'${shuffleUrl}'`)
     .replace("'./abbr-expand.js'", `'${abbrExpandUrl}'`)
     .replace("'./load.js'", `'${loadUrl}'`)
+    .replace("'./el-create.js'", `'${elCreateUrl}'`)
     .replace("'./error-ui.js'", `'${errorUiUrl}'`);
   return importSource(rewritten);
 }
