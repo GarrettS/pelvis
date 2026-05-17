@@ -37,6 +37,7 @@ const ABBRS = [
   ['PEC', 'Posterior Exterior Chain'],
   ['ROM', 'Range of Motion'],
   ['TAs', 'Transversus Abdominis'],
+  ['TA', 'Transversus Abdominis'],
   ['IO', 'Internal Oblique'],
   ['IC', 'Ischiocondylar'],
   ['COG', 'Center of Gravity'],
