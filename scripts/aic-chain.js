@@ -155,7 +155,7 @@ const makeMuscleRow = (id, chainEntry) => newEl('div', {
 
 const makeChainNoteRow = (text, isTerminus) => newEl('div', {
   className: 'aic-chain-connection' + (isTerminus ? ' aic-chain-terminal' : ''),
-  textContent: text
+  innerHTML: expandAbbr(text)
 });
 
 containerEl = document.querySelector('.aic-chain-container');
