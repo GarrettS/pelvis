@@ -110,14 +110,14 @@
 
 .map-edge-leader {
   stroke: var(--border);
-  stroke-width: 0.5;
+  stroke-width: .5;
 }
 
 .map-edge-label-bg {
   fill: var(--bg);
-  fill-opacity: 0.85;
+  fill-opacity: .85;
   stroke: var(--border);
-  stroke-width: 0.5;
+  stroke-width: .5;
   rx: 3;
 }
 

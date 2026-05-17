@@ -1,5 +1,5 @@
 :root {
-  --text-label: clamp(0.55rem, 0.45rem + 0.2vw, 0.625rem);
+  --text-label: clamp(.55rem, .45rem + .2vw, .625rem);
   --dur-img-reveal: 600ms;
 }
 
@@ -30,7 +30,7 @@
 
 .anatomize-image-col {
   order: 0;
-  padding-right: calc(0.1rem + 0.2vw);
+  padding-right: calc(.1rem + .2vw);
 }
 
 @media (min-width: 1024px) and (orientation: landscape) {
@@ -207,13 +207,13 @@
 .anatomize-side-label-shadow {
   fill: rgba(0, 0, 0, .6);
   stroke: rgba(0, 0, 0, .6);
-  stroke-width: 0.6;
+  stroke-width: .6;
   pointer-events: none;
   font-family: var(--mono);
 }
 
 .anatomize-side-label {
-  fill: rgba(255, 255, 255, 0.9);
+  fill: rgba(255, 255, 255, .9);
   pointer-events: none;
   font-family: var(--mono);
 }
@@ -233,14 +233,14 @@
 
 .anatomize-arrow-line {
   stroke: var(--pri-fg);
-  stroke-opacity: 0.6;
-  stroke-width: 0.4;
+  stroke-opacity: .6;
+  stroke-width: .4;
   pointer-events: none;
 }
 
 .anatomize-arrowhead {
   fill: var(--pri-fg);
-  fill-opacity: 0.6;
+  fill-opacity: .6;
 }
 
 g.correct .anatomize-arrow-line {
@@ -253,10 +253,10 @@ g.correct .anatomize-arrowhead {
 
 .anatomize-target-circle {
   fill: var(--pri-fg);
-  fill-opacity: 0.35;
+  fill-opacity: .35;
   stroke: var(--pri-fg);
-  stroke-opacity: 0.7;
-  stroke-width: 0.4;
+  stroke-opacity: .7;
+  stroke-width: .4;
   pointer-events: none;
   opacity: 0;
   transition: opacity .3s ease;
@@ -288,7 +288,7 @@ g.correct .anatomize-target-circle {
   font-family: var(--mono);
   font-size: var(--text-sm);
   color: var(--text-dim);
-  padding-left: calc(0.1rem + 0.2vw);
+  padding-left: calc(.1rem + .2vw);
   margin-bottom: -.35rem;
 }
 
@@ -315,11 +315,11 @@ g.correct .anatomize-target-circle {
 .anatomize-detail-name-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: .5rem;
 }
 
 .anatomize-detail-panel > .anatomize-detail-layer > .anatomize-detail-name-row {
-  margin-bottom: 0.5rem;
+  margin-bottom: .5rem;
 }
 
 .anatomize-detail-name {
@@ -333,7 +333,7 @@ g.correct .anatomize-target-circle {
   font-size: var(--text-xs);
   color: var(--text-dim);
   font-style: italic;
-  margin-top: 0.5rem;
+  margin-top: .5rem;
 }
 
 .detail-value {
@@ -374,7 +374,7 @@ g.correct .anatomize-target-circle {
 
 .anatomize-dark-bg {
   --pri-orange: hsl(35, 80%, 63%);
-  --pri-orange-bg: hsla(35, 80%, 63%, 0.4);
+  --pri-orange-bg: hsla(35, 80%, 63%, .4);
   --pri-violet: hsl(270, 40%, 63%);
-  --pri-violet-bg: hsla(270, 40%, 63%, 0.4);
+  --pri-violet-bg: hsla(270, 40%, 63%, .4);
 }

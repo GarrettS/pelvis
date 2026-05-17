@@ -28,11 +28,11 @@
   --dur-fast: 120ms;
   --dur-normal: 200ms;
   --dur-slow: 600ms;
-  --text-xs: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
-  --text-sm: clamp(0.875rem, 0.82rem + 0.25vw, 1.0625rem);
-  --text-base: clamp(1rem, 0.92rem + 0.35vw, 1.1875rem);
-  --text-lg: clamp(1.0625rem, 0.95rem + 0.45vw, 1.3125rem);
-  --text-xl: clamp(1.125rem, 1rem + 0.5vw, 1.4375rem);
+  --text-xs: clamp(.75rem, .7rem + .2vw, .875rem);
+  --text-sm: clamp(.875rem, .82rem + .25vw, 1.0625rem);
+  --text-base: clamp(1rem, .92rem + .35vw, 1.1875rem);
+  --text-lg: clamp(1.0625rem, .95rem + .45vw, 1.3125rem);
+  --text-xl: clamp(1.125rem, 1rem + .5vw, 1.4375rem);
   --text-2xl: clamp(1.5rem, 1.2rem + 1vw, 2.25rem);
   --mono: ui-monospace, 'Cascadia Code', 'SF Mono', 'Fira Code', Consolas, 'Liberation Mono', Menlo, monospace;
   --serif: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif;
@@ -41,19 +41,19 @@
   font-size: 20px;
   -webkit-text-size-adjust: 100%;
   --pri-brown: hsl(25, 50%, 35%);
-  --pri-brown-bg: hsla(25, 50%, 35%, 0.4);
+  --pri-brown-bg: hsla(25, 50%, 35%, .4);
   --pri-red: hsl(0, 60%, 45%);
-  --pri-red-bg: hsla(0, 60%, 45%, 0.4);
+  --pri-red-bg: hsla(0, 60%, 45%, .4);
   --pri-green-family: hsl(140, 45%, 38%);
-  --pri-green-family-bg: hsla(140, 45%, 38%, 0.4);
+  --pri-green-family-bg: hsla(140, 45%, 38%, .4);
   --pri-orange: hsl(35, 80%, 48%);
-  --pri-orange-bg: hsla(35, 80%, 48%, 0.4);
+  --pri-orange-bg: hsla(35, 80%, 48%, .4);
   --pri-violet: hsl(270, 40%, 48%);
-  --pri-violet-bg: hsla(270, 40%, 48%, 0.4);
+  --pri-violet-bg: hsla(270, 40%, 48%, .4);
   --pri-yellow: hsl(50, 70%, 48%);
-  --pri-yellow-bg: hsla(50, 70%, 48%, 0.4);
+  --pri-yellow-bg: hsla(50, 70%, 48%, .4);
   --pri-neutral: hsl(0, 0%, 62%);
-  --pri-neutral-bg: hsla(0, 0%, 62%, 0.4);
+  --pri-neutral-bg: hsla(0, 0%, 62%, .4);
 }
 
 .pri-brown { --pri-fg: var(--pri-brown); --pri-bg: var(--pri-brown-bg); }
@@ -200,7 +200,7 @@ nav {
   background: none;
   border: none;
   color: var(--text-dim);
-  padding: 0.5rem .75rem;
+  padding: .5rem .75rem;
   white-space: nowrap;
   transition: all var(--dur-normal);
   text-decoration: none;
@@ -667,8 +667,8 @@ button.active {
   user-select: none;
   border-color: var(--border);
   border-style: solid;
-  border-width: 0.08rem;
-  border-radius: calc(0.1vw + 0.1rem);
+  border-width: .08rem;
+  border-radius: calc(.1vw + .1rem);
 }
 
 .resize-grip {
