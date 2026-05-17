@@ -1,11 +1,23 @@
 import {handleFetchError} from './load.js';
 import {newEl} from './el-create.js';
 
+const ERROR_CALLOUT_SELECTOR = '.callout.error';
+
 export const appendErrorCallout = (element, textContent) =>
   element.appendChild(newEl('div', { className: 'callout error', textContent }));
 
 export const clearErrors = container =>
-  container.querySelectorAll('.callout.error').forEach(el => el.remove());
+  container.querySelectorAll(ERROR_CALLOUT_SELECTOR).forEach(el => el.remove());
+
+export const replaceErrorCallout = (container, message) => {
+  const existingError = container.querySelector(ERROR_CALLOUT_SELECTOR);
+  if (existingError) {
+    existingError.textContent = message;
+    return existingError;
+  }
+
+  return appendErrorCallout(container, message);
+};
 
 export function renderError(container, message, onRetry) {
   const callout = appendErrorCallout(container, message);

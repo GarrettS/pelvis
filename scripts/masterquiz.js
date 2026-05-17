@@ -2,7 +2,8 @@ import { getAllEquivalent } from './equivalence.js';
 import { expandAbbr } from './abbr-expand.js';
 import { shuffle } from './shuffle.js';
 import { loadJson } from './load.js';
-import { appendErrorCallout, attemptLoad } from './error-ui.js';
+import { replaceErrorCallout, clearErrors, attemptLoad } from './error-ui.js';
+import { saveUserFlashcard, hasSavedFlashcard } from './flashcard-storage.js';
 import { getAllProgress, setTotal as setMasterQuizTotal,
   updateEntry as updateProgress, getStats,
   clearAll as clearProgress, MASTERY_STREAK
@@ -17,11 +18,11 @@ const DOMAINS = [
   'nomenclature', 'tests', 'treatment',
   'anatomy', 'procedures', 'clinical'
 ];
-const USER_FC_KEY = 'userFlashcards';
 const RE_POSITION = /\b(?<region>IP|IS|IsP|SI|AF|FA)\s+(?<dir>ER|IR)\b/g;
 const STEM_PREVIEW_MAX = 80;
 const FLASHCARD_FRONT_MAX = 200;
 const FLASHCARD_DETAIL_MAX = 380;
+const PROGRESS_TOAST_MS = 5000;
 
 let QUESTIONS = [];
 let queue = [];
@@ -29,7 +30,6 @@ let qIdx = 0;
 let sessionAnswers = [];
 let submitted = false;
 let equivPinned = false;
-let savedCardIds = null;
 let activeScreenClass = 'screen-config';
 
 const truncate = (s, n) => s.length > n ? s.slice(0, n) + '…' : s;
@@ -54,6 +54,7 @@ function buildQueue(domains, count, priorityMode) {
       inProgress.push({ q, totalCorrect: p.totalCorrect });
     }
   }
+  shuffle(inProgress);
   inProgress.sort((a, b) => a.totalCorrect - b.totalCorrect);
   return [
     ...shuffle(missedQs),
@@ -65,6 +66,19 @@ function buildQueue(domains, count, priorityMode) {
 function showScreen(cls) {
   containerEl.classList.replace(activeScreenClass, cls);
   activeScreenClass = cls;
+}
+
+const hideProgressToast = () =>
+  (document.getElementById('mq-progress-toast').hidden = true);
+
+let progressToastTimer = 0;
+
+function showProgressToast(message) {
+  const toast = document.getElementById('mq-progress-toast');
+  toast.textContent = message;
+  toast.hidden = false;
+  clearTimeout(progressToastTimer);
+  progressToastTimer = setTimeout(hideProgressToast, PROGRESS_TOAST_MS);
 }
 
 const getSelectedDomains = () =>
@@ -163,7 +177,8 @@ function handleSubmit() {
   const correct = chosen === q.answer;
 
   sessionAnswers.push({ question: q, chosen, correct });
-  updateProgress(q.id, correct);
+  const progressResult = updateProgress(q.id, correct);
+  if (!progressResult.ok) showProgressToast(progressResult.message);
 
   for (const radio of quizForm.elements.answer) {
     radio.disabled = true;
@@ -257,21 +272,7 @@ function clearEquivHighlights() {
   }
 }
 
-function tryGetSavedCardIds() {
-  if (savedCardIds) return savedCardIds;
-  try {
-    const rawCards = localStorage.getItem(USER_FC_KEY);
-    const cards = rawCards ? JSON.parse(rawCards) : [];
-    savedCardIds = new Set(cards.map(c => c.id));
-  } catch (anyError) {
-    // Background saved-status check — not user-initiated.
-    // Save handlers read again and show an error if saved-card data is corrupt.
-    savedCardIds = new Set();
-  }
-  return savedCardIds;
-}
-
-const isAlreadySaved = qId => tryGetSavedCardIds().has('user-mq-' + qId);
+const isAlreadySaved = qId => hasSavedFlashcard('user-mq-' + qId);
 
 function buildFlashcard(q) {
   const correctOpt = q.options.find(o => o.key === q.answer);
@@ -286,64 +287,6 @@ function buildFlashcard(q) {
   };
 }
 
-function showSaveFailure(container, message) {
-  container.querySelector('.callout.error')?.remove();
-  appendErrorCallout(container, message);
-}
-
-function saveUserFlashcard(card) {
-  let rawCards;
-  try {
-    rawCards = localStorage.getItem(USER_FC_KEY);
-  } catch (storageReadError) {
-    return {
-      ok: false,
-      message: "Couldn't save flashcard: browser storage is unavailable: "
-          + storageReadError.message
-    };
-  }
-
-  let savedCards;
-  try {
-    savedCards = rawCards ? JSON.parse(rawCards) : [];
-  } catch (parseError) {
-    return {
-      ok: false,
-      message: "Couldn't save flashcard: saved card data is corrupt: "
-          + parseError.message
-    };
-  }
-
-  if (savedCards.some(c => c.id === card.id)) {
-    savedCardIds = new Set(savedCards.map(c => c.id));
-    return { ok: true, duplicate: true };
-  }
-
-  let serializedCards;
-  try {
-    serializedCards = JSON.stringify([...savedCards, card]);
-  } catch (stringifyError) {
-    return {
-      ok: false,
-      message: "Couldn't save flashcard: saved card data couldn't be prepared: "
-          + stringifyError.message
-    };
-  }
-
-  try {
-    localStorage.setItem(USER_FC_KEY, serializedCards);
-  } catch (storageWriteError) {
-    return {
-      ok: false,
-      message: "Couldn't save flashcard: browser storage is unavailable: "
-          + storageWriteError.message
-    };
-  }
-
-  savedCardIds = new Set([...savedCards, card].map(c => c.id));
-  return { ok: true, duplicate: false };
-}
-
 function handleSaveFlashcard() {
   if (!submitted) return;
 
@@ -352,12 +295,12 @@ function handleSaveFlashcard() {
   const explanationEl = document.getElementById('mq-explanation');
   const result = saveUserFlashcard(buildFlashcard(q));
   if (!result.ok) {
-    showSaveFailure(explanationEl, result.message);
+    replaceErrorCallout(explanationEl, result.message);
     saveBtn.disabled = true;
     return;
   }
 
-  explanationEl?.querySelector('.callout.error')?.remove();
+  clearErrors(explanationEl);
   saveBtn.textContent = result.duplicate ? 'Already saved' : '✓ Saved';
   saveBtn.disabled = true;
 }
@@ -439,12 +382,12 @@ function handleResultSave(btn) {
 
   const result = saveUserFlashcard(buildFlashcard(q));
   if (!result.ok) {
-    showSaveFailure(btn.parentNode, result.message);
+    replaceErrorCallout(btn.parentNode, result.message);
     btn.disabled = true;
     return;
   }
 
-  btn.parentNode?.querySelector('.callout.error')?.remove();
+  clearErrors(btn.parentNode);
   btn.textContent = result.duplicate ? 'Already saved' : '✓ Saved';
   btn.disabled = true;
 }
@@ -532,7 +475,8 @@ await attemptLoad({
   container: containerEl,
   render: (data) => {
     QUESTIONS = data;
-    setMasterQuizTotal(QUESTIONS.length);
+    const totalResult = setMasterQuizTotal(QUESTIONS.length);
+    if (!totalResult.ok) showProgressToast(totalResult.message);
     renderStats();
     syncStartButton();
     initListeners();

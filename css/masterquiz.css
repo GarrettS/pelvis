@@ -3,6 +3,11 @@
   &.screen-config #mq-config,
   &.screen-quiz #mq-quiz,
   &.screen-results #mq-results { display: block; }
+
+  &.loading #mq-config {
+    pointer-events: none;
+    opacity: .6;
+  }
 }
 
 #mq-results:not(.has-incorrect) {

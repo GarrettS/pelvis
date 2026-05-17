@@ -29,3 +29,14 @@
   color: var(--text-dim);
   white-space: nowrap;
 }
+
+#mq-progress-toast {
+  margin: .5rem 0 0;
+  padding: .4rem .6rem;
+  border: 1px solid var(--border);
+  border-radius: .25rem;
+  background: var(--surface2);
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+}

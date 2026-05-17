@@ -1,12 +1,13 @@
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 import {loadJson} from './load.js';
-import {appendErrorCallout, attemptLoad} from './error-ui.js';
+import {replaceErrorCallout, clearErrors, attemptLoad} from './error-ui.js';
+import {getUserFlashcards, saveUserFlashcard} from './flashcard-storage.js';
 import {newEl} from './el-create.js';
 
-const USER_FC_KEY = 'userFlashcards';
-
 let allCards = [];
+let baseDeck = [];
+let loadedUserCardCount = 0;
 let activeCat = 'all';
 let activeWeight = 'all';
 let deck = [];
@@ -15,62 +16,18 @@ let cardsRemaining = 0;
 
 const containerEl = document.getElementById('flashcards-content');
 
-function tryGetUserCards() {
-  try {
-    const raw = localStorage.getItem(USER_FC_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (anyError) {
-    // Background storage — not user-initiated. Flashcards
-    // function without persistence; user loses custom cards only.
-    return [];
-  }
+function normalizeUserCard(c) {
+  return {
+    ...c,
+    category: c.category || 'user_created',
+    examWeight: c.examWeight || 'high'
+  };
 }
 
-function saveUserFlashcard(card) {
-  let rawCards;
-  try {
-    rawCards = localStorage.getItem(USER_FC_KEY);
-  } catch (storageReadError) {
-    return {
-      ok: false,
-      message: "Couldn't save flashcard: browser storage is unavailable: "
-        + storageReadError.message
-    };
-  }
-
-  let savedCards;
-  try {
-    savedCards = rawCards ? JSON.parse(rawCards) : [];
-  } catch (parseError) {
-    return {
-      ok: false,
-      message: "Couldn't save flashcard: saved card data is corrupt: "
-        + parseError.message
-    };
-  }
-
-  let serializedCards;
-  try {
-    serializedCards = JSON.stringify([...savedCards, card]);
-  } catch (stringifyError) {
-    return {
-      ok: false,
-      message: "Couldn't save flashcard: saved card data couldn't be prepared: "
-        + stringifyError.message
-    };
-  }
-
-  try {
-    localStorage.setItem(USER_FC_KEY, serializedCards);
-  } catch (storageWriteError) {
-    return {
-      ok: false,
-      message: "Couldn't save flashcard: browser storage is unavailable: "
-        + storageWriteError.message
-    };
-  }
-
-  return {ok: true};
+function rebuildAllCards() {
+  const userCards = getUserFlashcards();
+  loadedUserCardCount = userCards.length;
+  allCards = [...baseDeck, ...userCards.map(normalizeUserCard)];
 }
 
 function getFilteredCards() {
@@ -192,17 +149,12 @@ function showEditStep() {
   document.getElementById('fc-form-title').textContent = 'New Card';
 }
 
-function showSaveFailure(container, message) {
-  container.querySelector('.callout.error')?.remove();
-  appendErrorCallout(container, message);
-}
-
 function bindFilterGroup(containerId, dataKey, onChange) {
   const container = document.getElementById(containerId);
   let activeBtn = container.querySelector('.fc-filter-btn.active');
   container.addEventListener('click', (e) => {
     const btn = e.target.closest(`[data-${dataKey}]`);
-    if (!btn) return;
+    if (!btn || btn === activeBtn) return;
 
     onChange(btn.dataset[dataKey]);
     activeBtn?.classList.remove('active');
@@ -272,7 +224,7 @@ function setupAddForm() {
     const back = backInput.value.trim();
     if (!front || !back) return;
 
-    addForm.querySelector('.callout.error')?.remove();
+    clearErrors(addForm);
 
     const newCard = {
       id: 'user-' + Date.now(),
@@ -286,11 +238,12 @@ function setupAddForm() {
 
     const saveResult = saveUserFlashcard(newCard);
     if (!saveResult.ok) {
-      showSaveFailure(addForm, saveResult.message);
+      replaceErrorCallout(addForm, saveResult.message);
       return;
     }
 
     allCards.push(newCard);
+    loadedUserCardCount = getUserFlashcards().length;
     deck.unshift(newCard);
     currentIdx = 0;
     cardsRemaining = deck.length;
@@ -302,13 +255,17 @@ function setupAddForm() {
   });
 }
 
+function refreshDeckIfUserCardsAdded([entry]) {
+  if (!entry.isIntersecting) return;
+  if (getUserFlashcards().length === loadedUserCardCount) return;
+
+  rebuildAllCards();
+  resetDeck();
+}
+
 function setupFlashcards(deckData) {
-  const userCards = tryGetUserCards().map((c) => ({
-    ...c,
-    category: c.category || 'user_created',
-    examWeight: c.examWeight || 'high'
-  }));
-  allCards = [...deckData, ...userCards];
+  baseDeck = deckData;
+  rebuildAllCards();
   deck = shuffle([...allCards]);
   cardsRemaining = deck.length;
   renderCard();
@@ -318,6 +275,8 @@ function setupFlashcards(deckData) {
   bindFilterGroup('fc-cat-filters', 'cat', (val) => { activeCat = val; });
   bindFilterGroup('fc-weight-filters', 'weight', (val) => { activeWeight = val; });
   setupAddForm();
+
+  new IntersectionObserver(refreshDeckIfUserCardsAdded).observe(containerEl);
 }
 
 await attemptLoad({
