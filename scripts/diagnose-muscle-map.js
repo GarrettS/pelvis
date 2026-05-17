@@ -5,7 +5,7 @@ import {newEl} from './el-create.js';
 
 // Structural: third hash segment is the subview — no positional [2],
 // no '#diagnose/muscle-map/' literal duplicating the route shape.
-const SUBVIEW_REGEX = /^#[^/]+\/[^/]+\/(?<view>[^/]+)/;
+const SUBVIEW_REGEX = /^#[^/]+\/[^/]+\/(?<view>[^/?]+)/;
 const subviewId = view => 'muscle-view-' + view;
 const subviewFromHash = hash => SUBVIEW_REGEX.exec(hash)?.groups.view;
 
