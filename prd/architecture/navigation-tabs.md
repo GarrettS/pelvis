@@ -77,7 +77,7 @@ Clicking it re-enters `lazyInit` for the same contentId — the `Failed → Pend
 
 ## Re-activation and self-driven redraw
 
-`lazyInit` runs a module exactly once per contentId — it returns early when `initialized.has(contentId)`. navigation-tabs.js never re-invokes a module on re-activation; `Loaded → Loaded` in the diagram is a dedupe no-op. Whatever a module wires up at init runs once for the page's life — re-activating its tab cannot stack listeners. The corollary: a module that must react each time its section is shown is not re-run, so it owns a long-lived subscription instead. navigation-tabs.js does not call back into modules.
+`lazyInit` runs a module exactly once per contentId — it returns early when `initialized.has(contentId)`. navigation-tabs.js never re-invokes a module on re-activation — re-activating a loaded tab is the dedupe no-op the diagram notes. Whatever a module wires up at init runs once for the page's life — re-activating its tab cannot stack listeners. The corollary: a module that must react each time its section is shown is not re-run, so it owns a long-lived subscription instead. navigation-tabs.js does not call back into modules.
 
 ### Examples
 
