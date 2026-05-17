@@ -66,7 +66,21 @@ Clicking it re-enters `lazyInit` for the same contentId — the `Failed → Pend
 
 `lazyInit` runs a module exactly once per contentId — it returns early when `initialized.has(contentId)`. navigation-tabs.js never re-invokes a module on re-activation; `Loaded → Loaded` in the diagram is a dedupe no-op. Whatever a module wires up at init runs once for the page's life — re-activating its tab cannot stack listeners. The corollary: a module that must react each time its section is shown is not re-run, so it owns a long-lived subscription instead. navigation-tabs.js does not call back into modules.
 
-For example, module `home.js` creates an IntersectionObserver on `#home-content` and runs `renderMasterQuizProgress` each time it's displayed.
+### Examples
+
+`flashcards.js` `setupFlashcards` binds at init:
+
+```js
+function setupFlashcards(deckData) { // module init — runs once, not a render
+  // …build the deck…
+  containerEl.addEventListener('click', cardActionHandler);
+  new IntersectionObserver(refreshDeckIfUserCardsAdded).observe(containerEl);
+}
+```
+
+To a React-trained reader this trips the effect-without-cleanup alarm — an `addEventListener` plus an `observe()` with no teardown is what leaks when a component re-renders or remounts. There is no render here: by the rule above the function runs once per page, so there is nothing to tear down. The delegated handler stays safe under churn for the same reason — card actions resolve through that one `containerEl` listener, so `buildCard` adds no per-node handlers and `resetDeck()` cannot accumulate them.
+
+`home.js` is the corollary in practice: it must refresh each time its tab is shown, so it holds one long-lived `IntersectionObserver` on `#home-content` and re-runs `renderMasterQuizProgress` on each display — one observer firing repeatedly, not a new observer per show.
 
 ## Skeleton
 
