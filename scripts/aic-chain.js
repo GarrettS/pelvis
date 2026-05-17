@@ -12,10 +12,12 @@ const ARROWHEAD_ID = 'aic-arrowhead';
 
 let containerEl = null;
 let panelEl = null;
+let panelScrollEl = null;
 let overlayEl = null;
 let leaderEl = null;
 let imgEl = null;
 let detailEl = null;
+let detailScrollEl = null;
 let imageColEl = null;
 let tabSectionEl = null;
 
@@ -167,18 +169,22 @@ if (resolveDomRefs()) {
 
 function resolveDomRefs() {
   panelEl = containerEl.querySelector('.aic-chain-panel');
+  panelScrollEl = panelEl?.querySelector('.aic-chain-scroll');
   overlayEl = containerEl.querySelector('.aic-chain-overlay');
   imgEl = containerEl.querySelector('.aic-chain-img');
   detailEl = containerEl.querySelector('.aic-chain-detail');
+  detailScrollEl = detailEl?.querySelector('.aic-chain-scroll');
   imageColEl = containerEl.querySelector('.aic-chain-image-col');
   tabSectionEl = containerEl.parentElement;
   leaderEl = tabSectionEl.querySelector('.aic-leader-svg');
 
   const missingRef = [
     [panelEl, 'panel'],
+    [panelScrollEl, 'panel scroll'],
     [overlayEl, 'overlay'],
     [imgEl, 'image'],
     [detailEl, 'detail'],
+    [detailScrollEl, 'detail scroll'],
     [imageColEl, 'image column'],
     [leaderEl, 'leader svg']
   ].find(([element]) => !element);
@@ -241,7 +247,7 @@ function buildPanel() {
       fragment.append(makeChainNoteRow(chainEntry.terminus, true));
     }
   });
-  panelEl.append(fragment);
+  panelScrollEl.append(fragment);
 }
 
 function makeMuscleRow(id, chainEntry) {
@@ -275,7 +281,7 @@ function setActiveMuscle(muscle) {
 function showDetail(muscle) {
   if (!muscle.hasDetail()) return;
 
-  detailEl.replaceChildren(newEl('div', {
+  detailScrollEl.replaceChildren(newEl('div', {
     className: `detail-panel ${muscle.priColor()}`,
     children: [
       newEl('h3', {textContent: muscle.label()}),

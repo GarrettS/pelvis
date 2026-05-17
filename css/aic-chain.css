@@ -5,15 +5,21 @@
 .aic-chain-container {
   display: grid;
   grid-template-columns: var(--panel-w, calc(12rem + 7.5vw)) auto auto 1fr;
-  align-items: start;
+  align-items: stretch;
   gap: 0;
   position: relative;
 }
 
 .aic-chain-panel {
-  overflow-y: auto;
-  max-height: 80vh;
+  position: relative;
+  min-height: 0;
   background: var(--surface);
+}
+
+.aic-chain-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
 }
 
 .aic-chain-row {
@@ -113,10 +119,10 @@
 }
 
 .aic-chain-detail {
-  overflow-y: auto;
-  max-height: 80vh;
-  margin-left: 0.2rem;
-  margin-right: 0.2rem;
+  position: relative;
+  min-height: 0;
+  margin-left: .2rem;
+  margin-right: .2rem;
 }
 
 .aic-chain-detail .detail-panel {
@@ -137,11 +143,7 @@
     order: -1;
   }
 
-  .aic-chain-panel {
-    max-height: none;
-  }
-
-  .aic-chain-detail {
-    max-height: none;
+  .aic-chain-scroll {
+    position: static;
   }
 }
