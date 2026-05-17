@@ -9,6 +9,9 @@ import {newEl, newSvg} from './el-create.js';
 
 const VIEWS = ['anterior', 'posterior'];
 const ARROWHEAD_ID = 'aic-arrowhead';
+const LEADER_DRAW_MS =
+    parseFloat(getComputedStyle(document.documentElement)
+        .getPropertyValue('--dur-normal'));
 
 let containerEl = null;
 let panelEl = null;
@@ -118,27 +121,15 @@ class AicMuscle {
     this.#leaderPathsByView.forEach((path) => path.removeAttribute('d'));
   }
 
-  drawLeader(rowRect, imageRect, sectionRect) {
+  drawLeader(rowRect, imageRect, sectionRect, animate) {
     const start = {
       x: rowRect.right - sectionRect.left,
       y: rowRect.top + rowRect.height / 2 - sectionRect.top
     };
-    for (let i = 0; i < VIEWS.length; i++) {
-      const view = VIEWS[i];
+    for (const view of VIEWS) {
       const end = anchorPointInSection(this.anchor(view), imageRect, sectionRect);
-      applyLeaderPathState(
-          this.#leaderPathsByView.get(view),
-          buildLeaderPathState({start, end}));
+      drawLeaderPath(this.#leaderPathsByView.get(view), start, end, animate);
     }
-    this.#kickAnimation();
-  }
-
-  #kickAnimation() {
-    requestAnimationFrame(() => {
-      for (const path of this.#leaderPathsByView.values()) {
-        path.style.strokeDashoffset = '0';
-      }
-    });
   }
 
   #buildCircle(view) {
@@ -216,10 +207,10 @@ function setupUi() {
     cssProperty: '--panel-w',
     minWidth: 100,
     maxRatio: 0.4,
-    onResize: drawLeaderLine
+    onResize: repositionLeader
   });
 
-  new ResizeObserver(drawLeaderLine).observe(tabSectionEl);
+  new ResizeObserver(repositionLeader).observe(tabSectionEl);
 }
 
 function ensureLeaderDefs() {
@@ -274,7 +265,7 @@ function setActiveMuscle(muscle) {
   activeMuscle = muscle;
   muscle.mount();
   muscle.activate();
-  drawLeaderLine();
+  drawLeaderLine(true);
   showDetail(muscle);
 }
 
@@ -296,7 +287,7 @@ function showDetail(muscle) {
   }));
 }
 
-function drawLeaderLine() {
+function drawLeaderLine(animate) {
   if (drawFrameId || !activeMuscle) return;
 
   drawFrameId = requestAnimationFrame(() => {
@@ -306,10 +297,14 @@ function drawLeaderLine() {
     const imageRect = imgEl.getBoundingClientRect();
 
     sizeLeaderSvg(sectionRect);
-    muscle.drawLeader(rowRect, imageRect, sectionRect);
+    muscle.drawLeader(rowRect, imageRect, sectionRect, animate);
 
     drawFrameId = null;
   });
+}
+
+function repositionLeader() {
+  drawLeaderLine(false);
 }
 
 const sizeLeaderSvg = ({width: w, height: h}) =>
@@ -320,41 +315,19 @@ const anchorPointInSection = ({x, y}, img, section) => ({
   y: img.top + (y / 100) * img.height - section.top
 });
 
-function buildLeaderPathState({start, end}) {
-  const control = {x: start.x + (end.x - start.x) * 0.5, y: start.y};
-  const pathD = `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`;
-  const totalLength = approximateQuadLength(start, control, end);
-  return {pathD, totalLength};
+function leaderPathD({x: startX, y: startY}, {x: endX, y: endY}) {
+  const controlX = startX + (endX - startX) * 0.5;
+  return `M ${startX} ${startY} Q ${controlX} ${startY} ${endX} ${endY}`;
 }
 
-function applyLeaderPathState(path, {pathD, totalLength}) {
-  path.setAttribute('d', pathD);
-  path.style.cssText =
-      'stroke-dasharray: ' + totalLength + ';'
-      + ' stroke-dashoffset: ' + totalLength + ';';
-}
+function drawLeaderPath(path, start, end, animate) {
+  path.setAttribute('d', leaderPathD(start, end));
+  const length = path.getTotalLength();
+  path.style.strokeDasharray = length;
 
-function approximateQuadLength(start, control, end) {
-  let length = 0;
-  let prevX = start.x;
-  let prevY = start.y;
-  const steps = 20;
+  if (!animate) return;
 
-  for (let stepIndex = 1; stepIndex <= steps; stepIndex++) {
-    const progress = stepIndex / steps;
-    const inverseProgress = 1 - progress;
-    const px = inverseProgress * inverseProgress * start.x
-        + 2 * inverseProgress * progress * control.x
-        + progress * progress * end.x;
-    const py = inverseProgress * inverseProgress * start.y
-        + 2 * inverseProgress * progress * control.y
-        + progress * progress * end.y;
-    const dx = px - prevX;
-    const dy = py - prevY;
-    length += Math.sqrt(dx * dx + dy * dy);
-    prevX = px;
-    prevY = py;
-  }
-
-  return length;
+  path.animate(
+      [{strokeDashoffset: length}, {strokeDashoffset: 0}],
+      {duration: LEADER_DRAW_MS, easing: 'ease-out'});
 }
