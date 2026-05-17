@@ -40,9 +40,14 @@
   initial-value: 0rem;
 }
 
-@keyframes scroll-fade {
-  0% { --top-mask-size: 0rem; --bottom-mask-size: var(--scroll-fade-size); }
-  100% { --top-mask-size: var(--scroll-fade-size); --bottom-mask-size: 0rem; }
+@keyframes fade-in-top {
+  from { --top-mask-size: 0rem; }
+  to { --top-mask-size: var(--scroll-fade-size); }
+}
+
+@keyframes fade-out-bottom {
+  from { --bottom-mask-size: var(--scroll-fade-size); }
+  to { --bottom-mask-size: 0rem; }
 }
 
 .aic-chain-scroll {
@@ -54,8 +59,14 @@
       black var(--top-mask-size),
       black calc(100% - var(--bottom-mask-size)),
       transparent 100%);
-  animation: scroll-fade linear;
-  animation-timeline: scroll(self);
+  animation: fade-in-top linear, fade-out-bottom linear;
+  /* Timeline listed per animation (not relying on list-repeat): keeps
+     name/timeline/range coordinated lists the same length — Chromium
+     mis-binds scroll ranges when they differ. */
+  animation-timeline: scroll(self), scroll(self);
+  animation-range: 0 var(--scroll-fade-size),
+      calc(100% - var(--scroll-fade-size)) 100%;
+  animation-fill-mode: both;
 }
 
 .aic-chain-row {
@@ -192,5 +203,10 @@
 
   .aic-chain-scroll {
     position: static;
+    /* Static here means no internal scroll, so the scroll-driven
+       fade is inapplicable — disable it explicitly rather than rely
+       on the mask collapsing to an invalid value. */
+    mask-image: none;
+    animation: none;
   }
 }
