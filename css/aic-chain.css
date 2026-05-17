@@ -1,3 +1,11 @@
+:root {
+  /* AIC overlay marks (leader lines + anchor rings) render almost
+     entirely over the fixed light anatomical image, not the themed
+     surface, so the casing color is one theme-independent value —
+     intentionally no dark-mode variant. */
+  --aic-casing: rgba(0, 0, 0, .7);
+}
+
 #anatomy-aic-content .tab-section {
   position: relative;
 }
@@ -84,17 +92,27 @@
   pointer-events: none;
 }
 
-.aic-chain-overlay circle {
+.aic-chain-overlay g {
+  display: none;
+}
+
+.aic-chain-overlay g.activeMuscle {
+  display: inline;
+}
+
+.aic-anchor-casing {
+  r: 3.13;
+  fill: none;
+  stroke: var(--aic-casing);
+  stroke-width: .4;
+}
+
+.aic-anchor-dot {
   r: 3;
   fill: var(--pri-fg);
   fill-opacity: .4;
   stroke: var(--pri-fg);
   stroke-width: .5;
-  display: none;
-}
-
-.aic-chain-overlay circle.activeMuscle {
-  display: inline;
 }
 
 .aic-leader-svg {
@@ -110,7 +128,9 @@
 .aic-leader-path {
   fill: none;
   stroke: var(--pri-fg);
-  stroke-width: 1.5;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 1px var(--aic-casing))
+      drop-shadow(0 0 1px var(--aic-casing));
 }
 
 .aic-chain-container .resize-handle {

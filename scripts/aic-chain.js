@@ -67,7 +67,7 @@ class AicMuscle {
   #chainEntry;
   #detailEntry;
   #rowEl = null;
-  #circlesByView = new Map();
+  #anchorsByView = new Map();
   #leaderPathsByView = new Map();
   #mounted = false;
 
@@ -95,11 +95,11 @@ class AicMuscle {
 
     this.#rowEl = document.getElementById(this.#id);
     VIEWS.forEach((view) => {
-      this.#circlesByView.set(view, this.#buildCircle(view));
+      this.#anchorsByView.set(view, this.#buildAnchor(view));
       this.#leaderPathsByView.set(view, this.#buildLeaderPath());
     });
 
-    overlayEl.append(...this.#circlesByView.values());
+    overlayEl.append(...this.#anchorsByView.values());
     leaderEl.append(...this.#leaderPathsByView.values());
 
     this.#mounted = true;
@@ -108,33 +108,35 @@ class AicMuscle {
   activate() {
     this.#rowEl.classList.add('activeMuscle');
     this.#rowEl.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-    this.#circlesByView.forEach((circle) => {
-      circle.classList.add('activeMuscle');
+    this.#anchorsByView.forEach((anchor) => {
+      anchor.classList.add('activeMuscle');
     });
   }
 
   deactivate() {
     this.#rowEl.classList.remove('activeMuscle');
-    this.#circlesByView.forEach((circle) => {
-      circle.classList.remove('activeMuscle');
+    this.#anchorsByView.forEach((anchor) => {
+      anchor.classList.remove('activeMuscle');
     });
     this.#leaderPathsByView.forEach((path) => path.removeAttribute('d'));
   }
 
-  drawLeader(rowRect, imageRect, sectionRect, animate) {
-    const start = {
-      x: rowRect.right - sectionRect.left,
-      y: rowRect.top + rowRect.height / 2 - sectionRect.top
-    };
+  drawLeader({start, imageRect, sectionRect, animate}) {
     for (const view of VIEWS) {
       const end = anchorPointInSection(this.anchor(view), imageRect, sectionRect);
       drawLeaderPath(this.#leaderPathsByView.get(view), start, end, animate);
     }
   }
 
-  #buildCircle(view) {
+  #buildAnchor(view) {
     const {x: cx, y: cy} = this.anchor(view);
-    return newSvg('circle', {cx, cy, className: this.priColor()});
+    return newSvg('g', {
+      className: this.priColor(),
+      children: [
+        newSvg('circle', {cx, cy, className: 'aic-anchor-casing'}),
+        newSvg('circle', {cx, cy, className: 'aic-anchor-dot'})
+      ]
+    });
   }
 
   #buildLeaderPath() {
@@ -144,6 +146,17 @@ class AicMuscle {
     });
   }
 }
+
+const makeMuscleRow = (id, chainEntry) => newEl('div', {
+  id,
+  className: `aic-chain-row ${chainEntry.priColor}`,
+  textContent: chainEntry.label
+});
+
+const makeChainNoteRow = (text, isTerminus) => newEl('div', {
+  className: 'aic-chain-connection' + (isTerminus ? ' aic-chain-terminal' : ''),
+  textContent: text
+});
 
 containerEl = document.querySelector('.aic-chain-container');
 if (resolveDomRefs()) {
@@ -207,10 +220,11 @@ function setupUi() {
     cssProperty: '--panel-w',
     minWidth: 100,
     maxRatio: 0.4,
-    onResize: repositionLeader
+    onResize: drawLeaderLine
   });
 
-  new ResizeObserver(repositionLeader).observe(tabSectionEl);
+  new ResizeObserver(drawLeaderLine).observe(tabSectionEl);
+  panelScrollEl.addEventListener('scroll', drawLeaderLine, {passive: true});
 }
 
 function ensureLeaderDefs() {
@@ -219,7 +233,7 @@ function ensureLeaderDefs() {
   leaderEl.insertAdjacentHTML('afterbegin', `
     <defs>
       <marker id="${ARROWHEAD_ID}" markerWidth="8" markerHeight="6"
-              refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
         <polygon points="0 0, 8 3, 0 6" fill="context-stroke"/>
       </marker>
     </defs>
@@ -241,23 +255,6 @@ function buildPanel() {
   panelScrollEl.append(fragment);
 }
 
-function makeMuscleRow(id, chainEntry) {
-  return newEl('div', {
-    id,
-    className: `aic-chain-row ${chainEntry.priColor}`,
-    textContent: chainEntry.label
-  });
-}
-
-function makeChainNoteRow(text, isTerminus) {
-  return newEl('div', {
-    className: isTerminus
-        ? 'aic-chain-connection aic-chain-terminal'
-        : 'aic-chain-connection',
-    textContent: text
-  });
-}
-
 function setActiveMuscle(muscle) {
   if (activeMuscle === muscle) return;
 
@@ -265,7 +262,7 @@ function setActiveMuscle(muscle) {
   activeMuscle = muscle;
   muscle.mount();
   muscle.activate();
-  drawLeaderLine(true);
+  drawLeaderLine({animate: true});
   showDetail(muscle);
 }
 
@@ -287,25 +284,34 @@ function showDetail(muscle) {
   }));
 }
 
-function drawLeaderLine(animate) {
+function drawLeaderLine({animate} = {}) {
   if (drawFrameId || !activeMuscle) return;
 
   drawFrameId = requestAnimationFrame(() => {
     const muscle = activeMuscle;
     const sectionRect = tabSectionEl.getBoundingClientRect();
     const rowRect = muscle.rowEl().getBoundingClientRect();
-    const imageRect = imgEl.getBoundingClientRect();
+    const panelRect = panelScrollEl.getBoundingClientRect();
+    const originY = clamp(rowRect.top + rowRect.height / 2,
+        panelRect.top, panelRect.bottom);
+    const start = {
+      x: rowRect.right - sectionRect.left,
+      y: originY - sectionRect.top
+    };
 
     sizeLeaderSvg(sectionRect);
-    muscle.drawLeader(rowRect, imageRect, sectionRect, animate);
+    muscle.drawLeader({
+      start,
+      imageRect: imgEl.getBoundingClientRect(),
+      sectionRect,
+      animate
+    });
 
     drawFrameId = null;
   });
 }
 
-function repositionLeader() {
-  drawLeaderLine(false);
-}
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 const sizeLeaderSvg = ({width: w, height: h}) =>
     leaderEl.setAttribute('viewBox', `0 0 ${w} ${h}`);
@@ -315,9 +321,16 @@ const anchorPointInSection = ({x, y}, img, section) => ({
   y: img.top + (y / 100) * img.height - section.top
 });
 
+// Code Claude wrote that I don't understand.
 function leaderPathD({x: startX, y: startY}, {x: endX, y: endY}) {
   const controlX = startX + (endX - startX) * 0.5;
-  return `M ${startX} ${startY} Q ${controlX} ${startY} ${endX} ${endY}`;
+  // Trim by the arrowhead length (polygon 8 × stroke-width 2) so the
+  // forward-projected tip (refX="0") lands exactly on the anchor.
+  const dx = endX - controlX;
+  const dy = endY - startY;
+  const k = 16 / (Math.hypot(dx, dy) || 1);
+  return `M ${startX} ${startY} Q ${controlX} ${startY} `
+      + `${endX - dx * k} ${endY - dy * k}`;
 }
 
 function drawLeaderPath(path, start, end, animate) {
