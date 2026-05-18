@@ -122,7 +122,7 @@ Both pass `load.js` two callbacks — `render` (how to show it) and `onRetry` (h
 
 ```
 navigation-tabs · import()  ─┐
-                              ├─▶ load.js   cause → message · DOM-free · IoC
+                             ├─▶ load.js   cause → message · DOM-free · IoC
 module · loadJson           ─┘       │      requester injects render + onRetry
                                      ▼
                                renderError   error-ui.js · the one callout + Retry
