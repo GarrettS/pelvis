@@ -20,38 +20,34 @@ const pending = new Set();
 const failed = new Set();
 
 const LAZY_INIT = {
-  'home-content':              './home.js',
-  'nomenclature-content':      './nomenclature.js',
-  'patterns-cheat-sheet-content': './patterns-cheat-sheet.js',
-  'patterns-concept-map-content': './patterns-concept-map.js',
-  'patterns-level-quiz-content': './patterns-level-quiz.js',
-  'diagnose-game-content':          './diagnose-game.js',
-  'diagnose-case-studies-content':  './diagnose-case-studies.js',
-  'diagnose-causal-chains-content': './diagnose-causal-chains.js',
-  'diagnose-decision-tree-content': './diagnose-decision-tree.js',
-  'diagnose-muscle-map-content':    './diagnose-muscle-map.js',
-  'flashcards-content':        './flashcards.js',
-  'equivalence-content':       './equivalence-quiz.js',
-  'masterquiz-content':        './masterquiz.js',
-  'anatomy-anatomize-content': './anatomize.js',
-  'anatomy-decoder-content':   './decoder.js',
-  'anatomy-aic-content':       './aic-chain.js'
+  'home':                   './home.js',
+  'nomenclature':           './nomenclature.js',
+  'patterns-cheat-sheet':   './patterns-cheat-sheet.js',
+  'patterns-concept-map':   './patterns-concept-map.js',
+  'patterns-level-quiz':    './patterns-level-quiz.js',
+  'diagnose-game':          './diagnose-game.js',
+  'diagnose-case-studies':  './diagnose-case-studies.js',
+  'diagnose-causal-chains': './diagnose-causal-chains.js',
+  'diagnose-decision-tree': './diagnose-decision-tree.js',
+  'diagnose-muscle-map':    './diagnose-muscle-map.js',
+  'flashcards':             './flashcards.js',
+  'equivalence':            './equivalence-quiz.js',
+  'masterquiz':             './masterquiz.js',
+  'anatomy-anatomize':      './anatomize.js',
+  'anatomy-decoder':        './decoder.js',
+  'anatomy-aic':            './aic-chain.js'
 };
 
-function showTabLoading(container) {
-  container.append(newEl('div', {
-    className: 'tab-loading skeleton',
-    children: [
-      newEl('div', {className: 'skeleton-heading'}),
-      newEl('div', {className: 'skeleton-line'}),
-      newEl('div', {className: 'skeleton-line-short'})
-    ]
-  }));
-}
+const showTabLoading = container => container.append(newEl('div', {
+  className: 'tab-loading skeleton',
+  children: [
+    newEl('div', {className: 'skeleton-heading'}),
+    newEl('div', {className: 'skeleton-line'}),
+    newEl('div', {className: 'skeleton-line-short'})
+  ]
+}));
 
-function clearTabLoading(container) {
-  container.querySelector('.tab-loading')?.remove();
-}
+const clearTabLoading = container => container.querySelector('.tab-loading')?.remove();
 
 const SHOW_SKELETON_AFTER_MS = 250;
 
@@ -59,49 +55,50 @@ const importModule = path => import(path).then(
     ()    => ({ok: true,  path}),
     cause => ({ok: false, path, cause}));
 
-function lazyInit(contentId, link) {
-  if (initialized.has(contentId) || pending.has(contentId)) return;
+function lazyInit(base, link) {
+  if (initialized.has(base) || pending.has(base)) return;
 
-  const entry = LAZY_INIT[contentId];
+  const entry = LAZY_INIT[base];
   if (!entry) return;
 
-  const container = byId(contentId);
+  const container = byId(tabKey.content(base));
   if (!container) return;
 
-  pending.add(contentId);
+  pending.add(base);
   link?.classList.add('loading');
   container.classList.add('loading');
 
   const skeletonTimer = setTimeout(
       showTabLoading, SHOW_SKELETON_AFTER_MS, container);
 
-  const path = failed.has(contentId) ? entry + '?r=' + Date.now() : entry;
-  failed.delete(contentId);
+  const path = failed.has(base) ? entry + '?r=' + Date.now() : entry;
+  failed.delete(base);
 
   importModule(path).then((result) => {
     clearTimeout(skeletonTimer);
     clearTabLoading(container);
-    pending.delete(contentId);
+    pending.delete(base);
     link?.classList.remove('loading');
     container.classList.remove('loading');
     clearErrors(container);
 
     if (result.ok) {
-      initialized.add(contentId);
+      initialized.add(base);
       return;
     }
 
-    failed.add(contentId);
+    failed.add(base);
     handleImportError(result, {
       render: (message, retry) => renderError(container, message, retry),
-      onRetry: () => lazyInit(contentId, link)
+      onRetry: () => lazyInit(base, link)
     });
   });
 }
 
 function updateBreadcrumb(tabId, subtabId) {
   const navTab = byId(tabKey.navLink(tabId));
-  const subtabLink = subtabId ? byId(tabKey.subtabLink(tabId, subtabId)) : null;
+  const base = subtabId && tabKey.subtab(tabId, subtabId);
+  const subtabLink = base ? byId(tabKey.subtabLink(base)) : null;
   const show = navTab && subtabLink;
 
   byId('breadcrumb').classList.toggle('hidden', !show);
@@ -111,13 +108,13 @@ function updateBreadcrumb(tabId, subtabId) {
   byId('breadcrumb-subtab').textContent = subtabLink.textContent;
 }
 
-// Shared Key: tab-related element id is derived from tabId — derive here, not inline.
+// Shared Key: every nav id is derived from its route segments here, not inline.
 const tabKey = {
-  navLink:       tabId             => 'nav-' + tabId,
-  section:       tabId             => tabId + '-content',
-  subtabRow:     tabId             => tabId + '-subtabs',
-  subtabContent: (tabId, subtabId) => tabId + '-' + subtabId + '-content',
-  subtabLink:    (tabId, subtabId) => tabId + '-' + subtabId + '-subtab'
+  navLink:    base => 'nav-' + base,
+  content:    base => base + '-content',
+  subtabRow:  base => base + '-subtabs',
+  subtabLink: base => base + '-subtab',
+  subtab:     (base, subtabId) => base + '-' + subtabId
 };
 
 function swapAriaCurrent(prev, next, value = 'true') {
@@ -136,11 +133,11 @@ function swapHidden(prev, next) {
 
 function activateTab(tabId, subtabId) {
   activeNavTab    = swapAriaCurrent(activeNavTab, byId(tabKey.navLink(tabId)), 'page');
-  activeSection   = swapHidden(activeSection, byId(tabKey.section(tabId)));
+  activeSection   = swapHidden(activeSection, byId(tabKey.content(tabId)));
   activeSubtabRow = swapHidden(activeSubtabRow, byId(tabKey.subtabRow(tabId)));
 
   updateBreadcrumb(tabId, subtabId);
-  lazyInit(tabKey.section(tabId), activeNavTab);
+  lazyInit(tabId, activeNavTab);
 
   if (activeSubtabRow) activateSubtab(tabId, subtabId);
 }
@@ -149,21 +146,23 @@ function activateSubtab(tabId, subtabId) {
   const row = byId(tabKey.subtabRow(tabId));
   activeSubtabLink[tabId] ??= row.querySelector('.subtab[aria-current]');
 
-  const link = (subtabId && byId(tabKey.subtabLink(tabId, subtabId)))
+  const requested = subtabId && tabKey.subtab(tabId, subtabId);
+  const link = (requested && byId(tabKey.subtabLink(requested)))
             || activeSubtabLink[tabId]
             || row.querySelector('.subtab');
 
   subtabId = ROUTE_REGEX.exec(link.hash).groups.subtab;
+  const base = tabKey.subtab(tabId, subtabId);
 
   activeSubtabLink[tabId] = swapAriaCurrent(activeSubtabLink[tabId], link);
 
   activeSubtabContent[tabId] ??=
-    byId(tabKey.section(tabId)).querySelector('.subtab-content:not([hidden])');
+    byId(tabKey.content(tabId)).querySelector('.subtab-content:not([hidden])');
   activeSubtabContent[tabId] =
-    swapHidden(activeSubtabContent[tabId], byId(tabKey.subtabContent(tabId, subtabId)));
+    swapHidden(activeSubtabContent[tabId], byId(tabKey.content(base)));
 
   updateBreadcrumb(tabId, subtabId);
-  lazyInit(tabKey.subtabContent(tabId, subtabId), link);
+  lazyInit(base, link);
 }
 
 function applyHash() {

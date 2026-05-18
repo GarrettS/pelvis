@@ -1,28 +1,41 @@
-# Navigation-Tabs Contract
+# Navigation Tabs
 
-`scripts/navigation-tabs.js` maps the URL hash to a tab and imports that tab's module the first time the tab is activated. The hash is `#tab` or `#tab/subtab`.
+`scripts/navigation-tabs.js`:
+- reads the URL hash to decide which tab and subtab to activate
+- loads that tab's module into its mapped `section` the first time the tab is activated
+- tracks each loaded module through its pending → loaded / failed (with retry) lifecycle
+- initializes each module exactly once per page life
 
-Scope is loading and recovery: the scroll-shadow affordance (`initScrollAffordance`) and service-worker registration also live in this file but are outside this contract. A hash may carry a third `/subview` segment; navigation-tabs forwards it untouched and the owning module reads it — only `diagnose-muscle-map.js`, today.
+The tab strip is always on screen — activation changes which `section` shows, not whether tabs exist. A hash names a tab and optionally a subtab and a subview: `#home`, `#patterns/cheat-sheet`, `#diagnose/muscle-map/byMuscle`. Routing acts on the tab and subtab; anything after stays in the hash for the owning module to read (today only `diagnose-muscle-map.js`).
 
-## Recovery
+## Routing
 
-```js
-const initialized = new Set();  // imports that resolved ok
-const pending     = new Set();  // imports in flight
-const failed      = new Set();  // imports that resolved with error
-```
-
-`lazyInit` adds the contentId to `pending` before starting an import. On resolution, it removes from `pending` and adds it to either `initialized` (ok) or `failed` (error).
-
-`importModule` wraps `import()` so it always resolves — never rejects — to the `result` that `handleImportError` later branches on:
+Tab and subtab navigation funnels through one function. `applyHash` runs at load and on every `hashchange`, parses the hash, finds a corresponding tab and subtab, and failing a match falls back to their defaults:
 
 ```js
-const importModule = path => import(path).then(
-    ()    => ({ok: true,  path}),
-    cause => ({ok: false, path, cause}));
+const ROUTE_REGEX = /^#(?<tab>[^/]+)(?:\/(?<subtab>[^/]+))?/;
+
+function applyHash() {
+  let {tab: tabId = defaultTabId, subtab: subtabId} =
+      ROUTE_REGEX.exec(location.hash)?.groups || {};
+  if (!byId(tabKey.navLink(tabId))) { tabId = defaultTabId; subtabId = undefined; }
+  activateTab(tabId, subtabId);
+}
 ```
 
-On failure, `handleImportError` renders a callout whose retry button calls `lazyInit` again. Re-clicking the tab calls `lazyInit` too. The tab and the retry button share one lifecycle: while the import is in flight, the tab dims and the retry button is locked by CSS cascade — see "Idempotent retry path" below.
+`activateTab` removes `aria-current` from the previously active nav tab and adds `hidden` to its section, then sets `aria-current` on the new nav tab and removes `hidden` from its section. When the tab has a subtab row, the same pair of swaps at the subtab level is delegated to `activateSubtab`. CSS handles the UI update. `lazyInit` is then called for the now-active content; loading starts there.
+
+## Module loading
+
+`lazyInit` loads each tab's module the first time its tab is activated and tracks its state through three Sets, keyed by `base` — the same Shared Key `LAZY_INIT` uses to resolve a module path and `tabKey.content` uses to derive the container id:
+
+```js
+const initialized = new Set();
+const pending = new Set();
+const failed = new Set();
+```
+
+`pending` holds an import in flight, `initialized` one that resolved, `failed` one that rejected; a `base` in none of them has not been loaded.
 
 ```
                   tab activation              import ok
@@ -37,68 +50,54 @@ On failure, `handleImportError` renders a callout whose retry button calls `lazy
     Loaded stays Loaded after a successful import.
 ```
 
-Data-load failure (module imported ok but `loadJson` returned `{ok: false}`) is handled by `attemptLoad` in `scripts/error-ui.js`, called per-module — not this contract.
-
-### Cache-Busting
-
-Dynamic `import` cache outcome — including failure — in the module map. To enable retry, `lazyInit` appends cache-busting query when `failed.has(contentId)`:
+`importModule` wraps `import()` so it always resolves and never rejects; failure arrives as a value the caller branches on:
 
 ```js
-const path = failed.has(contentId) ? entry + '?r=' + Date.now() : entry;
-failed.delete(contentId);
+const importModule = path => import(path).then(
+    ()    => ({ok: true,  path}),
+    cause => ({ok: false, path, cause}));
 ```
 
-## Idempotent retry path
+Modules are precached by the service worker at window load, so an `import()` is usually served from cache and resolves almost immediately. `lazyInit` still adds `.loading` to the clicked link and the content container at the start of every load and clears it on resolution; with a warm cache that window is too short to see. A skeleton appears only if the import is still pending 250 ms in (`SHOW_SKELETON_AFTER_MS`), so a load resolving just after that flashes it briefly; there is no minimum on-screen time.
 
-The tab (or subtab) and the retry button are two actuators for the same state transition: `Failed → Pending` for a given contentId. The state machine cares about the contentId, not which actuator triggered it. Both routes land in the same `lazyInit(contentId, link)` call.
-
-While the import is in flight `lazyInit` adds `.loading` to the clicked link and to the content container. `.nav-tab.loading` / `.subtab.loading` dim the tab and set `cursor: wait`; `.content.loading` cascades to `.callout-retry`, dimming and disabling any retry button still on screen.
-
-`handleNavClick` short-circuits same-hash clicks. Assigning the same value to `location.hash` fires no `hashchange` event, so re-clicking the failed tab would otherwise be a no-op. When the clicked link's hash equals `location.hash`, `handleNavClick` calls `applyHash()` directly.
-
-Spam-clicks have two independent guards:
-
-1. **JS-side**, `lazyInit` returns early when `pending.has(contentId)`.
-2. **CSS-side**, `.content.loading .callout-retry` makes the button uninteractive while `.loading` is set.
-
-The renderer is a separate concern from the loader. `load.js` diagnoses failures and delegates rendering through a callback. `handleImportError(result, {render, onRetry})` translates `result.cause` into a user-readable message, then invokes `render(message, onRetry)`. The render delegate lives in `error-ui.js` as `renderError`, which constructs the callout and retry button. The loader names no DOM element; the renderer is swappable without touching `load.js`.
-
-The retry button's `click` handler:
+`import()` caches the settled module record by specifier: once a path rejects, every later `import()` of that path returns the same rejection without re-evaluating. So `lazyInit` re-imports a `failed` base with a unique `?r=<timestamp>` query — a new specifier, forcing a real fetch and evaluation:
 
 ```js
-onRetry: () => lazyInit(contentId, link)
+const path = failed.has(base) ? entry + '?r=' + Date.now() : entry;
+failed.delete(base);
 ```
 
-Clicking it re-enters `lazyInit` for the same contentId — the `Failed → Pending` transition (cache-busted), the same call re-activating the tab makes. Callout lifecycle belongs to the state machine: `lazyInit` calls `clearErrors(container)` after the import resolves, before re-rendering content or showing a fresh callout.
+## Module data loading
 
-## Single path per entry
+A loaded module fetches its own JSON through `loadJson`, which resolves to `{ok: true, data}` or `{ok: false, path, cause}` and never throws. `attemptLoad` runs that loader inside the same lifecycle as a tab load: it adds `.loading` to the container, awaits the result, clears the indicator, and on success renders the data. On failure it shows an error callout whose Retry button re-runs the loader.
 
-`LAZY_INIT` maps each contentId to one module path. A module that needs another — a sibling subtab module on the same tab, or a cross-feature read like home's master-quiz progress — statically imports it at module top. ES module static imports propagate failure: if the dependency fails to fetch, parse, or evaluate, the importer's body does not execute, so a partial-state "half-wired UI plus an error callout" is impossible by construction.
+```js
+export const attemptLoad = ({loader, container, render}) =>
+  (async function attempt() {
+    container.classList.add('loading');
+    const result = await loader();
+    container.classList.remove('loading');
+    clearErrors(container);
+    if (result.ok) return render(result.data);
+    handleFetchError(result, {
+      render: (message, retry) => renderError(container, message, retry),
+      onRetry: attempt
+    });
+  })();
+```
+
+A module-import failure and a data-fetch failure therefore reach the user the same way — a callout with Retry in the tab's container — diagnosed by `handleImportError` and `handleFetchError` respectively.
+
+## Retry
+
+When a module or its data fails to load, its section shows an error callout with a Retry button. The user can retry two ways and both re-attempt the same load: press Retry, or click the tab again. Re-clicking works because of a branch in `handleNavClick`: clicking the already-active tab does not change `location.hash`, so the browser fires no `hashchange` and `applyHash` would never run on its own — `handleNavClick` detects the same-hash click and calls `applyHash()` directly, which re-enters `lazyInit` for the failed base. Spam-clicking needs no guard: `lazyInit` returns early while the base is in `pending`, and CSS makes `.content.loading .callout-retry` non-interactive, so extra clicks during a retry do nothing on their own.
+
+Diagnosing the failure and drawing the callout are separate. `load.js` classifies the cause — `handleImportError` for a failed `import()`, `handleFetchError` for a failed `loadJson` — turning `result.cause` into a readable message, and it names no DOM element. It hands display to a callback whose implementation, `renderError` in `error-ui.js`, builds the callout and Retry button, so the renderer can change without touching `load.js`. Once an attempt resolves, the loading layer calls `clearErrors(container)` before rendering content or a fresh callout.
 
 ## Re-activation and self-driven redraw
 
-`lazyInit` runs a module exactly once per contentId — it returns early when `initialized.has(contentId)`. navigation-tabs.js never re-invokes a module on re-activation — re-activating a loaded tab is the dedupe no-op the diagram notes. Whatever a module wires up at init runs once for the page's life — re-activating its tab cannot stack listeners. The corollary: a module that must react each time its section is shown is not re-run, so it owns a long-lived subscription instead. navigation-tabs.js does not call back into modules.
+`lazyInit` maps each tab's `base` 1:1 to a section element (`tabKey.content(base)`) and a module path (`LAZY_INIT[base]`); `base` is the Shared Key. It imports and initializes that module exactly once per page life and never calls back into it: when a loaded or still-loading tab is re-activated, `lazyInit` returns early on `initialized`/`pending`. Two consequences follow.
 
-### Examples
+A module that needs another — a sibling subtab module, or a cross-feature read such as home's master-quiz progress — imports it statically at module top. ES static imports propagate failure: if a dependency fails to fetch, parse, or evaluate, the importing module's body never runs, so a half-wired tab behind an error callout cannot happen by construction.
 
-`flashcards.js` `setupFlashcards` binds at init:
-
-```js
-function setupFlashcards(deckData) { // module init — runs once, not a render
-  // …build the deck…
-  containerEl.addEventListener('click', cardActionHandler);
-  new IntersectionObserver(refreshDeckIfUserCardsAdded).observe(containerEl);
-}
-```
-
-To a React-trained reader, this trips the effect-without-cleanup alarm — `addEventListener` plus an `observe()` with no teardown leaks when a component re-renders or remounts. There is no render here: by the rule above the function runs once per page, so there is nothing to tear down. The delegated handler stays safe under churn for the same reason — card actions resolve through that one `containerEl` listener, so `buildCard` adds no per-node handlers and `resetDeck()` cannot accumulate them.
-
-`home.js` is the corollary in practice: it must refresh each time its tab is shown, so it holds one long-lived `IntersectionObserver` on `#home-content` and re-runs `renderMasterQuizProgress` on each display — one observer firing repeatedly, not a new observer per show.
-
-## Skeleton
-
-```js
-const SHOW_SKELETON_AFTER_MS = 250;
-```
-
-A load that resolves within 250 ms shows no skeleton; a longer one shows the skeleton from 250 ms until the import resolves. A load resolving just after 250 ms flashes the skeleton briefly before removing it. The timer has no minimum on-screen duration — adding one would hold the skeleton past content-ready and make fast loads look slow.
+Modules that need a live update each time they're shown handle that with an `IntersectionObserver` wired once at init — `home.js` keeps one on `#home-content` and re-runs `renderMasterQuizProgress` on each show.
