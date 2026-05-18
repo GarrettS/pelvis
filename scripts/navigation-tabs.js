@@ -51,6 +51,19 @@ const clearTabLoading = container => container.querySelector('.tab-loading')?.re
 
 const SHOW_SKELETON_AFTER_MS = 250;
 
+const startTabLoading = (link, container) => {
+  link.classList.add('loading');
+  container.classList.add('loading');
+  return setTimeout(showTabLoading, SHOW_SKELETON_AFTER_MS, container);
+};
+
+const endTabLoading = (link, container, timer) => {
+  clearTimeout(timer);
+  clearTabLoading(container);
+  link.classList.remove('loading');
+  container.classList.remove('loading');
+};
+
 const importModule = path => import(path).then(
     ()    => ({ok: true,  path}),
     cause => ({ok: false, path, cause}));
@@ -65,21 +78,14 @@ function lazyInit(base, link) {
   if (!container) return;
 
   pending.add(base);
-  link?.classList.add('loading');
-  container.classList.add('loading');
-
-  const skeletonTimer = setTimeout(
-      showTabLoading, SHOW_SKELETON_AFTER_MS, container);
+  const loadingTimer = startTabLoading(link, container);
 
   const path = failed.has(base) ? entry + '?r=' + Date.now() : entry;
   failed.delete(base);
 
   importModule(path).then((result) => {
-    clearTimeout(skeletonTimer);
-    clearTabLoading(container);
+    endTabLoading(link, container, loadingTimer);
     pending.delete(base);
-    link?.classList.remove('loading');
-    container.classList.remove('loading');
 
     if (result.ok) {
       clearErrors(container);

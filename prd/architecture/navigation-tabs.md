@@ -6,11 +6,11 @@
 - tracks each loaded module through its pending → loaded / failed (with retry) lifecycle
 - initializes each module exactly once per page life
 
-The tab strip is always on screen — activation changes which `section` shows, not whether tabs exist. A hash names a tab and optionally a subtab and a subview: `#home`, `#patterns/cheat-sheet`, `#diagnose/muscle-map/byMuscle`. Routing acts on the tab and subtab; anything after stays in the hash for the owning module to read (today only `diagnose-muscle-map.js`).
-
+Function `applyHash` calls `activateTab`, which updates the UI and triggers `lazyInit`, which conditionally loads the route's mapped module.
+  
 ## Routing
 
-Tab and subtab navigation funnels through one function. `applyHash` runs at load and on every `hashchange`, parses the hash, finds a corresponding tab and subtab, and failing a match falls back to their defaults:
+Function `applyHash` runs at load and on every `hashchange`, parses the hash, finds a corresponding tab and subtab, and, failing a match`, falls back to their defaults:
 
 ```js
 const ROUTE_REGEX = /^#(?<tab>[^/]+)(?:\/(?<subtab>[^/]+))?/;
@@ -22,12 +22,15 @@ function applyHash() {
   activateTab(tabId, subtabId);
 }
 ```
+`ROUTE_REGEX` captures the tab and subtab. Anything following that is for the respective route's module to read (e.g. submodule `diagnose-muscle-map.js` parses `byMuscle` from the hash with its own regex). 
 
-`activateTab` removes `aria-current` from the previously active nav tab and adds `hidden` to its section, then sets `aria-current` on the new nav tab and removes `hidden` from its section. When the tab has a subtab row, the same pair of swaps at the subtab level is delegated to `activateSubtab`. CSS handles the UI update. `lazyInit` is then called for the now-active content; loading starts there.
+## Tab activation
+
+Function `activateTab` deactivates the previously active tab and activates the resolved one (Active Object pattern), and CSS handles the UI update. Then it calls `lazyInit` for the newly-activated content.
 
 ## Module loading
 
-`lazyInit` loads each tab's module the first time its tab is activated and tracks its state through three Sets, keyed by `base` — the same Shared Key `LAZY_INIT` uses to resolve a module path and `tabKey.content` uses to derive the container id:
+Function `lazyInit` loads each tab's module the first time its tab is activated and tracks its state through three Sets, keyed by `base` — the same Shared Key `LAZY_INIT` uses to resolve a module path and `tabKey.content` uses to derive the container id:
 
 ```js
 const initialized = new Set();
@@ -58,7 +61,7 @@ const importModule = path => import(path).then(
     cause => ({ok: false, path, cause}));
 ```
 
-Modules are precached by the service worker at window load, so an `import()` is usually served from cache and resolves almost immediately. `lazyInit` still adds `.loading` to the clicked link and the content container at the start of every load and clears it on resolution; with a warm cache that window is too short to see. A skeleton appears only if the import is still pending 250 ms in (`SHOW_SKELETON_AFTER_MS`), so a load resolving just after that flashes it briefly; there is no minimum on-screen time.
+Function `startTabLoading` adds `.loading` to the just-activated link and container and schedules the skeleton; `endTabLoading` removes `.loading` and the skeleton when the import resolves. Service-worker precache usually serves the module from cache, so the load is near-instant and that window is too short to see. The skeleton shows only if the import is still pending at 250 ms (`SHOW_SKELETON_AFTER_MS`); a load resolving just after flashes it briefly, with no minimum on-screen time.
 
 `import()` caches the settled module record by specifier: once a path rejects, every later `import()` of that path returns the same rejection without re-evaluating. So `lazyInit` re-imports a `failed` base with a unique `?r=<timestamp>` query — a new specifier, forcing a real fetch and evaluation:
 
