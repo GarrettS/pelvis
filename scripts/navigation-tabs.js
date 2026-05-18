@@ -80,9 +80,9 @@ function lazyInit(base, link) {
     pending.delete(base);
     link?.classList.remove('loading');
     container.classList.remove('loading');
-    clearErrors(container);
 
     if (result.ok) {
+      clearErrors(container);
       initialized.add(base);
       return;
     }

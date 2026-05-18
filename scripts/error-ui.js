@@ -20,6 +20,7 @@ export const replaceErrorCallout = (container, message) => {
 };
 
 export function renderError(container, message, onRetry) {
+  clearErrors(container);
   const callout = appendErrorCallout(container, message);
   if (onRetry) attachRetryButton(callout, onRetry);
   return callout;
@@ -40,9 +41,11 @@ export const attemptLoad = ({loader, container, render}) =>
     container.classList.add('loading');
     const result = await loader();
     container.classList.remove('loading');
-    clearErrors(container);
 
-    if (result.ok) return render(result.data);
+    if (result.ok) {
+      clearErrors(container);
+      return render(result.data);
+    }
 
     handleFetchError(result, {
       render: (message, retry) => renderError(container, message, retry),
