@@ -4,7 +4,7 @@ import { shuffle } from './shuffle.js';
 import { loadJson } from './load.js';
 import { replaceErrorCallout, clearErrors, attemptLoad } from './error-ui.js';
 import { saveUserFlashcard, hasSavedFlashcard } from './flashcard-storage.js';
-import { getAllProgress, setTotal as setMasterQuizTotal,
+import { getAllProgress, setQuestionBankCount,
   updateEntry as updateProgress, getStats,
   clearAll as clearProgress, MASTERY_STREAK
 } from './master-quiz-progress.js';
@@ -89,16 +89,17 @@ const getQuestionCount = () =>
 
 function renderStats() {
   const domains = getSelectedDomains();
-  const filtered = QUESTIONS.filter(q => domains.includes(q.domain));
-  const stats = getStats(filtered);
+  const selectedQuestions =
+    QUESTIONS.filter(question => domains.includes(question.domain));
+  const stats = getStats(selectedQuestions);
   const statsEl = document.getElementById('mq-stats');
   if (stats.attempted === 0) {
     statsEl.textContent = '';
     return;
   }
   statsEl.textContent =
-    `${stats.attempted} of ${stats.total} questions attempted · ` +
-    `${stats.missed} missed · ` +
+    `${stats.attempted} of ${stats.selectedQuestionCount} ` +
+    `questions attempted · ${stats.missed} missed · ` +
     `${stats.mastered} mastered (excluded)`;
 }
 
@@ -410,11 +411,9 @@ function handleNewSession() {
 function handleResetProgress() {
   if (!confirm('Reset all Master Quiz progress? This cannot be undone.')) return;
 
-  try {
-    clearProgress();
-  } catch (anyError) {
-    document.getElementById('mq-stats').textContent =
-        "Couldn't reset progress: browser storage is unavailable.";
+  const resetResult = clearProgress();
+  if (!resetResult.ok) {
+    document.getElementById('mq-stats').textContent = resetResult.message;
     return;
   }
   renderStats();
@@ -475,8 +474,8 @@ await attemptLoad({
   container: containerEl,
   render: (data) => {
     QUESTIONS = data;
-    const totalResult = setMasterQuizTotal(QUESTIONS.length);
-    if (!totalResult.ok) showProgressToast(totalResult.message);
+    const saveResult = setQuestionBankCount(QUESTIONS.length);
+    if (!saveResult.ok) showProgressToast(saveResult.message);
     renderStats();
     syncStartButton();
     initListeners();

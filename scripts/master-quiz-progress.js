@@ -1,56 +1,53 @@
 // Sole owner of the masterQuiz_progress and masterQuiz_total localStorage
-// buckets. DOM-free by design: failures are returned to the caller, never
-// rendered here. Both buckets are read and parsed once, then held in memory;
-// writers mutate the in-memory copy and write through. Same single-page
-// assumption as flashcard-storage.js: a second tab's writes are not reflected
-// until reload.
+// keys. DOM-free: write failures are returned to the caller, never rendered
+// here. Each key is read and parsed once, then held in memory; writers
+// mutate the in-memory copy and write through. As in flashcard-storage.js,
+// a second tab's writes are not seen until reload.
+//
+// masterQuiz_total persists QUESTIONS.length so the home card can show a
+// progress denominator without loading master-quiz.json — the quiz module
+// is lazy-loaded and may never have run when the home card renders.
 
 const STORAGE_KEY = 'masterQuiz_progress';
-const TOTAL_KEY = 'masterQuiz_total';
+const QUESTION_BANK_COUNT_KEY = 'masterQuiz_total';
 const MASTERY_STREAK = 3;
 
-// null until first access. A read failure degrades to empty progress and is
-// memoized — private mode / disabled storage does not heal mid-session.
 let progressCache = null;
-let totalCache = null;
+let questionBankCountCache = null;
 
-function loadProgress() {
+function getAllProgress() {
   if (progressCache) return progressCache;
 
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    progressCache = raw ? JSON.parse(raw) : {};
-  } catch (e) {
-    // Background read (private mode, corrupted JSON). Quiz functions
-    // without prior progress; the user starts from an empty record.
+    const rawProgress = localStorage.getItem(STORAGE_KEY);
+    progressCache = rawProgress ? JSON.parse(rawProgress) : {};
+  } catch (storageOrParseError) {
+    // Private mode or corrupted JSON: start from an empty record.
     progressCache = {};
   }
   return progressCache;
 }
 
-function getTotal() {
-  if (totalCache !== null) return totalCache;
+function getQuestionBankCount() {
+  if (questionBankCountCache !== null) return questionBankCountCache;
 
   try {
-    totalCache = +localStorage.getItem(TOTAL_KEY) || 0;
-  } catch (e) {
-    // Storage unavailable; total unknown, treat as 0.
-    totalCache = 0;
+    questionBankCountCache =
+      +localStorage.getItem(QUESTION_BANK_COUNT_KEY) || 0;
+  } catch (storageReadError) {
+    // Storage unavailable; count unknown, treat as 0.
+    questionBankCountCache = 0;
   }
-  return totalCache;
+  return questionBankCountCache;
 }
 
-// Persisting the question total is a background enhancement. The doctrine
-// default is silent degradation; this project surfaces it via a non-blocking
-// toast (an approved exception), so the write outcome is returned, not
-// swallowed. The in-memory total stays correct for the session regardless.
-function setTotal(n) {
-  totalCache = n;
-
+function persist(key, value) {
   try {
-    localStorage.setItem(TOTAL_KEY, String(n));
+    localStorage.setItem(key, value);
     return {ok: true};
   } catch (storageWriteError) {
+// Persisting is a background enhancement, we return write outcome
+// for the caller to handle (e.g. by a non-blocking toast).
     return {
       ok: false,
       message: "Progress couldn't be saved — browser storage may be full "
@@ -59,23 +56,30 @@ function setTotal(n) {
   }
 }
 
-function getAllProgress() {
-  return loadProgress();
+function setQuestionBankCount(count) {
+  questionBankCountCache = count;
+  return persist(QUESTION_BANK_COUNT_KEY, count);
 }
 
 function clearAll() {
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(TOTAL_KEY);
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(QUESTION_BANK_COUNT_KEY);
+  } catch (storageWriteError) {
+    return {
+      ok: false,
+      message: "Progress couldn't be reset — browser storage may be full "
+        + 'or disabled.'
+    };
+  }
   progressCache = {};
-  totalCache = 0;
+  questionBankCountCache = 0;
+  return {ok: true};
 }
 
-// Same approved-exception rationale as setTotal: the answer is recorded in
-// memory so stats and queueing stay correct for the session; only the write
-// outcome is returned for the caller to surface as the non-blocking toast.
-function updateEntry(qId, correct) {
-  const progress = loadProgress();
-  const entry = progress[qId] || {
+function updateEntry(questionId, correct) {
+  const progress = getAllProgress();
+  const entry = progress[questionId] || {
     correctStreak: 0, totalCorrect: 0, totalAttempts: 0
   };
   if (correct) {
@@ -85,46 +89,40 @@ function updateEntry(qId, correct) {
     entry.correctStreak = 0;
   }
   entry.totalAttempts++;
-  progress[qId] = entry;
-
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-    return {ok: true};
-  } catch (storageWriteError) {
-    return {
-      ok: false,
-      message: "Progress couldn't be saved — browser storage may be full "
-        + 'or disabled.'
-    };
-  }
+  progress[questionId] = entry;
+  return persist(STORAGE_KEY, JSON.stringify(progress));
 }
 
-function getStats(questions) {
-  const progress = loadProgress();
+function getStats(selectedQuestions) {
+  const progress = getAllProgress();
   let attempted = 0;
   let missed = 0;
   let mastered = 0;
-  for (const q of questions) {
-    const p = progress[q.id];
-    if (!p) continue;
-    if (p.totalAttempts > 0) attempted++;
-    if (p.correctStreak === 0 && p.totalAttempts > 0) missed++;
-    if (p.correctStreak >= MASTERY_STREAK) mastered++;
+  for (const question of selectedQuestions) {
+    const entry = progress[question.id];
+    if (!entry) continue;
+    if (entry.totalAttempts > 0) attempted++;
+    if (entry.correctStreak === 0 && entry.totalAttempts > 0) missed++;
+    if (entry.correctStreak >= MASTERY_STREAK) mastered++;
   }
-  return { attempted, missed, mastered, total: questions.length };
+  return {
+    attempted, missed, mastered,
+    selectedQuestionCount: selectedQuestions.length
+  };
 }
 
 function getSummary() {
-  const progress = loadProgress();
+  const progress = getAllProgress();
   let attempted = 0;
   let mastered = 0;
-  for (const id of Object.keys(progress)) {
-    const p = progress[id];
-    if (p.totalAttempts > 0) attempted++;
-    if (p.correctStreak >= MASTERY_STREAK) mastered++;
+  for (const entry of Object.values(progress)) {
+    if (entry.totalAttempts > 0) attempted++;
+    if (entry.correctStreak >= MASTERY_STREAK) mastered++;
   }
-  return { attempted, mastered, total: getTotal() };
+  return {
+    attempted, mastered, questionBankCount: getQuestionBankCount()
+  };
 }
 
-export { getAllProgress, setTotal, clearAll, updateEntry, getStats, getSummary,
-  MASTERY_STREAK };
+export { getAllProgress, setQuestionBankCount, clearAll, updateEntry,
+  getStats, getSummary, MASTERY_STREAK };

@@ -5,10 +5,11 @@ function renderMasterQuizProgress() {
   const card = document.getElementById('home-card-masterquiz');
   card.querySelector('.home-card-progress')?.remove();
 
-  const {attempted, mastered, total} = getSummary();
-  if (!attempted || !total) return;
+  const {attempted, mastered, questionBankCount} = getSummary();
+  if (!attempted || !questionBankCount) return;
 
-  const pct = Math.min(100, Math.round((attempted / total) * 100));
+  const pct =
+    Math.min(100, Math.round((attempted / questionBankCount) * 100));
   card.append(newEl('span', {
     className: 'home-card-progress',
     children: [
