@@ -103,8 +103,9 @@ function lazyInit(base, link) {
 
 function updateBreadcrumb(tabId, subtabId) {
   const navTab = byId(tabKey.navLink(tabId));
-  const base = subtabId && tabKey.subtab(tabId, subtabId);
-  const subtabLink = base ? byId(tabKey.subtabLink(base)) : null;
+  const subtabLink = subtabId
+    ? byId(tabKey.subtabLink(tabId, subtabId))
+    : null;
   const show = navTab && subtabLink;
 
   byId('breadcrumb').classList.toggle('hidden', !show);
@@ -116,11 +117,11 @@ function updateBreadcrumb(tabId, subtabId) {
 
 // Shared Key: every nav id is derived from its route segments here, not inline.
 const tabKey = {
-  navLink:    base => 'nav-' + base,
-  content:    base => base + '-content',
-  subtabRow:  base => base + '-subtabs',
-  subtabLink: base => base + '-subtab',
-  subtab:     (base, subtabId) => base + '-' + subtabId
+  navLink:    tabId => 'nav-' + tabId,
+  content:    routeKey => routeKey + '-content',
+  subtabRow:  tabId => tabId + '-subtabs',
+  subtabLink: (tabId, subtabId) => tabKey.subtab(tabId, subtabId) + '-subtab',
+  subtab:     (tabId, subtabId) => tabId + '-' + subtabId
 };
 
 function swapAriaCurrent(prev, next, value = 'true') {
@@ -152,10 +153,8 @@ function activateSubtab(tabId, subtabId) {
   const row = byId(tabKey.subtabRow(tabId));
   activeSubtabLink[tabId] ??= row.querySelector('.subtab[aria-current]');
 
-  const requested = subtabId && tabKey.subtab(tabId, subtabId);
-  const link = (requested && byId(tabKey.subtabLink(requested)))
-            || activeSubtabLink[tabId]
-            || row.querySelector('.subtab');
+  const requested = subtabId && byId(tabKey.subtabLink(tabId, subtabId));
+  const link = requested || activeSubtabLink[tabId] || row.querySelector('.subtab');
 
   subtabId = ROUTE_REGEX.exec(link.hash).groups.subtab;
   const base = tabKey.subtab(tabId, subtabId);
