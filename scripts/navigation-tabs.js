@@ -145,10 +145,13 @@ function activateTab(tabId, subtabId) {
   activeSection   = swapHidden(activeSection, byId(tabKey.content(tabId)));
   activeSubtabRow = swapHidden(activeSubtabRow, byId(tabKey.subtabRow(tabId)));
 
+  if (activeSubtabRow) {
+    activateSubtab(tabId, subtabId);
+    return;
+  }
+
   updateBreadcrumb(tabId, subtabId);
   lazyInit(tabId, activeNavTab);
-
-  if (activeSubtabRow) activateSubtab(tabId, subtabId);
 }
 
 function activateSubtab(tabId, subtabId) {

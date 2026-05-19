@@ -2,7 +2,7 @@
   "scripts": {
     "lint": "eslint .",
     "check:dlc": "node bin/check-data-load-consumption.mjs",
-    "test:e2e": "node e2e/nomenclature-failure-paths.mjs"
+    "test:e2e": "node e2e/navigation-tabs-activation.mjs"
   },
   "devDependencies": {
     "eslint": "^8.57.1",

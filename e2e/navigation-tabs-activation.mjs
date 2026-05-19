@@ -1,7 +1,13 @@
-// Browser verification for the per-subtab nomenclature modules.
-// Covers the blocked-JSON failure path (error callout survives the
-// module-import resolve), success render, retry recovery, subtab
-// switching, and the re-click-active no-op.
+// Browser verification for navigation-tabs activation across all three
+// tab shapes, plus the per-subtab nomenclature failure paths.
+//
+//  - tab-level (no subtab row): flashcards — non-subtabbed branch
+//  - subtabbed: nomenclature (failure paths), patterns (delegation
+//    generality beyond nomenclature)
+//
+// Proves the single-route-key lazyInit collapse is behavior-preserving:
+// the module loads at exactly one level, breadcrumb shows only for
+// subtabbed routes, switching and re-click-no-op hold.
 //
 // Requires a static server for the repo root. Default: http://localhost:8000
 // Override with E2E_BASE. Run: npm run test:e2e
@@ -11,7 +17,8 @@ const BASE = process.env.E2E_BASE || 'http://localhost:8000';
 
 const reachable = await fetch(`${BASE}/index.html`).then(r => r.ok, () => false);
 if (!reachable) {
-  console.error(`Server not reachable at ${BASE}. Start one in the repo root, e.g.: python3 -m http.server 8000`);
+  console.error(`Server not reachable at ${BASE}. ` +
+    `Start one in the repo root, e.g.: python3 -m http.server 8000`);
   process.exit(2);
 }
 
@@ -84,9 +91,76 @@ async function retryRecoveryTest(label, route, dataGlob, containerId, rowSel) {
   await page.context().close();
 }
 
-// Subtab switching still works after the split, and re-clicking the
-// active subtab is a no-op (lazyInit bails on initialized -> no
-// duplicate render, no error).
+// Tab-level route: the non-subtabbed branch of activateTab. nav tab is
+// current, content visible, breadcrumb hidden, and the lazy module
+// rendered into its container.
+async function tabLevelTest(label, route, navId, contentId, renderedSel) {
+  const page = await newPage();
+  await page.goto(`${BASE}/index.html${route}`);
+  await page.waitForSelector(renderedSel, {timeout: 5000}).catch(() => {});
+
+  const current = await page.locator(`#${navId}`).getAttribute('aria-current');
+  const contentHidden = await page.locator(`#${contentId}`)
+    .evaluate(el => el.hidden);
+  const crumbHidden = await page.locator('#breadcrumb')
+    .evaluate(el => el.classList.contains('hidden'));
+  const rendered = await page.locator(renderedSel).count();
+
+  ok(`${label}: nav current=page`, current === 'page', `current=${current}`);
+  ok(`${label}: content visible`, contentHidden === false);
+  ok(`${label}: breadcrumb hidden (tab-level)`, crumbHidden === true);
+  ok(`${label}: lazy module rendered`, rendered > 0, `rendered=${rendered}`);
+  await page.context().close();
+}
+
+// Second subtabbed family (patterns): the activateSubtab delegation
+// path is not nomenclature-specific. Render, breadcrumb shown, switch,
+// re-click active is a no-op.
+async function patternsSubtabTest() {
+  const page = await newPage();
+  await page.goto(`${BASE}/index.html#patterns/cheat-sheet`);
+  await page.waitForSelector('#cheat-sheet-grid > *', {timeout: 5000})
+    .catch(() => {});
+
+  const navCurrent = await page.locator('#nav-patterns')
+    .getAttribute('aria-current');
+  const rowHidden = await page.locator('#patterns-subtabs')
+    .evaluate(el => el.hidden);
+  const subCurrent = await page.locator('#patterns-cheat-sheet-subtab')
+    .getAttribute('aria-current');
+  const crumbHidden = await page.locator('#breadcrumb')
+    .evaluate(el => el.classList.contains('hidden'));
+  const grid = await page.locator('#cheat-sheet-grid > *').count();
+  ok('patterns: cheat-sheet renders, nav+subtab current, row+breadcrumb shown',
+     navCurrent === 'page' && rowHidden === false && subCurrent === 'true'
+       && crumbHidden === false && grid > 0,
+     `nav=${navCurrent} row=${!rowHidden} sub=${subCurrent} ` +
+       `crumb=${!crumbHidden} grid=${grid}`);
+
+  await page.locator('#patterns-concept-map-subtab').click();
+  await page.waitForSelector('#patterns-concept-map-content:not([hidden])',
+    {timeout: 5000}).catch(() => {});
+  const cheatHidden = await page.locator('#patterns-cheat-sheet-content')
+    .evaluate(el => el.hidden);
+  const cmCurrent = await page.locator('#patterns-concept-map-subtab')
+    .getAttribute('aria-current');
+  ok('patterns: switch to concept-map (cheat-sheet hidden, subtab current)',
+     cheatHidden === true && cmCurrent === 'true',
+     `cheatHidden=${cheatHidden} cm=${cmCurrent}`);
+
+  await page.locator('#patterns-concept-map-subtab').click();
+  await page.waitForTimeout(400);
+  const errs = await page.locator('#patterns-concept-map-content .callout.error')
+    .count();
+  const cmStill = await page.locator('#patterns-concept-map-subtab')
+    .getAttribute('aria-current');
+  ok('patterns: re-click active subtab is a no-op',
+     errs === 0 && cmStill === 'true', `errs=${errs} cm=${cmStill}`);
+  await page.context().close();
+}
+
+// Subtab switching after the split, and re-clicking the active subtab
+// is a no-op (lazyInit bails on initialized -> no duplicate render).
 async function switchAndReclickTest() {
   const page = await newPage();
   await page.goto(`${BASE}/index.html#nomenclature/joints`);
@@ -109,7 +183,6 @@ async function switchAndReclickTest() {
   ok('switch back: joints visible, not re-rendered (init-once)',
      jointsRows2 === jointsRows, `before=${jointsRows} after=${jointsRows2}`);
 
-  // Re-click the already-active joints subtab: same hash, no hashchange.
   await page.locator('#nomenclature-joints-subtab').click();
   await page.waitForTimeout(500);
   const jointsRows3 = await page.locator('#joints-tbody tr').count();
@@ -133,13 +206,18 @@ await retryRecoveryTest('joints-retry', '#nomenclature/joints',
   '**/data/pelvic-joints.json', 'nomenclature-joints-content',
   '#joints-tbody tr');
 await switchAndReclickTest();
+await tabLevelTest('flashcards', '#flashcards', 'nav-flashcards',
+  'flashcards-content', '#fc-card-wrap > *');
+await patternsSubtabTest();
 
 await browser.close();
 
 let allPass = true;
 for (const r of results) {
   if (!r.pass) allPass = false;
-  console.log(`${r.pass ? 'PASS' : 'FAIL'}  ${r.name}${r.detail ? '  (' + r.detail + ')' : ''}`);
+  const tag = r.pass ? 'PASS' : 'FAIL';
+  const detail = r.detail ? `  (${r.detail})` : '';
+  console.log(`${tag}  ${r.name}${detail}`);
 }
 console.log(allPass ? '\nALL PASS' : '\nFAILURES PRESENT');
 process.exit(allPass ? 0 : 1);
