@@ -181,6 +181,11 @@ function applyHash() {
   let {tab: tabId = defaultTabId, subtab: subtabId} =
       ROUTE_REGEX.exec(location.hash)?.groups || {};
   if (!byId(tabKey.navLink(tabId))) { tabId = defaultTabId; subtabId = undefined; }
+
+  const canonicalHash = '#' + tabId + (subtabId ? '/' + subtabId : '');
+  if (location.hash !== canonicalHash) {
+    history.replaceState(null, '', canonicalHash);
+  }
   activateTab(tabId, subtabId);
 }
 
