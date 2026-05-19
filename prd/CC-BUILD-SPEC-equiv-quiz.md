@@ -242,7 +242,7 @@ Push after each submit. Use this array to render results.
 ## Files NOT Modified
 
 - `decoder.js` — FA stays in the decoder
-- `nomenclature.js` — FA stays in nomenclature
+- nomenclature modules — FA stays in nomenclature
 - `masterquiz.js` — reference only, not modified
 
 ---

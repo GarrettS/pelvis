@@ -48,7 +48,8 @@ scripts/
   navigation-tabs.js       — hash routing, tab/subtab activation, lazy module loading
   home-progress.js         — home-tab progress indicators
   anatomize.js             — anatomy ID game (hotspots, polygon overlays)
-  nomenclature.js          — PRI ↔ standard translation
+  nomenclature-joints.js   — pelvic joints reference
+  nomenclature-translation.js — PRI ↔ standard translation
   patterns-cheat-sheet.js  — pattern comparison cheat sheet
   patterns-concept-map.js  — concept map SVG
   patterns-symptom-quiz.js — symptom-to-pattern quiz

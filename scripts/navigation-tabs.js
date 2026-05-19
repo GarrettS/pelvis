@@ -21,7 +21,8 @@ const failed = new Set();
 
 const LAZY_INIT = {
   'home':                   './home.js',
-  'nomenclature':           './nomenclature.js',
+  'nomenclature-joints':    './nomenclature-joints.js',
+  'nomenclature-translation': './nomenclature-translation.js',
   'patterns-cheat-sheet':   './patterns-cheat-sheet.js',
   'patterns-concept-map':   './patterns-concept-map.js',
   'patterns-level-quiz':    './patterns-level-quiz.js',
@@ -80,15 +81,16 @@ function lazyInit(base, link) {
   pending.add(base);
   const loadingTimer = startTabLoading(link, container);
 
-  const path = failed.has(base) ? entry + '?r=' + Date.now() : entry;
+  const retryingImport = failed.has(base);
+  const path = retryingImport ? entry + '?r=' + Date.now() : entry;
   failed.delete(base);
+  if (retryingImport) clearErrors(container);
 
   importModule(path).then((result) => {
     endTabLoading(link, container, loadingTimer);
     pending.delete(base);
 
     if (result.ok) {
-      clearErrors(container);
       initialized.add(base);
       return;
     }
@@ -144,7 +146,6 @@ function activateTab(tabId, subtabId) {
   activeSubtabRow = swapHidden(activeSubtabRow, byId(tabKey.subtabRow(tabId)));
 
   updateBreadcrumb(tabId, subtabId);
-  // Mixed lazy keys: top-level routes load here; split nomenclature next.
   lazyInit(tabId, activeNavTab);
 
   if (activeSubtabRow) activateSubtab(tabId, subtabId);
@@ -168,7 +169,6 @@ function activateSubtab(tabId, subtabId) {
     swapHidden(activeSubtabContent[tabId], byId(tabKey.content(base)));
 
   updateBreadcrumb(tabId, subtabId);
-  // Mixed lazy keys: per-subtab routes load here.
   lazyInit(base, link);
 }
 
