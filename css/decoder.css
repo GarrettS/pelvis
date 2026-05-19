@@ -72,12 +72,6 @@
   font-size: var(--text-base);
 }
 
-.decoder-table {
-  font-size: var(--text-sm);
-  width: 100%;
-  margin: .5rem 0;
-}
-
 .equiv-chain {
   font-family: var(--mono);
   font-size: var(--text-sm);

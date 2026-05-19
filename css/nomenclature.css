@@ -15,6 +15,9 @@
   margin: .5rem auto;
 }
 
+/* SVG <text> sizes below are viewBox user units (they scale with the
+   SVG), not document px — clamp()/rem would be root-relative and break
+   that scaling. Intentional exception to the font-scale-token rule. */
 .joint-schematic text {
   text-anchor: middle;
   font-family: monospace;
@@ -125,7 +128,7 @@
   margin-top: .25rem;
 }
 
-.decoder-table {
+.acronym-table {
   font-size: var(--text-sm);
   width: 100%;
   margin: .5rem 0;
