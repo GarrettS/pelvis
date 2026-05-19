@@ -203,14 +203,6 @@ function handleNavClick(e) {
   retryActiveLoad(link);
 }
 
-function handleSubviewClick(e) {
-  const link = e.target.closest('.subview-tab');
-  if (!link) return;
-
-  e.preventDefault();
-  if (link.hash) location.hash = link.hash;
-}
-
 function initScrollAffordance() {
   const tabs = byId('nav-tabs');
   if (!tabs) return;
@@ -226,7 +218,6 @@ function initScrollAffordance() {
 
 function initNavigationTabs() {
   document.querySelector('nav').addEventListener('click', handleNavClick);
-  document.querySelector('main').addEventListener('click', handleSubviewClick);
   window.addEventListener('hashchange', applyHash);
   applyHash();
   initScrollAffordance();
