@@ -71,8 +71,8 @@ const importModule = path => import(path).then(
 function lazyInit(base, link) {
   if (initialized.has(base) || pending.has(base)) return;
 
+  if (!Object.hasOwn(LAZY_INIT, base)) return;
   const entry = LAZY_INIT[base];
-  if (!entry) return;
 
   const container = byId(tabKey.content(base));
   if (!container) return;
@@ -144,6 +144,7 @@ function activateTab(tabId, subtabId) {
   activeSubtabRow = swapHidden(activeSubtabRow, byId(tabKey.subtabRow(tabId)));
 
   updateBreadcrumb(tabId, subtabId);
+  // Mixed lazy keys: top-level routes load here; split nomenclature next.
   lazyInit(tabId, activeNavTab);
 
   if (activeSubtabRow) activateSubtab(tabId, subtabId);
@@ -167,6 +168,7 @@ function activateSubtab(tabId, subtabId) {
     swapHidden(activeSubtabContent[tabId], byId(tabKey.content(base)));
 
   updateBreadcrumb(tabId, subtabId);
+  // Mixed lazy keys: per-subtab routes load here.
   lazyInit(base, link);
 }
 
@@ -182,6 +184,9 @@ function handleNavClick(e) {
   if (!link?.hash) return;
 
   e.preventDefault();
+  // If the tab load failed, we may need to retry: same hash fires no
+  // hashchange, so re-apply directly instead of relying on the event.
+  // lazyInit bails when the tab is initialized / pending.
   if (link.hash === location.hash) return applyHash();
 
   location.hash = link.hash;
