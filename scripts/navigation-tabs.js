@@ -184,7 +184,7 @@ function applyHash() {
 
   const canonicalHash = '#' + tabId + (subtabId ? '/' + subtabId : '');
   if (location.hash !== canonicalHash) {
-    history.replaceState(null, '', canonicalHash);
+    window.history.replaceState(null, '', canonicalHash);
   }
   activateTab(tabId, subtabId);
 }
