@@ -19,10 +19,17 @@ function applyHash() {
   let {tab: tabId = defaultTabId, subtab: subtabId} =
       ROUTE_REGEX.exec(location.hash)?.groups || {};
   if (!byId(tabKey.navLink(tabId))) { tabId = defaultTabId; subtabId = undefined; }
+
+  const canonicalHash = '#' + tabId + (subtabId ? '/' + subtabId : '');
+  if (location.hash !== canonicalHash) {
+    window.history.replaceState(null, '', canonicalHash);
+  }
   activateTab(tabId, subtabId);
 }
 ```
 `ROUTE_REGEX` captures the tab and subtab. Anything following that is for the respective route's module to read (e.g. submodule `diagnose-muscle-map.js` parses `byMuscle` from the hash with its own regex). 
+
+An invalid tab falls back to `defaultTabId`; `replaceState` rewrites the URL so refresh/bookmark/share do not capture the broken route. `replaceState` fires no `hashchange`, so this does not recurse.
 
 Since `handleNavClick` lets different-hash clicks fall through to native
 anchor behavior, route fragments (`#tab` / `#tab/subtab`) must not equal any
@@ -30,9 +37,13 @@ element `id`. The `tabKey` naming (`nav-X`, `X-content`, `X-subtabs`,
 `X-Y-subtab`, `X-Y-content`) keeps them disjoint. Don't add element ids that
 collide with a route fragment.
 
+Deeper segments (e.g. `#diagnose/muscle-map/byMuscle`) flow through native
+anchor behavior to `hashchange` and the submodule's own listener (`applySubview`
+in `diagnose-muscle-map.js`). `navigation-tabs.js` has no subview click handler.
+
 ## Tab activation
 
-Function `activateTab` deactivates the previously active tab and activates the resolved one (Active Object pattern), and CSS handles the UI update. Then it calls `lazyInit` for the newly-activated content.
+Function `activateTab` swaps the active nav tab, content section, and subtab row (Active Object). For subtabbed tabs it delegates entirely to `activateSubtab`, which owns the subtab swap, breadcrumb, and the single `lazyInit` call. For row-less tabs (`home`, `flashcards`, `equivalence`, `masterquiz`) it does the breadcrumb and `lazyInit` itself. Either way, the module loads via exactly one `lazyInit` call per activation.
 
 ## Module loading
 
@@ -72,9 +83,17 @@ Function `startTabLoading` adds `.loading` to the just-activated link and contai
 `import()` caches the settled module record by specifier: once a path rejects, every later `import()` of that path returns the same rejection without re-evaluating. So `lazyInit` re-imports a `failed` base with a unique `?r=<timestamp>` query — a new specifier, forcing a real fetch and evaluation:
 
 ```js
-const path = failed.has(base) ? entry + '?r=' + Date.now() : entry;
-failed.delete(base);
+const retryingImport = failed.has(base);
+const path = retryingImport ? entry + '?r=' + Date.now() : entry;
+if (retryingImport) {
+  failed.delete(base);
+  clearErrors(container);
+}
 ```
+
+The import-error callout is cleared synchronously on retry before the re-import.
+On success there is no further clear; data-load errors are owned by
+`attemptLoad`.
 
 ## Module data loading
 
@@ -86,8 +105,11 @@ export const attemptLoad = ({loader, container, render}) =>
     container.classList.add('loading');
     const result = await loader();
     container.classList.remove('loading');
-    clearErrors(container);
-    if (result.ok) return render(result.data);
+
+    if (result.ok) {
+      clearErrors(container);
+      return render(result.data);
+    }
     handleFetchError(result, {
       render: (message, retry) => renderError(container, message, retry),
       onRetry: attempt
@@ -105,7 +127,12 @@ A consumer statically imports the owner; if the owner fails to load, the consume
 
 ## Retry
 
-When a module or its data fails to load, its section shows an error callout with a Retry button. The user can retry two ways and both re-attempt the same load: press Retry, or click the tab again. Re-clicking works because of a branch in `handleNavClick`: clicking the already-active tab does not change `location.hash`, so the browser fires no `hashchange` and `applyHash` would never run on its own — `handleNavClick` detects the same-hash click and calls `applyHash()` directly, which re-enters `lazyInit` for the failed base. Spam-clicking needs no guard: `lazyInit` returns early while the base is in `pending`, and CSS makes `.content.loading .callout-retry` non-interactive, so extra clicks during a retry do nothing on their own.
+When a module or its data fails to load, its section shows an error callout with a Retry button. The user can retry two ways, both terminating in a direct `lazyInit(base, link)` call; neither routes through `applyHash`:
+
+- **Press Retry** in the error callout → `onRetry: () => lazyInit(base, link)`.
+- **Click the active tab/subtab again** → `handleNavClick` detects `link.hash === location.hash`, calls `retryActiveLoad(link)`, which decodes `base` from the link's hash and calls `lazyInit(base, link)` only if `failed.has(base)`. Re-clicking a working tab is a literal no-op.
+
+Spam-clicking needs no extra guard: `lazyInit` returns early while `base` is in `pending`, and CSS makes `.content.loading .callout-retry` non-interactive, so extra clicks during a retry do nothing on their own.
 
 Whoever requests a load handles its failure — only the requester knows what a retry means.
 
@@ -130,11 +157,13 @@ handleFetchError(result, {
 Both pass `load.js` two callbacks — `render` (how to show it) and `onRetry` (how to redo the request). `load.js` turns `result.cause` into a readable message and calls them; it touches no DOM and never learns who called it. `render` is always `renderError` in `error-ui.js`, the single app-specific place the callout and Retry button exist — `load.js` never imports it; the requester wires the two together.
 
 ```
-navigation-tabs · import()  ─┐
-                             ├─▶ load.js   cause → message · DOM-free · IoC
-module · loadJson           ─┘       │      requester injects render + onRetry
-                                     ▼
-                               renderError   error-ui.js · the one callout + Retry
+navigation-tabs · lazyInit · import()
+  └─▶ load.js · handleImportError · cause → message
+        └─▶ renderError · error-ui.js · callout + Retry
+
+module · attemptLoad · loadJson
+  └─▶ load.js · handleFetchError · cause → message
+        └─▶ renderError · error-ui.js · callout + Retry
 ```
 
 The two paths above are module import (`lazyInit`) and `attemptLoad`-based data loads. A module that calls `loadJson` directly owns its own failure UI — equivalence does, with its own callout and retry; see `equivalence-quiz.md`.
