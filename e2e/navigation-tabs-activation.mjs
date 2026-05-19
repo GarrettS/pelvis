@@ -91,6 +91,36 @@ async function retryRecoveryTest(label, route, dataGlob, containerId, rowSel) {
   await page.context().close();
 }
 
+async function sameHashImportRetryTest() {
+  const page = await newPage();
+  let blockModule = true;
+  await page.route('**/scripts/patterns-level-quiz.js', r =>
+    blockModule ? r.abort() : r.continue());
+  await page.goto(`${BASE}/index.html#patterns/level-quiz`);
+  await page.waitForSelector('#patterns-level-quiz-content .callout-retry',
+    {timeout: 5000}).catch(() => {});
+
+  const failedMessage = await page.locator(
+    '#patterns-level-quiz-content .callout.error').textContent();
+  ok('same-hash import retry: initial import error shown',
+     failedMessage?.includes("Couldn't load ./patterns-level-quiz.js"),
+     `message=${failedMessage}`);
+
+  blockModule = false;
+  await page.locator('#patterns-level-quiz-subtab').click();
+  await page.waitForSelector('#halt-quiz-wrap #halt-question',
+    {timeout: 5000}).catch(() => {});
+
+  const errors = await page.locator(
+    '#patterns-level-quiz-content .callout.error').count();
+  const rendered = await page.locator('#halt-quiz-wrap #halt-question')
+    .textContent();
+  ok('same-hash import retry: active subtab re-click retries module',
+     errors === 0 && Boolean(rendered?.trim()),
+     `errs=${errors} rendered=${rendered}`);
+  await page.context().close();
+}
+
 // Tab-level route: the non-subtabbed branch of activateTab. nav tab is
 // current, content visible, breadcrumb hidden, and the lazy module
 // rendered into its container.
@@ -209,6 +239,7 @@ await switchAndReclickTest();
 await tabLevelTest('flashcards', '#flashcards', 'nav-flashcards',
   'flashcards-content', '#fc-card-wrap > *');
 await patternsSubtabTest();
+await sameHashImportRetryTest();
 
 await browser.close();
 

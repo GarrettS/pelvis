@@ -24,6 +24,12 @@ function applyHash() {
 ```
 `ROUTE_REGEX` captures the tab and subtab. Anything following that is for the respective route's module to read (e.g. submodule `diagnose-muscle-map.js` parses `byMuscle` from the hash with its own regex). 
 
+Since `handleNavClick` lets different-hash clicks fall through to native
+anchor behavior, route fragments (`#tab` / `#tab/subtab`) must not equal any
+element `id`. The `tabKey` naming (`nav-X`, `X-content`, `X-subtabs`,
+`X-Y-subtab`, `X-Y-content`) keeps them disjoint. Don't add element ids that
+collide with a route fragment.
+
 ## Tab activation
 
 Function `activateTab` deactivates the previously active tab and activates the resolved one (Active Object pattern), and CSS handles the UI update. Then it calls `lazyInit` for the newly-activated content.

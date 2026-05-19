@@ -83,8 +83,10 @@ function lazyInit(base, link) {
 
   const retryingImport = failed.has(base);
   const path = retryingImport ? entry + '?r=' + Date.now() : entry;
-  failed.delete(base);
-  if (retryingImport) clearErrors(container);
+  if (retryingImport) {
+    failed.delete(base);
+    clearErrors(container);
+  }
 
   importModule(path).then((result) => {
     endTabLoading(link, container, loadingTimer);
@@ -155,7 +157,7 @@ function activateTab(tabId, subtabId) {
 }
 
 function activateSubtab(tabId, subtabId) {
-  const row = byId(tabKey.subtabRow(tabId));
+  const row = activeSubtabRow;
   activeSubtabLink[tabId] ??= row.querySelector('.subtab[aria-current]');
 
   const requested = subtabId && byId(tabKey.subtabLink(tabId, subtabId));
@@ -167,7 +169,7 @@ function activateSubtab(tabId, subtabId) {
   activeSubtabLink[tabId] = swapAriaCurrent(activeSubtabLink[tabId], link);
 
   activeSubtabContent[tabId] ??=
-    byId(tabKey.content(tabId)).querySelector('.subtab-content:not([hidden])');
+    activeSection.querySelector('.subtab-content:not([hidden])');
   activeSubtabContent[tabId] =
     swapHidden(activeSubtabContent[tabId], byId(tabKey.content(base)));
 
@@ -182,17 +184,18 @@ function applyHash() {
   activateTab(tabId, subtabId);
 }
 
+function retryActiveLoad(link) {
+  const {tab, subtab} = ROUTE_REGEX.exec(link.hash).groups;
+  const base = subtab ? tabKey.subtab(tab, subtab) : tab;
+  if (failed.has(base)) lazyInit(base, link);
+}
+
 function handleNavClick(e) {
   const link = e.target.closest('.nav-tab, .subtab');
-  if (!link?.hash) return;
+  if (!link?.hash || link.hash !== location.hash) return;
 
   e.preventDefault();
-  // If the tab load failed, we may need to retry: same hash fires no
-  // hashchange, so re-apply directly instead of relying on the event.
-  // lazyInit bails when the tab is initialized / pending.
-  if (link.hash === location.hash) return applyHash();
-
-  location.hash = link.hash;
+  retryActiveLoad(link);
 }
 
 function handleSubviewClick(e) {
@@ -225,6 +228,4 @@ function initNavigationTabs() {
 }
 
 document.addEventListener('DOMContentLoaded', initNavigationTabs);
-window.addEventListener('load', () => 
-    navigator.serviceWorker?.register('./sw.js').catch(() => {})
-);
+navigator.serviceWorker?.register('./sw.js').catch(() => {});
