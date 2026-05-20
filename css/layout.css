@@ -218,8 +218,10 @@ nav {
   border-bottom: 1px solid var(--border);
 }
 
-.breadcrumb[hidden] {
-  display: none;
+@media (max-width: 600px) {
+  .breadcrumb.breadcrumb-empty {
+    visibility: hidden;
+  }
 }
 
 @media (min-width: 601px) {
