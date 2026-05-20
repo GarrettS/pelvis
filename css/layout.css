@@ -145,16 +145,12 @@ nav {
 }
 
 .subtab-row {
-  gap: 0;
   width: 100%;
   background: var(--panel-bg-sunken);
   border-top: 1px solid var(--border);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
-  list-style: none;
-  padding: 0;
-  margin: 0;
 }
 
 .subtab-row:not([hidden]) {
@@ -164,9 +160,6 @@ nav {
 #nav-tabs {
   display: flex;
   overflow: visible;
-  list-style: none;
-  padding: 0;
-  margin: 0;
 }
 
 @media (max-width: 600px) {
@@ -188,11 +181,6 @@ nav {
     display: none;
   }
 }
-
-#nav-tabs > li {
-  list-style: none;
-}
-
 
 .nav-tab {
   font-family: var(--mono);
