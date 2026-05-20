@@ -248,30 +248,15 @@ const CLICK_DISPATCH = {
   'fc-form-save': saveCard
 };
 
-function addFormKeydownHandler(e) {
-  if (e.key === 'Enter' && e.target.matches('input, textarea')) {
-    e.preventDefault();
-  }
-}
-
-function addFormInputHandler(e) {
-  INPUT_DISPATCH[e.target.id]?.(e);
-}
-
-function addFormClickHandler(e) {
-  const target = e.target.closest('[id]');
-  CLICK_DISPATCH[target?.id]?.();
-}
-
-function addToggleClickHandler() {
-  addForm.hidden = !addForm.hidden;
-}
-
 function setupAddForm() {
-  addForm.addEventListener('keydown', addFormKeydownHandler);
-  addForm.addEventListener('input', addFormInputHandler);
-  addForm.addEventListener('click', addFormClickHandler);
-  document.getElementById('fc-add-btn').addEventListener('click', addToggleClickHandler);
+  addForm.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.matches('input, textarea')) e.preventDefault();
+  });
+  addForm.addEventListener('input', e => INPUT_DISPATCH[e.target.id]?.(e));
+  addForm.addEventListener('click',
+      e => CLICK_DISPATCH[e.target.closest('button[id]')?.id]?.());
+  document.getElementById('fc-add-btn')
+      .addEventListener('click', () => addForm.hidden = !addForm.hidden);
 }
 
 function refreshDeckIfUserCardsAdded([entry]) {
@@ -291,8 +276,8 @@ function setupFlashcards(deckData) {
 
   containerEl.addEventListener('click', cardActionHandler);
   document.getElementById('fc-reset').addEventListener('click', resetDeck);
-  bindFilterGroup('fc-cat-filters', 'cat', (val) => { activeCat = val; });
-  bindFilterGroup('fc-weight-filters', 'weight', (val) => { activeWeight = val; });
+  bindFilterGroup('fc-cat-filters', 'cat', val => activeCat = val);
+  bindFilterGroup('fc-weight-filters', 'weight', val => activeWeight = val);
   setupAddForm();
 
   new IntersectionObserver(refreshDeckIfUserCardsAdded).observe(containerEl);
