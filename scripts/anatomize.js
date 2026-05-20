@@ -302,9 +302,9 @@ function loadImageSet(imageId, skipHash) {
     }
   }
 
-  activeImageBtn?.classList.remove('active');
+  activeImageBtn?.removeAttribute('aria-current');
   activeImageBtn = document.getElementById('anat-img-' + imageId);
-  activeImageBtn?.classList.add('active');
+  activeImageBtn?.setAttribute('aria-current', 'true');
 
   activeSession = sessions[imageId] ??= createSession(imgSet, imageId);
   renderActiveSession(imgSet);
