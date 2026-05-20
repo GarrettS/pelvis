@@ -224,4 +224,4 @@ function initNavigationTabs() {
 }
 
 document.addEventListener('DOMContentLoaded', initNavigationTabs);
-navigator.serviceWorker?.register('./sw.js').catch(() => {});
+navigator.serviceWorker?.register('./sw.js').catch(() => { /* optional SW; silent on failure */ });
