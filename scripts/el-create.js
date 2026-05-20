@@ -5,7 +5,9 @@
 //
 // HTML elements: properties are assigned directly (Object.assign onto the
 // node), so callers write `className`, `textContent`, `id`, `style.cssText`,
-// etc. directly against the DOM property API.
+// etc. directly against the DOM property API. Pass an `attrs` sub-map for
+// HTML attributes with no IDL property analog (e.g. `data-*`, `aria-*`); each
+// entry goes through setAttribute.
 //
 // SVG elements: every prop goes through setAttribute (SVG's `className` is a
 // SVGAnimatedString, not a string). `className` is translated to the `class`
@@ -14,8 +16,9 @@
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 export function newEl(tag, props = {}) {
-  const {children, ...rest} = props;
+  const {children, attrs, ...rest} = props;
   const node = Object.assign(document.createElement(tag), rest);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
   if (children) node.append(...children);
   return node;
 }
