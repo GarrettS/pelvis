@@ -216,6 +216,11 @@
   font-weight: 700;
 }
 
+#mq-equiv-wrap.mq-equiv-pending .mq-equiv-highlight {
+  color: inherit;
+  font-weight: inherit;
+}
+
 .mq-pin-label {
   display: flex;
   align-items: center;

@@ -35,7 +35,7 @@ let activeScreenClass = 'screen-config';
 const truncate = (s, n) => s.length > n ? s.slice(0, n) + '…' : s;
 
 function buildQueue(domains, count, priorityMode) {
-  const eligible = QUESTIONS.filter(q => domains.includes(q.domain));
+  const eligible = getSelectedQuestions(domains);
   if (!priorityMode) return shuffle(eligible).slice(0, count);
 
   const progress = getAllProgress();
@@ -68,8 +68,7 @@ function showScreen(cls) {
   activeScreenClass = cls;
 }
 
-const hideProgressToast = () =>
-  (document.getElementById('mq-progress-toast').hidden = true);
+const hideProgressToast = toast => toast.hidden = true;
 
 let progressToastTimer = 0;
 
@@ -78,20 +77,20 @@ function showProgressToast(message) {
   toast.textContent = message;
   toast.hidden = false;
   clearTimeout(progressToastTimer);
-  progressToastTimer = setTimeout(hideProgressToast, PROGRESS_TOAST_MS);
+  progressToastTimer = setTimeout(hideProgressToast, PROGRESS_TOAST_MS, toast);
 }
 
 const getSelectedDomains = () =>
   DOMAINS.filter(d => document.getElementById('mq-domain-' + d)?.checked);
 
+const getSelectedQuestions = domains =>
+  QUESTIONS.filter(q => domains.includes(q.domain));
+
 const getQuestionCount = () =>
   document.getElementById('mq-count').valueAsNumber;
 
 function renderStats() {
-  const domains = getSelectedDomains();
-  const selectedQuestions =
-    QUESTIONS.filter(question => domains.includes(question.domain));
-  const stats = getStats(selectedQuestions);
+  const stats = getStats(getSelectedQuestions(getSelectedDomains()));
   const statsEl = document.getElementById('mq-stats');
   if (stats.attempted === 0) {
     statsEl.textContent = '';
@@ -155,12 +154,12 @@ function renderQuestion() {
   saveBtn.disabled = false;
   saveBtn.textContent = 'Save as Flashcard';
 
+  const equivWrap = document.getElementById('mq-equiv-wrap');
   if (!equivPinned) {
-    const equivWrap = document.getElementById('mq-equiv-wrap');
-    equivWrap.classList.add('hidden');
+    equivWrap.hidden = true;
     equivWrap.replaceChildren();
   } else {
-    clearEquivHighlights();
+    equivWrap.classList.add('mq-equiv-pending');
   }
 }
 
@@ -241,7 +240,7 @@ function renderEquivChain(q) {
   const positions = detectEquivalence(q);
   const equivWrap = document.getElementById('mq-equiv-wrap');
   if (!positions) {
-    if (!equivPinned) equivWrap.classList.add('hidden');
+    if (!equivPinned) equivWrap.hidden = true;
     return;
   }
 
@@ -263,14 +262,8 @@ function renderEquivChain(q) {
         ' Keep Pinned'
       ]})
   );
-  equivWrap.classList.remove('hidden');
-}
-
-function clearEquivHighlights() {
-  const wrap = document.getElementById('mq-equiv-wrap');
-  for (const el of wrap.querySelectorAll('.mq-equiv-highlight')) {
-    el.classList.remove('mq-equiv-highlight');
-  }
+  equivWrap.hidden = false;
+  equivWrap.classList.remove('mq-equiv-pending');
 }
 
 const isAlreadySaved = qId => hasSavedFlashcard('user-mq-' + qId);
@@ -357,7 +350,7 @@ function makeResultRow(answer) {
     summaryText += ` — You: ${answer.chosen}, Correct: ${q.answer}`;
   }
 
-  return newEl('details', {className: 'mq-result-row', children: [
+  return newEl('details', {id: q.id, _question: q, className: 'mq-result-row', children: [
     newEl('summary', {className: 'mq-result-summary', textContent: summaryText}),
     newEl('div', {className: 'mq-result-detail', children: [
       newEl('p', {className: 'mq-result-stem', innerHTML: expandAbbr(q.stem)}),
@@ -378,10 +371,10 @@ const renderResultsList = (container, answers) =>
   container.replaceChildren(...answers.map(makeResultRow));
 
 function handleResultSave(btn) {
-  const q = QUESTIONS.find(qu => qu.id === btn.value);
+  const q = document.getElementById(btn.value);
   if (!q) return;
 
-  const result = saveUserFlashcard(buildFlashcard(q));
+  const result = saveUserFlashcard(buildFlashcard(q._question));
   if (!result.ok) {
     replaceErrorCallout(btn.parentNode, result.message);
     btn.disabled = true;
