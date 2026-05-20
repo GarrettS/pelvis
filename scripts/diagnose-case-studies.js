@@ -1,18 +1,42 @@
 import {expandAbbr} from './abbr-expand.js';
 import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
+import {newEl} from './el-create.js';
 
-let caseStudies = {};
+let caseStudyData = {};
 
 const containerEl = document.getElementById('diagnose-case-studies-content');
 const caseStudyWrap = document.getElementById('case-study-wrap');
 
 caseStudyWrap.addEventListener('click', (e) => handleClick(e));
 
+const polarityClass = (value) =>
+  value.startsWith('+') ? 'positive'
+  : /^[-−]/.test(value) ? 'negative'
+  : '';
+
+const testItemHTML = ([abbreviation, value]) => `<div class="test-item">
+    <div class="test-item-name">${expandAbbr(abbreviation)}</div>
+    <div class="test-item-val ${polarityClass(value)}">${expandAbbr(value)}</div>
+  </div>`;
+
+const testProfileHTML = (testResults) => {
+  if (!testResults) return '';
+  const items = Object.entries(testResults).map(testItemHTML).join('');
+  return `<div class="test-profile">${items}</div>`;
+};
+
+const answerButtonsEl = (options) => newEl('div', {
+  className: 'answer-opts',
+  children: options.map(opt => newEl('button', {
+    className: 'answer-btn',
+    textContent: opt
+  }))
+});
+
 export function renderCaseVisit(caseStudy, caseEl) {
   if (caseStudy.isComplete()) {
-    caseEl.innerHTML =
-      `<div class="callout">
+    caseEl.innerHTML = `<div class="callout">
         <strong>Case complete.</strong>
         <div class="btn-row">
           <button class="case-restart">Restart Case</button>
@@ -21,39 +45,11 @@ export function renderCaseVisit(caseStudy, caseEl) {
   }
 
   const visit = caseStudy.currentVisit();
-  const testHTML = visit.testResults
-    ? '<div class="test-profile">'
-      + Object.entries(visit.testResults).map(
-        ([k, v]) => {
-          const isPos = String(v).startsWith('+');
-          const isNeg = String(v).startsWith('−')
-            || String(v).startsWith('-');
-          const cls = isPos ? 'positive'
-            : isNeg ? 'negative' : '';
-          return '<div class="test-item">'
-            + '<div class="test-item-name">'
-            + expandAbbr(k) + '</div>'
-            + '<div class="test-item-val '
-            + cls + '">' + expandAbbr(String(v)) + '</div></div>';
-        }
-      ).join('') + '</div>'
-    : '';
-
-  const btnTemplate = document.createElement('button');
-  btnTemplate.className = 'answer-btn';
-  const optWrap = document.createElement('div');
-  optWrap.className = 'answer-opts';
-  (visit.options || []).forEach((opt) => {
-    const btn = btnTemplate.cloneNode(false);
-    btn.textContent = opt;
-    optWrap.appendChild(btn);
-  });
-
   caseEl.innerHTML =
     `<div class="visit-badge">Visit ${caseStudy.visitNumber()}</div>`
-    + testHTML
-    + '<p class="question-stem">' + expandAbbr(visit.question) + '</p>';
-  caseEl.appendChild(optWrap);
+    + testProfileHTML(visit.testResults)
+    + `<p class="question-stem">${expandAbbr(visit.question)}</p>`;
+  caseEl.appendChild(answerButtonsEl(visit.options));
 }
 
 function handleClick(e) {
@@ -67,13 +63,13 @@ function handleClick(e) {
 
   if (e.target.closest('.case-restart')) {
     CaseStudy.discard(caseEl.id);
-    renderCaseVisit(CaseStudy.getInstance(caseEl), caseEl);
+    renderCaseVisit(CaseStudy.getInstance(caseEl.id), caseEl);
   } else if (e.target.closest('.case-next')) {
-    const caseStudy = CaseStudy.getInstance(caseEl);
+    const caseStudy = CaseStudy.getInstance(caseEl.id);
     caseStudy.advanceVisit();
     renderCaseVisit(caseStudy, caseEl);
   } else if (e.target.closest('.case-submit')) {
-    showTreatmentResult(CaseStudy.getInstance(caseEl), caseEl);
+    showTreatmentResult(CaseStudy.getInstance(caseEl.id), caseEl);
   }
 }
 
@@ -81,11 +77,11 @@ function renderAll(container) {
   container.innerHTML = '';
   CaseStudy.discardAll();
 
-  Object.entries(caseStudies).forEach(([id, definition]) => {
-    const caseStudy = CaseStudy.getInstance(id, definition);
+  Object.keys(caseStudyData).forEach(id => {
+    const caseStudy = CaseStudy.getInstance(id);
     const card = document.createElement('div');
     card.className = 'card';
-    card.innerHTML = `<h3 class="case-title">${definition.title}</h3>`;
+    card.innerHTML = `<h3 class="case-title">${caseStudyData[id].title}</h3>`;
     const caseEl = document.createElement('div');
     caseEl.className = 'case-study';
     caseEl.id = id;
@@ -99,7 +95,7 @@ function handleAnswerClick(btn) {
   const caseEl = btn.closest('.case-study');
   if (!caseEl) return;
 
-  const caseStudy = CaseStudy.getInstance(caseEl);
+  const caseStudy = CaseStudy.getInstance(caseEl.id);
   if (caseStudy.isAnswered()) {
     handleTreatmentToggle(caseStudy, btn);
     return;
@@ -214,20 +210,9 @@ class CaseStudy {
   static #instances = Object.create(null);
   static #KEY = Symbol();
 
-  static getInstance(elOrId, definition) {
-    const id = elOrId.id || elOrId;
-    return CaseStudy.#instances[id] ??= CaseStudy.#create(id, definition);
-  }
-
-  static #create(id, definition) {
-    // Fallback for the discard-and-recreate restart path: the
-    // delegated click handler has the element but not the
-    // definition, so look it up from the cached slice.
-    definition ??= caseStudies[id];
-    if (!definition) throw new Error(
-      'CaseStudy: no definition for "' + id + '"'
-    );
-    return (caseStudies[id] ??= new CaseStudy(id, definition, CaseStudy.#KEY));
+  static getInstance(id) {
+    return CaseStudy.#instances[id] ??=
+      new CaseStudy(id, caseStudyData[id], CaseStudy.#KEY);
   }
 
   static discard(id) {
@@ -309,7 +294,7 @@ await attemptLoad({
   loader: () => loadJson('./data/diagnose-case-studies.json'),
   container: containerEl,
   render: (data) => {
-    caseStudies = data;
+    caseStudyData = data;
     renderAll(caseStudyWrap);
   }
 });
