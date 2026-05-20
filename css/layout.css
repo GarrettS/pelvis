@@ -208,7 +208,6 @@ nav {
 }
 
 .breadcrumb {
-  display: none;
   font-family: var(--mono);
   font-size: var(--text-xs);
   color: var(--text-dim);
@@ -217,9 +216,13 @@ nav {
   border-bottom: 1px solid var(--border);
 }
 
-@media (max-width: 600px) {
-  .breadcrumb:not(.hidden) {
-    display: block;
+.breadcrumb[hidden] {
+  display: none;
+}
+
+@media (min-width: 601px) {
+  .breadcrumb {
+    display: none;
   }
 }
 
@@ -367,10 +370,6 @@ tr:last-child td {
   .table-row-card .trc-val {
     font-size: var(--text-sm);
   }
-}
-
-.hidden {
-  display: none!important;
 }
 
 .text-dim {

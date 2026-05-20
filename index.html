@@ -52,7 +52,7 @@
     <li><a class="subtab" id="diagnose-muscle-map-subtab" href="#diagnose/muscle-map">Exercise Map</a></li>
   </menu>
 </nav>
-<div class="breadcrumb hidden" id="breadcrumb">
+<div class="breadcrumb" id="breadcrumb" hidden>
   <span id="breadcrumb-tab"></span>
   <span class="breadcrumb-sep" aria-hidden="true">&rsaquo;</span>
   <span id="breadcrumb-subtab"></span>
@@ -431,9 +431,9 @@
           <button class="answer-btn" type="button" value="BPEC">Bilateral <abbr title="Posterior Exterior Chain">PEC</abbr></button>
           <button class="answer-btn" type="button" value="B_PATHO_PEC">B Patho <abbr title="Posterior Exterior Chain">PEC</abbr></button>
         </div>
-        <div id="symptom-feedback" class="hidden"></div>
+        <div id="symptom-feedback" hidden></div>
         <div class="btn-row">
-          <button class="primary hidden" id="symptom-next">Next</button>
+          <button class="primary" id="symptom-next" hidden>Next</button>
         </div>
         </fieldset>
       </div>
@@ -535,7 +535,7 @@
       <div class="fc-progress" id="fc-progress">0 of 0 remaining</div>
       <button id="fc-add-btn">+ Add Card</button>
     </div>
-    <form id="fc-add-form" class="fc-add-form hidden">
+    <form id="fc-add-form" class="fc-add-form" hidden>
       <h3 id="fc-form-title">New Card</h3>
       <div id="fc-edit-section">
         <div class="fc-form-row">
@@ -560,7 +560,7 @@
           <button type="button" class="primary" id="fc-form-preview" disabled>Preview</button>
         </div>
       </div>
-      <div id="fc-preview-section" class="hidden">
+      <div id="fc-preview-section" hidden>
         <div id="fc-preview-card"></div>
         <div class="fc-form-actions fc-preview-actions">
           <button type="button" id="fc-form-edit-back">&larr; Edit</button>

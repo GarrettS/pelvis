@@ -144,8 +144,8 @@ function clearForm() {
 }
 
 function showEditStep() {
-  document.getElementById('fc-edit-section').classList.remove('hidden');
-  document.getElementById('fc-preview-section').classList.add('hidden');
+  document.getElementById('fc-edit-section').hidden = false;
+  document.getElementById('fc-preview-section').hidden = true;
   document.getElementById('fc-form-title').textContent = 'New Card';
 }
 
@@ -193,11 +193,11 @@ function setupAddForm() {
   });
 
   document.getElementById('fc-add-btn').addEventListener('click', () => {
-    addForm.classList.toggle('hidden');
+    addForm.hidden = !addForm.hidden;
   });
 
   document.getElementById('fc-form-cancel').addEventListener('click', () => {
-    addForm.classList.add('hidden');
+    addForm.hidden = true;
     showEditStep();
     clearForm();
   });
@@ -211,8 +211,8 @@ function setupAddForm() {
     };
     document.getElementById('fc-preview-card')
         .replaceChildren(buildCard(previewCard));
-    document.getElementById('fc-edit-section').classList.add('hidden');
-    document.getElementById('fc-preview-section').classList.remove('hidden');
+    document.getElementById('fc-edit-section').hidden = true;
+    document.getElementById('fc-preview-section').hidden = false;
     document.getElementById('fc-form-title').textContent = 'Preview';
   });
 
@@ -248,7 +248,7 @@ function setupAddForm() {
     currentIdx = 0;
     cardsRemaining = deck.length;
 
-    addForm.classList.add('hidden');
+    addForm.hidden = true;
     showEditStep();
     clearForm();
     renderCard();

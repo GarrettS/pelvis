@@ -35,7 +35,7 @@ function initSymptomQuiz() {
 
   answersEl.addEventListener('click', (e) => {
     const btn = e.target.closest('.answer-btn');
-    if (!btn || quizState.isQuizDone) return;
+    if (!btn || btn.parentElement !== answersEl || quizState.isQuizDone) return;
     gradeAnswer(btn, answersEl);
   });
 }
@@ -54,11 +54,11 @@ function gradeAnswer(btn, answersEl) {
   }
   answersEl.classList.add('answered');
   showFeedback(current.explanation, isCorrect);
-  document.getElementById('symptom-next').classList.remove('hidden');
+  document.getElementById('symptom-next').hidden = false;
 }
 
 function markCorrectAnswer(answersEl, correctKey) {
-  const correctBtn = answersEl.querySelector('[value="' + correctKey + '"]');
+  const correctBtn = answersEl.querySelector(':scope > [value="' + correctKey + '"]');
   correctBtn.classList.add('correct');
   quizState.markedBtns = [correctBtn];
 }
@@ -74,16 +74,16 @@ function showFeedback(explanation, isCorrect) {
   const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
   feedback.classList.toggle('error', !isCorrect);
   feedback.innerHTML = '<strong>' + verdict + '</strong> ' + explanation;
-  feedback.classList.remove('hidden');
+  feedback.hidden = false;
 }
 
 function renderQuestion() {
   const current = SYMPTOM_PATTERNS[quizState.idx];
   document.getElementById('symptom-condition').textContent = current.condition;
   const feedback = document.getElementById('symptom-feedback');
-  feedback.classList.add('hidden');
+  feedback.hidden = true;
   feedback.classList.remove('error');
-  document.getElementById('symptom-next').classList.add('hidden');
+  document.getElementById('symptom-next').hidden = true;
   const answersEl = document.getElementById('symptom-answers');
   quizState.markedBtns.forEach((b) => b.classList.remove('correct', 'incorrect'));
   quizState.markedBtns = [];

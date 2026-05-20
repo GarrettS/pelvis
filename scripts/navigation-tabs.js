@@ -112,7 +112,7 @@ function updateBreadcrumb(tabId, subtabId) {
     : null;
   const show = navTab && subtabLink;
 
-  byId('breadcrumb').classList.toggle('hidden', !show);
+  byId('breadcrumb').hidden = !show;
   if (!show) return;
 
   byId('breadcrumb-tab').textContent    = navTab.textContent;
