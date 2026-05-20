@@ -15,6 +15,7 @@ let currentIdx = 0;
 let cardsRemaining = 0;
 
 const containerEl = document.getElementById('flashcards-content');
+const addForm = document.getElementById('fc-add-form');
 
 function normalizeUserCard(c) {
   return {
@@ -138,7 +139,7 @@ function renderCard() {
 }
 
 function clearForm() {
-  document.getElementById('fc-add-form').reset();
+  addForm.reset();
   document.getElementById('fc-detail-count').textContent = '0 / 380';
   document.getElementById('fc-form-preview').disabled = true;
 }
@@ -164,95 +165,113 @@ function bindFilterGroup(containerId, dataKey, onChange) {
   });
 }
 
-function setupAddForm() {
-  const addForm = document.getElementById('fc-add-form');
-  const frontInput = document.getElementById('fc-input-front');
-  const hintInput = document.getElementById('fc-input-hint');
-  const backInput = document.getElementById('fc-input-back');
-  const detailInput = document.getElementById('fc-input-detail');
+function syncPreviewBtn() {
+  const front = document.getElementById('fc-input-front').value.trim();
+  const back = document.getElementById('fc-input-back').value.trim();
+  document.getElementById('fc-form-preview').disabled = !(front && back);
+}
+
+function updateDetailCharCount(e) {
+  const detail = e.target;
   const charCount = document.getElementById('fc-detail-count');
-  const previewBtn = document.getElementById('fc-form-preview');
+  const len = detail.value.length;
+  charCount.textContent = len + ' / 380';
+  charCount.classList.toggle('warn', len > 340);
+  if (len > 380) detail.value = detail.value.slice(0, 380);
+}
 
-  addForm.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.target.matches('input, textarea')) {
-      e.preventDefault();
-    }
-  });
+function cancelAddForm() {
+  addForm.hidden = true;
+  showEditStep();
+  clearForm();
+}
 
-  const syncPreviewBtn = () => {
-    previewBtn.disabled = !(frontInput.value.trim() && backInput.value.trim());
+function showPreview() {
+  const previewCard = {
+    front: document.getElementById('fc-input-front').value.trim(),
+    frontHint: document.getElementById('fc-input-hint').value.trim() || null,
+    back: document.getElementById('fc-input-back').value.trim(),
+    backDetail: document.getElementById('fc-input-detail').value.trim() || null
   };
-  frontInput.addEventListener('input', syncPreviewBtn);
-  backInput.addEventListener('input', syncPreviewBtn);
+  document.getElementById('fc-preview-card')
+      .replaceChildren(buildCard(previewCard));
+  document.getElementById('fc-edit-section').hidden = true;
+  document.getElementById('fc-preview-section').hidden = false;
+  document.getElementById('fc-form-title').textContent = 'Preview';
+}
 
-  detailInput.addEventListener('input', () => {
-    const len = detailInput.value.length;
-    charCount.textContent = `${len} / 380`;
-    charCount.classList.toggle('warn', len > 340);
-    if (len > 380) detailInput.value = detailInput.value.slice(0, 380);
-  });
+function saveCard() {
+  const front = document.getElementById('fc-input-front').value.trim();
+  const back = document.getElementById('fc-input-back').value.trim();
+  if (!front || !back) return;
 
-  document.getElementById('fc-add-btn').addEventListener('click', () => {
-    addForm.hidden = !addForm.hidden;
-  });
+  clearErrors(addForm);
 
-  document.getElementById('fc-form-cancel').addEventListener('click', () => {
-    addForm.hidden = true;
-    showEditStep();
-    clearForm();
-  });
+  const newCard = {
+    id: 'user-' + Date.now(),
+    category: 'user_created',
+    examWeight: 'high',
+    front,
+    frontHint: document.getElementById('fc-input-hint').value.trim() || null,
+    back,
+    backDetail: document.getElementById('fc-input-detail').value.trim() || null
+  };
 
-  previewBtn.addEventListener('click', () => {
-    const previewCard = {
-      front: frontInput.value.trim(),
-      frontHint: hintInput.value.trim() || null,
-      back: backInput.value.trim(),
-      backDetail: detailInput.value.trim() || null
-    };
-    document.getElementById('fc-preview-card')
-        .replaceChildren(buildCard(previewCard));
-    document.getElementById('fc-edit-section').hidden = true;
-    document.getElementById('fc-preview-section').hidden = false;
-    document.getElementById('fc-form-title').textContent = 'Preview';
-  });
+  const saveResult = saveUserFlashcard(newCard);
+  if (!saveResult.ok) {
+    replaceErrorCallout(addForm, saveResult.message);
+    return;
+  }
 
-  document.getElementById('fc-form-edit-back')
-      .addEventListener('click', showEditStep);
+  allCards.push(newCard);
+  loadedUserCardCount = getUserFlashcards().length;
+  deck.unshift(newCard);
+  currentIdx = 0;
+  cardsRemaining = deck.length;
 
-  document.getElementById('fc-form-save').addEventListener('click', () => {
-    const front = frontInput.value.trim();
-    const back = backInput.value.trim();
-    if (!front || !back) return;
+  addForm.hidden = true;
+  showEditStep();
+  clearForm();
+  renderCard();
+}
 
-    clearErrors(addForm);
+const INPUT_DISPATCH = {
+  'fc-input-front': syncPreviewBtn,
+  'fc-input-back': syncPreviewBtn,
+  'fc-input-detail': updateDetailCharCount
+};
 
-    const newCard = {
-      id: 'user-' + Date.now(),
-      category: 'user_created',
-      examWeight: 'high',
-      front,
-      frontHint: hintInput.value.trim() || null,
-      back,
-      backDetail: detailInput.value.trim() || null
-    };
+const CLICK_DISPATCH = {
+  'fc-form-cancel': cancelAddForm,
+  'fc-form-preview': showPreview,
+  'fc-form-edit-back': showEditStep,
+  'fc-form-save': saveCard
+};
 
-    const saveResult = saveUserFlashcard(newCard);
-    if (!saveResult.ok) {
-      replaceErrorCallout(addForm, saveResult.message);
-      return;
-    }
+function addFormKeydownHandler(e) {
+  if (e.key === 'Enter' && e.target.matches('input, textarea')) {
+    e.preventDefault();
+  }
+}
 
-    allCards.push(newCard);
-    loadedUserCardCount = getUserFlashcards().length;
-    deck.unshift(newCard);
-    currentIdx = 0;
-    cardsRemaining = deck.length;
+function addFormInputHandler(e) {
+  INPUT_DISPATCH[e.target.id]?.(e);
+}
 
-    addForm.hidden = true;
-    showEditStep();
-    clearForm();
-    renderCard();
-  });
+function addFormClickHandler(e) {
+  const target = e.target.closest('[id]');
+  CLICK_DISPATCH[target?.id]?.();
+}
+
+function addToggleClickHandler() {
+  addForm.hidden = !addForm.hidden;
+}
+
+function setupAddForm() {
+  addForm.addEventListener('keydown', addFormKeydownHandler);
+  addForm.addEventListener('input', addFormInputHandler);
+  addForm.addEventListener('click', addFormClickHandler);
+  document.getElementById('fc-add-btn').addEventListener('click', addToggleClickHandler);
 }
 
 function refreshDeckIfUserCardsAdded([entry]) {
