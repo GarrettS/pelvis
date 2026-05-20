@@ -150,17 +150,17 @@ function showEditStep() {
   document.getElementById('fc-form-title').textContent = 'New Card';
 }
 
-function bindFilterGroup(containerId, dataKey, onChange) {
+function bindFilterGroup(containerId, onChange) {
   const container = document.getElementById(containerId);
   let activeBtn = container.querySelector(':scope > [aria-current]');
   container.addEventListener('click', e => {
-    const btn = e.target.closest(`[data-${dataKey}]`);
+    const btn = e.target.closest('button');
     if (!btn || btn.parentElement !== container || btn === activeBtn) return;
 
-    onChange(btn.dataset[dataKey]);
     activeBtn?.removeAttribute('aria-current');
     btn.setAttribute('aria-current', 'true');
     activeBtn = btn;
+    onChange(btn.dataset.val);
     resetDeck();
   });
 }
@@ -276,8 +276,8 @@ function setupFlashcards(deckData) {
 
   containerEl.addEventListener('click', cardActionHandler);
   document.getElementById('fc-reset').addEventListener('click', resetDeck);
-  bindFilterGroup('fc-cat-filters', 'cat', val => activeCat = val);
-  bindFilterGroup('fc-weight-filters', 'weight', val => activeWeight = val);
+  bindFilterGroup('fc-cat-filters', val => activeCat = val);
+  bindFilterGroup('fc-weight-filters', val => activeWeight = val);
   setupAddForm();
 
   new IntersectionObserver(refreshDeckIfUserCardsAdded).observe(containerEl);
