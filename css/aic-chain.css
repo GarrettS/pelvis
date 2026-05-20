@@ -1,6 +1,7 @@
 :root {
   /* AIC overlay marks (leader lines + anchor rings) render almost
-     entirely over the fixed light anatomical image, not the themed panel, so the casing color is theme-independent. */
+     entirely over the fixed light anatomical image, not the themed
+     panel, so the casing color is theme-independent. */
   --aic-casing: rgba(0, 0, 0, .7);
   --scroll-fade-size: 2rem;
 }
