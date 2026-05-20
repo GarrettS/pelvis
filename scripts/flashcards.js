@@ -4,6 +4,7 @@ import {loadJson} from './load.js';
 import {replaceErrorCallout, clearErrors, attemptLoad} from './error-ui.js';
 import {getUserFlashcards, saveUserFlashcard} from './flashcard-storage.js';
 import {newEl} from './el-create.js';
+import {bindSelectGroup} from './select-group.js';
 
 let allCards = [];
 let baseDeck = [];
@@ -150,17 +151,9 @@ function showEditStep() {
   document.getElementById('fc-form-title').textContent = 'New Card';
 }
 
-function bindFilterGroup(containerId, onChange) {
-  const container = document.getElementById(containerId);
-  let activeBtn = container.querySelector(':scope > [aria-current]');
-  container.addEventListener('click', e => {
-    const btn = e.target.closest('button');
-    if (!btn || btn.parentElement !== container || btn === activeBtn) return;
-
-    activeBtn?.removeAttribute('aria-current');
-    btn.setAttribute('aria-current', 'true');
-    activeBtn = btn;
-    onChange(btn.dataset.val);
+function bindFilterGroup(containerId, setter) {
+  bindSelectGroup(document.getElementById(containerId), btn => {
+    setter(btn.dataset.val);
     resetDeck();
   });
 }

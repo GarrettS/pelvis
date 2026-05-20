@@ -1,5 +1,6 @@
 import {getAllEquivalent, getMuscles} from './equivalence.js';
 import {newEl} from './el-create.js';
+import {bindSelectGroup} from './select-group.js';
 
 const REGIONS_WITH_OUTLET = new Set(['IsP', 'SI']);
 
@@ -17,15 +18,7 @@ const equivEl = document.getElementById('decoder-equiv');
 const musclesEl = document.getElementById('decoder-muscles');
 
 function bindControlGroup(containerId, key) {
-  const container = document.getElementById(containerId);
-  let activeBtn = container.querySelector(':scope > [aria-current]');
-  container.addEventListener('click', e => {
-    const btn = e.target.closest('button');
-    if (!btn || btn.parentElement !== container || btn === activeBtn) return;
-
-    activeBtn?.removeAttribute('aria-current');
-    btn.setAttribute('aria-current', 'true');
-    activeBtn = btn;
+  bindSelectGroup(document.getElementById(containerId), btn => {
     decoderState[key] = btn.dataset.val;
     updateDecoder();
   });
