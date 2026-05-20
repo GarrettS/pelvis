@@ -379,7 +379,7 @@ g.correct .anatomize-target-circle {
   --pri-violet-bg: hsla(270, 40%, 63%, .4);
 }
 
-#anat-image-selector button[aria-current] {
+#anat-image-selector button[aria-current="true"] {
   background: var(--accent);
   color: var(--bg);
   border-color: var(--accent);
