@@ -7,6 +7,11 @@ Question bank, correct answer, and explanation prose all live inline in
 `prd/architecture/equivalence-quiz.md`, which lazy-loads answers). Progress
 storage is delegated to `scripts/master-quiz-progress.js`.
 
+`data/master-quiz.json` is keyed by stable question identity. Each question
+record keeps its `domain` as classification; the key, not a nested `id`
+property, is used for progress, result-row save buttons, and generated
+Master Quiz flashcard IDs.
+
 ```mermaid
 stateDiagram-v2
   [*] --> Bootstrapping: module import
@@ -111,7 +116,7 @@ disables.
 
 ## Progress storage
 
-`scripts/master-quiz-progress.js` owns the `masterQuiz_progress`
+`scripts/master-quiz-progress.js` owns the `masterQuiz_progress_v2`
 localStorage key. Per-question entry shape:
 
 ```js

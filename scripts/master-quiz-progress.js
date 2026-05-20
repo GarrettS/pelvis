@@ -1,15 +1,15 @@
-// Sole owner of the masterQuiz_progress and masterQuiz_total localStorage
+// Sole owner of the masterQuiz_progress_v2 and masterQuiz_total_v2 localStorage
 // keys. DOM-free: write failures are returned to the caller, never rendered
 // here. Each key is read and parsed once, then held in memory; writers
 // mutate the in-memory copy and write through. As in flashcard-storage.js,
 // a second tab's writes are not seen until reload.
 //
-// masterQuiz_total persists QUESTIONS.length so the home card can show a
+// masterQuiz_total_v2 persists question count so the home card can show a
 // progress denominator without loading master-quiz.json — the quiz module
 // is lazy-loaded and may never have run when the home card renders.
 
-const STORAGE_KEY = 'masterQuiz_progress';
-const QUESTION_BANK_COUNT_KEY = 'masterQuiz_total';
+const STORAGE_KEY = 'masterQuiz_progress_v2';
+const QUESTION_BANK_COUNT_KEY = 'masterQuiz_total_v2';
 const MASTERY_STREAK = 3;
 
 let progressCache = null;
@@ -93,13 +93,13 @@ function updateEntry(questionId, correct) {
   return persist(STORAGE_KEY, JSON.stringify(progress));
 }
 
-function getStats(selectedQuestions) {
+function getStats(selectedQuestionRefs) {
   const progress = getAllProgress();
   let attempted = 0;
   let missed = 0;
   let mastered = 0;
-  for (const question of selectedQuestions) {
-    const entry = progress[question.id];
+  for (const questionRef of selectedQuestionRefs) {
+    const entry = progress[questionRef.questionId];
     if (!entry) continue;
     if (entry.totalAttempts > 0) attempted++;
     if (entry.correctStreak === 0 && entry.totalAttempts > 0) missed++;
@@ -107,7 +107,7 @@ function getStats(selectedQuestions) {
   }
   return {
     attempted, missed, mastered,
-    selectedQuestionCount: selectedQuestions.length
+    selectedQuestionCount: selectedQuestionRefs.length
   };
 }
 

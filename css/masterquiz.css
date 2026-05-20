@@ -110,7 +110,10 @@
   display: flex;
   flex-direction: column;
   gap: .5rem;
+  min-inline-size: 0;
   margin-bottom: 1rem;
+  padding: 0;
+  border: 0;
 }
 
 .mq-option {
@@ -138,7 +141,7 @@
   cursor: pointer;
 }
 
-.mq-option:has(input:enabled):hover {
+#mq-options:not([disabled]) .mq-option:hover {
   border-color: var(--accent-dim);
 }
 
@@ -174,7 +177,11 @@
   content: '\2717\a0';
 }
 
-.mq-option:has(input:disabled) {
+#mq-options[disabled] .mq-option {
+  cursor: default;
+}
+
+#mq-options[disabled] .mq-option input {
   cursor: default;
 }
 
@@ -306,23 +313,25 @@
   flex-direction: column;
   gap: .35rem;
   margin-bottom: .75rem;
+  padding-left: 0;
 }
 
-.mq-result-opt {
+.mq-result-comparison > li {
   font-family: var(--mono);
   font-size: var(--text-xs);
   padding: .35rem .6rem;
   border-radius: 4px;
   background: var(--panel-bg-sunken);
+  list-style: none;
 }
 
-.mq-result-opt.correct {
+.mq-result-option-correct {
   background: var(--correct-bg);
   color: var(--correct);
   border-left: 3px solid var(--correct-border);
 }
 
-.mq-result-opt.incorrect {
+.mq-result-option-incorrect {
   background: var(--error-bg);
   color: var(--error);
   border-left: 3px solid var(--error-border);

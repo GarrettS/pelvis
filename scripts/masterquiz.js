@@ -24,7 +24,7 @@ const FLASHCARD_FRONT_MAX = 200;
 const FLASHCARD_DETAIL_MAX = 380;
 const PROGRESS_TOAST_MS = 5000;
 
-let QUESTIONS = [];
+let QUESTIONS = {};
 let queue = [];
 let qIdx = 0;
 let sessionAnswers = [];
@@ -33,25 +33,26 @@ let equivPinned = false;
 let activeScreenClass = 'screen-config';
 
 const truncate = (s, n) => s.length > n ? s.slice(0, n) + '…' : s;
+const optionId = optionKey => 'mq-option-' + optionKey;
 
 function buildQueue(domains, count, priorityMode) {
-  const eligible = getSelectedQuestions(domains);
+  const eligible = getSelectedQuestionRefs(domains);
   if (!priorityMode) return shuffle(eligible).slice(0, count);
 
   const progress = getAllProgress();
   const missedQs = [];
   const unseen = [];
   const inProgress = [];
-  for (const q of eligible) {
-    const p = progress[q.id];
+  for (const questionRef of eligible) {
+    const p = progress[questionRef.questionId];
     if (!p || p.totalAttempts === 0) {
-      unseen.push(q);
+      unseen.push(questionRef);
     } else if (p.correctStreak >= MASTERY_STREAK) {
       continue;
     } else if (p.correctStreak === 0) {
-      missedQs.push(q);
+      missedQs.push(questionRef);
     } else {
-      inProgress.push({ q, totalCorrect: p.totalCorrect });
+      inProgress.push({ questionRef, totalCorrect: p.totalCorrect });
     }
   }
   shuffle(inProgress);
@@ -59,7 +60,7 @@ function buildQueue(domains, count, priorityMode) {
   return [
     ...shuffle(missedQs),
     ...shuffle(unseen),
-    ...inProgress.map(x => x.q)
+    ...inProgress.map(x => x.questionRef)
   ].slice(0, count);
 }
 
@@ -83,14 +84,15 @@ function showProgressToast(message) {
 const getSelectedDomains = () =>
   DOMAINS.filter(d => document.getElementById('mq-domain-' + d)?.checked);
 
-const getSelectedQuestions = domains =>
-  QUESTIONS.filter(q => domains.includes(q.domain));
+const getSelectedQuestionRefs = domains =>
+  Object.entries(QUESTIONS)
+      .filter(([, question]) => domains.includes(question.domain))
+      .map(([questionId, question]) => ({questionId, question}));
 
-const getQuestionCount = () =>
-  document.getElementById('mq-count').valueAsNumber;
+const getQuestionCount = () => document.getElementById('mq-count').valueAsNumber;
 
 function renderStats() {
-  const stats = getStats(getSelectedQuestions(getSelectedDomains()));
+  const stats = getStats(getSelectedQuestionRefs(getSelectedDomains()));
   const statsEl = document.getElementById('mq-stats');
   if (stats.attempted === 0) {
     statsEl.textContent = '';
@@ -140,8 +142,10 @@ function renderQuestion() {
     renderResults();
     return;
   }
-  const q = queue[qIdx];
+  const questionRef = queue[qIdx];
+  const q = questionRef.question;
   submitted = false;
+  document.getElementById('mq-options').disabled = false;
   document.getElementById('mq-quiz').classList.remove(
       'answered-correct', 'answered-incorrect');
 
@@ -163,30 +167,37 @@ function renderQuestion() {
   }
 }
 
-const makeOptionRadio = opt => newEl('label', {className: 'mq-option', children: [
-  newEl('input', {type: 'radio', name: 'answer', value: opt.key}),
-  newEl('span', {innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`})
-]});
+const makeOptionRadio = opt => newEl('label', {
+  id: optionId(opt.key),
+  className: 'mq-option',
+  children: [
+    newEl('input', {type: 'radio', name: 'answer', value: opt.key}),
+    newEl('span', {innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`})
+  ]});
 
-function handleSubmit() {
+function handleSubmit(e) {
+  e.preventDefault();
   const chosen = quizForm.elements.answer.value;
   if (submitted || !chosen) return;
 
   submitted = true;
-  const q = queue[qIdx];
+  const questionRef = queue[qIdx];
+  const q = questionRef.question;
   const correct = chosen === q.answer;
 
-  sessionAnswers.push({ question: q, chosen, correct });
-  const progressResult = updateProgress(q.id, correct);
+  sessionAnswers.push({
+    questionId: questionRef.questionId,
+    question: q,
+    chosen,
+    correct
+  });
+  const progressResult = updateProgress(questionRef.questionId, correct);
   if (!progressResult.ok) showProgressToast(progressResult.message);
 
-  for (const radio of quizForm.elements.answer) {
-    radio.disabled = true;
-    if (radio.value === q.answer) {
-      radio.parentElement.classList.add('correct');
-    } else if (radio.value === chosen && !correct) {
-      radio.parentElement.classList.add('incorrect');
-    }
+  document.getElementById('mq-options').disabled = true;
+  document.getElementById(optionId(q.answer))?.classList.add('correct');
+  if (!correct) {
+    document.getElementById(optionId(chosen))?.classList.add('incorrect');
   }
 
   document.getElementById('mq-quiz').classList.add(
@@ -200,7 +211,7 @@ function handleSubmit() {
     innerHTML: expandAbbr(q.explanation)
   }));
 
-  if (isAlreadySaved(q.id)) {
+  if (isAlreadySaved(questionRef.questionId)) {
     const saveBtn = document.getElementById('mq-save-flashcard');
     saveBtn.textContent = 'Already saved';
     saveBtn.disabled = true;
@@ -268,10 +279,10 @@ function renderEquivChain(q) {
 
 const isAlreadySaved = qId => hasSavedFlashcard('user-mq-' + qId);
 
-function buildFlashcard(q) {
+function buildFlashcard(questionId, q) {
   const correctOpt = q.options.find(o => o.key === q.answer);
   return {
-    id: 'user-mq-' + q.id,
+    id: 'user-mq-' + questionId,
     category: 'user_created',
     examWeight: 'high',
     front: truncate(q.stem, FLASHCARD_FRONT_MAX),
@@ -284,10 +295,12 @@ function buildFlashcard(q) {
 function handleSaveFlashcard() {
   if (!submitted) return;
 
-  const q = queue[qIdx];
+  const questionRef = queue[qIdx];
+  const q = questionRef.question;
   const saveBtn = document.getElementById('mq-save-flashcard');
   const explanationEl = document.getElementById('mq-explanation');
-  const result = saveUserFlashcard(buildFlashcard(q));
+  const result = saveUserFlashcard(
+      buildFlashcard(questionRef.questionId, q));
   if (!result.ok) {
     replaceErrorCallout(explanationEl, result.message);
     saveBtn.disabled = true;
@@ -325,13 +338,6 @@ function renderResults() {
   document.getElementById('mq-incorrect-details').open = incorrect.length > 0;
 }
 
-function resultOptClass(opt, q, answer) {
-  let cls = 'mq-result-opt';
-  if (opt.key === q.answer) cls += ' correct';
-  if (opt.key === answer.chosen && !answer.correct) cls += ' incorrect';
-  return cls;
-}
-
 function makeSaveButton(qId) {
   const alreadySaved = isAlreadySaved(qId);
   return newEl('button', {
@@ -343,26 +349,31 @@ function makeSaveButton(qId) {
   });
 }
 
-function makeResultRow(answer) {
-  const q = answer.question;
+const resultOptClass = (key, submitted) =>
+  key === submitted.question.answer ? 'mq-result-option-correct' :
+  key === submitted.chosen ? 'mq-result-option-incorrect' : '';
+
+function makeResultRow(submitted) {
+  const q = submitted.question;
+  const questionId = submitted.questionId;
   let summaryText = truncate(q.stem, STEM_PREVIEW_MAX);
-  if (!answer.correct) {
-    summaryText += ` — You: ${answer.chosen}, Correct: ${q.answer}`;
+  if (!submitted.correct) {
+    summaryText += ` — You: ${submitted.chosen}, Correct: ${q.answer}`;
   }
 
-  return newEl('details', {id: q.id, _question: q, className: 'mq-result-row', children: [
+  return newEl('details', {id: questionId, className: 'mq-result-row', children: [
     newEl('summary', {className: 'mq-result-summary', textContent: summaryText}),
     newEl('div', {className: 'mq-result-detail', children: [
       newEl('p', {className: 'mq-result-stem', innerHTML: expandAbbr(q.stem)}),
-      newEl('div', {
+      newEl('ul', {
         className: 'mq-result-comparison',
-        children: q.options.map(opt => newEl('div', {
-          className: resultOptClass(opt, q, answer),
+        children: q.options.map(opt => newEl('li', {
+          className: resultOptClass(opt.key, submitted),
           innerHTML: `${opt.key}. ${expandAbbr(opt.text)}`
         }))
       }),
       newEl('div', {className: 'callout', innerHTML: expandAbbr(q.explanation)}),
-      makeSaveButton(q.id)
+      makeSaveButton(questionId)
     ]})
   ]});
 }
@@ -371,10 +382,10 @@ const renderResultsList = (container, answers) =>
   container.replaceChildren(...answers.map(makeResultRow));
 
 function handleResultSave(btn) {
-  const q = document.getElementById(btn.value);
+  const q = QUESTIONS[btn.value];
   if (!q) return;
 
-  const result = saveUserFlashcard(buildFlashcard(q._question));
+  const result = saveUserFlashcard(buildFlashcard(btn.value, q));
   if (!result.ok) {
     replaceErrorCallout(btn.parentNode, result.message);
     btn.disabled = true;
@@ -387,7 +398,10 @@ function handleResultSave(btn) {
 }
 
 function handleRetakeMissed() {
-  queue = shuffle(sessionAnswers.filter(a => !a.correct).map(a => a.question));
+  queue = shuffle(sessionAnswers.filter(a => !a.correct).map(a => ({
+    questionId: a.questionId,
+    question: a.question
+  })));
   qIdx = 0;
   sessionAnswers = [];
   equivPinned = false;
@@ -457,7 +471,7 @@ function initListeners() {
   });
 
   quizForm.addEventListener('change', () => submitBtn.disabled = false);
-  quizForm.addEventListener('submit', (e) => { e.preventDefault(); handleSubmit(); });
+  quizForm.addEventListener('submit', handleSubmit);
   domainFilters.addEventListener('change', () => { syncStartButton(); renderStats(); });
   equivWrap.addEventListener('change', (e) => equivPinned = e.target.checked);
 }
@@ -467,7 +481,7 @@ await attemptLoad({
   container: containerEl,
   render: (data) => {
     QUESTIONS = data;
-    const saveResult = setQuestionBankCount(QUESTIONS.length);
+    const saveResult = setQuestionBankCount(Object.keys(QUESTIONS).length);
     if (!saveResult.ok) showProgressToast(saveResult.message);
     renderStats();
     syncStartButton();

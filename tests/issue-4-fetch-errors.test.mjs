@@ -216,13 +216,17 @@ async function importEquivalenceQuizModule(loadJsonSource) {
   return importSource(rewrittenSource);
 }
 
+const MASTERQUIZ_QUESTION_ID = 'q1';
 const MASTERQUIZ_QUEUE_CARD = {
-  id: 'q1',
   stem: 'Question stem',
   domain: 'anatomy',
   answer: 'A',
   explanation: 'Because.',
   options: [{key: 'A', text: 'Correct'}]
+};
+const MASTERQUIZ_QUEUE_REF = {
+  questionId: MASTERQUIZ_QUESTION_ID,
+  question: MASTERQUIZ_QUEUE_CARD
 };
 
 const FLASHCARDS_ELEMENT_IDS = [
@@ -804,7 +808,7 @@ test('masterquiz save button shows inline feedback when saved cards cannot be re
     }
   }, async ({handleSaveFlashcard, __setMasterquizState}) => {
     __setMasterquizState({
-      queue: [MASTERQUIZ_QUEUE_CARD],
+      queue: [MASTERQUIZ_QUEUE_REF],
       qIdx: 0,
       submitted: true
     });
@@ -837,7 +841,7 @@ test('masterquiz duplicate save is treated as already satisfied without extra no
     }
   }, async ({handleSaveFlashcard, __setMasterquizState}) => {
     __setMasterquizState({
-      queue: [MASTERQUIZ_QUEUE_CARD],
+      queue: [MASTERQUIZ_QUEUE_REF],
       qIdx: 0,
       submitted: true
     });
@@ -868,7 +872,7 @@ test('masterquiz failed write does not mark empty storage card as saved in memor
     }
   }, async ({handleSaveFlashcard, __setMasterquizState}) => {
     __setMasterquizState({
-      queue: [MASTERQUIZ_QUEUE_CARD],
+      queue: [MASTERQUIZ_QUEUE_REF],
       qIdx: 0,
       submitted: true
     });
@@ -907,7 +911,7 @@ test('masterquiz save shows preparation feedback when saved cards cannot stringi
       }
     }, async ({handleSaveFlashcard, __setMasterquizState}) => {
       __setMasterquizState({
-        queue: [MASTERQUIZ_QUEUE_CARD],
+        queue: [MASTERQUIZ_QUEUE_REF],
         qIdx: 0,
         submitted: true
       });
@@ -941,7 +945,7 @@ test('masterquiz result save button shows inline feedback when storage is unavai
     }
   }, async ({handleResultSave, __setMasterquizState}) => {
     __setMasterquizState({
-      QUESTIONS: [MASTERQUIZ_QUEUE_CARD]
+      QUESTIONS: {[MASTERQUIZ_QUESTION_ID]: MASTERQUIZ_QUEUE_CARD}
     });
     handleResultSave(resultButton);
 
