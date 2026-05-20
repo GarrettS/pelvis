@@ -18,13 +18,13 @@ const musclesEl = document.getElementById('decoder-muscles');
 
 function bindControlGroup(containerId, key) {
   const container = document.getElementById(containerId);
-  let activeBtn = container.querySelector('button.active');
-  container.addEventListener('click', (e) => {
+  let activeBtn = container.querySelector(':scope > [aria-current]');
+  container.addEventListener('click', e => {
     const btn = e.target.closest('button');
-    if (!btn) return;
+    if (!btn || btn.parentElement !== container || btn === activeBtn) return;
 
-    if (activeBtn) activeBtn.classList.remove('active');
-    btn.classList.add('active');
+    activeBtn?.removeAttribute('aria-current');
+    btn.setAttribute('aria-current', 'true');
     activeBtn = btn;
     decoderState[key] = btn.dataset.val;
     updateDecoder();

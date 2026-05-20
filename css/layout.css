@@ -590,7 +590,7 @@ button.warn:hover {
   color: var(--bg);
 }
 
-button.active {
+.control-btns > button[aria-current] {
   background: var(--accent);
   color: var(--bg);
   border-color: var(--accent);
