@@ -156,14 +156,14 @@ handleFetchError(result, {
 
 Both pass `load.js` two callbacks — `render` (how to show it) and `onRetry` (how to redo the request). `load.js` turns `result.cause` into a readable message and calls them; it touches no DOM and never learns who called it. `render` is always `renderError` in `error-ui.js`, the single app-specific place the callout and Retry button exist — `load.js` never imports it; the requester wires the two together.
 
-```
-navigation-tabs · lazyInit · import()
-  └─▶ load.js · handleImportError · cause → message
-        └─▶ renderError · error-ui.js · callout + Retry
+Failure flow — both paths converge on `renderError`:
 
-module · attemptLoad · loadJson
-  └─▶ load.js · handleFetchError · cause → message
-        └─▶ renderError · error-ui.js · callout + Retry
+```
+navigation-tabs · import()  ─┐
+                             ├─▶ load.js   cause → message · DOM-free · IoC
+module · loadJson           ─┘       │      requester injects render + onRetry
+                                     ▼
+                               renderError   error-ui.js · the one callout + Retry
 ```
 
 The two paths above are module import (`lazyInit`) and `attemptLoad`-based data loads. A module that calls `loadJson` directly owns its own failure UI — equivalence does, with its own callout and retry; see `equivalence-quiz.md`.
