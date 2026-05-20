@@ -1,7 +1,6 @@
 :root {
   /* AIC overlay marks (leader lines + anchor rings) render almost
-     entirely over the fixed light anatomical image, not the themed
-     surface, so the casing color is theme-independent. */
+     entirely over the fixed light anatomical image, not the themed panel, so the casing color is theme-independent. */
   --aic-casing: rgba(0, 0, 0, .7);
   --scroll-fade-size: 2rem;
 }
@@ -21,11 +20,11 @@
 .aic-chain-panel {
   position: relative;
   min-height: 0;
-  background: var(--surface);
+  background: var(--panel-bg);
 }
 
 /* Scroll-fade: the scroll edges fade via a luminance mask (alpha, not
-   color — it reveals the themed surface behind, so it needs no theme
+   color — it reveals the themed panel behind, so it needs no theme
    vars). Scroll-driven; browsers without scroll timelines get no fade,
    content still scrolls. */
 @property --top-mask-size {
@@ -81,7 +80,7 @@
 }
 
 .aic-chain-row:hover {
-  background: var(--surface2);
+  background: var(--panel-bg-sunken);
 }
 
 .aic-chain-row.activeMuscle {

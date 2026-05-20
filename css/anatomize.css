@@ -133,7 +133,7 @@
   height: auto;
   border-radius: .25rem;
   border: 1px solid var(--border);
-  background: var(--surface2);
+  background: var(--panel-bg-sunken);
   animation: imgReveal var(--dur-img-reveal) ease-out;
   pointer-events: none;
 }
@@ -293,7 +293,7 @@ g.correct .anatomize-target-circle {
 }
 
 .anatomize-detail-panel {
-  background: var(--surface);
+  background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: .5rem;
   padding: 1rem 1.25rem;
@@ -360,7 +360,7 @@ g.correct .anatomize-target-circle {
   font-family: var(--mono);
   font-size: var(--text-sm);
   color: var(--text);
-  background: var(--surface);
+  background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: .5rem;
   padding: 1rem;

@@ -13,7 +13,7 @@ abbr[data-title] {
   padding: .4rem .7rem;
   border: 1px solid var(--border);
   border-radius: 4px;
-  background: var(--surface);
+  background: var(--panel-bg);
   color: var(--text);
   font-size: var(--text-sm);
   white-space: nowrap;

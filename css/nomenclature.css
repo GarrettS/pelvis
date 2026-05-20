@@ -23,7 +23,7 @@
   font-family: monospace;
   font-size: 10px;
   paint-order: stroke;
-  stroke: var(--surface2);
+  stroke: var(--panel-bg-sunken);
   stroke-width: 4px;
   stroke-linejoin: round;
 }
@@ -48,7 +48,7 @@
 }
 
 .schematic-bone {
-  fill: var(--surface2);
+  fill: var(--panel-bg-sunken);
   stroke-width: 1.5;
 }
 
@@ -60,7 +60,7 @@
 }
 
 .schematic-ball {
-  fill: var(--surface2);
+  fill: var(--panel-bg-sunken);
   stroke: var(--accent);
   stroke-width: 1.8;
   opacity: .75;

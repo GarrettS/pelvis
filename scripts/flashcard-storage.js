@@ -55,7 +55,7 @@ export function hasSavedFlashcard(cardId) {
   return state.kind === 'ok' && state.cards.some((c) => c.id === cardId);
 }
 
-// User-initiated: the caller surfaces message on failure. A degraded bucket
+// User-initiated: the caller shows the message on failure. A degraded bucket
 // (unavailable or corrupt) is reported and left intact rather than overwritten,
 // so existing saved cards survive for a later recovery.
 export function saveUserFlashcard(card) {

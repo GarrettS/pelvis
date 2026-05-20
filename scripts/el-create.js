@@ -5,7 +5,7 @@
 //
 // HTML elements: properties are assigned directly (Object.assign onto the
 // node), so callers write `className`, `textContent`, `id`, `style.cssText`,
-// etc. against the real property surface.
+// etc. directly against the DOM property API.
 //
 // SVG elements: every prop goes through setAttribute (SVG's `className` is a
 // SVGAnimatedString, not a string). `className` is translated to the `class`

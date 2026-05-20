@@ -44,7 +44,7 @@
 .decoder-muscles {
   font-family: var(--mono);
   font-size: var(--text-sm);
-  background: var(--surface2);
+  background: var(--panel-bg-sunken);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 1rem;
@@ -75,7 +75,7 @@
 .equiv-chain {
   font-family: var(--mono);
   font-size: var(--text-sm);
-  background: var(--surface2);
+  background: var(--panel-bg-sunken);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 1rem;
@@ -120,7 +120,7 @@
 .equiv-opt {
   font-family: var(--mono);
   font-size: var(--text-sm);
-  background: var(--surface2);
+  background: var(--panel-bg-sunken);
   border: 2px solid var(--border);
   border-radius: 4px;
   padding: .5rem .75rem;
@@ -234,7 +234,7 @@
 }
 
 .equiv-expl-note {
-  border-left: 3px solid var(--surface2);
+  border-left: 3px solid var(--panel-bg-sunken);
   padding-left: .75em;
   color: var(--text-dim);
   margin: .5em 0;
@@ -264,26 +264,26 @@
 }
 
 .pelvis-bone {
-  fill: var(--surface2);
+  fill: var(--panel-bg-sunken);
   stroke: var(--text);
   stroke-width: 1.5;
 }
 
 .pelvis-ilium,
 .pelvis-ischium {
-  fill: var(--surface);
+  fill: var(--panel-bg);
   stroke: var(--text);
   stroke-width: 1.8;
 }
 
 .pelvis-pubis {
-  fill: var(--surface2);
+  fill: var(--panel-bg-sunken);
   stroke: var(--text);
   stroke-width: 1.5;
 }
 
 .pelvis-acetabulum {
-  fill: var(--surface2);
+  fill: var(--panel-bg-sunken);
   stroke: var(--warn);
   stroke-width: 2.2;
 }
@@ -344,13 +344,13 @@
 }
 
 .pelvis-status-box-inlet {
-  fill: var(--surface);
+  fill: var(--panel-bg);
   stroke: var(--inlet);
   stroke-width: 1.5;
 }
 
 .pelvis-status-box-outlet {
-  fill: var(--surface);
+  fill: var(--panel-bg);
   stroke: var(--outlet);
   stroke-width: 1.5;
 }

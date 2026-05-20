@@ -3,7 +3,7 @@
 }
 
 .tree-question {
-  background: var(--surface);
+  background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: .75rem 1rem;
@@ -72,7 +72,7 @@
 
 .chain-list > li {
   position: relative;
-  background: var(--surface2);
+  background: var(--panel-bg-sunken);
   border-left: 3px solid var(--border);
   padding: .5rem .75rem;
   margin: .5rem .5rem;
@@ -161,7 +161,7 @@ html.active-chain-drag * {
 }
 
 .test-item {
-  background: var(--surface2);
+  background: var(--panel-bg-sunken);
   border-radius: 4px;
   padding: .5rem .75rem;
 }
@@ -200,7 +200,7 @@ html.active-chain-drag * {
 }
 
 .muscle-entry {
-  background: var(--surface);
+  background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 1rem;
@@ -225,7 +225,7 @@ html.active-chain-drag * {
   display: inline-block;
   font-family: var(--mono);
   font-size: var(--text-xs);
-  background: var(--surface2);
+  background: var(--panel-bg-sunken);
   border: 1px solid var(--border);
   border-radius: 3px;
   padding: .1rem .4rem;
