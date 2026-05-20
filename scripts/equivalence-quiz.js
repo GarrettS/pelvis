@@ -4,6 +4,7 @@
 
 import { getAllEquivalent, REGION_LABELS } from './equivalence.js';
 import { shuffle } from './shuffle.js';
+import { newEl } from './el-create.js';
 import { getCorrectAnswer } from './equivalence-answers.js';
 
 const REGIONS = Object.keys(REGION_LABELS).filter((r) => r !== 'FA');
@@ -99,6 +100,15 @@ function handleOptionToggle(opt) {
   }
 }
 
+function buildOptionButton(opt) {
+  return newEl('button', {
+    type: 'button',
+    className: 'equiv-opt',
+    textContent: opt,
+    attrs: { 'data-opt': opt, 'aria-pressed': 'false' }
+  });
+}
+
 function renderQuestion() {
   const q = questions[qIdx];
   selected = new Set();
@@ -113,11 +123,7 @@ function renderQuestion() {
   document.getElementById('equiv-current-given').textContent = q.given;
   const optsEl = document.getElementById('equiv-options');
   optsEl.disabled = false;
-  optsEl.innerHTML = q.options.map((opt) =>
-    `<button type="button" class="equiv-opt"
-      data-opt="${opt}"
-      aria-pressed="false">${opt}</button>`
-  ).join('');
+  optsEl.replaceChildren(...q.options.map(buildOptionButton));
   document.getElementById('equiv-feedback').hidden = true;
 }
 
@@ -144,16 +150,19 @@ function renderPendingFeedback() {
   const feedback = document.getElementById('equiv-feedback');
   feedback.hidden = false;
   feedback.className = 'feedback-box';
-  feedback.innerHTML = '<div class="equiv-expl-loading">Loading answers…</div>';
+  feedback.replaceChildren(newEl('div', {
+    className: 'equiv-expl-loading',
+    textContent: 'Loading answers…'
+  }));
 }
 
 function applyGradingState(q, correctAnswer) {
   if (!correctAnswer.ok) {
     gradeResult = null;
-    const slotHTML = correctAnswer.reason === 'fetch-failed'
-      ? buildFetchFailureHTML({ withRetry: true })
-      : MISSING_ENTRY_HTML;
-    renderUngradedFeedback(slotHTML);
+    const slotNode = correctAnswer.reason === 'fetch-failed'
+      ? buildFetchFailureNode({ withRetry: true })
+      : buildMissingEntryNode();
+    renderUngradedFeedback(slotNode);
     return;
   }
 
@@ -174,42 +183,54 @@ const nextButtonLabel = () =>
   qIdx + 1 < getSessionSize() ? 'Next Question →' : 'Finish Session';
 
 function renderGradedFeedback(q, correctAnswer) {
-  const chainHTML = buildEquivChainHTML(q, correctAnswer);
-  const explanationHTML = buildExplanationHTML(correctAnswer);
   const feedback = document.getElementById('equiv-feedback');
   feedback.className = 'feedback-box' + (gradeResult ? '' : ' error');
-  feedback.innerHTML = `<strong>${gradeResult ? 'Correct.' : 'Incorrect.'}</strong>
-    ${chainHTML}
-    <div class="equiv-expl-slot">${explanationHTML}</div>
-    <button class="primary feedback-next">
-      ${nextButtonLabel()}</button>`;
+  feedback.replaceChildren(
+    newEl('strong', { textContent: gradeResult ? 'Correct.' : 'Incorrect.' }),
+    buildEquivChainNode(q, correctAnswer),
+    newEl('div', {
+      className: 'equiv-expl-slot',
+      children: [buildExplanationNode(correctAnswer)]
+    }),
+    newEl('button', {
+      className: 'primary feedback-next',
+      textContent: nextButtonLabel()
+    })
+  );
 }
 
-function renderUngradedFeedback(slotHTML) {
+function renderUngradedFeedback(slotNode) {
   const feedback = document.getElementById('equiv-feedback');
   feedback.className = 'feedback-box error';
-  feedback.innerHTML = `
-    <div class="equiv-expl-slot">${slotHTML}</div>
-    <button class="primary feedback-next">
-      ${nextButtonLabel()}</button>`;
+  feedback.replaceChildren(
+    newEl('div', { className: 'equiv-expl-slot', children: [slotNode] }),
+    newEl('button', {
+      className: 'primary feedback-next',
+      textContent: nextButtonLabel()
+    })
+  );
 }
 
-function buildFetchFailureHTML({ withRetry }) {
+function buildFetchFailureNode({ withRetry }) {
   const offlineMsg = navigator.onLine
     ? "Couldn't load answers."
     : 'You appear to be offline. Reconnect and click Retry.';
-  const retryButton = withRetry
-    ? '<button type="button" class="equiv-expl-retry">Retry</button>'
-    : '';
-  return `<div class="equiv-expl-failure callout error">
-    ${offlineMsg}
-    ${retryButton}
-  </div>`;
+  const children = [offlineMsg];
+  if (withRetry) children.push(newEl('button', {
+    type: 'button',
+    className: 'equiv-expl-retry',
+    textContent: 'Retry'
+  }));
+  return newEl('div', {
+    className: 'equiv-expl-failure callout error',
+    children
+  });
 }
 
-const MISSING_ENTRY_HTML = `<div class="equiv-expl-failure callout error">
-    Answer data missing for this question.
-  </div>`;
+const buildMissingEntryNode = () => newEl('div', {
+  className: 'equiv-expl-failure callout error',
+  textContent: 'Answer data missing for this question.'
+});
 
 async function retryExplanations() {
   if (!isAnswered) return;
@@ -227,56 +248,78 @@ async function retryExplanations() {
   applyGradingState(questions[retryQIdx], correctAnswer);
 }
 
-function buildExplanationHTML(correctAnswer) {
-  const { side, dir, regionInfo, dirInfo, answerLinks, couplingDisclaimer } = correctAnswer;
+const noteEl = text => newEl('div', {
+  className: 'equiv-expl-note',
+  textContent: 'Note — ' + text
+});
+
+function buildExplanationLinkNode(link) {
+  const labelEl = newEl('div', {
+    className: 'equiv-expl-label',
+    textContent: link.title
+  });
+  if (link.missing) {
+    return newEl('div', {
+      className: 'equiv-expl-link',
+      children: [labelEl, buildMissingEntryNode()]
+    });
+  }
+  return newEl('div', {
+    className: 'equiv-expl-link',
+    children: [
+      labelEl,
+      newEl('p', { textContent: link.priReasoning }),
+      noteEl(link.biomechanics),
+      newEl('div', { className: 'equiv-expl-coupling', textContent: link.couplingType })
+    ]
+  });
+}
+
+function buildExplanationNode(correctAnswer) {
+  const { side, dir, regionInfo, dirInfo, answerLinks, couplingDisclaimer }
+    = correctAnswer;
   const label = side + ' ' + regionInfo.name + ' ' + dir
     + ' — ' + regionInfo.anatomicalName;
 
-  const linkBlocks = answerLinks.map((link) => {
-    if (link.missing) {
-      return `<div class="equiv-expl-link">
-        <div class="equiv-expl-label">${link.title}</div>
-        ${MISSING_ENTRY_HTML}
-      </div>`;
-    }
-    return `<div class="equiv-expl-link">
-        <div class="equiv-expl-label">${link.title}</div>
-        <p>${link.priReasoning}</p>
-        <div class="equiv-expl-note">Note — ${link.biomechanics}</div>
-        <div class="equiv-expl-coupling">${link.couplingType}</div>
-      </div>`;
-  }).join('');
-
-  return `<div class="equiv-explanation">
-    <div class="equiv-expl-region">
-      <div class="equiv-expl-label">${label}</div>
-      <p>${dirInfo.pri}</p>
-      <div class="equiv-expl-note">Note — ${dirInfo.biomechanics}</div>
-      <div class="equiv-expl-ref">${regionInfo.manualRef}</div>
-    </div>
-    ${linkBlocks}
-    <div class="equiv-expl-note">Note — ${couplingDisclaimer}</div>
-  </div>`;
+  return newEl('div', {
+    className: 'equiv-explanation',
+    children: [
+      newEl('div', {
+        className: 'equiv-expl-region',
+        children: [
+          newEl('div', { className: 'equiv-expl-label', textContent: label }),
+          newEl('p', { textContent: dirInfo.pri }),
+          noteEl(dirInfo.biomechanics),
+          newEl('div', { className: 'equiv-expl-ref', textContent: regionInfo.manualRef })
+        ]
+      }),
+      ...answerLinks.map(buildExplanationLinkNode),
+      noteEl(couplingDisclaimer)
+    ]
+  });
 }
 
-function buildEquivChainHTML(q, correctAnswer) {
+function buildEquivChainNode(q, correctAnswer) {
   const shown = [q.given, ...correctAnswer.correctAnswers];
-  const lines = shown.map((pos, i) =>
-    '<div class="equiv-line'
-      + (i === 0 ? ' main' : '') + '">'
-      + (i ? '= ' : '') + pos + '</div>'
-  );
-  return '<div class="equiv-chain">'
-    + '<div class="equiv-chain-label">'
-      + 'TESTED EQUIVALENTS:</div>'
-    + lines.join('')
-    + '<div class="equiv-chain-note">'
-      + 'Full equivalence chain has '
-      + correctAnswer.totalEquivalents
-      + ' positions — see Equivalence'
-      + ' Chains for complete walkthrough.'
-      + '</div>'
-    + '</div>';
+  return newEl('div', {
+    className: 'equiv-chain',
+    children: [
+      newEl('div', {
+        className: 'equiv-chain-label',
+        textContent: 'TESTED EQUIVALENTS:'
+      }),
+      ...shown.map((pos, i) => newEl('div', {
+        className: 'equiv-line' + (i === 0 ? ' main' : ''),
+        textContent: (i ? '= ' : '') + pos
+      })),
+      newEl('div', {
+        className: 'equiv-chain-note',
+        textContent: 'Full equivalence chain has '
+          + correctAnswer.totalEquivalents
+          + ' positions — see Equivalence Chains for complete walkthrough.'
+      })
+    ]
+  });
 }
 
 async function regradeIfNeeded(answer) {
@@ -333,8 +376,6 @@ function classifyOption(opt, correctAnswers, selectedList) {
 }
 
 function buildResultSummary(answer, correctAnswer) {
-  const summary = document.createElement('summary');
-  summary.className = 'mq-result-summary';
   let text = answer.question.given;
   if (!answer.correct) {
     const sel = answer.selected.length
@@ -344,54 +385,49 @@ function buildResultSummary(answer, correctAnswer) {
       : '(unavailable)';
     text += ' — You: ' + sel + ', Correct: ' + corr;
   }
-  summary.textContent = text;
-  return summary;
+  return newEl('summary', { className: 'mq-result-summary', textContent: text });
 }
 
 function buildResultDetail(answer, correctAnswer) {
   const q = answer.question;
-  const detail = document.createElement('div');
-  detail.className = 'mq-result-detail';
   const knownCorrect = correctAnswer?.ok
     ? correctAnswer.correctAnswers : new Set();
-  const optHTML = q.options.map((opt) =>
-    '<div class="mq-result-opt'
-      + classifyOption(opt, knownCorrect, answer.selected)
-      + '">' + opt + '</div>'
-  ).join('');
-  detail.innerHTML =
-    '<div class="equiv-given">' + q.given + '</div>'
-    + '<div class="mq-result-comparison">' + optHTML + '</div>'
-    + (correctAnswer?.ok ? buildEquivChainHTML(q, correctAnswer) : '')
-    + '<div class="equiv-expl-slot">'
-    + renderResultExplanationHTML(correctAnswer)
-    + '</div>';
-  return detail;
+  const optNodes = q.options.map(opt => newEl('div', {
+    className: 'mq-result-opt' + classifyOption(opt, knownCorrect, answer.selected),
+    textContent: opt
+  }));
+  const children = [
+    newEl('div', { className: 'equiv-given', textContent: q.given }),
+    newEl('div', { className: 'mq-result-comparison', children: optNodes })
+  ];
+  if (correctAnswer?.ok) children.push(buildEquivChainNode(q, correctAnswer));
+  children.push(newEl('div', {
+    className: 'equiv-expl-slot',
+    children: [renderResultExplanationNode(correctAnswer)]
+  }));
+  return newEl('div', { className: 'mq-result-detail', children });
 }
 
-function renderResultExplanationHTML(correctAnswer) {
+function renderResultExplanationNode(correctAnswer) {
   if (!correctAnswer.ok) {
     return correctAnswer.reason === 'fetch-failed'
-      ? buildFetchFailureHTML({ withRetry: false })
-      : MISSING_ENTRY_HTML;
+      ? buildFetchFailureNode({ withRetry: false })
+      : buildMissingEntryNode();
   }
-  return buildExplanationHTML(correctAnswer);
+  return buildExplanationNode(correctAnswer);
 }
 
 async function renderResultsList(container, answers) {
-  container.innerHTML = '';
   const correctAnswers = await Promise.all(
     answers.map((a) => getCorrectAnswer(a.question))
   );
-  const rowTemplate = document.createElement('details');
-  rowTemplate.className = 'mq-result-row';
-  answers.forEach((a, i) => {
-    const ca = correctAnswers[i];
-    const row = rowTemplate.cloneNode(false);
-    row.appendChild(buildResultSummary(a, ca));
-    row.appendChild(buildResultDetail(a, ca));
-    container.appendChild(row);
-  });
+  container.replaceChildren(...answers.map((a, i) => newEl('details', {
+    className: 'mq-result-row',
+    children: [
+      buildResultSummary(a, correctAnswers[i]),
+      buildResultDetail(a, correctAnswers[i])
+    ]
+  })));
 }
 
 function retakeMissed() {
