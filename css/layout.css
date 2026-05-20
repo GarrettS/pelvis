@@ -80,11 +80,13 @@
     --warn-bg: #2a2218;
     --error: #d05050;
     --error-bg: #2a1818;
-  --error-border: hsl(0 35% 40% / .5);    --inlet: #5ea8d4;
+    --error-border: hsl(0 35% 40% / .5);
+    --inlet: #5ea8d4;
     --outlet: #d4815e;
     --correct: #72b89a;
     --correct-bg: #1c2824;
-  --correct-border: hsl(117 35% 35% / .5);    --instruction-bg-highlight: #3a3228;
+    --correct-border: hsl(117 35% 35% / .5);
+    --instruction-bg-highlight: #3a3228;
     --box-shadow-sm: 0 .05rem .15rem rgba(0, 0, 0, .2),
       0 .05rem .1rem rgba(0, 0, 0, .15);
     --box-shadow-md: 0 .25rem .75rem rgba(0, 0, 0, .25),
