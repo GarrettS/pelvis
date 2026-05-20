@@ -41,7 +41,7 @@
   color: var(--text);
 }
 
-.fc-filter-btn.active {
+.fc-filter-btn[aria-current] {
   background: var(--accent-bg);
   border-color: var(--accent);
   color: var(--accent);

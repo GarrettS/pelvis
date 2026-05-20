@@ -152,14 +152,14 @@ function showEditStep() {
 
 function bindFilterGroup(containerId, dataKey, onChange) {
   const container = document.getElementById(containerId);
-  let activeBtn = container.querySelector('.fc-filter-btn.active');
-  container.addEventListener('click', (e) => {
+  let activeBtn = container.querySelector(':scope > [aria-current]');
+  container.addEventListener('click', e => {
     const btn = e.target.closest(`[data-${dataKey}]`);
-    if (!btn || btn === activeBtn) return;
+    if (!btn || btn.parentElement !== container || btn === activeBtn) return;
 
     onChange(btn.dataset[dataKey]);
-    activeBtn?.classList.remove('active');
-    btn.classList.add('active');
+    activeBtn?.removeAttribute('aria-current');
+    btn.setAttribute('aria-current', 'true');
     activeBtn = btn;
     resetDeck();
   });
