@@ -115,6 +115,8 @@
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: .5rem;
   margin: 1rem 0;
+  border: 0;
+  min-inline-size: 0;
 }
 
 .equiv-opt {
@@ -144,27 +146,31 @@
   background: var(--accent-bg);
 }
 
-.equiv-opt.correct-reveal {
+#equiv-options:disabled .equiv-opt[data-correct].selected {
   border-color: var(--correct-border);
   background: var(--correct-bg);
 }
 
-.equiv-opt.correct-reveal::before {
+#equiv-options:disabled .equiv-opt[data-correct].selected::before {
   content: '\2713\a0';
 }
 
-.equiv-opt.wrong-reveal {
+#equiv-options:disabled .equiv-opt:not([data-correct]).selected {
   border-color: var(--error-border);
   background: var(--error-bg);
 }
 
-.equiv-opt.wrong-reveal::before {
+#equiv-options:disabled .equiv-opt:not([data-correct]).selected::before {
   content: '\2717\a0';
 }
 
-.equiv-opt.missed {
+#equiv-options:disabled .equiv-opt[data-correct]:not(.selected) {
   border-color: var(--warn);
   background: var(--warn-bg);
+}
+
+#equiv-options:disabled .equiv-opt[data-correct]:not(.selected)::before {
+  content: '\25CB\a0';
 }
 
 .equiv-given {

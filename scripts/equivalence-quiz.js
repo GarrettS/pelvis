@@ -87,8 +87,6 @@ function gradeSelectionAgainst(correctAnswers, selectedList) {
 }
 
 function handleOptionToggle(opt) {
-  if (opt.disabled) return;
-
   const val = opt.dataset.opt;
   if (selected.has(val)) {
     selected.delete(val);
@@ -113,7 +111,9 @@ function renderQuestion() {
   document.getElementById('equiv-progress-text').textContent =
     'Question ' + (qIdx + 1) + ' of ' + size;
   document.getElementById('equiv-current-given').textContent = q.given;
-  document.getElementById('equiv-options').innerHTML = q.options.map((opt) =>
+  const optsEl = document.getElementById('equiv-options');
+  optsEl.disabled = false;
+  optsEl.innerHTML = q.options.map((opt) =>
     `<button type="button" class="equiv-opt"
       data-opt="${opt}"
       aria-pressed="false">${opt}</button>`
@@ -137,12 +137,7 @@ async function handleSubmit() {
 }
 
 function lockOptionsForGrading() {
-  const optEls = document.getElementById('equiv-quiz-wrap')
-    .querySelectorAll('.equiv-opt');
-  for (const optEl of optEls) {
-    optEl.classList.remove('selected');
-    optEl.disabled = true;
-  }
+  document.getElementById('equiv-options').disabled = true;
 }
 
 function renderPendingFeedback() {
@@ -168,18 +163,10 @@ function applyGradingState(q, correctAnswer) {
 }
 
 function paintOptionCorrectness(correctAnswers) {
-  const optEls = document.getElementById('equiv-quiz-wrap')
-    .querySelectorAll('.equiv-opt');
-  for (const optEl of optEls) {
-    const val = optEl.dataset.opt;
-    const isCorr = correctAnswers.has(val);
-    const isSel = selected.has(val);
-    
-    if (isCorr) {
-      optEl.classList.add(isSel ? 'correct-reveal' : 'missed');
-    } else if (isSel) {
-      optEl.classList.add('wrong-reveal');
-    }
+  const optsEl = document.getElementById('equiv-options');
+  for (const opt of correctAnswers) {
+    optsEl.querySelector(`[data-opt="${CSS.escape(opt)}"]`)
+      ?.setAttribute('data-correct', '');
   }
 }
 
@@ -439,28 +426,22 @@ const CLICK_DISPATCH = {
 document.getElementById('equiv-count')
   .addEventListener('change', renderQuestion);
 
+function handleFeedbackNext() {
+  recordCurrentAnswer();
+  qIdx++;
+  if (qIdx >= getSessionSize()) renderResults();
+  else renderQuestion();
+}
+
 containerEl.addEventListener('click', (e) => {
-  const opt = e.target.closest('.equiv-opt');
-  if (opt) {
-    handleOptionToggle(opt);
-    return;
-  }
-  if (e.target.closest('.equiv-expl-retry')) {
-    retryExplanations();
-    return;
-  }
-  if (e.target.closest('.feedback-next')) {
-    recordCurrentAnswer();
-    qIdx++;
-    if (qIdx >= getSessionSize()) {
-      renderResults();
-    } else {
-      renderQuestion();
-    }
-    return;
-  }
-  const target = e.target.closest('[id]');
-  CLICK_DISPATCH[target?.id]?.();
+  const action = e.target.closest(
+    '.equiv-opt, .equiv-expl-retry, .feedback-next, [id^="equiv-"]');
+  if (!action) return;
+
+  if (action.classList.contains('equiv-opt')) return handleOptionToggle(action);
+  if (action.classList.contains('equiv-expl-retry')) return retryExplanations();
+  if (action.classList.contains('feedback-next')) return handleFeedbackNext();
+  CLICK_DISPATCH[action.id]?.();
 });
 
 resetSession();
