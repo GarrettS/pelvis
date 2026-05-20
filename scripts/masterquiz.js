@@ -452,8 +452,8 @@ function initListeners() {
       handleResultSave(save);
       return;
     }
-    const target = e.target.closest('[id]');
-    if (target && CLICK_DISPATCH[target.id]) CLICK_DISPATCH[target.id]();
+    const target = e.target.closest('[id^="mq-"]');
+    CLICK_DISPATCH[target?.id]?.();
   });
 
   quizForm.addEventListener('change', () => submitBtn.disabled = false);
