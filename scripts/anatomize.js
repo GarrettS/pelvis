@@ -377,6 +377,9 @@ function createArenaWrap(imgSet) {
     children: [newEl('img', {
       src: imgSet.imageSrc,
       alt: imgSet.label,
+      decoding: 'async',
+      fetchPriority: 'high',
+      loading: 'eager',
       draggable: false
     })]
   });
