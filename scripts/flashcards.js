@@ -6,59 +6,64 @@ import {getUserFlashcards, saveUserFlashcard} from './flashcard-storage.js';
 import {newEl} from './el-create.js';
 import {bindSelectGroup} from './select-group.js';
 
-let allCards = [];
-let baseDeck = [];
+let curatedCardsById = {};
+let cardsById = {};
 let loadedUserCardCount = 0;
 let activeCat = 'all';
 let activeWeight = 'all';
-let deck = [];
-let currentIdx = 0;
-let cardsRemaining = 0;
+let pendingReviewIds = [];
+let currentCardId = null;
+let currentReviewSize = 0;
 
 const containerEl = document.getElementById('flashcards-content');
 const addForm = document.getElementById('fc-add-form');
 
-function normalizeUserCard(c) {
-  return {
-    ...c,
-    category: c.category || 'user_created',
-    examWeight: c.examWeight || 'high'
+const normalizeUserCard = c => ({
+  ...c,
+  category: c.category || 'user_created',
+  examWeight: c.examWeight || 'high'
+});
+
+function rebuildCardsById() {
+  const userCards = getUserFlashcards();
+  loadedUserCardCount = userCards.length;
+  cardsById = {
+    ...curatedCardsById,
+    ...Object.fromEntries(
+        userCards.map(card => [card.id, normalizeUserCard(card)]))
   };
 }
 
-function rebuildAllCards() {
-  const userCards = getUserFlashcards();
-  loadedUserCardCount = userCards.length;
-  allCards = [...baseDeck, ...userCards.map(normalizeUserCard)];
-}
+const getFilteredCardIds = () => Object.keys(cardsById).filter(id => {
+  const c = cardsById[id];
+  return (activeCat === 'all' || c.category === activeCat)
+      && (activeWeight === 'all' || c.examWeight === activeWeight);
+});
 
-function getFilteredCards() {
-  return allCards.filter((c) => {
-    const catOk = activeCat === 'all' || c.category === activeCat;
-    const weightOk = activeWeight === 'all' || c.examWeight === activeWeight;
-    return catOk && weightOk;
-  });
+function dealFreshDeck() {
+  const ids = shuffle(getFilteredCardIds());
+  currentReviewSize = ids.length;
+  currentCardId = ids.shift() || null;
+  pendingReviewIds = ids;
 }
 
 function resetDeck() {
-  deck = shuffle(getFilteredCards());
-  currentIdx = 0;
-  cardsRemaining = deck.length;
+  dealFreshDeck();
   renderCard();
 }
 
 function nextCard() {
-  if (!deck.length) return;
+  if (!currentCardId) return;
 
-  cardsRemaining--;
-  currentIdx = (currentIdx + 1) % deck.length;
-  if (currentIdx === 0) cardsRemaining = deck.length;
+  if (pendingReviewIds.length) {
+    currentCardId = pendingReviewIds.shift();
+  } else {
+    dealFreshDeck();
+  }
   renderCard();
 }
 
-function flipCard(e) {
-  e.target.closest('.fc-card')?.classList.toggle('fc-flipped');
-}
+const flipCard = e => e.target.closest('.fc-card')?.classList.toggle('fc-flipped');
 
 const CARD_ACTIONS = {
   flip: flipCard,
@@ -126,9 +131,8 @@ function renderCard() {
   const progressEl = document.getElementById('fc-progress');
   const cardWrap = document.getElementById('fc-card-wrap');
 
-  progressEl.textContent = `${cardsRemaining} of ${deck.length} remaining`;
-
-  if (!deck.length) {
+  if (!currentCardId) {
+    progressEl.textContent = '0 of 0 remaining';
     cardWrap.replaceChildren(newEl('div', {
       className: 'callout',
       textContent: 'No cards match the current filters.'
@@ -136,7 +140,9 @@ function renderCard() {
     return;
   }
 
-  cardWrap.replaceChildren(buildCard(deck[currentIdx], true));
+  const remaining = pendingReviewIds.length + 1;
+  progressEl.textContent = `${remaining} of ${currentReviewSize} remaining`;
+  cardWrap.replaceChildren(buildCard(cardsById[currentCardId], true));
 }
 
 function clearForm() {
@@ -149,13 +155,6 @@ function showEditStep() {
   document.getElementById('fc-edit-section').hidden = false;
   document.getElementById('fc-preview-section').hidden = true;
   document.getElementById('fc-form-title').textContent = 'New Card';
-}
-
-function bindFilterGroup(containerId, setter) {
-  bindSelectGroup(document.getElementById(containerId), btn => {
-    setter(btn.dataset.val);
-    resetDeck();
-  });
 }
 
 function syncPreviewBtn() {
@@ -200,8 +199,9 @@ function saveCard() {
 
   clearErrors(addForm);
 
+  const id = 'user-' + Date.now();
   const newCard = {
-    id: 'user-' + Date.now(),
+    id,
     category: 'user_created',
     examWeight: 'high',
     front,
@@ -216,11 +216,10 @@ function saveCard() {
     return;
   }
 
-  allCards.push(newCard);
+  cardsById[id] = newCard;
   loadedUserCardCount = getUserFlashcards().length;
-  deck.unshift(newCard);
-  currentIdx = 0;
-  cardsRemaining = deck.length;
+  currentCardId = id;
+  currentReviewSize += 1;
 
   addForm.hidden = true;
   showEditStep();
@@ -256,21 +255,25 @@ function refreshDeckIfUserCardsAdded([entry]) {
   if (!entry.isIntersecting) return;
   if (getUserFlashcards().length === loadedUserCardCount) return;
 
-  rebuildAllCards();
+  rebuildCardsById();
   resetDeck();
 }
 
 function setupFlashcards(deckData) {
-  baseDeck = deckData;
-  rebuildAllCards();
-  deck = shuffle([...allCards]);
-  cardsRemaining = deck.length;
-  renderCard();
+  curatedCardsById = deckData;
+  rebuildCardsById();
+  resetDeck();
 
   containerEl.addEventListener('click', cardActionHandler);
   document.getElementById('fc-reset').addEventListener('click', resetDeck);
-  bindFilterGroup('fc-cat-filters', val => activeCat = val);
-  bindFilterGroup('fc-weight-filters', val => activeWeight = val);
+  bindSelectGroup(document.getElementById('fc-cat-filters'), btn => {
+    activeCat = btn.dataset.val;
+    resetDeck();
+  });
+  bindSelectGroup(document.getElementById('fc-weight-filters'), btn => {
+    activeWeight = btn.dataset.val;
+    resetDeck();
+  });
   setupAddForm();
 
   new IntersectionObserver(refreshDeckIfUserCardsAdded).observe(containerEl);
