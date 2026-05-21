@@ -143,6 +143,68 @@ async function tabLevelTest(label, route, navId, contentId, renderedSel) {
   await page.context().close();
 }
 
+// Flashcards filter: bindSelectGroup wiring on the category filter row
+// changes the active button and shrinks the review deck to matching
+// cards. Regression guard alongside decoderActivationTest.
+async function flashcardsFilterTest() {
+  const page = await newPage();
+  await page.goto(`${BASE}/index.html#flashcards`);
+  await page.waitForSelector('#fc-card-wrap > .fc-card', {timeout: 5000})
+    .catch(() => {});
+
+  const initialProgress = await page.locator('#fc-progress').textContent();
+  ok('flashcards: initial deck loaded',
+     /69 of 69/.test(initialProgress ?? ''),
+     `progress=${initialProgress}`);
+
+  await page.locator("#fc-cat-filters button[data-val='test_procedure']")
+    .click();
+  await page.waitForTimeout(300);
+  const afterProgress = await page.locator('#fc-progress').textContent();
+  const filterCurrent = await page
+    .locator("#fc-cat-filters button[data-val='test_procedure']")
+    .getAttribute('aria-current');
+  ok('flashcards: Tests filter shrinks deck',
+     /12 of 12/.test(afterProgress ?? ''),
+     `progress=${afterProgress}`);
+  ok('flashcards: clicked filter becomes aria-current',
+     filterCurrent === 'true', `aria-current=${filterCurrent}`);
+  await page.context().close();
+}
+
+// Decoder subtab: bindSelectGroup wiring renders initial equivalence
+// chain + muscle list on load and updates them when a region button is
+// clicked. Regression guard for the select-group signature change that
+// broke the decoder when the cached and disk versions disagreed.
+async function decoderActivationTest() {
+  const page = await newPage();
+  await page.goto(`${BASE}/index.html#anatomy/decoder`);
+  await page.waitForSelector('#decoder-equiv .equiv-chain-label',
+    {timeout: 5000}).catch(() => {});
+
+  const initialEquiv = await page.locator('#decoder-equiv').innerHTML();
+  const initialMuscles = await page.locator('#decoder-muscles').innerHTML();
+  ok('decoder: initial equiv chain renders',
+     initialEquiv.includes('Left IP ER'),
+     `equiv=${initialEquiv.slice(0, 80)}`);
+  ok('decoder: initial muscle list renders',
+     initialMuscles.length > 0,
+     `muscles len=${initialMuscles.length}`);
+
+  await page.locator("#decoder-region-btns button[data-val='IsP']").click();
+  await page.waitForTimeout(200);
+  const afterEquiv = await page.locator('#decoder-equiv').innerHTML();
+  const ispCurrent = await page
+    .locator("#decoder-region-btns button[data-val='IsP']")
+    .getAttribute('aria-current');
+  ok('decoder: region click updates equiv chain',
+     afterEquiv.includes('Left IsP ER'),
+     `equiv=${afterEquiv.slice(0, 80)}`);
+  ok('decoder: clicked region button becomes aria-current',
+     ispCurrent === 'true', `aria-current=${ispCurrent}`);
+  await page.context().close();
+}
+
 // Second subtabbed family (patterns): the activateSubtab delegation
 // path is not nomenclature-specific. Render, breadcrumb shown, switch,
 // re-click active is a no-op.
@@ -238,7 +300,9 @@ await retryRecoveryTest('joints-retry', '#nomenclature/joints',
 await switchAndReclickTest();
 await tabLevelTest('flashcards', '#flashcards', 'nav-flashcards',
   'flashcards-content', '#fc-card-wrap > *');
+await flashcardsFilterTest();
 await patternsSubtabTest();
+await decoderActivationTest();
 await sameHashImportRetryTest();
 
 await browser.close();

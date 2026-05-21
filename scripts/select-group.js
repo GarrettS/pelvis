@@ -1,4 +1,5 @@
-export function bindSelectGroup(container, onChange) {
+export function bindSelectGroup(containerId, onChange) {
+  const container = document.getElementById(containerId);
   let activeBtn = container.querySelector(':scope > [aria-current]');
   container.addEventListener('click', e => {
     const btn = e.target.closest('button');

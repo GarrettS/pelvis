@@ -18,7 +18,7 @@ const equivEl = document.getElementById('decoder-equiv');
 const musclesEl = document.getElementById('decoder-muscles');
 
 function bindControlGroup(containerId, key) {
-  bindSelectGroup(document.getElementById(containerId), btn => {
+  bindSelectGroup(containerId, btn => {
     decoderState[key] = btn.dataset.val;
     updateDecoder();
   });

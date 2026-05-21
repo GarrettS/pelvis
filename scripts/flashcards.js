@@ -266,11 +266,11 @@ function setupFlashcards(deckData) {
 
   containerEl.addEventListener('click', cardActionHandler);
   document.getElementById('fc-reset').addEventListener('click', resetDeck);
-  bindSelectGroup(document.getElementById('fc-cat-filters'), btn => {
+  bindSelectGroup('fc-cat-filters', btn => {
     activeCat = btn.dataset.val;
     resetDeck();
   });
-  bindSelectGroup(document.getElementById('fc-weight-filters'), btn => {
+  bindSelectGroup('fc-weight-filters', btn => {
     activeWeight = btn.dataset.val;
     resetDeck();
   });
