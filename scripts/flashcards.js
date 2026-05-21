@@ -1,10 +1,12 @@
 import {expandAbbr} from './abbr-expand.js';
 import {shuffle} from './shuffle.js';
 import {loadJson} from './load.js';
-import {replaceErrorCallout, clearErrors, attemptLoad} from './error-ui.js';
+import {attemptLoad} from './error-ui.js';
 import {getUserFlashcards, saveUserFlashcard} from './flashcard-storage.js';
 import {newEl} from './el-create.js';
 import {bindSelectGroup} from './select-group.js';
+
+const DETAIL_WARN = 340;
 
 let curatedCardsById = {};
 let cardsById = {};
@@ -63,7 +65,7 @@ function nextCard() {
   renderCard();
 }
 
-const flipCard = e => e.target.closest('.fc-card')?.classList.toggle('fc-flipped');
+const flipCard = e => e.target.closest('.fc-card').classList.toggle('fc-flipped');
 
 const CARD_ACTIONS = {
   flip: flipCard,
@@ -75,56 +77,46 @@ function cardActionHandler(e) {
   CARD_ACTIONS[action]?.(e);
 }
 
-function actionBtn(action, label, primary = false) {
-  const btn = newEl('button', {
+function actionBtn(action, label, cls = '') {
+  return newEl('button', {
     type: 'button',
-    className: primary ? 'primary' : '',
-    textContent: label
+    className: cls,
+    textContent: label,
+    attrs: {'data-action': action}
   });
-  btn.dataset.action = action;
-  return btn;
 }
 
-function buildCard(card, includeNext = false) {
-  const backChildren = [
-    newEl('div', {
-      className: 'fc-back-main',
-      innerHTML: expandAbbr(card.back)
-    })
-  ];
-  if (card.backDetail) {
-    backChildren.push(newEl('details', {children: [
-      newEl('summary', {
-        className: 'fc-show-more',
-        textContent: 'Show More'
-      }),
-      newEl('div', {
-        className: 'fc-detail',
-        innerHTML: expandAbbr(card.backDetail)
-      })
-    ]}));
-  }
+function backChildren(card) {
+  const main = newEl('div', {
+    className: 'fc-back-main',
+    innerHTML: expandAbbr(card.back)
+  });
+  if (!card.backDetail) return [main];
 
-  const cardChildren = [
+  return [main, newEl('details', {children: [
+    newEl('summary', {className: 'fc-show-more', textContent: 'Show More'}),
+    newEl('div', {
+      className: 'fc-detail',
+      innerHTML: expandAbbr(card.backDetail)
+    })
+  ]})];
+}
+
+function buildCard(card, actions) {
+  const children = [
     newEl('div', {className: 'fc-front-main', textContent: card.front})
   ];
   if (card.frontHint) {
-    cardChildren.push(newEl('div', {
+    children.push(newEl('div', {
       className: 'fc-front-hint',
       innerHTML: expandAbbr(card.frontHint)
     }));
   }
-  cardChildren.push(
-      newEl('div', {className: 'fc-back', children: backChildren}),
-      newEl('div', {
-        className: 'fc-actions',
-        children: includeNext
-            ? [actionBtn('flip', 'Flip', true), actionBtn('next', 'Next →')]
-            : [actionBtn('flip', 'Flip', true)]
-      })
+  children.push(
+      newEl('div', {className: 'fc-back', children: backChildren(card)}),
+      newEl('div', {className: 'fc-actions', children: actions})
   );
-
-  return newEl('div', {className: 'fc-card', children: cardChildren});
+  return newEl('div', {className: 'fc-card', children});
 }
 
 function renderCard() {
@@ -142,12 +134,17 @@ function renderCard() {
 
   const remaining = pendingReviewIds.length + 1;
   progressEl.textContent = `${remaining} of ${currentReviewSize} remaining`;
-  cardWrap.replaceChildren(buildCard(cardsById[currentCardId], true));
+  cardWrap.replaceChildren(buildCard(cardsById[currentCardId], [
+    actionBtn('flip', 'Flip', 'primary'),
+    actionBtn('next', 'Next →')
+  ]));
 }
 
 function clearForm() {
   addForm.reset();
-  document.getElementById('fc-detail-count').textContent = '0 / 380';
+  setFormError();
+  const detail = document.getElementById('fc-input-detail');
+  document.getElementById('fc-detail-count').textContent = `0 / ${detail.maxLength}`;
   document.getElementById('fc-form-preview').disabled = true;
 }
 
@@ -167,9 +164,8 @@ function updateDetailCharCount(e) {
   const detail = e.target;
   const charCount = document.getElementById('fc-detail-count');
   const len = detail.value.length;
-  charCount.textContent = len + ' / 380';
-  charCount.classList.toggle('warn', len > 340);
-  if (len > 380) detail.value = detail.value.slice(0, 380);
+  charCount.textContent = `${len} / ${detail.maxLength}`;
+  charCount.classList.toggle('warn', len > DETAIL_WARN);
 }
 
 function cancelAddForm() {
@@ -178,48 +174,41 @@ function cancelAddForm() {
   clearForm();
 }
 
+const readCardForm = () => ({
+  front: document.getElementById('fc-input-front').value.trim(),
+  frontHint: document.getElementById('fc-input-hint').value.trim(),
+  back: document.getElementById('fc-input-back').value.trim(),
+  backDetail: document.getElementById('fc-input-detail').value.trim()
+});
+
+const setFormError = (message = '') =>
+    document.getElementById('fc-form-error').textContent = message;
+
 function showPreview() {
-  const previewCard = {
-    front: document.getElementById('fc-input-front').value.trim(),
-    frontHint: document.getElementById('fc-input-hint').value.trim() || null,
-    back: document.getElementById('fc-input-back').value.trim(),
-    backDetail: document.getElementById('fc-input-detail').value.trim() || null
-  };
-  document.getElementById('fc-preview-card')
-      .replaceChildren(buildCard(previewCard));
+  document.getElementById('fc-preview-card').replaceChildren(buildCard(
+      readCardForm(), [actionBtn('flip', 'Flip', 'primary')]));
   document.getElementById('fc-edit-section').hidden = true;
   document.getElementById('fc-preview-section').hidden = false;
   document.getElementById('fc-form-title').textContent = 'Preview';
 }
 
 function saveCard() {
-  const front = document.getElementById('fc-input-front').value.trim();
-  const back = document.getElementById('fc-input-back').value.trim();
-  if (!front || !back) return;
-
-  clearErrors(addForm);
+  const card = readCardForm();
+  if (!card.front || !card.back) return;
 
   const id = 'user-' + Date.now();
-  const newCard = {
-    id,
-    category: 'user_created',
-    examWeight: 'high',
-    front,
-    frontHint: document.getElementById('fc-input-hint').value.trim() || null,
-    back,
-    backDetail: document.getElementById('fc-input-detail').value.trim() || null
-  };
+  const newCard = {id, category: 'user_created', examWeight: 'high', ...card};
 
   const saveResult = saveUserFlashcard(newCard);
   if (!saveResult.ok) {
-    replaceErrorCallout(addForm, saveResult.message);
+    setFormError(saveResult.message);
     return;
   }
 
   cardsById[id] = newCard;
   loadedUserCardCount = getUserFlashcards().length;
   currentCardId = id;
-  currentReviewSize += 1;
+  currentReviewSize = pendingReviewIds.length + 1;
 
   addForm.hidden = true;
   showEditStep();
@@ -235,14 +224,14 @@ const INPUT_DISPATCH = {
 
 const CLICK_DISPATCH = {
   'fc-form-cancel': cancelAddForm,
-  'fc-form-preview': showPreview,
   'fc-form-edit-back': showEditStep,
   'fc-form-save': saveCard
 };
 
 function setupAddForm() {
-  addForm.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.target.matches('input, textarea')) e.preventDefault();
+  addForm.addEventListener('submit', e => {
+    e.preventDefault();
+    showPreview();
   });
   addForm.addEventListener('input', e => INPUT_DISPATCH[e.target.id]?.(e));
   addForm.addEventListener('click',

@@ -552,12 +552,12 @@
         </div>
         <div class="fc-form-row">
           <label for="fc-input-detail">Back Detail (optional, max 380 chars)</label>
-          <textarea id="fc-input-detail" rows="3" placeholder="Extended detail"></textarea>
+          <textarea id="fc-input-detail" rows="3" maxlength="380" placeholder="Extended detail"></textarea>
           <div class="fc-char-count" id="fc-detail-count">0 / 380</div>
         </div>
         <div class="fc-form-actions">
           <button type="button" id="fc-form-cancel">Cancel</button>
-          <button type="button" class="primary" id="fc-form-preview" disabled>Preview</button>
+          <button type="submit" class="primary" id="fc-form-preview" disabled>Preview</button>
         </div>
       </div>
       <div id="fc-preview-section" hidden>
@@ -567,6 +567,7 @@
           <button type="button" class="primary" id="fc-form-save">Save</button>
         </div>
       </div>
+      <output id="fc-form-error" role="alert"></output>
     </form>
     <div class="fc-filters" id="fc-cat-filters" role="group" aria-label="Category filter">
       <button class="fc-filter-btn" data-val="all" aria-current="true">All</button>

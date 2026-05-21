@@ -210,3 +210,18 @@
   margin-top: .75rem;
 }
 
+#fc-form-error {
+  display: block;
+  margin-top: .75rem;
+  background: var(--panel-bg-sunken);
+  border-left: 4px solid var(--error-border);
+  border-radius: 0 .4rem .4rem 0;
+  padding: 1rem 1.2rem;
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
+#fc-form-error:empty {
+  display: none;
+}
+

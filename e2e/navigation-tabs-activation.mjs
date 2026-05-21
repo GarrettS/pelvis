@@ -172,6 +172,47 @@ async function flashcardsFilterTest() {
   await page.context().close();
 }
 
+// Add-card form: Enter while the Preview button is focused must
+// transition to the preview state via the form's submit event, not
+// fire saveCard. Regression guard for the type="submit" + submit
+// listener wiring -- if Preview reverts to type="button" or if a
+// click handler dispatches showPreview alongside submit, the chain
+// would double-fire or land on Save.
+async function flashcardsAddFormEnterTest() {
+  const page = await newPage();
+  await page.goto(`${BASE}/index.html#flashcards`);
+  await page.waitForSelector('#fc-card-wrap > .fc-card', {timeout: 5000});
+
+  await page.locator('#fc-add-btn').click();
+  await page.locator('#fc-input-front').fill('ENTER TEST');
+  await page.locator('#fc-input-back').fill('ENTER BACK');
+  await page.waitForTimeout(150);
+
+  const before = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('userFlashcards') || '[]').length);
+
+  await page.locator('#fc-form-preview').focus();
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(200);
+
+  const after = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('userFlashcards') || '[]').length);
+  const previewVisible = await page.locator('#fc-preview-section')
+    .evaluate(el => !el.hidden);
+  const editHidden = await page.locator('#fc-edit-section')
+    .evaluate(el => el.hidden);
+  const formOpen = await page.locator('#fc-add-form')
+    .evaluate(el => !el.hidden);
+
+  ok('add-form: Enter on Preview transitions to preview',
+     previewVisible && editHidden,
+     `preview=${previewVisible} editHidden=${editHidden}`);
+  ok('add-form: Enter on Preview does not save',
+     after === before, `before=${before} after=${after}`);
+  ok('add-form: Enter on Preview keeps form open', formOpen);
+  await page.context().close();
+}
+
 // Decoder subtab: bindSelectGroup wiring renders initial equivalence
 // chain + muscle list on load and updates them when a region button is
 // clicked. Regression guard for the select-group signature change that
@@ -301,6 +342,7 @@ await switchAndReclickTest();
 await tabLevelTest('flashcards', '#flashcards', 'nav-flashcards',
   'flashcards-content', '#fc-card-wrap > *');
 await flashcardsFilterTest();
+await flashcardsAddFormEnterTest();
 await patternsSubtabTest();
 await decoderActivationTest();
 await sameHashImportRetryTest();
