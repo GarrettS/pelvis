@@ -704,6 +704,12 @@ button.warn:hover {
       transparent 4px);
 }
 
+html.is-column-resizing,
+html.is-column-resizing * {
+  cursor: col-resize;
+  user-select: none;
+}
+
 .control-group {
   display: flex;
   flex-direction: column;

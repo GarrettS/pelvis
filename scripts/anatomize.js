@@ -25,13 +25,8 @@ function priColorClass(priColor) {
   return priColor || 'pri-neutral';
 }
 
-function resolveStructures(imgEntry, shared) {
-  if (imgEntry.structures) return imgEntry.structures;
-  if (imgEntry.structuresRef && shared[imgEntry.structuresRef]) {
-    return shared[imgEntry.structuresRef];
-  }
-  return null;
-}
+const resolveStructures = (imgEntry, shared) =>
+    imgEntry.structures || shared[imgEntry.structuresRef];
 
 /**
  * Returns the point on the edge of `box` closest to `target`.
@@ -692,13 +687,10 @@ function updateScore() {
 
 function initResizeHandle() {
   const body = document.getElementById('anat-body');
-  const imageCol = body.querySelector('.anatomize-image-col');
-  const infoCol = body.querySelector('.anatomize-info-col');
-
   createResizeHandle({
     container: body,
-    insertBefore: imageCol,
-    resizeTarget: infoCol,
+    insertBefore: body.querySelector('.anatomize-image-col'),
+    resizeTarget: body.querySelector('.anatomize-info-col'),
     cssProperty: '--info-w',
     minWidth: 200,
     maxRatio: 0.6,
