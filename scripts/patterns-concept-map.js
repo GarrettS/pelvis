@@ -16,18 +16,21 @@ const EDGE_END_GAP = 4.5;
 
 let CONCEPT_MAP = null;
 
-const containerEl = document.getElementById('concept-map-wrap');
+const byId = id => document.getElementById(id);
+
+const containerEl = byId('concept-map-wrap');
+
+const conceptMapKey = {
+  node:      key        => 'concept-map-' + key,
+  edgePair:  (from, to) => from + '--to--' + to,
+  edge:      (from, to) => 'concept-map-edge-' + conceptMapKey.edgePair(from, to),
+  edgeLabel: (from, to) => 'concept-map-edge-label-' + conceptMapKey.edgePair(from, to)
+};
 
 const pxToViewBox = (node) => ({
   cx: CONCEPT_MAP_PAD + node.x / 100 * (CONCEPT_MAP_W - 2 * CONCEPT_MAP_PAD),
   cy: CONCEPT_MAP_PAD + node.y / 100 * (CONCEPT_MAP_H - 2 * CONCEPT_MAP_PAD)
 });
-
-const nodeId = (nodeKey) => 'concept-map-' + nodeKey;
-const parseNodeKey = (nodeDomId) => nodeDomId.replace(/^concept-map-/, '');
-const edgeKey = (fromKey, toKey) => fromKey + '--to--' + toKey;
-const edgeLineId = (fromKey, toKey) => 'concept-map-edge-' + edgeKey(fromKey, toKey);
-const edgeLabelId = (fromKey, toKey) => 'concept-map-edge-label-' + edgeKey(fromKey, toKey);
 
 function forEachConceptMapEdge(visitEdge) {
   Object.entries(CONCEPT_MAP).forEach(([fromKey, node]) => {
@@ -39,10 +42,10 @@ function forEachConceptMapEdge(visitEdge) {
 
 function edgeGeometry(fromKey, toKey) {
   const sourceBounds = rectBounds(
-    document.getElementById(nodeId(fromKey)).querySelector('rect')
+    byId(conceptMapKey.node(fromKey)).querySelector('rect')
   );
   const targetBounds = rectBounds(
-    document.getElementById(nodeId(toKey)).querySelector('rect')
+    byId(conceptMapKey.node(toKey)).querySelector('rect')
   );
   const rawStart = rectBoundaryPoint(sourceBounds, rectCenter(targetBounds));
   const rawEnd = rectBoundaryPoint(targetBounds, rectCenter(sourceBounds));
@@ -67,7 +70,7 @@ function buildEdgeLines() {
   forEachConceptMapEdge((fromKey, toKey) => {
     const { start, end } = edgeGeometry(fromKey, toKey);
     lines.push(`<line class="map-edge"
-      id="${edgeLineId(fromKey, toKey)}"
+      id="${conceptMapKey.edge(fromKey, toKey)}"
       x1="${start.x}" y1="${start.y}"
       x2="${end.x}" y2="${end.y}"
       marker-end="url(#arrow-map)"/>`);
@@ -94,7 +97,7 @@ function buildEdgeLabels() {
       oy = my + (dx / len) * EDGE_LABEL_OFFSET_DIST;
     }
     labels.push(`<g class="map-edge-label-group"
-      id="${edgeLabelId(fromKey, toKey)}">
+      id="${conceptMapKey.edgeLabel(fromKey, toKey)}">
       <line class="map-edge-leader"
         x1="${mx}" y1="${my}"
         x2="${ox}" y2="${oy}"/>
@@ -122,7 +125,7 @@ function buildNodes() {
         y="${ry + 11 + li * 11}"
         text-anchor="middle">${l}</text>`
     ).join('');
-    return `<g class="${cls}" id="${nodeId(key)}">
+    return `<g class="${cls}" id="${conceptMapKey.node(key)}" data-key="${key}">
       <rect x="${rx}" y="${ry}"
         width="${rw}" height="${rh}"/>
       ${textSVG}</g>`;
@@ -131,7 +134,7 @@ function buildNodes() {
 
 function sizeEdgeLabelBoxes() {
   forEachConceptMapEdge((fromKey, toKey) => {
-    const g = document.getElementById(edgeLabelId(fromKey, toKey));
+    const g = byId(conceptMapKey.edgeLabel(fromKey, toKey));
     const text = g.querySelector('text');
     const rect = g.querySelector('rect');
     const tw = text.getComputedTextLength() + LABEL_PAD * 2;
@@ -178,62 +181,45 @@ function rectBoundaryPoint(bounds, towardPoint) {
   };
 }
 
-function buildEdgesByNode(graph) {
-  const edgesByNode = {};
-  Object.keys(graph).forEach((key) => edgesByNode[key] = []);
-  Object.entries(graph).forEach(([fromKey, node]) =>
-    Object.keys(node.to || {}).forEach((toKey) => {
-      const edge = { fromKey, toKey };
-      edgesByNode[fromKey].push(edge);
-      edgesByNode[toKey].push(edge);
-    })
-  );
-  return edgesByNode;
+function buildHighlightGroups() {
+  const entries = [];
+  forEachConceptMapEdge((fromKey, toKey) => {
+    const edgeId = conceptMapKey.edge(fromKey, toKey);
+    entries.push({nodeKey: fromKey, edgeId, neighborId: conceptMapKey.node(toKey)});
+    entries.push({nodeKey: toKey,   edgeId, neighborId: conceptMapKey.node(fromKey)});
+  });
+  return Object.groupBy(entries, e => e.nodeKey);
 }
 
 function initNodeHighlight(svg) {
   let activeNode = null;
-  const edgesByNode = buildEdgesByNode(CONCEPT_MAP);
+  const highlightGroups = buildHighlightGroups();
 
-  function toggleHighlight(nodeKey, isHighlighted) {
-    const classMethod = isHighlighted ? 'add' : 'remove';
+  function highlight(nodeEl, isHighlighted) {
     const markerEnd = isHighlighted ? 'url(#arrow-map-hl)' : 'url(#arrow-map)';
 
-    edgesByNode[nodeKey].forEach(({ fromKey, toKey }) => {
-      const edgeEl = document.getElementById(edgeLineId(fromKey, toKey));
-      const otherKey = fromKey === nodeKey ? toKey : fromKey;
-      const otherNodeEl = document.getElementById(nodeId(otherKey));
-      edgeEl.classList[classMethod]('highlighted');
+    nodeEl.classList.toggle('highlighted', isHighlighted);
+    highlightGroups[nodeEl.dataset.key].forEach(({ edgeId, neighborId }) => {
+      const edgeEl = byId(edgeId);
+      const neighborEl = byId(neighborId);
+
+      edgeEl.classList.toggle('highlighted', isHighlighted);
       edgeEl.setAttribute('marker-end', markerEnd);
-      otherNodeEl.classList[classMethod]('highlighted');
+      neighborEl.classList.toggle('highlighted', isHighlighted);
     });
-  }
-
-  function clearHighlight() {
-    if (!activeNode) return;
-    const nodeKey = parseNodeKey(activeNode.id);
-    activeNode.classList.remove('highlighted');
-    toggleHighlight(nodeKey, false);
-    activeNode = null;
-  }
-
-  function highlightNode(nodeEl) {
-    activeNode = nodeEl;
-    const nodeKey = parseNodeKey(nodeEl.id);
-    nodeEl.classList.add('highlighted');
-    toggleHighlight(nodeKey, true);
   }
 
   svg.addEventListener('click', (e) => {
     const nodeEl = e.target.closest('.map-node');
-    if (!nodeEl) return;
-    clearHighlight();
-    highlightNode(nodeEl);
+    if (!nodeEl || nodeEl === activeNode) return;
+    if (activeNode) highlight(activeNode, false);
+    highlight(nodeEl, true);
+    activeNode = nodeEl;
   });
 }
 
 function buildConceptMap() {
-  const svg = document.getElementById('concept-map-svg');
+  const svg = byId('concept-map-svg');
   const defs = svg.querySelector('defs');
   // Nodes must exist before edge geometry is measured, but edges must still
   // render beneath nodes and labels, so keep these as two ordered inserts.
