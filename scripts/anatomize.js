@@ -1,6 +1,6 @@
 import {createResizeHandle} from './resize-handle.js';
 import {expandAbbr} from './abbr-expand.js';
-import {shuffle} from './shuffle.js';
+import {toShuffled} from './shuffle.js';
 import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {newEl, newSvg} from './el-create.js';
@@ -216,7 +216,7 @@ function createSession(imgSet, imageId) {
     score: 0,
     identified: new Set(),
     firstAttempt: new Set(),
-    queue: shuffle(structureIds),
+    queue: toShuffled(structureIds),
     current: null,
     attemptedOnCurrent: false,
     reviewMode: false
@@ -346,7 +346,7 @@ function resetSession() {
   session.score = 0;
   session.identified = new Set();
   session.firstAttempt = new Set();
-  session.queue = shuffle(Object.keys(session.structures));
+  session.queue = toShuffled(Object.keys(session.structures));
   session.current = null;
   session.attemptedOnCurrent = false;
   session.reviewMode = false;

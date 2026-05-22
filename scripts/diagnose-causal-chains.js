@@ -1,7 +1,7 @@
 import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
-import {shuffle} from './shuffle.js';
+import {toShuffled} from './shuffle.js';
 
 let causalChains = {};
 
@@ -206,7 +206,7 @@ class CausalChain {
     );
     this.#id = id;
     this.#steps = Object.freeze([...steps]);
-    this.#order = shuffle([...steps]);
+    this.#order = toShuffled([...steps]);
   }
 
   get id() { return this.#id; }

@@ -1,6 +1,6 @@
 import { getAllEquivalent } from './equivalence.js';
 import { expandAbbr } from './abbr-expand.js';
-import { shuffle } from './shuffle.js';
+import { toShuffled } from './shuffle.js';
 import { loadJson } from './load.js';
 import { replaceErrorCallout, clearErrors, attemptLoad } from './error-ui.js';
 import { saveUserFlashcard, hasSavedFlashcard } from './flashcard-storage.js';
@@ -37,30 +37,24 @@ const optionId = optionKey => 'mq-option-' + optionKey;
 
 function buildQueue(domains, count, priorityMode) {
   const eligible = getSelectedQuestionRefs(domains);
-  if (!priorityMode) return shuffle(eligible).slice(0, count);
+  if (!priorityMode) return toShuffled(eligible).slice(0, count);
 
   const progress = getAllProgress();
-  const missedQs = [];
-  const unseen = [];
-  const inProgress = [];
-  for (const questionRef of eligible) {
-    const p = progress[questionRef.questionId];
-    if (!p || p.totalAttempts === 0) {
-      unseen.push(questionRef);
-    } else if (p.correctStreak >= MASTERY_STREAK) {
-      continue;
-    } else if (p.correctStreak === 0) {
-      missedQs.push(questionRef);
-    } else {
-      inProgress.push({ questionRef, totalCorrect: p.totalCorrect });
-    }
-  }
-  shuffle(inProgress);
-  inProgress.sort((a, b) => a.totalCorrect - b.totalCorrect);
+  const buckets = Object.groupBy(eligible, ref => {
+    const p = progress[ref.questionId];
+    if (!p || p.totalAttempts === 0) return 'unseen';
+    if (p.correctStreak >= MASTERY_STREAK) return 'mastered';
+    if (p.correctStreak === 0) return 'missed';
+    return 'inProgress';
+  });
+  const { missed = [], unseen = [], inProgress = [] } = buckets;
+  const rankedInProgress = toShuffled(inProgress)
+    .sort((a, b) =>
+      progress[a.questionId].totalCorrect - progress[b.questionId].totalCorrect);
   return [
-    ...shuffle(missedQs),
-    ...shuffle(unseen),
-    ...inProgress.map(x => x.questionRef)
+    ...toShuffled(missed),
+    ...toShuffled(unseen),
+    ...rankedInProgress
   ].slice(0, count);
 }
 
@@ -398,7 +392,7 @@ function handleResultSave(btn) {
 }
 
 function handleRetakeMissed() {
-  queue = shuffle(sessionAnswers.filter(a => !a.correct).map(a => ({
+  queue = toShuffled(sessionAnswers.filter(a => !a.correct).map(a => ({
     questionId: a.questionId,
     question: a.question
   })));

@@ -3,7 +3,7 @@
 // prd/architecture/equivalence-quiz.md
 
 import { getAllEquivalent, REGION_LABELS } from './equivalence.js';
-import { shuffle } from './shuffle.js';
+import { toShuffled } from './shuffle.js';
 import { newEl } from './el-create.js';
 import { getCorrectAnswer } from './equivalence-answers.js';
 
@@ -43,10 +43,10 @@ function buildDistractors(side, region, dir) {
 function buildQuestion(combo) {
   const {side, region, dir} = combo;
   const equiv = getAllEquivalent(region, dir);
-  const allEquiv = Object.entries(equiv)
-    .filter(([rid]) => rid !== region)
-    .map(([rid, d]) => side + ' ' + rid + ' ' + d);
-  const correctPick = shuffle(allEquiv).slice(0, 2);
+  const allEquiv = [];
+  for (const [rid, d] of Object.entries(equiv))
+    if (rid !== region) allEquiv.push(`${side} ${rid} ${d}`);
+  const correctPick = toShuffled(allEquiv).slice(0, 2);
   const distractors = buildDistractors(side, region, dir);
   const distPick = distractors
     .filter((d) => !correctPick.includes(d))
@@ -54,11 +54,11 @@ function buildQuestion(combo) {
   return {
     ...combo,
     given: side + ' ' + region + ' ' + dir,
-    options: shuffle(correctPick.concat(distPick))
+    options: toShuffled([...correctPick, ...distPick])
   };
 }
 
-const generateQuestions = () => shuffle(ALL_COMBOS.map(buildQuestion));
+const generateQuestions = () => toShuffled(ALL_COMBOS.map(buildQuestion));
 
 const getSessionSize = () => document.getElementById('equiv-count').valueAsNumber;
 
@@ -434,7 +434,7 @@ function retakeMissed() {
   const missed = sessionAnswers
     .filter((a) => a.correct === false)
     .map((a) => a.question);
-  questions = shuffle(missed);
+  questions = toShuffled(missed);
   qIdx = 0;
   sessionAnswers = [];
   isAnswered = false;

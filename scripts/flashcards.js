@@ -1,5 +1,5 @@
 import {expandAbbr} from './abbr-expand.js';
-import {shuffle} from './shuffle.js';
+import {toShuffled} from './shuffle.js';
 import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {getUserFlashcards, saveUserFlashcard} from './flashcard-storage.js';
@@ -43,7 +43,7 @@ const getFilteredCardIds = () => Object.keys(cardsById).filter(id => {
 });
 
 function dealFreshDeck() {
-  const ids = shuffle(getFilteredCardIds());
+  const ids = toShuffled(getFilteredCardIds());
   currentReviewSize = ids.length;
   currentCardId = ids.shift() || null;
   pendingReviewIds = ids;
