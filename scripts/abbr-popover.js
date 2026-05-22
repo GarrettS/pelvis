@@ -1,58 +1,51 @@
-/*
- * Progressive enhancement for <abbr> elements. Requires Popover API.
- * CSS Anchor Positioning (where supported) handles placement; without
- * it the popover appears centered in the viewport.
- *
- * Desktop (hover: hover): mouseover/mouseout, no click handler.
- * Mobile (no hover): click to show, popover light-dismiss to hide.
- * Title is swapped to data-title on first interaction to suppress
- * the native tooltip.
- */
+const ABBR_SELECTOR = 'abbr[data-title]';
+
 function initAbbrPopover() {
-  if (typeof document.documentElement.showPopover !== 'function') return;
+  if (typeof document.body.showPopover !== 'function') return;
 
   const popover = document.getElementById('abbr-popover');
-  
-  // CSS Hides from unsupported browsers.
-  // We revert that here, where support is known.
-  popover.style.display = "revert";
-  
   const main = document.querySelector('main');
+  let activeAbbr = null;
 
-  function showForAbbr(abbr) {
-    if (abbr.title) {
-      abbr.dataset.title = abbr.title;
-      abbr.removeAttribute('title');
-    }
-    abbr.style.anchorName = '--abbr-active';
-    popover.textContent = abbr.dataset.title;
-    popover.showPopover();
+  // Suppress native tooltips on pre-existing static abbrs before any
+  // hover can race with our popover.
+  for (const abbr of main.querySelectorAll('abbr[title]')) {
+    abbr.dataset.title = abbr.title;
+    abbr.removeAttribute('title');
   }
 
+  const showForAbbr = (abbr) => {
+    activeAbbr?.classList.remove('abbr-anchored');
+    activeAbbr = abbr;
+    abbr.classList.add('abbr-anchored');
+    popover.textContent = abbr.dataset.title;
+    if (!popover.matches(':popover-open')) popover.showPopover();
+  };
+
+  popover.addEventListener('toggle', (e) => {
+    if (e.newState !== 'closed' || !activeAbbr) return;
+    activeAbbr.classList.remove('abbr-anchored');
+    activeAbbr = null;
+  });
+
+  main.addEventListener('focusin', e =>
+      e.target !== activeAbbr
+      && e.target.matches(ABBR_SELECTOR)
+      && showForAbbr(e.target));
+  main.addEventListener('focusout', e =>
+      e.target === activeAbbr && popover.hidePopover());
+
   if (matchMedia('(hover: hover)').matches) {
-    main.addEventListener('mouseover', (e) => {
-      const abbr = e.target.closest('abbr[title], abbr[data-title]');
-      if (!abbr) return;
-
-      showForAbbr(abbr);
-    });
-
-    main.addEventListener('mouseout', (e) => {
-      const abbr = e.target.closest('abbr[data-title]');
-      if (!abbr) return;
-
-      if (abbr.contains(e.relatedTarget)) return;
-
-      popover.hidePopover();
-      abbr.style.anchorName = '';
-    });
-  } else {
-    main.addEventListener('click', (e) => {
-      const abbr = e.target.closest('abbr[title], abbr[data-title]');
-      if (!abbr) return;
-
-      showForAbbr(abbr);
-    });
+    main.addEventListener('mouseover', e =>
+        e.target !== activeAbbr
+        && e.target.matches(ABBR_SELECTOR)
+        && showForAbbr(e.target));
+    main.addEventListener('mouseout', e =>
+        e.target === activeAbbr
+        && e.relatedTarget !== popover
+        && popover.hidePopover());
+    popover.addEventListener('mouseleave', e =>
+        e.relatedTarget !== activeAbbr && popover.hidePopover());
   }
 }
 

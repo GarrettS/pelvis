@@ -62,7 +62,7 @@ const escapeHtml = str => str
 
 const expandAbbr = text => escapeHtml(text).replace(
     ABBR_RE, match =>
-      '<abbr title="' + ABBR_TITLES[match] + '">'
+      '<abbr tabindex="0" data-title="' + ABBR_TITLES[match] + '">'
         + match + '</abbr>'
   );
 
