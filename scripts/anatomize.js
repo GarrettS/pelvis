@@ -17,6 +17,8 @@ const percentBox = b => `left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%`;
 
 const RE_IMG_ID = /^anat-img-(.+)$/;
 const RE_LABEL_ID = /^anat-(.+)-label$/;
+const HASH_ROUTE = 'anatomy/anatomize/';
+const HASH_IMAGE_REGEX = new RegExp(`^#${HASH_ROUTE}(?<imageId>[^/?]+)`);
 
 const containerEl = document.getElementById('anatomy-anatomize-content');
 const arenaEl = document.getElementById('anat-arena');
@@ -226,10 +228,7 @@ function createSession(imgSet, imageId) {
 function startImageFromHash() {
   const imageIds = Object.keys(anatomizeData.images);
   if (imageIds.length === 0) return;
-  const hashParts = location.hash.replace(/^#/, '').split('/');
-  const hashImageId = (hashParts[0] === 'anatomy' &&
-      hashParts[1] === 'anatomize' && hashParts[2]) ?
-      hashParts[2] : null;
+  const hashImageId = HASH_IMAGE_REGEX.exec(location.hash)?.groups.imageId;
   const startId = (hashImageId && getImageSet(hashImageId)) ?
       hashImageId : imageIds[0];
   loadImageSet(startId, true);
@@ -291,7 +290,7 @@ function loadImageSet(imageId, skipHash) {
   arenaEl.classList.toggle('anatomize-dark-bg', imgSet.theme === 'dark');
 
   if (!skipHash) {
-    const hash = 'anatomy/anatomize/' + imageId;
+    const hash = HASH_ROUTE + imageId;
     if (location.hash.replace(/^#/, '') !== hash) {
       location.hash = hash;
     }
