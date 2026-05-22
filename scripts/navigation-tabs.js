@@ -223,5 +223,5 @@ function initNavigationTabs() {
   initScrollAffordance();
 }
 
-document.addEventListener('DOMContentLoaded', initNavigationTabs);
+initNavigationTabs();
 navigator.serviceWorker?.register('./sw.js').catch(() => { /* optional SW; silent on failure */ });

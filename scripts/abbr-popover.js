@@ -56,4 +56,4 @@ function initAbbrPopover() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', initAbbrPopover);
+initAbbrPopover();
