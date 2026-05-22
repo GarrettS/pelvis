@@ -456,6 +456,8 @@
       "label": "Outlet Superior",
       "mechanic": "blank_panels",
       "imageSrc": "img/PRI-1-Pelvic-Outlet2.jpg",
+      "w": 1200,
+      "h": 1020,
       "sideLabels": {
         "left": "Left",
         "right": "Right"
@@ -912,6 +914,8 @@
       "label": "Outlet Inferior",
       "mechanic": "blank_panels",
       "imageSrc": "img/PRI-1-Pelvic-Outlet.jpg",
+      "w": 1200,
+      "h": 1095,
       "sideLabels": {
         "left": "Right",
         "right": "Left"
@@ -922,6 +926,8 @@
       "label": "Outlet Inferior (Flipped)",
       "mechanic": "blank_panels",
       "imageSrc": "img/PRI-1-Pelvic-Outlet-flipped.jpg",
+      "w": 1200,
+      "h": 1095,
       "sideLabels": {
         "left": "Left",
         "right": "Right"
@@ -1021,6 +1027,8 @@
       "label": "Pelvic Inlet",
       "mechanic": "blank_panels",
       "imageSrc": "img/PRI-1-Pelvic-Inlet.png",
+      "w": 570,
+      "h": 404,
       "sideLabels": {
         "left": "Right",
         "right": "Left"
@@ -1232,6 +1240,8 @@
       "mechanic": "blank_panels",
       "theme": "dark",
       "imageSrc": "img/PRI-1-glute-med--glute-max.png",
+      "w": 685,
+      "h": 602,
       "structures": {
         "glute_medius": {
           "label": "Gluteus Medius (L)",

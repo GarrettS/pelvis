@@ -371,6 +371,8 @@ function createArenaWrap(imgSet) {
     children: [newEl('img', {
       src: imgSet.imageSrc,
       alt: imgSet.label,
+      width: imgSet.w,
+      height: imgSet.h,
       decoding: 'async',
       fetchPriority: 'high',
       loading: 'eager',
