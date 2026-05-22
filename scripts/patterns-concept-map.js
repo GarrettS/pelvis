@@ -1,5 +1,6 @@
 import { loadJson } from './load.js';
 import { attemptLoad } from './error-ui.js';
+import { setAttrs } from './el-create.js';
 // Sibling tab module — shares patterns-concept-map-content. Static import
 // ties their load atomically: if one fails, neither runs.
 import './patterns-symptom-quiz.js';
@@ -132,19 +133,17 @@ function buildNodes() {
   }).join('');
 }
 
-function sizeEdgeLabelBoxes() {
-  forEachConceptMapEdge((fromKey, toKey) => {
-    const g = byId(conceptMapKey.edgeLabel(fromKey, toKey));
+const sizeEdgeLabelBoxes = svg =>
+  Array.from(svg.querySelectorAll('.map-edge-label-group'), g => {
     const text = g.querySelector('text');
-    const rect = g.querySelector('rect');
-    const tw = text.getComputedTextLength() + LABEL_PAD * 2;
     const bbox = text.getBBox();
-    rect.setAttribute('x', bbox.x - LABEL_PAD);
-    rect.setAttribute('y', bbox.y - 1);
-    rect.setAttribute('width', tw);
-    rect.setAttribute('height', 12);
-  });
-}
+    return [g.querySelector('rect'), {
+      x: bbox.x - LABEL_PAD,
+      y: bbox.y - 1,
+      width: text.getComputedTextLength() + LABEL_PAD * 2,
+      height: 12
+    }];
+  }).forEach(([rect, attrs]) => setAttrs(rect, attrs));
 
 const rectBounds = (rectEl) => ({
   left: rectEl.x.baseVal.value,
@@ -225,7 +224,7 @@ function buildConceptMap() {
   // render beneath nodes and labels, so keep these as two ordered inserts.
   defs.insertAdjacentHTML('afterend', buildNodes() + buildEdgeLabels());
   defs.insertAdjacentHTML('afterend', buildEdgeLines());
-  sizeEdgeLabelBoxes();
+  sizeEdgeLabelBoxes(svg);
   initNodeHighlight(svg);
 }
 

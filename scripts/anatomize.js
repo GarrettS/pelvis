@@ -85,14 +85,14 @@ class BlankPanelSite {
     const s = this.#structure;
     const color = priColorClass(s.priColor);
 
-    this.#line = newSvg('line', {className: 'anatomize-arrow-line'});
-    this.#head = newSvg('polygon', {className: 'anatomize-arrowhead'});
+    this.#line = newSvg('line', {class: 'anatomize-arrow-line'});
+    this.#head = newSvg('polygon', {class: 'anatomize-arrowhead'});
     this.#group = newSvg('g', {
       id: `anat-${this.id}`,
-      className: color,
+      class: color,
       children: [
         newSvg('circle', {
-          className: 'anatomize-target-circle',
+          class: 'anatomize-target-circle',
           r: 1.8,
           cx: s.arrowTo.x,
           cy: s.arrowTo.y
@@ -392,7 +392,7 @@ function createSideLabels(svg, imgSet) {
       y: 5,
       'text-anchor': cfg.anchor,
       'font-size': 3,
-      className: 'anatomize-side-label-shadow',
+      class: 'anatomize-side-label-shadow',
       children: [cfg.text]
     });
     svg.append(shadow);
@@ -418,7 +418,7 @@ function renderBlankPanels(imgSet) {
     id: 'anat-arena-svg',
     viewBox: '0 0 100 100',
     preserveAspectRatio: 'none',
-    className: 'anatomize-svg-overlay'
+    class: 'anatomize-svg-overlay'
   });
   wrap.append(svg);
 

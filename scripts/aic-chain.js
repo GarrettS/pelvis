@@ -131,17 +131,17 @@ class AicMuscle {
   #buildAnchor(view) {
     const {x: cx, y: cy} = this.anchor(view);
     return newSvg('g', {
-      className: this.priColor(),
+      class: this.priColor(),
       children: [
-        newSvg('circle', {cx, cy, className: 'aic-anchor-casing'}),
-        newSvg('circle', {cx, cy, className: 'aic-anchor-dot'})
+        newSvg('circle', {cx, cy, class: 'aic-anchor-casing'}),
+        newSvg('circle', {cx, cy, class: 'aic-anchor-dot'})
       ]
     });
   }
 
   #buildLeaderPath() {
     return newSvg('path', {
-      className: `aic-leader-path ${this.priColor()}`,
+      class: `aic-leader-path ${this.priColor()}`,
       'marker-end': `url(#${ARROWHEAD_ID})`
     });
   }
