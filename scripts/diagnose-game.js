@@ -1,6 +1,7 @@
 import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
+import {newEl} from './el-create.js';
 
 const ROUND2_STEPS = [
   { key: 'repositioning',  label: 'Repositioning' },
@@ -18,14 +19,14 @@ let gameState = {
 };
 
 const containerEl = document.getElementById('diagnose-game-content');
-const gameWrap = document.getElementById('game-wrap');
+const gameBoard = document.getElementById('game-board');
 
-gameWrap.addEventListener('click', handleClick);
+gameBoard.addEventListener('click', handleClick);
 
 function handleClick(e) {
   const answerBtn = e.target.closest('.answer-btn');
   if (answerBtn) {
-    handleGameAnswer(gameWrap, answerBtn);
+    handleGameAnswer(gameBoard, answerBtn);
     return;
   }
   GAME_DISPATCH[e.target.id]?.();
@@ -37,7 +38,7 @@ function resetGame() {
     score: { correct: 0, total: 0 },
     isAnswered: false, selectedOpts: new Set()
   };
-  renderScenario(gameWrap);
+  renderScenario(gameBoard);
 }
 
 function advanceGame() {
@@ -58,7 +59,7 @@ function advanceGame() {
     renderGameComplete();
     return;
   }
-  renderScenario(gameWrap);
+  renderScenario(gameBoard);
 }
 
 function handleGameSubmit() {
@@ -66,32 +67,28 @@ function handleGameSubmit() {
 
   const s = scenarios[gameState.scenarioIdx];
   const q = s.round2[currentRound2Step().key];
-  handleMultiSelectSubmit(gameWrap, q);
+  handleMultiSelectSubmit(gameBoard, q);
 }
 
-function renderScenario(wrap) {
+function renderScenario(gameBoard) {
   const s = scenarios[gameState.scenarioIdx];
-  wrap.innerHTML = '';
-
-  const header = document.createElement('div');
-  header.className = 'scenario-header';
-  header.textContent = `Scenario ${gameState.scenarioIdx + 1} of ${scenarios.length} — Round ${gameState.round}`;
-
-  const scoreEl = document.createElement('div');
-  scoreEl.className = 'score-display';
-  scoreEl.textContent = scoreText();
-
-  wrap.appendChild(header);
-  wrap.appendChild(scoreEl);
+  gameBoard.innerHTML = '';
+  gameBoard.append(
+    newEl('div', {
+      className: 'scenario-header',
+      textContent: scenarioHeaderText()
+    }),
+    newEl('div', {className: 'score-display', textContent: scoreText()})
+  );
 
   if (gameState.round === 1) {
-    renderRound1(wrap, s);
+    renderRound1(gameBoard, s);
   } else {
-    renderRound2(wrap, s);
+    renderRound2(gameBoard, s);
   }
 }
 
-function renderRound1(wrap, s) {
+function renderRound1(gameBoard, s) {
   const card = document.createElement('div');
   card.className = 'card';
 
@@ -125,58 +122,50 @@ function renderRound1(wrap, s) {
     optWrap.appendChild(btn);
   });
   card.appendChild(optWrap);
-  wrap.appendChild(card);
+  gameBoard.appendChild(card);
 }
 
-function renderRound2(wrap, s) {
+function renderRound2(gameBoard, s) {
   const step = currentRound2Step();
   const q = s.round2[step.key];
   if (!q) { renderGameComplete(); return; }
 
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  const stepLabel = document.createElement('div');
-  stepLabel.className = 'card-label';
-  stepLabel.textContent = `Round 2 — Step ${gameState.round2Step + 1}/3: ${step.label}`;
-  card.appendChild(stepLabel);
-
-  const qText = document.createElement('p');
-  qText.className = 'question-stem';
-  qText.innerHTML = expandAbbr(q.question);
-  card.appendChild(qText);
-
-  const optWrap = document.createElement('div');
-  optWrap.className = 'answer-opts';
   gameState.selectedOpts = new Set();
-  const btnTemplate = document.createElement('button');
-  btnTemplate.className = 'answer-btn';
-  q.options.forEach((opt) => {
-    const btn = btnTemplate.cloneNode(false);
-    btn.textContent = opt;
-    optWrap.appendChild(btn);
-  });
-  card.appendChild(optWrap);
-
-  if (isMultiSelect(q)) {
-    const submitBtn = document.createElement('button');
-    submitBtn.className = 'primary submit-gap';
-    submitBtn.id = 'game-submit';
-    submitBtn.textContent = 'Check Answer';
-    card.appendChild(submitBtn);
-  }
-
-  wrap.appendChild(card);
-  updateScoreDisplay(wrap);
+  gameBoard.appendChild(newEl('div', {
+    className: 'card',
+    children: [
+      newEl('div', {
+        className: 'card-label',
+        textContent: `Round 2 — Step ${gameState.round2Step + 1}/3: ${step.label}`
+      }),
+      newEl('p', {
+        className: 'question-stem',
+        innerHTML: expandAbbr(q.question)
+      }),
+      newEl('div', {
+        className: 'answer-opts',
+        children: q.options.map(opt => newEl('button', {
+          className: 'answer-btn',
+          textContent: opt
+        }))
+      }),
+      isMultiSelect(q) ? newEl('button', {
+        className: 'primary submit-gap',
+        id: 'game-submit',
+        textContent: 'Check Answer'
+      }) : ''
+    ]
+  }));
+  updateScoreDisplay(gameBoard);
 }
 
-function handleGameAnswer(wrap, btn) {
+function handleGameAnswer(gameBoard, btn) {
   if (gameState.isAnswered) return;
   if (btn.disabled) return;
 
   const s = scenarios[gameState.scenarioIdx];
   if (gameState.round === 1) {
-    gradeAnswer(wrap, btn, s.correctPattern, s.explanation);
+    gradeAnswer(gameBoard, btn, s.correctPattern, s.explanation);
     return;
   }
   const q = s.round2[currentRound2Step().key];
@@ -184,10 +173,10 @@ function handleGameAnswer(wrap, btn) {
     toggleSelection(btn, gameState.selectedOpts);
     return;
   }
-  gradeAnswer(wrap, btn, q.correct, q.explanation);
+  gradeAnswer(gameBoard, btn, q.correct, q.explanation);
 }
 
-function gradeAnswer(wrap, btn, correct, explanation) {
+function gradeAnswer(gameBoard, btn, correct, explanation) {
   gameState.isAnswered = true;
   gameState.score.total++;
   const chosen = btn.textContent;
@@ -209,11 +198,11 @@ function gradeAnswer(wrap, btn, correct, explanation) {
     + expandAbbr(explanation);
   card.appendChild(fb);
 
-  updateScoreDisplay(wrap);
+  updateScoreDisplay(gameBoard);
   appendNextButton(card);
 }
 
-function handleMultiSelectSubmit(wrap, question) {
+function handleMultiSelectSubmit(gameBoard, question) {
   gameState.isAnswered = true;
   gameState.score.total++;
   const sel = gameState.selectedOpts;
@@ -221,7 +210,7 @@ function handleMultiSelectSubmit(wrap, question) {
   const isCorrect = isMultiSelectionCorrect(correctSet, sel);
   if (isCorrect) gameState.score.correct++;
 
-  const optWrap = wrap.querySelector('.answer-opts');
+  const optWrap = gameBoard.querySelector('.answer-opts');
   for (const b of optWrap.children) {
     if (correctSet.has(b.textContent)) {
       b.classList.add('correct');
@@ -240,12 +229,12 @@ function handleMultiSelectSubmit(wrap, question) {
     + expandAbbr(question.explanation);
   card.appendChild(fb);
 
-  updateScoreDisplay(wrap);
+  updateScoreDisplay(gameBoard);
   appendNextButton(card);
 }
 
 function renderGameComplete() {
-  gameWrap.innerHTML = `<div class="callout">
+  gameBoard.innerHTML = `<div class="callout">
     <strong>Game complete.</strong>
     ${scoreText()}.
     <div class="btn-row">
@@ -262,8 +251,8 @@ function appendNextButton(card) {
   card.appendChild(btnRow);
 }
 
-function updateScoreDisplay(wrap) {
-  const scoreEl = wrap.querySelector('.score-display');
+function updateScoreDisplay(gameBoard) {
+  const scoreEl = gameBoard.querySelector('.score-display');
   if (scoreEl) scoreEl.textContent = scoreText();
 }
 
@@ -278,9 +267,7 @@ function toggleSelection(btn, selected) {
   }
 }
 
-function isMultiSelect(q) {
-  return Array.isArray(q.correct);
-}
+const isMultiSelect = q => Array.isArray(q.correct);
 
 const isMultiSelectionCorrect = (correctSet, selected) =>
   selected.size === correctSet.size
@@ -288,6 +275,9 @@ const isMultiSelectionCorrect = (correctSet, selected) =>
 
 const scoreText = () =>
   `Score: ${gameState.score.correct} / ${gameState.score.total}`;
+
+const scenarioHeaderText = () => `Scenario ${gameState.scenarioIdx + 1}`
+  + ` of ${scenarios.length} — Round ${gameState.round}`;
 
 const currentRound2Step = () => ROUND2_STEPS[gameState.round2Step];
 
