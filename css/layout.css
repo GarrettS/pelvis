@@ -244,6 +244,16 @@ tr:last-child td {
   display: none;
 }
 
+.card-label,
+.control-label,
+.mono-label,
+.detail-label,
+.table-row-card .trc-label {
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+}
+
 @media (max-width: 600px) {
 
   .table-card-mobile table {
@@ -267,9 +277,6 @@ tr:last-child td {
   }
 
   .table-row-card .trc-label {
-    font-family: var(--mono);
-    font-size: var(--text-xs);
-    color: var(--text-dim);
     text-transform: uppercase;
   }
 
@@ -358,19 +365,20 @@ p:last-child {
   to { opacity: 1; }
 }
 
-.card {
+.card,
+.detail-panel {
   background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: .5rem;
   padding: 1.25rem;
-  margin-bottom: 1.25rem;
   box-shadow: var(--box-shadow-sm);
 }
 
+.card {
+  margin-bottom: 1.25rem;
+}
+
 .card-label {
-  font-family: var(--mono);
-  font-size: var(--text-xs);
-  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: .07em;
   margin-bottom: .4rem;
@@ -463,14 +471,6 @@ button.warn:hover {
   margin-bottom: .75rem;
 }
 
-.detail-panel {
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  border-radius: .5rem;
-  padding: 1.25rem;
-  box-shadow: var(--box-shadow-sm);
-}
-
 .detail-panel h3 {
   font-family: var(--mono);
   font-size: var(--text-base);
@@ -488,9 +488,6 @@ button.warn:hover {
 }
 
 .detail-label {
-  font-family: var(--mono);
-  font-size: var(--text-xs);
-  color: var(--text-dim);
   font-weight: 600;
   min-width: 140px;
 }
@@ -570,9 +567,6 @@ html.is-column-resizing * {
 }
 
 .control-label {
-  font-family: var(--mono);
-  font-size: var(--text-xs);
-  color: var(--text-dim);
   text-transform: uppercase;
 }
 
@@ -621,9 +615,6 @@ html.is-column-resizing * {
 }
 
 .mono-label {
-  font-family: var(--mono);
-  font-size: var(--text-xs);
-  color: var(--text-dim);
   margin-bottom: .35rem;
 }
 
