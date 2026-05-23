@@ -23,7 +23,7 @@ function buildJointsView(joints) {
 
     const row = rowTpl.cloneNode(true);
     const cells = row.querySelector('tr').cells;
-    cells[0].firstElementChild.textContent = j.joint;
+    cells[0].textContent = j.joint;
     cells[1].textContent = j.type;
     cells[2].textContent = j.motion;
     cells[3].innerHTML = expandAbbr(j.positions);

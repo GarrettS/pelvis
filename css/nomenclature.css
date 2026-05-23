@@ -84,17 +84,22 @@
   margin: 1rem 0;
 }
 
-.joint-table th {
-  white-space: nowrap;
-}
-
 .joint-table td {
   font-size: var(--text-xs);
 }
 
-.joint-table td:first-child {
-  font-weight: 700;
+.joint-table > tbody > tr > th {
+  font-family: inherit;
   font-size: var(--text-sm);
+  color: inherit;
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+
+.joint-table > tbody > tr:last-child > th {
+  border-bottom: none;
 }
 
 .joint-table .mono {
