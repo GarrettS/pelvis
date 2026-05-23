@@ -259,10 +259,6 @@ tr:last-child td {
   margin-bottom: .35rem;
 }
 
-.text-dim {
-  color: var(--text-dim);
-}
-
 .mono {
   font-family: var(--mono);
 }
@@ -270,6 +266,7 @@ tr:last-child td {
 .instruction-text {
   font-size: var(--text-sm);
   margin-bottom: .75rem;
+  color: var(--text-dim);
 }
 
 p {

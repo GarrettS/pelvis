@@ -360,3 +360,7 @@
     align-items: stretch;
   }
 }
+
+.mq-equiv-inverse {
+  color: var(--text-dim);
+}

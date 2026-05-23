@@ -131,6 +131,11 @@
 .joint-schematic-caption {
   font-size: var(--text-sm);
   margin-top: .25rem;
+  color: var(--text-dim);
+}
+
+.nomenclature-note {
+  color: var(--text-dim);
 }
 
 .acronym-table {

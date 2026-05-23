@@ -259,7 +259,7 @@ function renderEquivChain(q) {
       newEl('div', {className: 'mono-label', textContent: 'EQUIVALENCE CHAIN'}),
       newEl('div', {className: 'equiv-line main', children: main}),
       newEl('div', {className: 'equiv-line', children: [
-        newEl('span', {className: 'text-dim',
+        newEl('span', {className: 'mq-equiv-inverse',
           children: ['Inverse: ', ...inverse]})
       ]}),
       newEl('label', {className: 'mq-pin-label', children: [
