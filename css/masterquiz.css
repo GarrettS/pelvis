@@ -19,6 +19,10 @@
   #mq-correct-section { display: none; }
 }
 
+.mq-results-actions {
+  margin-top: 1.5rem;
+}
+
 .mq-domain-filters {
   display: flex;
   flex-wrap: wrap;

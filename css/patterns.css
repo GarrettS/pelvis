@@ -134,6 +134,18 @@
   padding: 1.25rem;
 }
 
+.pattern-reference-callout {
+  margin-top: 1rem;
+}
+
+.pattern-reference-quiz-title {
+  margin-top: 1.5rem;
+}
+
+.pattern-reference-quiz-title-first {
+  margin-top: 2rem;
+}
+
 .quiz-level-badge {
   font-family: var(--mono);
   font-weight: 700;
