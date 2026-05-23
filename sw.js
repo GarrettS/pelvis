@@ -8,6 +8,7 @@ const PRECACHE_URLS = [
   './',
   './index.html',
   './css/layout.css',
+  './css/quiz-form.css',
   './css/aic-chain.css',
   './css/anatomize.css',
   './css/decoder.css',
