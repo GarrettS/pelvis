@@ -1,3 +1,5 @@
+// Architecture: prd/architecture/abbr-popover.md
+
 const ABBR_SELECTOR = 'abbr[data-title]';
 
 function initAbbrPopover() {
@@ -28,22 +30,23 @@ function initAbbrPopover() {
     activeAbbr = null;
   });
 
+  const hidePopover = e =>
+      e.target === activeAbbr
+      && e.relatedTarget !== popover
+      && popover.hidePopover();
+
   main.addEventListener('focusin', e =>
       e.target !== activeAbbr
       && e.target.matches(ABBR_SELECTOR)
       && showForAbbr(e.target));
-  main.addEventListener('focusout', e =>
-      e.target === activeAbbr && popover.hidePopover());
+  main.addEventListener('focusout', hidePopover);
 
   if (matchMedia('(hover: hover)').matches) {
     main.addEventListener('mouseover', e =>
         e.target !== activeAbbr
         && e.target.matches(ABBR_SELECTOR)
         && showForAbbr(e.target));
-    main.addEventListener('mouseout', e =>
-        e.target === activeAbbr
-        && e.relatedTarget !== popover
-        && popover.hidePopover());
+    main.addEventListener('mouseout', hidePopover);
     popover.addEventListener('mouseleave', e =>
         e.relatedTarget !== activeAbbr && popover.hidePopover());
   }
