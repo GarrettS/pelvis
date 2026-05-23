@@ -2,6 +2,7 @@ import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
 import {newEl} from './el-create.js';
+import {testProfileEl} from './test-profile.js';
 
 const ROUND2_STEPS = [
   { key: 'repositioning',  label: 'Repositioning' },
@@ -10,7 +11,6 @@ const ROUND2_STEPS = [
 ];
 
 const PATTERNS = ['Left AIC', 'Bilateral PEC', 'Bilateral Patho PEC'];
-const ITEM_CLASS = { '+': 'positive', '−': 'negative' };
 const OPTIONS_ID = 'game-options';
 
 let scenarios = [];
@@ -68,22 +68,6 @@ function advanceGame() {
   }
   renderScenario();
 }
-
-const testItemEl = ([name, val]) => newEl('div', {
-  className: 'test-item',
-  children: [
-    newEl('div', {className: 'test-item-name', innerHTML: expandAbbr(name)}),
-    newEl('div', {
-      className: 'test-item-val ' + (ITEM_CLASS[val[0]] || ''),
-      innerHTML: expandAbbr(val)
-    })
-  ]
-});
-
-const testProfileEl = profile => newEl('div', {
-  className: 'test-profile',
-  children: Object.entries(profile).map(testItemEl)
-});
 
 const renderScenario = () => gameBoard.replaceChildren(
     newEl('div', {className: 'scenario-header', textContent: scenarioHeaderText()}),
