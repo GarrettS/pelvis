@@ -83,6 +83,7 @@ Fix anything found in steps 2–4 before proceeding. Do not commit until all ste
 - Never assert findings from project knowledge or memory without verifying against the current codebase.
 - If the same fix has failed twice, stop and reassess the approach before trying a third time.
 - **Fail-safe self-review**: for every `catch` block and error path in the diff, answer: *what does the user see?* If the answer is "nothing" — the code returns null, logs to console, or swallows the error — it is not handled. Passing the letter of the rule while violating the principle is not passing.
+- **Favor reusable tests over ad-hoc `/tmp` throwaways.** When a change needs browser-driven proof, prefer a persistent test under `e2e/` following the conventions in `e2e/navigation-tabs-activation.mjs` (Playwright, `BASE` env var, `ok(name, pass, detail)` results collector, `process.exit` on failure). Wire it into the `test:e2e` script in `package.json` so the same check that proves the change works also becomes the regression guard later. A one-off throwaway is acceptable when turning it into a reusable test would burden the project more than benefit it — e.g. probing a single computed style during exploration, or a check that depends on transient debug state — but the default is reusable.
 
 ## Agent Handoff
 

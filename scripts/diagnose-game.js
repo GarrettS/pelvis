@@ -9,6 +9,10 @@ const ROUND2_STEPS = [
   { key: 'facilitation',   label: 'Facilitation' }
 ];
 
+const PATTERNS = ['Left AIC', 'Bilateral PEC', 'Bilateral Patho PEC'];
+const ITEM_CLASS = { '+': 'positive', '−': 'negative' };
+const OPTIONS_ID = 'game-options';
+
 let scenarios = [];
 let gameState = {
   scenarioIdx: 0,
@@ -21,24 +25,27 @@ let gameState = {
 const containerEl = document.getElementById('diagnose-game-content');
 const gameBoard = document.getElementById('game-board');
 
-gameBoard.addEventListener('click', handleClick);
+const handleSubmit = e => {
+  e.preventDefault();
+  if (gameState.isAnswered) return;
+  const s = scenarios[gameState.scenarioIdx];
+  const q = s.round2[currentRound2Step().key];
+  handleMultiSelectSubmit(q, e.submitter);
+};
 
-function handleClick(e) {
-  const answerBtn = e.target.closest('.answer-btn');
-  if (answerBtn) {
-    handleGameAnswer(gameBoard, answerBtn);
-    return;
-  }
-  GAME_DISPATCH[e.target.id]?.();
-}
+gameBoard.addEventListener('click', ({target}) =>
+  target.matches('.answer-btn')
+    ? handleGameAnswer(target)
+    : GAME_DISPATCH[target.id]?.());
+gameBoard.addEventListener('submit', handleSubmit);
 
 function resetGame() {
   gameState = {
     scenarioIdx: 0, round: 1, round2Step: 0,
     score: { correct: 0, total: 0 },
-    isAnswered: false, selectedOpts: new Set()
+    isAnswered: false
   };
-  renderScenario(gameBoard);
+  renderScenario();
 }
 
 function advanceGame() {
@@ -59,79 +66,52 @@ function advanceGame() {
     renderGameComplete();
     return;
   }
-  renderScenario(gameBoard);
+  renderScenario();
 }
 
-function handleGameSubmit() {
-  if (gameState.isAnswered) return;
-
-  const s = scenarios[gameState.scenarioIdx];
-  const q = s.round2[currentRound2Step().key];
-  handleMultiSelectSubmit(gameBoard, q);
-}
-
-function renderScenario(gameBoard) {
-  const s = scenarios[gameState.scenarioIdx];
-  gameBoard.innerHTML = '';
-  gameBoard.append(
+const testItemEl = ([name, val]) => newEl('div', {
+  className: 'test-item',
+  children: [
+    newEl('div', {className: 'test-item-name', innerHTML: expandAbbr(name)}),
     newEl('div', {
-      className: 'scenario-header',
-      textContent: scenarioHeaderText()
-    }),
-    newEl('div', {className: 'score-display', textContent: scoreText()})
+      className: 'test-item-val ' + (ITEM_CLASS[val[0]] || ''),
+      innerHTML: expandAbbr(val)
+    })
+  ]
+});
+
+const testProfileEl = profile => newEl('div', {
+  className: 'test-profile',
+  children: Object.entries(profile).map(testItemEl)
+});
+
+const renderScenario = () => gameBoard.replaceChildren(
+    newEl('div', {className: 'scenario-header', textContent: scenarioHeaderText()}),
+    newEl('div', {className: 'score-display', textContent: scoreText()}),
+    (gameState.round === 1 ? renderRound1 : renderRound2)(scenarios[gameState.scenarioIdx])
   );
 
-  if (gameState.round === 1) {
-    renderRound1(gameBoard, s);
-  } else {
-    renderRound2(gameBoard, s);
-  }
-}
+const renderRound1 = s => newEl('div', {
+  className: 'card',
+  children: [
+    newEl('div', {className: 'card-label', textContent: 'Test Profile'}),
+    testProfileEl(s.testProfile),
+    newEl('fieldset', {
+      className: 'answer-opts',
+      children: PATTERNS.map(p => newEl('button', {
+        type: 'button',
+        className: 'answer-btn',
+        textContent: p,
+        attrs: p === s.correctPattern ? {'data-correct': ''} : {}
+      }))
+    })
+  ]
+});
 
-function renderRound1(gameBoard, s) {
-  const card = document.createElement('div');
-  card.className = 'card';
-
-  const itemClass = { '+': 'positive', '−': 'negative' };
-  let profileHTML = '<div class="card-label">'
-    + 'Test Profile</div><div class="test-profile">';
-  Object.entries(s.testProfile).forEach(
-    ([test, val]) => {
-      const cls = itemClass[val[0]] || '';
-      profileHTML += '<div class="test-item">'
-        + '<div class="test-item-name">'
-        + expandAbbr(test) + '</div>'
-        + '<div class="test-item-val ' + cls + '">'
-        + expandAbbr(val) + '</div></div>';
-    }
-  );
-  profileHTML += '</div>';
-  card.innerHTML = profileHTML;
-
-  const patterns = [
-    'Left AIC', 'Bilateral PEC',
-    'Bilateral Patho PEC'
-  ];
-  const optWrap = document.createElement('div');
-  optWrap.className = 'answer-opts';
-  const btnTemplate = document.createElement('button');
-  btnTemplate.className = 'answer-btn';
-  patterns.forEach((p) => {
-    const btn = btnTemplate.cloneNode(false);
-    btn.textContent = p;
-    optWrap.appendChild(btn);
-  });
-  card.appendChild(optWrap);
-  gameBoard.appendChild(card);
-}
-
-function renderRound2(gameBoard, s) {
+const renderRound2 = s => {
   const step = currentRound2Step();
   const q = s.round2[step.key];
-  if (!q) { renderGameComplete(); return; }
-
-  gameState.selectedOpts = new Set();
-  gameBoard.appendChild(newEl('div', {
+  return newEl('div', {
     className: 'card',
     children: [
       newEl('div', {
@@ -142,136 +122,124 @@ function renderRound2(gameBoard, s) {
         className: 'question-stem',
         innerHTML: expandAbbr(q.question)
       }),
-      newEl('div', {
-        className: 'answer-opts',
-        children: q.options.map(opt => newEl('button', {
-          className: 'answer-btn',
-          textContent: opt
-        }))
-      }),
-      isMultiSelect(q) ? newEl('button', {
-        className: 'primary submit-gap',
-        id: 'game-submit',
-        textContent: 'Check Answer'
-      }) : ''
+      isMultiSelect(q) ? renderMultiSelectForm(q) : renderSingleSelectOpts(q)
     ]
-  }));
-  updateScoreDisplay(gameBoard);
-}
+  });
+};
 
-function handleGameAnswer(gameBoard, btn) {
+const renderSingleSelectOpts = q => newEl('fieldset', {
+  className: 'answer-opts',
+  children: q.options.map(opt => newEl('button', {
+    type: 'button',
+    className: 'answer-btn',
+    textContent: opt,
+    attrs: opt === q.correct ? {'data-correct': ''} : {}
+  }))
+});
+
+const renderMultiSelectForm = q => newEl('form', {
+  children: [
+    newEl('fieldset', {
+      id: OPTIONS_ID,
+      className: 'answer-opts',
+      children: q.options.map(opt => newEl('label', {
+        className: 'option-row',
+        children: [
+          newEl('input', {
+            type: 'checkbox',
+            value: opt,
+            attrs: q.correct.includes(opt) ? {'data-correct': ''} : {}
+          }),
+          newEl('span', {textContent: opt})
+        ]
+      }))
+    }),
+    newEl('button', {
+      type: 'submit',
+      className: 'primary submit-gap',
+      textContent: 'Check Answer'
+    })
+  ]
+});
+
+function handleGameAnswer(btn) {
   if (gameState.isAnswered) return;
-  if (btn.disabled) return;
-
   const s = scenarios[gameState.scenarioIdx];
-  if (gameState.round === 1) {
-    gradeAnswer(gameBoard, btn, s.correctPattern, s.explanation);
-    return;
-  }
-  const q = s.round2[currentRound2Step().key];
-  if (isMultiSelect(q)) {
-    toggleSelection(btn, gameState.selectedOpts);
-    return;
-  }
-  gradeAnswer(gameBoard, btn, q.correct, q.explanation);
+  const explanation = gameState.round === 1
+    ? s.explanation
+    : s.round2[currentRound2Step().key].explanation;
+  gradeAnswer(btn, explanation);
 }
 
-function gradeAnswer(gameBoard, btn, correct, explanation) {
+function gradeAnswer(btn, explanation) {
+  const isCorrect = btn.hasAttribute('data-correct');
   gameState.isAnswered = true;
   gameState.score.total++;
-  const chosen = btn.textContent;
-  const isCorrect = chosen === correct;
   if (isCorrect) gameState.score.correct++;
 
-  const optWrap = btn.closest('.answer-opts');
-  for (const b of optWrap.children) {
-    if (b.textContent === correct) b.classList.add('correct');
-    else if (b === btn && !isCorrect) b.classList.add('incorrect');
-    b.disabled = true;
-  }
+  btn.dataset.picked = '';
+  const fieldset = btn.closest('.answer-opts');
+  fieldset.dataset.answered = fieldset.disabled = true;
 
-  const card = btn.closest('.card');
-  const fb = document.createElement('div');
-  fb.className = 'feedback-box' + (isCorrect ? '' : ' error');
-  const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
-  fb.innerHTML = '<strong>' + verdict + '</strong> '
-    + expandAbbr(explanation);
-  card.appendChild(fb);
-
-  updateScoreDisplay(gameBoard);
-  appendNextButton(card);
+  btn.closest('.card').append(feedbackBox(isCorrect, explanation), nextButtonRow());
+  updateScoreDisplay();
 }
 
-function handleMultiSelectSubmit(gameBoard, question) {
+function handleMultiSelectSubmit(question, submitBtn) {
+  const fieldset = document.getElementById(OPTIONS_ID);
+  const isCorrect = !fieldset.querySelector(
+    'input[data-correct]:not(:checked), input:checked:not([data-correct])'
+  );
+
   gameState.isAnswered = true;
   gameState.score.total++;
-  const sel = gameState.selectedOpts;
-  const correctSet = new Set(question.correct);
-  const isCorrect = isMultiSelectionCorrect(correctSet, sel);
   if (isCorrect) gameState.score.correct++;
 
-  const optWrap = gameBoard.querySelector('.answer-opts');
-  for (const b of optWrap.children) {
-    if (correctSet.has(b.textContent)) {
-      b.classList.add('correct');
-    } else if (sel.has(b.textContent)) {
-      b.classList.add('incorrect');
-    }
-    b.disabled = true;
-  }
+  fieldset.dataset.answered = fieldset.disabled = true;
+  submitBtn.hidden = true;
 
-  const card = optWrap.closest('.card');
-  const fb = document.createElement('div');
-  fb.className = 'feedback-box'
-    + (isCorrect ? '' : ' error');
-  const verdict = isCorrect ? 'Correct.' : 'Incorrect.';
-  fb.innerHTML = '<strong>' + verdict + '</strong> '
-    + expandAbbr(question.explanation);
-  card.appendChild(fb);
-
-  updateScoreDisplay(gameBoard);
-  appendNextButton(card);
+  fieldset.closest('.card')
+    .append(feedbackBox(isCorrect, question.explanation), nextButtonRow());
+  updateScoreDisplay();
 }
 
-function renderGameComplete() {
-  gameBoard.innerHTML = `<div class="callout">
-    <strong>Game complete.</strong>
-    ${scoreText()}.
-    <div class="btn-row">
-      <button class="primary"
-        id="game-restart">Restart</button>
-    </div></div>`;
-}
+const renderGameComplete = () => gameBoard.replaceChildren(newEl('div', {
+  className: 'callout',
+  children: [
+    newEl('strong', {textContent: 'Game complete.'}),
+    ` ${scoreText()}.`,
+    newEl('div', {
+      className: 'btn-row',
+      children: [newEl('button', {
+        type: 'button',
+        className: 'primary',
+        id: 'game-restart',
+        textContent: 'Restart'
+      })]
+    })
+  ]
+}));
 
-function appendNextButton(card) {
-  const btnRow = document.createElement('div');
-  btnRow.className = 'btn-row';
-  btnRow.innerHTML = '<button class="primary"'
-    + ' id="game-next">Next →</button>';
-  card.appendChild(btnRow);
-}
+const feedbackBox = (isCorrect, explanation) => newEl('div', {
+  className: 'feedback-box' + (isCorrect ? '' : ' error'),
+  innerHTML: '<strong>' + (isCorrect ? 'Correct.' : 'Incorrect.')
+    + '</strong> ' + expandAbbr(explanation)
+});
 
-function updateScoreDisplay(gameBoard) {
-  const scoreEl = gameBoard.querySelector('.score-display');
-  if (scoreEl) scoreEl.textContent = scoreText();
-}
+const nextButtonRow = () => newEl('div', {
+  className: 'btn-row',
+  children: [newEl('button', {
+    type: 'button',
+    className: 'primary',
+    id: 'game-next',
+    textContent: 'Next →'
+  })]
+});
 
-function toggleSelection(btn, selected) {
-  const chosen = btn.textContent;
-  if (selected.has(chosen)) {
-    selected.delete(chosen);
-    btn.classList.remove('selectedOpt');
-  } else {
-    selected.add(chosen);
-    btn.classList.add('selectedOpt');
-  }
-}
+const updateScoreDisplay = () =>
+  gameBoard.querySelector('.score-display').textContent = scoreText();
 
 const isMultiSelect = q => Array.isArray(q.correct);
-
-const isMultiSelectionCorrect = (correctSet, selected) =>
-  selected.size === correctSet.size
-  && selected.isSubsetOf(correctSet);
 
 const scoreText = () =>
   `Score: ${gameState.score.correct} / ${gameState.score.total}`;
@@ -283,8 +251,7 @@ const currentRound2Step = () => ROUND2_STEPS[gameState.round2Step];
 
 const GAME_DISPATCH = {
   'game-restart': resetGame,
-  'game-next': advanceGame,
-  'game-submit': handleGameSubmit
+  'game-next': advanceGame
 };
 
 await attemptLoad({

@@ -758,9 +758,13 @@ html.is-column-resizing * {
   flex-direction: column;
   gap: .5rem;
   margin: 1rem 0;
+  border: 0;
+  padding: 0;
+  min-width: 0;
 }
 
-.answer-btn {
+.answer-btn,
+.option-row {
   font-family: var(--mono);
   font-size: var(--text-sm);
   background: var(--panel-bg);
@@ -774,32 +778,66 @@ html.is-column-resizing * {
   transition: all var(--dur-fast);
 }
 
-.answer-btn:hover {
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.option-row input[type="checkbox"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.answer-btn:hover,
+fieldset.answer-opts:not(:disabled) .option-row:hover,
+.option-row:has(input:checked) {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.answer-btn.correct {
+.option-row:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.answer-btn.correct,
+fieldset.answer-opts[data-answered] .answer-btn[data-correct],
+fieldset.answer-opts[data-answered] .option-row:has(input[data-correct]) {
   background: var(--correct-bg);
   border-color: var(--correct-border);
   color: var(--correct);
 }
 
-.answer-btn.correct::before {
+.answer-btn.correct::before,
+fieldset.answer-opts[data-answered] .answer-btn[data-correct]::before,
+fieldset.answer-opts[data-answered] .option-row:has(input[data-correct])::before {
   content: '\2713\a0';
 }
 
-.answer-btn.incorrect {
+.answer-btn.incorrect,
+fieldset.answer-opts[data-answered] .answer-btn[data-picked]:not([data-correct]),
+fieldset.answer-opts[data-answered] .option-row:has(input:checked:not([data-correct])) {
   background: var(--error-bg);
   border-color: var(--error-border);
   color: var(--error);
 }
 
-.answer-btn.incorrect::before {
+.answer-btn.incorrect::before,
+fieldset.answer-opts[data-answered] .answer-btn[data-picked]:not([data-correct])::before,
+fieldset.answer-opts[data-answered] .option-row:has(input:checked:not([data-correct]))::before {
   content: '\2717\a0';
 }
 
-.answered .answer-btn {
+.answered .answer-btn,
+fieldset.answer-opts:disabled .answer-btn,
+fieldset.answer-opts:disabled .option-row {
   pointer-events: none;
 }
 
