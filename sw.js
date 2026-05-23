@@ -52,6 +52,7 @@ const PRECACHE_URLS = [
   './scripts/shuffle.js',
   './scripts/el-create.js',
   './scripts/test-profile.js',
+  './scripts/quiz-form.js',
   './scripts/select-group.js',
   './scripts/resize-handle.js',
   './scripts/master-quiz-progress.js',

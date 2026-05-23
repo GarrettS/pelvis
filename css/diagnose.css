@@ -242,11 +242,6 @@ html.active-chain-drag * {
   margin-top: .75rem;
 }
 
-.answer-btn.selectedOpt {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
 .submit-gap {
   margin-top: .5rem;
 }
