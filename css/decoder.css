@@ -353,31 +353,23 @@
   display: none;
 }
 
-.pelvis-status-box-inlet {
+.pelvis-status > rect {
   fill: var(--panel-bg);
-  stroke: var(--inlet);
   stroke-width: 1.5;
 }
 
-.pelvis-status-box-outlet {
-  fill: var(--panel-bg);
-  stroke: var(--outlet);
-  stroke-width: 1.5;
-}
+.pelvis-status-inlet > rect { stroke: var(--inlet); }
+.pelvis-status-outlet > rect { stroke: var(--outlet); }
 
-.pelvis-status-inlet {
+#pelvis-inlet-status,
+#pelvis-outlet-status {
   font-family: var(--mono);
   font-size: var(--pelvis-status);
-  fill: var(--inlet);
   font-weight: 700;
 }
 
-.pelvis-status-outlet {
-  font-family: var(--mono);
-  font-size: var(--pelvis-status);
-  fill: var(--outlet);
-  font-weight: 700;
-}
+#pelvis-inlet-status { fill: var(--inlet); }
+#pelvis-outlet-status { fill: var(--outlet); }
 
 .pelvis-status-sublabel {
   font-family: var(--mono);
@@ -385,7 +377,7 @@
   fill: var(--text-dim);
 }
 
-.pelvis-status-floor {
+#pelvis-floor-status {
   font-family: var(--mono);
   font-size: var(--pelvis-sublabel);
   fill: var(--text-dim);
