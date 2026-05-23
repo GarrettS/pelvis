@@ -175,3 +175,9 @@
     font-size: var(--text-sm);
   }
 }
+
+.pri-term {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--accent);
+}

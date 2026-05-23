@@ -177,37 +177,6 @@ section.content {
   padding-left: .5rem;
 }
 
-.subview-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .4rem;
-  margin-bottom: 1rem;
-}
-
-.subview-tab {
-  font-family: var(--mono);
-  font-size: var(--text-xs);
-  background: var(--panel-bg-sunken);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: .4rem .8rem;
-  border-radius: .25rem;
-  cursor: pointer;
-  transition: all var(--dur-fast);
-}
-
-.subview-tab[aria-current] {
-  background: var(--accent-bg);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
-  gap: 1rem;
-}
-
 .table-wrap {
   overflow-x: auto;
 }
@@ -241,7 +210,6 @@ tr:last-child td {
 }
 
 .card-label,
-.control-label,
 .mono-label,
 .detail-label {
   font-family: var(--mono);
@@ -253,34 +221,8 @@ tr:last-child td {
   color: var(--text-dim);
 }
 
-.text-accent {
-  color: var(--accent);
-}
-
-.text-warn {
-  color: var(--warn);
-}
-
-
-.text-inlet {
-  color: var(--inlet);
-}
-
-.text-outlet {
-  color: var(--outlet);
-}
-
-.text-correct {
-  color: var(--correct);
-}
-
-
 .mono {
   font-family: var(--mono);
-}
-
-.bold {
-  font-weight: 700;
 }
 
 p {
@@ -417,12 +359,6 @@ button.warn:hover {
   color: var(--bg);
 }
 
-.control-btns > button[aria-current] {
-  background: var(--accent);
-  color: var(--bg);
-  border-color: var(--accent);
-}
-
 .btn-row {
   display: flex;
   flex-wrap: wrap;
@@ -524,22 +460,6 @@ html.is-column-resizing * {
   user-select: none;
 }
 
-.control-group {
-  display: flex;
-  flex-direction: column;
-  gap: .35rem;
-}
-
-.control-label {
-  text-transform: uppercase;
-}
-
-.control-btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .35rem;
-}
-
 .search-wrap {
   margin-bottom: 1rem;
 }
@@ -564,24 +484,11 @@ html.is-column-resizing * {
   width: 4rem;
 }
 
-.placeholder-text {
-  color: var(--text-dim);
-}
-
 .instruction-text {
   font-size: var(--text-sm);
   margin-bottom: .75rem;
 }
 
-.instruction-text-lg {
-  font-size: var(--text-sm);
-  margin-bottom: 1rem;
-}
-
 .mono-label {
   margin-bottom: .35rem;
-}
-
-.mono-inverse {
-  font-size: var(--text-sm);
 }

@@ -182,3 +182,19 @@
   border: 0;
   min-inline-size: 0;
 }
+
+#cheat-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.finding-positive {
+  font-weight: 700;
+  color: var(--warn);
+}
+
+.finding-negative {
+  font-weight: 700;
+  color: var(--correct);
+}

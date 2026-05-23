@@ -365,7 +365,7 @@
 
 <template id="joint-card-tpl">
   <div class="table-row-card">
-    <div class="trc-field"><span class="trc-label">Joint</span><span class="trc-val bold"></span></div>
+    <div class="trc-field"><span class="trc-label">Joint</span><strong class="trc-val"></strong></div>
     <div class="trc-field"><span class="trc-label">Type</span><span class="trc-val"></span></div>
     <div class="trc-field"><span class="trc-label">Motion</span><span class="trc-val"></span></div>
     <div class="trc-field"><span class="trc-label">PRI Positions</span><span class="trc-val mono"></span></div>
@@ -375,7 +375,7 @@
 
 <template id="translation-row-tpl">
   <tr>
-    <td class="mono bold text-accent"></td>
+    <td class="pri-term"></td>
     <td></td>
     <td class="translation-detail"></td>
     <td class="translation-detail"></td>
@@ -386,7 +386,7 @@
 
 <template id="translation-card-tpl">
   <div class="table-row-card">
-    <div class="trc-field"><span class="trc-label">PRI Term</span><span class="trc-val mono bold text-accent"></span></div>
+    <div class="trc-field"><span class="trc-label">PRI Term</span><span class="trc-val pri-term"></span></div>
     <div class="trc-field"><span class="trc-label">Real Structure</span><span class="trc-val"></span></div>
     <div class="trc-field"><span class="trc-label">What PRI Renamed</span><span class="trc-val"></span></div>
     <div class="trc-field"><span class="trc-label">What Actually Happened</span><span class="trc-val"></span></div>
@@ -400,7 +400,7 @@
   <div class="subtab-content" id="patterns-cheat-sheet-content">
   <div class="tab-section">
     <h2 class="section-title">Pattern Comparison Cheat Sheet</h2>
-    <div class="grid-3" id="cheat-sheet-grid"></div>
+    <div id="cheat-sheet-grid"></div>
     <p id="cheat-legend"><span class="key" id="cheat-legend-swatch"></span> = <span id="cheat-legend-labels"></span> — differentiating tests between patterns.</p>
   </div>
   </div>
@@ -459,9 +459,9 @@
         <tbody>
           <tr><td class="mono"><abbr title="Adduction Drop Test">ADT</abbr></td><td>+ Left only</td><td>+ Bilateral</td><td>+ Bilateral</td></tr>
           <tr><td class="mono"><abbr title="Pelvic Ascension Drop Test">PADT</abbr></td><td>+ Left only</td><td>+ Bilateral</td><td>+ Bilateral</td></tr>
-          <tr><td class="mono"><abbr title="Passive Abduction Raise Test">PART</abbr></td><td>+ Right</td><td class="text-correct bold">− Bilateral</td><td class="text-warn bold">+ Bilateral or unilateral</td></tr>
-          <tr><td class="mono"><abbr title="Standing Reach Test">SRT</abbr></td><td>&gt; 0" (L hip shift)</td><td class="text-correct bold">&gt; 0" (can't touch toes)</td><td class="text-warn bold">= 0" (touches toes)</td></tr>
-          <tr><td class="mono">Squat</td><td>&lt; 3/5</td><td class="text-correct bold">&lt; 3/5</td><td class="text-warn bold">&gt; 3/5</td></tr>
+          <tr><td class="mono"><abbr title="Passive Abduction Raise Test">PART</abbr></td><td>+ Right</td><td class="finding-negative">− Bilateral</td><td class="finding-positive">+ Bilateral or unilateral</td></tr>
+          <tr><td class="mono"><abbr title="Standing Reach Test">SRT</abbr></td><td>&gt; 0" (L hip shift)</td><td class="finding-negative">&gt; 0" (can't touch toes)</td><td class="finding-positive">= 0" (touches toes)</td></tr>
+          <tr><td class="mono">Squat</td><td>&lt; 3/5</td><td class="finding-negative">&lt; 3/5</td><td class="finding-positive">&gt; 3/5</td></tr>
           <tr><td class="mono"><abbr title="Hruska Abduction Lift Test">HALT</abbr></td><td>R 0-4/5</td><td>Low bilaterally</td><td>Low bilaterally</td></tr>
         </tbody>
       </table>
@@ -507,7 +507,7 @@
   <div class="subtab-content" hidden id="diagnose-causal-chains-content">
   <div class="tab-section">
     <h2 class="section-title">Causal Chains</h2>
-    <p class="text-dim instruction-text-lg">Drag (or tap) to reorder the steps in each causal chain. Click "Check" when done.</p>
+    <p class="text-dim instruction-text">Drag (or tap) to reorder the steps in each causal chain. Click "Check" when done.</p>
     <div id="chains-wrap"></div>
   </div>
   </div>
@@ -603,8 +603,8 @@
   </div>
   <div class="equiv-chain equiv-chain-intro">
     <div class="mono-label">Master Rule:</div>
-    <div class="mono bold text-inlet">L IP ER = L IS IR = L IsP IR = L SI IR = L AF ER</div>
-    <div class="mono text-dim mono-inverse">Inverse: L IP IR = L IS ER = L IsP ER = L SI ER = L AF IR</div>
+    <div class="equiv-master">L IP ER = L IS IR = L IsP IR = L SI IR = L AF ER</div>
+    <div class="equiv-inverse">Inverse: L IP IR = L IS ER = L IsP ER = L SI ER = L AF IR</div>
   </div>
   <div class="equiv-session-config">
     <label class="mono-label" for="equiv-count">Questions:</label>

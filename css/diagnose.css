@@ -285,3 +285,28 @@ html.active-chain-drag * {
 .feedback-gap {
   margin-top: .5rem;
 }
+
+.subview-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-bottom: 1rem;
+}
+
+.subview-tab {
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  background: var(--panel-bg-sunken);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: .4rem .8rem;
+  border-radius: .25rem;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.subview-tab[aria-current] {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  color: var(--accent);
+}
