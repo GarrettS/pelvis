@@ -31,13 +31,13 @@
 @property --top-mask-size {
   syntax: "<length>";
   inherits: false;
-  initial-value: 0rem;
+  initial-value: 0px;
 }
 
 @property --bottom-mask-size {
   syntax: "<length>";
   inherits: false;
-  initial-value: 0rem;
+  initial-value: 0px;
 }
 
 @keyframes fade-in-top {
