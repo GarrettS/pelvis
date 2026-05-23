@@ -62,21 +62,9 @@ popover.addEventListener('mouseleave', e =>
     e.relatedTarget !== activeAbbr && popover.hidePopover());
 ```
 
-Heading to the bridge partner suppresses the hide. The cursor can reach the popover, dwell on it, and select the expansion text. Only departing both surfaces closes the popover.
+The cursor can reach the popover, dwell on it, and select the expansion text. Only departing both surfaces closes the popover.
 
-### Anchor flip
-
-`position-try-fallbacks: flip-block` flips the popover below the abbr when there's no room above. A geometric bridge pointing in one direction breaks on flip — and even with the relatedTarget predicate, any pixel-level gap between the two surfaces is a place the cursor can land mid-transit, fire `mouseout` with the wrong `relatedTarget`, and trigger close.
-
-The `::after` pseudo-element is vertically centered on the popover:
-
-```css
-top: 50%;
-height: calc(100% + 1.2em);
-transform: translateY(-50%);
-```
-
-— which extends it .6em past both edges so whichever side faces the abbr always reaches it. No JS direction detection.
+The predicate alone suffices because `position-area: block-start` places the popover flush against the abbr — no gap to land in mid-transit. A subpixel gap in another browser would break this; an anchor-sized `::after` bridge is the documented workaround if it surfaces.
 
 ### Exit animation in the top layer
 

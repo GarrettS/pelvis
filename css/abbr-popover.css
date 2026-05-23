@@ -49,23 +49,6 @@ abbr.abbr-anchored {
   }
 }
 
-#abbr-popover::after {
-  /* Symmetric tether: extends .6em above AND below the popover so the
-   * bridge always reaches the abbr whether anchored block-start or
-   * flipped to block-end. Bridges the gap so cursor can cross from
-   * abbr to popover (and select text) without triggering close. */
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -.2rem;
-  right: -.2rem;
-  height: calc(100% + 1.2em);
-  transform: translateY(-50%);
-  pointer-events: auto;
-  cursor: pointer;
-  z-index: -1;
-}
-
 @supports (anchor-name: --x) {
   #abbr-popover {
     position: fixed;
