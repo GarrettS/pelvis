@@ -404,68 +404,6 @@ button.warn:hover {
   border-top: 1px solid var(--border);
 }
 
-.resize-handle {
-  display: none;
-  align-items: center;
-  align-self: center;
-  justify-content: center;
-  flex: 0 0 8px;
-  cursor: col-resize;
-  user-select: none;
-  border-color: var(--border);
-  border-style: solid;
-  border-width: .08rem;
-  border-radius: calc(.1vw + .1rem);
-}
-
-.resize-grip {
-  width: calc(.17vw + .175rem);
-  height: calc(1vw + 1.2rem);
-  background: var(--border);
-  background-image: repeating-linear-gradient(
-      to bottom,
-      var(--text-dim) 0,
-      var(--text-dim) 1px,
-      transparent 1px,
-      transparent 4px);
-  border-radius: 1px;
-  transition: background var(--dur-fast);
-}
-
-.resize-handle:hover {
-  background: var(--panel-bg-sunken);
-}
-
-.resize-handle:hover .resize-grip {
-  background: var(--text-dim);
-  background-image: repeating-linear-gradient(
-      to bottom,
-      var(--text) 0,
-      var(--text) 1px,
-      transparent 1px,
-      transparent 4px);
-}
-
-.resize-handle.dragging {
-  background: var(--panel-bg-sunken);
-}
-
-.resize-handle.dragging .resize-grip {
-  background: var(--accent);
-  background-image: repeating-linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, .6) 0,
-      rgba(255, 255, 255, .6) 1px,
-      transparent 1px,
-      transparent 4px);
-}
-
-html.is-column-resizing,
-html.is-column-resizing * {
-  cursor: col-resize;
-  user-select: none;
-}
-
 .search-wrap {
   margin-bottom: 1rem;
 }

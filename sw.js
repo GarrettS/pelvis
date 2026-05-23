@@ -2,7 +2,7 @@
  * Root-scoped: browsers restrict SW scope to its directory and below.
  * GitHub Pages does not support Service-Worker-Allowed header.
  */
-const CACHE_VERSION = 'v64';
+const CACHE_VERSION = 'v65';
 
 const PRECACHE_URLS = [
   './',
@@ -11,6 +11,7 @@ const PRECACHE_URLS = [
   './css/layout.css',
   './css/loading.css',
   './css/quiz-form.css',
+  './css/resize-handle.css',
   './css/aic-chain.css',
   './css/anatomize.css',
   './css/decoder.css',
