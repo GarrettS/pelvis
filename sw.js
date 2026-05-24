@@ -75,12 +75,12 @@ const PRECACHE_URLS = [
   './data/diagnose-game-scenarios.json',
   './data/diagnose-muscle-exercise-map.json',
   './data/nomenclature-translations.json',
-  './img/PRI-1-glute-med--glute-max.png',
+  './img/PRI-1-glute-med--glute-max.webp',
   './img/PRI-1-Pelvic-Inlet.png',
-  './img/PRI-1-Pelvic-Outlet.jpg',
-  './img/PRI-1-Pelvic-Outlet2.jpg',
-  './img/PRI-1-Pelvic-Outlet-flipped.jpg',
-  './img/left-aic.png'
+  './img/PRI-1-Pelvic-Outlet.webp',
+  './img/PRI-1-Pelvic-Outlet2.webp',
+  './img/PRI-1-Pelvic-Outlet-flipped.webp',
+  './img/left-aic.webp'
 ];
 
 self.addEventListener('install', function(e) {

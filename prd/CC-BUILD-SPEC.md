@@ -29,7 +29,7 @@ Bottom: rule callout — "Inlet direction matches femur direction. Outlet is alw
 SVG tilt direction: anterior tilt (IP ER) rotates ASIS forward-down (clockwise in lateral view). Posterior tilt (IP IR) rotates ASIS backward-up. Arrow labels must match rotation direction.
 
 ### L AIC Chain
-Reference image (`img/left-aic.png`) showing diaphragm → psoas → iliacus → TFL → vastus lateralis → biceps femoris. Caption: "The Anterior Interior Chain (AIC): diaphragm → psoas → iliacus → TFL → vastus lateralis → biceps femoris. Left side shown."
+Reference image (`img/left-aic.webp`) showing diaphragm → psoas → iliacus → TFL → vastus lateralis → biceps femoris. Caption: "The Anterior Interior Chain (AIC): diaphragm → psoas → iliacus → TFL → vastus lateralis → biceps femoris. Left side shown."
 
 ---
 

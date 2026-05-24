@@ -455,7 +455,7 @@
     "pelvic_outlet": {
       "label": "Outlet Superior",
       "mechanic": "blank_panels",
-      "imageSrc": "img/PRI-1-Pelvic-Outlet2.jpg",
+      "imageSrc": "img/PRI-1-Pelvic-Outlet2.webp",
       "w": 1200,
       "h": 1020,
       "sideLabels": {
@@ -913,7 +913,7 @@
     "pelvic_outlet_inferior": {
       "label": "Outlet Inferior",
       "mechanic": "blank_panels",
-      "imageSrc": "img/PRI-1-Pelvic-Outlet.jpg",
+      "imageSrc": "img/PRI-1-Pelvic-Outlet.webp",
       "w": 1200,
       "h": 1095,
       "sideLabels": {
@@ -925,7 +925,7 @@
     "pelvic_outlet_inferior_flipped": {
       "label": "Outlet Inferior (Flipped)",
       "mechanic": "blank_panels",
-      "imageSrc": "img/PRI-1-Pelvic-Outlet-flipped.jpg",
+      "imageSrc": "img/PRI-1-Pelvic-Outlet-flipped.webp",
       "w": 1200,
       "h": 1095,
       "sideLabels": {
@@ -1239,7 +1239,7 @@
       "label": "Glute Med / Max",
       "mechanic": "blank_panels",
       "theme": "dark",
-      "imageSrc": "img/PRI-1-glute-med--glute-max.png",
+      "imageSrc": "img/PRI-1-glute-med--glute-max.webp",
       "w": 685,
       "h": 602,
       "structures": {

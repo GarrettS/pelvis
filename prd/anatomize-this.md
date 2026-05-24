@@ -35,7 +35,7 @@ Anatomize This! | Pelvis Decoder | L AIC Chain
 
 - **Anatomize This!** replaces the old "1A — Interactive Anatomy Images" subtab. It is the first (default) subtab.
 - **Pelvis Decoder** — unchanged (old 1B).
-- **L AIC Chain** — interactive linked diagram using `img/left-aic.png` (dual anterior/posterior view). Uses the **anterior view only** for interaction. The infopanel displays the chain in sequence with clickable rows. Clicking a muscle name in the infopanel draws a leader line from that row to the muscle's location on the anterior image and highlights both. Clicking a muscle region on the image highlights the corresponding infopanel row and draws the same line. Bidirectional — same anchor-point data, either side triggers. See L AIC Chain Subtab section below for full spec.
+- **L AIC Chain** — interactive linked diagram using `img/left-aic.webp` (dual anterior/posterior view). Uses the **anterior view only** for interaction. The infopanel displays the chain in sequence with clickable rows. Clicking a muscle name in the infopanel draws a leader line from that row to the muscle's location on the anterior image and highlights both. Clicking a muscle region on the image highlights the corresponding infopanel row and draws the same line. Bidirectional — same anchor-point data, either side triggers. See L AIC Chain Subtab section below for full spec.
 
 The old sub-view buttons (Muscle Attachments, Bony Landmarks, L AIC Chain, Hip Overview) are removed. The lateral hip image is now inside Anatomize This as a game image. The Netter anterior pelvis (`1772049306371_image.png`) and Veritas hip overview (`1772049130888_image.png`) are dropped from the UI. They can be re-added as future Anatomize This image sets if clean versions are sourced.
 
@@ -492,13 +492,13 @@ Not a game. A reference tool with bidirectional click-to-connect interaction bet
 
 Two columns on desktop (≥ 600px):
 - **Left column (~40%):** Infopanel — vertical chain layout, one row per muscle.
-- **Right column (~60%):** Anterior view of `img/left-aic.png`, cropped or masked to show only the anterior half. The posterior view is not interactive and can be hidden or shown as a static reference below.
+- **Right column (~60%):** Anterior view of `img/left-aic.webp`, cropped or masked to show only the anterior half. The posterior view is not interactive and can be hidden or shown as a static reference below.
 
 On mobile (< 600px): stack vertically — image on top, infopanel below.
 
 ### Image
 
-Source: `img/left-aic.png`. Use the `src` path directly (not base64). The image shows anterior and posterior views side by side. Only the **anterior view** has interactive regions. The posterior view can remain visible but is non-interactive.
+Source: `img/left-aic.webp`. Use the `src` path directly (not base64). The image shows anterior and posterior views side by side. Only the **anterior view** has interactive regions. The posterior view can remain visible but is non-interactive.
 
 Each chain muscle has an **anchor point** on the anterior image — a percentage-based `[x, y]` coordinate at the center of the muscle's visible red region. These are authored manually.
 
@@ -632,7 +632,7 @@ Add the `--pri-*` color variables to the existing `:root` and dark mode blocks i
 ### Step 6: Build L AIC Chain Interactive Subtab
 
 Replace the text-only chain diagram with the interactive linked diagram:
-1. Add `img/left-aic.png` as an `<img>` (use `src` path directly, no base64).
+1. Add `img/left-aic.webp` as an `<img>` (use `src` path directly, no base64).
 2. Author anchor point coordinates for each of the 6 chain muscles on the anterior view.
 3. Build the infopanel as clickable rows with the chain sequence text.
 4. Implement bidirectional click handlers: infopanel row → draw line to image anchor; image anchor click → highlight infopanel row.
