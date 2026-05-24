@@ -223,5 +223,9 @@ function initNavigationTabs() {
   initScrollAffordance();
 }
 
+for (const link of document.head.querySelectorAll('link[rel="preload"][as="style"]')) {
+  link.rel = 'stylesheet';
+}
+
 initNavigationTabs();
 navigator.serviceWorker?.register('./sw.js').catch(() => { /* optional SW; silent on failure */ });
