@@ -8,6 +8,7 @@ function initAbbrPopover() {
   const popover = document.getElementById('abbr-popover');
   const main = document.querySelector('main');
   let activeAbbr = null;
+  let anchorCount = 0;
 
   // Suppress native tooltips on pre-existing static abbrs before any
   // hover can race with our popover.
@@ -16,39 +17,44 @@ function initAbbrPopover() {
     abbr.removeAttribute('title');
   }
 
-  const showForAbbr = (abbr) => {
-    activeAbbr?.classList.remove('abbr-anchored');
+  const showForAbbr = abbr => {
+    // isOpen follows the Popover API state — false through the entire
+    // exit fade. isReplacingMidFade catches a new actuator arriving
+    // in that logically-closed, visually-still-fading window.
+    const isOpen = popover.matches(':popover-open');
+    const isReplacingMidFade = !isOpen && abbr !== activeAbbr;
+
+    if (isReplacingMidFade) {
+      popover.getAnimations().forEach(a => a.finish());
+    }
+    if (!abbr.style.anchorName) {
+      abbr.style.anchorName = `--abbr-anchor-${anchorCount++}`;
+    }
     activeAbbr = abbr;
-    abbr.classList.add('abbr-anchored');
+    popover.style.positionAnchor = abbr.style.anchorName;
     popover.textContent = abbr.dataset.title;
-    if (!popover.matches(':popover-open')) popover.showPopover();
+    if (!isOpen) popover.showPopover();
   };
 
-  popover.addEventListener('toggle', (e) => {
-    if (e.newState !== 'closed' || !activeAbbr) return;
-    activeAbbr.classList.remove('abbr-anchored');
-    activeAbbr = null;
-  });
+  const shouldShow = target =>
+      target.matches(ABBR_SELECTOR)
+      && (target !== activeAbbr || !popover.matches(':popover-open'));
 
-  const hidePopover = e =>
-      e.target === activeAbbr
-      && e.relatedTarget !== popover
+  const hidePopover = ({target, relatedTarget}) =>
+      target === activeAbbr
+      && relatedTarget !== popover
       && popover.hidePopover();
 
-  main.addEventListener('focusin', e =>
-      e.target !== activeAbbr
-      && e.target.matches(ABBR_SELECTOR)
-      && showForAbbr(e.target));
+  main.addEventListener('focusin', ({target}) =>
+      shouldShow(target) && showForAbbr(target));
   main.addEventListener('focusout', hidePopover);
 
   if (matchMedia('(hover: hover)').matches) {
-    main.addEventListener('mouseover', e =>
-        e.target !== activeAbbr
-        && e.target.matches(ABBR_SELECTOR)
-        && showForAbbr(e.target));
+    main.addEventListener('mouseover', ({target}) =>
+        shouldShow(target) && showForAbbr(target));
     main.addEventListener('mouseout', hidePopover);
-    popover.addEventListener('mouseleave', e =>
-        e.relatedTarget !== activeAbbr && popover.hidePopover());
+    popover.addEventListener('mouseleave', ({relatedTarget}) =>
+        relatedTarget !== activeAbbr && popover.hidePopover());
   }
 }
 

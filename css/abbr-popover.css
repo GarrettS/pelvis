@@ -7,10 +7,6 @@ abbr[data-title] {
   cursor: pointer;
 }
 
-abbr.abbr-anchored {
-  anchor-name: --abbr-active;
-}
-
 #abbr-popover {
   display: none;
   padding: .4rem .7rem;
@@ -52,7 +48,6 @@ abbr.abbr-anchored {
 @supports (anchor-name: --x) {
   #abbr-popover {
     position: fixed;
-    position-anchor: --abbr-active;
     position-area: block-start;
     position-try-fallbacks: flip-block;
   }
