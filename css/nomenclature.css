@@ -11,40 +11,6 @@
 .joint-schematic {
   display: block;
   width: 100%;
-  max-width: 340px;
-  margin: .5rem auto;
-}
-
-/* SVG <text> sizes below are viewBox user units (they scale with the
-   SVG), not document px — clamp()/rem would be root-relative and break
-   that scaling. Intentional exception to the font-scale-token rule. */
-.joint-schematic text {
-  text-anchor: middle;
-  font-family: monospace;
-  font-size: 10px;
-  paint-order: stroke;
-  stroke: var(--panel-bg-sunken);
-  stroke-width: 4px;
-  stroke-linejoin: round;
-}
-
-.schematic-title {
-  font-size: 11px;
-  font-weight: 700;
-  fill: var(--accent);
-}
-
-.schematic-note {
-  fill: var(--text-dim);
-  paint-order: normal;
-  stroke: none;
-}
-
-.schematic-note-sm {
-  fill: var(--text-dim);
-  font-size: 9px;
-  paint-order: normal;
-  stroke: none;
 }
 
 .schematic-bone {
@@ -74,9 +40,37 @@
 
 .stroke-accent { stroke: var(--accent); }
 .stroke-inlet { stroke: var(--inlet); }
-.fill-accent { fill: var(--accent); }
-.fill-inlet { fill: var(--inlet); }
-.fill-joint-surface { fill: var(--joint-surface); }
+
+.joint-schematic-stage {
+  position: relative;
+  max-width: 340px;
+  margin: .5rem auto;
+}
+
+.schematic-label {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.schematic-label.is-sacrum   { left: 50%;   top: 52.6%; color: var(--accent); font-weight: 700; font-size: var(--text-sm); }
+.schematic-label.is-l-ilium  { left: 18.3%; top: 46.3%; color: var(--inlet); }
+.schematic-label.is-r-ilium  { left: 81.7%; top: 46.3%; color: var(--inlet); }
+.schematic-label.is-pelvis   { left: 50%;   top: 27.3%; color: var(--inlet); }
+.schematic-label.is-fem-head {
+  left: 50%;
+  top: 55.5%;
+  color: var(--accent);
+  text-shadow:
+    -2px 0 var(--panel-bg-sunken),
+    2px 0 var(--panel-bg-sunken),
+    0 -2px var(--panel-bg-sunken),
+    0 2px var(--panel-bg-sunken);
+}
+.schematic-label.is-femur    { left: 50%;   top: 79.1%; color: var(--accent); }
 
 .joint-table {
   width: 100%;
@@ -121,16 +115,34 @@
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
+  align-items: flex-end;
   margin: 0 0 1rem;
 }
 
-.joint-schematic-row > div {
+.joint-schematic-slot {
+  margin: 0;
   text-align: center;
 }
 
 .joint-schematic-caption {
-  font-size: var(--text-sm);
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
   margin-top: .25rem;
+}
+
+.caption-name {
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+}
+
+.caption-note {
+  font-size: var(--text-xs);
+  color: var(--joint-surface);
+}
+
+.caption-disclaimer {
+  font-size: var(--text-xs);
   color: var(--text-dim);
 }
 
