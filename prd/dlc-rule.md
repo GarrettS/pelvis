@@ -4,7 +4,7 @@ Data Load Consumption (DLC) is the project rule that validates app JSON dependen
 
 The decoder precedent defines the violation. `scripts/decoder.js` loaded `data/regions.json`, assigned the parsed value to `REGIONS`, never read `REGIONS`, and kept `./data/regions.json` in `sw.js`. The service worker then treated unused JSON as an app asset, and the load path introduced failure handling for data the decoder did not consume.
 
-The DLC checker owns the project-specific dependency rule. The checker records consumed app data loads, reports static JSON loads whose parsed values are never read, and warns on data-path patterns it cannot prove. The detailed checker design lives in [dlc-proposal-draft.md](dlc-proposal-draft.md).
+A proposal sketched an automated checker (record consumed loads, report unused parsed values, warn on opaque patterns); it was not built. Design notes: [archive/dlc-proposal-draft.md](archive/dlc-proposal-draft.md).
 
 DLC checks whether app code reads the parsed JSON value after loading it. It does not check the failure response. Fail-Safe load classification handles failure response: required loads render user-visible failure, optional-enrichment loads degrade silently only when a comment names the degraded content and reason, and background loads fail silently.
 

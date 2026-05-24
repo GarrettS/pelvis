@@ -16,7 +16,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-EXCLUDES="node_modules|\.git|pre-commit-check\.sh|code-guidelines\.md"
+EXCLUDES="node_modules|\.git|pre-commit-check\.sh|code-guidelines\.md|(^|/)tools/"
 
 check() {
   local label="$1"

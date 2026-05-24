@@ -1,30 +1,8 @@
 # Coordinate Picker — Workflow
 
-Development tools for recording percentage-based coordinates on anatomical images. Coordinates feed into `data/anatomize-data.json` (Anatomize This feature) and `data/aic-chain.json` (L AIC Chain feature).
+Development tool for recording percentage-based coordinates on anatomical images. Coordinates feed into `data/anatomize-data.json` (Anatomize This feature) and `data/aic-chain.json` (L AIC Chain feature).
 
-## Tools
-
-### `coord-picker.html` (project root)
-
-Original coordinate picker. Best for batch-recording arrow positions across a full set of labeled structures.
-
-**Workflow:**
-1. Select an image set (Outlet Superior, Pelvic Inlet, L AIC Chain, etc.)
-2. The label panel lists all structures for that image set
-3. Click a structure label to focus it
-4. Click the image — records `{x, y}` as percentage of image dimensions
-5. Auto-advances to the next unfocused structure
-6. Collated text output updates live — copy when done
-
-**Features:**
-- Crosshair overlay with live percentage readout
-- Dual-view support (anterior/posterior) for L AIC Chain structures
-- Green/cyan markers distinguish views
-- Auto-focus-next streamlines batch entry
-
-### `tools/coord-picker.html`
-
-Advanced coordinate picker with multiple recording modes. Best for complex shapes (hitboxes, panel boxes, polygon boundaries).
+`coord-picker.html` supports multiple recording modes for complex shapes (hitboxes, panel boxes, polygon boundaries).
 
 **Modes:**
 - **Point** — single `{x, y}` click. Use for `arrowTo`, `landmarkMarker`, or `anchor`.
