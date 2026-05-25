@@ -81,6 +81,9 @@
   cursor: grab;
   font-size: var(--text-sm);
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   transition: border-color var(--dur-normal), opacity var(--dur-slow);
 }
 
@@ -127,6 +130,9 @@
   cursor: grabbing;
   font-size: var(--text-sm);
   box-shadow: var(--box-shadow-lg);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .chain-list > li.drop-target-before::before,

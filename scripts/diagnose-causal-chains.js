@@ -236,7 +236,7 @@ class CausalChain {
 
   #applyDragStyles(deltaY) {
     this.#clone.style.setProperty('--drag-offset', deltaY + 'px');
-    this.#clone.scrollIntoView({block: 'nearest', behavior: 'instant'});
+    this.#clone.scrollIntoView({block: 'nearest'});
   }
 
   #updateDropMarker(target, chainList) {
