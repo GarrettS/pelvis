@@ -147,8 +147,9 @@ class CausalChain {
   #order;
   #dragSession = null;
   // session: { dropTarget, marker, clone, baseline }
-  // baseline (frozen): { chainListEl, chainItem, startY, initialItemTop,
-  //                     cloneTop, items, displayRank, initialDropTarget }
+  // baseline (frozen): { chainListEl, chainItem, pageStartY, cloneTop,
+  //                     items, displayRank, initialDropTarget,
+  //                     minDelta, maxDelta, siblingThresholds }
 
   constructor(id, { steps }, key) {
     if (key !== CausalChain.#KEY) throw new Error(
@@ -168,16 +169,37 @@ class CausalChain {
     const chainListRect = chainListEl.getBoundingClientRect();
     const itemsExcludingClones = [...realItems(chainListEl)];
     const currentItemIndex = itemsExcludingClones.indexOf(chainItem);
+    const scroll = window.scrollY;
+
+    // Page-relative coords stay stable across scroll (LIs don't move
+    // in document coordinates); per-frame work then reads only
+    // window.scrollY, never BCRs.
+    const pageInitialItemTop = chainItemRect.top + scroll;
+    const pageListTop = chainListRect.top + scroll;
+    const pageListBottom = chainListRect.bottom + scroll;
+    const itemHeight = chainItemRect.height;
+
+    const siblingThresholds = [];
+    for (const sibling of itemsExcludingClones) {
+      if (sibling === chainItem) continue;
+      const box = sibling.getBoundingClientRect();
+      siblingThresholds.push({
+        sibling,
+        pageThresholdY: box.top + box.height / 2 + scroll
+      });
+    }
 
     return Object.freeze({
       chainListEl,
       chainItem,
-      startY,
-      initialItemTop: chainItemRect.top,
+      pageStartY: startY + scroll,
       cloneTop: Math.round(chainItemRect.top - chainListRect.top),
-      items: Object.freeze(itemsExcludingClones),
+      items: itemsExcludingClones,
       displayRank: currentItemIndex + 1,
-      initialDropTarget: itemsExcludingClones[currentItemIndex + 1] ?? null
+      initialDropTarget: itemsExcludingClones[currentItemIndex + 1] ?? null,
+      minDelta: pageListTop - pageInitialItemTop,
+      maxDelta: pageListBottom - itemHeight - pageInitialItemTop,
+      siblingThresholds
     });
   }
 
@@ -203,7 +225,8 @@ class CausalChain {
   }
 
   startDrag(chainItem, startY) {
-    this.#dragSession = CausalChain.#commitDragDOM(CausalChain.#captureBaseline(chainItem, startY));
+    this.#dragSession = CausalChain.#commitDragDOM(
+      CausalChain.#captureBaseline(chainItem, startY));
   }
 
   dragMove(y) {
@@ -218,22 +241,14 @@ class CausalChain {
   }
 
   #getConstrainedDeltaY(y) {
-    const { chainItem, chainListEl, startY, initialItemTop } = this.#dragSession.baseline;
-    const listBox = chainListEl.getBoundingClientRect();
-    const itemHeight = chainItem.getBoundingClientRect().height;
-    const minDelta = listBox.top - initialItemTop;
-    const maxDelta = listBox.bottom - itemHeight - initialItemTop;
-    return Math.max(minDelta, Math.min(maxDelta, y - startY));
+    const { pageStartY, minDelta, maxDelta } = this.#dragSession.baseline;
+    return Math.max(minDelta, Math.min(maxDelta, y + window.scrollY - pageStartY));
   }
 
   #findTargetSibling(y) {
-    const { clone, baseline } = this.#dragSession;
-    for (const sibling of baseline.chainListEl.children) {
-      if (sibling === baseline.chainItem || sibling === clone) continue;
-      const box = sibling.getBoundingClientRect();
-      if (y <= box.top + box.height / 2) return sibling;
-    }
-    return null;
+    const pageY = y + window.scrollY;
+    return this.#dragSession.baseline.siblingThresholds
+      .find(t => pageY <= t.pageThresholdY)?.sibling ?? null;
   }
 
   #applyDragStyles(deltaY) {
@@ -257,8 +272,10 @@ class CausalChain {
   }
 
   commitDrop() {
-    const { chainItem, chainListEl } = this.#dragSession.baseline;
-    chainListEl.insertBefore(chainItem, this.#dragSession.dropTarget);
+    const { dropTarget, baseline } = this.#dragSession;
+    if (dropTarget === baseline.initialDropTarget) return;
+    const { chainItem, chainListEl } = baseline;
+    chainListEl.insertBefore(chainItem, dropTarget);
     this.#order = Array.from(realItems(chainListEl), li => li.dataset.step);
   }
 
