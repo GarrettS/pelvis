@@ -60,7 +60,7 @@ function buildQuestion(combo) {
 
 const generateQuestions = () => toShuffled(ALL_COMBOS.map(buildQuestion));
 
-const getSessionSize = () => document.getElementById('equiv-count').valueAsNumber;
+const SESSION_SIZE = 10;
 
 function resetSession() {
   questions = generateQuestions();
@@ -115,11 +115,10 @@ function renderQuestion() {
   isAnswered = false;
   gradeResult = null;
 
-  const size = getSessionSize();
   document.getElementById('equiv-progress-fill').style.width =
-    ((qIdx / size) * 100) + '%';
+    ((qIdx / SESSION_SIZE) * 100) + '%';
   document.getElementById('equiv-progress-text').textContent =
-    'Question ' + (qIdx + 1) + ' of ' + size;
+    'Question ' + (qIdx + 1) + ' of ' + SESSION_SIZE;
   document.getElementById('equiv-current-given').textContent = q.given;
   const optsEl = document.getElementById('equiv-options');
   optsEl.disabled = false;
@@ -180,7 +179,7 @@ function paintOptionCorrectness(correctAnswers) {
 }
 
 const nextButtonLabel = () =>
-  qIdx + 1 < getSessionSize() ? 'Next Question →' : 'Finish Session';
+  qIdx + 1 < SESSION_SIZE ? 'Next Question →' : 'Finish Session';
 
 function renderGradedFeedback(q, correctAnswer) {
   const feedback = document.getElementById('equiv-feedback');
@@ -459,13 +458,10 @@ const CLICK_DISPATCH = {
   'equiv-retake-missed': retakeMissed
 };
 
-document.getElementById('equiv-count')
-  .addEventListener('change', renderQuestion);
-
 function handleFeedbackNext() {
   recordCurrentAnswer();
   qIdx++;
-  if (qIdx >= getSessionSize()) renderResults();
+  if (qIdx >= SESSION_SIZE) renderResults();
   else renderQuestion();
 }
 

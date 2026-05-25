@@ -433,7 +433,7 @@ function findEquivalenceElements(root, selector, found = []) {
   return found;
 }
 
-function makeEquivalenceDocument(sessionSize = 2) {
+function makeEquivalenceDocument() {
   const roots = [];
   const elements = new Map();
   function addElement(id) {
@@ -444,9 +444,6 @@ function makeEquivalenceDocument(sessionSize = 2) {
   }
 
   const container = addElement('equivalence-content');
-  const count = addElement('equiv-count');
-  count.valueAsNumber = sessionSize;
-  count.defaultValue = String(sessionSize);
   addElement('equiv-quiz-wrap');
   addElement('equiv-progress-fill');
   addElement('equiv-progress-text');
