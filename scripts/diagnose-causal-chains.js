@@ -9,19 +9,15 @@ let causalChains = {};
 const containerEl = document.getElementById('diagnose-causal-chains-content');
 const chainsWrap = document.getElementById('chains-wrap');
 
-const handleChainClick = e => {
-  const btn = e.target.closest('.chain-reshuffle, .chain-check');
-  const chainListEl = btn?.closest('.card')?.querySelector('.chain-list');
-  if (!chainListEl) return;
-
-  const isShuffle = btn.matches('.chain-reshuffle');
-  if (isShuffle) CausalChain.discard(chainListEl.id);
-  (isShuffle ? renderChainList : markOrderResults)(
-    CausalChain.getById(chainListEl.id), chainListEl
-  );
+const handleChainSubmit = e => {
+  e.preventDefault();
+  const id = e.target.name;
+  const isShuffle = e.submitter.name === 'reshuffle';
+  if (isShuffle) CausalChain.discard(id);
+  (isShuffle ? renderChainList : markOrderResults)(CausalChain.getById(id));
 };
 
-chainsWrap.addEventListener('click', handleChainClick);
+chainsWrap.addEventListener('submit', handleChainSubmit);
 wireChainDrag(chainsWrap);
 
 function renderAll(container) {
@@ -30,23 +26,19 @@ function renderAll(container) {
 
   Object.entries(causalChains).forEach(([id, definition]) => {
     const chainList = CausalChain.getById(id, definition);
-    const { card, chainListEl } = buildChainCard(chainList, definition);
-    container.appendChild(card);
-    renderChainList(chainList, chainListEl);
+    container.appendChild(buildChainListForm(chainList, definition));
+    renderChainList(chainList);
   });
 }
 
 function wireChainDrag(container) {
   let activeChainList = null;
-  let activeChainListEl = null;
   let activePointerId = null;
 
   const cleanup = () => {
     activeChainList.endDrag();
     document.documentElement.classList.remove('active-chain-drag');
-    activeChainListEl.classList.remove('dragging-chain');
     activeChainList = null;
-    activeChainListEl = null;
     activePointerId = null;
   };
 
@@ -56,14 +48,11 @@ function wireChainDrag(container) {
     const chainItem = e.target.closest('.chain-list > li');
     if (!chainItem) return;
 
-    const chainListEl = chainItem.closest('.chain-list');
-    activeChainList = CausalChain.getById(chainListEl.id);
-    activeChainListEl = chainListEl;
+    activeChainList = CausalChain.getById(chainItem.parentNode.id);
     activePointerId = e.pointerId;
     chainItem.setPointerCapture(e.pointerId);
     activeChainList.startDrag(chainItem, e.clientY);
     document.documentElement.classList.add('active-chain-drag');
-    chainListEl.classList.add('dragging-chain');
   });
 
   // iOS WebKit's text-selection initiation is driven by touchstart's
@@ -76,11 +65,11 @@ function wireChainDrag(container) {
 
   container.addEventListener('pointermove', e =>
     activeChainList && e.pointerId === activePointerId
-      && activeChainList.dragMove(e.clientY, activeChainListEl));
+      && activeChainList.dragMove(e.clientY));
 
   container.addEventListener('pointerup', e =>
     activeChainList && e.pointerId === activePointerId
-      && (activeChainList.commitDrop(activeChainListEl), cleanup()));
+      && (activeChainList.commitDrop(), cleanup()));
 
   container.addEventListener('pointercancel', e =>
     activeChainList && e.pointerId === activePointerId && cleanup());
@@ -89,34 +78,34 @@ function wireChainDrag(container) {
     activeChainList && e.key === 'Escape' && cleanup());
 }
 
-const buildChainCard = (chainList, { title, start, end }) => {
-  const card = newEl('div', {
+const buildChainListForm = (chainList, { title, start, end }) =>
+  newEl('form', {
     className: 'card',
+    attrs: {name: chainList.id},
     innerHTML: `
       <h3 class="chain-title">${expandAbbr(title)}</h3>
       <div class="chain-subtitle">${expandAbbr(start)} → ${expandAbbr(end)}</div>
       <ol class="chain-list" id="${chainList.id}"></ol>
       <div class="btn-row">
-        <button class="primary chain-check">Check Order</button>
-        <button class="chain-reshuffle">Reshuffle</button>
+        <button name="check" class="primary">Check Order</button>
+        <button name="reshuffle">Reshuffle</button>
       </div>
     `
   });
-  return { card, chainListEl: card.querySelector('.chain-list') };
-};
 
-const renderChainList = (chainList, chainListEl) =>
-  chainListEl.replaceChildren(...chainList.currentOrder().map(step =>
-    newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}})));
+const renderChainList = chainList =>
+  document.getElementById(chainList.id).replaceChildren(
+    ...chainList.currentOrder().map(step =>
+      newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}})));
 
 // chainListEl may contain a transient .chain-clone-list OL during drag/settle;
 // :scope > li excludes it.
 const realItems = chainListEl =>
   chainListEl.querySelectorAll(':scope > li');
 
-const markOrderResults = (chainList, chainListEl) => {
+const markOrderResults = chainList => {
   const results = chainList.orderResults();
-  realItems(chainListEl).forEach((chainItem, i) => {
+  realItems(document.getElementById(chainList.id)).forEach((chainItem, i) => {
     chainItem.classList.toggle('correct', results[i].isCorrect);
     chainItem.classList.toggle('incorrect', !results[i].isCorrect);
   });
@@ -138,8 +127,6 @@ class CausalChain {
   }
 
   static #create(id, definition) {
-    // Reshuffle calls getById(chainListEl) without a definition;
-    // recover it from the cached data.
     definition ??= causalChains[id];
     if (!definition) throw new Error(
       'CausalChain: no definition for "' + id + '"'
@@ -194,7 +181,7 @@ class CausalChain {
     });
   }
 
-  #commitDragDOM(baseline) {
+  static #commitDragDOM(baseline) {
     const {
       chainListEl, chainItem, displayRank, cloneTop, initialDropTarget
     } = baseline;
@@ -207,7 +194,7 @@ class CausalChain {
     }), chainItem);
     chainItem.classList.add('active-drag-item');
 
-    this.#dragSession = {
+    return {
       dropTarget: initialDropTarget,
       marker: null,
       clone,
@@ -216,22 +203,22 @@ class CausalChain {
   }
 
   startDrag(chainItem, startY) {
-    this.#commitDragDOM(CausalChain.#captureBaseline(chainItem, startY));
+    this.#dragSession = CausalChain.#commitDragDOM(CausalChain.#captureBaseline(chainItem, startY));
   }
 
-  dragMove(y, chainListEl) {
-    const deltaY = this.#getConstrainedDeltaY(y, chainListEl);
-    const target = this.#findTargetSibling(y, chainListEl);
+  dragMove(y) {
+    const deltaY = this.#getConstrainedDeltaY(y);
+    const target = this.#findTargetSibling(y);
     this.#applyDragStyles(deltaY);
     if (target === this.#dragSession.dropTarget) return;
 
-    this.#updateDropMarker(target, chainListEl);
+    this.#updateDropMarker(target);
     this.#dragSession.dropTarget = target;
     this.#updateCloneNumber();
   }
 
-  #getConstrainedDeltaY(y, chainListEl) {
-    const { chainItem, startY, initialItemTop } = this.#dragSession.baseline;
+  #getConstrainedDeltaY(y) {
+    const { chainItem, chainListEl, startY, initialItemTop } = this.#dragSession.baseline;
     const listBox = chainListEl.getBoundingClientRect();
     const itemHeight = chainItem.getBoundingClientRect().height;
     const minDelta = listBox.top - initialItemTop;
@@ -239,9 +226,9 @@ class CausalChain {
     return Math.max(minDelta, Math.min(maxDelta, y - startY));
   }
 
-  #findTargetSibling(y, chainListEl) {
+  #findTargetSibling(y) {
     const { clone, baseline } = this.#dragSession;
-    for (const sibling of chainListEl.children) {
+    for (const sibling of baseline.chainListEl.children) {
       if (sibling === baseline.chainItem || sibling === clone) continue;
       const box = sibling.getBoundingClientRect();
       if (y <= box.top + box.height / 2) return sibling;
@@ -255,9 +242,9 @@ class CausalChain {
     clone.scrollIntoView({block: 'nearest'});
   }
 
-  #updateDropMarker(target, chainListEl) {
+  #updateDropMarker(target) {
     const session = this.#dragSession;
-    const { chainItem } = session.baseline;
+    const { chainItem, chainListEl } = session.baseline;
     session.marker?.classList.remove('drop-target-before', 'drop-target-after');
     const wouldNotMove = target === chainItem.nextElementSibling
       || (target === null && chainItem === chainListEl.lastElementChild);
@@ -269,8 +256,8 @@ class CausalChain {
     );
   }
 
-  commitDrop(chainListEl) {
-    const { chainItem } = this.#dragSession.baseline;
+  commitDrop() {
+    const { chainItem, chainListEl } = this.#dragSession.baseline;
     chainListEl.insertBefore(chainItem, this.#dragSession.dropTarget);
     this.#order = Array.from(realItems(chainListEl), li => li.dataset.step);
   }
