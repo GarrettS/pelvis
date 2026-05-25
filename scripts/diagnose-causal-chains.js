@@ -1,3 +1,5 @@
+// Architecture: prd/architecture/diagnose-causal-chains.md
+
 import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
@@ -51,7 +53,7 @@ function wireChainDrag(container) {
     activeChainList = CausalChain.getById(chainItem.parentNode.id);
     activePointerId = e.pointerId;
     chainItem.setPointerCapture(e.pointerId);
-    activeChainList.startDrag(chainItem, e.clientY);
+    activeChainList.startDrag(chainItem, e.pageY);
     document.documentElement.classList.add('active-chain-drag');
   });
 
@@ -65,7 +67,7 @@ function wireChainDrag(container) {
 
   container.addEventListener('pointermove', e =>
     activeChainList && e.pointerId === activePointerId
-      && activeChainList.dragMove(e.clientY));
+      && activeChainList.dragMove(e.pageY));
 
   container.addEventListener('pointerup', e =>
     activeChainList && e.pointerId === activePointerId
@@ -163,7 +165,7 @@ class CausalChain {
   get id() { return this.#id; }
   currentOrder() { return this.#order.slice(); }
 
-  static #captureBaseline(chainItem, startY) {
+  static #captureBaseline(chainItem, pageStartY) {
     const chainListEl = chainItem.parentNode;
     const chainItemRect = chainItem.getBoundingClientRect();
     const chainListRect = chainListEl.getBoundingClientRect();
@@ -171,9 +173,10 @@ class CausalChain {
     const currentItemIndex = itemsExcludingClones.indexOf(chainItem);
     const scroll = window.scrollY;
 
-    // Page-relative coords stay stable across scroll (LIs don't move
-    // in document coordinates); per-frame work then reads only
-    // window.scrollY, never BCRs.
+    // BCRs are viewport-relative; add scroll once at capture to land in
+    // document coords. The wire passes PointerEvent.pageY at both
+    // pointerdown and pointermove, so pointer coords arrive document-
+    // relative and stay race-free with async (compositor-thread) scroll.
     const pageInitialItemTop = chainItemRect.top + scroll;
     const pageListTop = chainListRect.top + scroll;
     const pageListBottom = chainListRect.bottom + scroll;
@@ -192,7 +195,7 @@ class CausalChain {
     return Object.freeze({
       chainListEl,
       chainItem,
-      pageStartY: startY + scroll,
+      pageStartY,
       cloneTop: Math.round(chainItemRect.top - chainListRect.top),
       items: itemsExcludingClones,
       displayRank: currentItemIndex + 1,
@@ -224,14 +227,14 @@ class CausalChain {
     };
   }
 
-  startDrag(chainItem, startY) {
+  startDrag(chainItem, pageStartY) {
     this.#dragSession = CausalChain.#commitDragDOM(
-      CausalChain.#captureBaseline(chainItem, startY));
+      CausalChain.#captureBaseline(chainItem, pageStartY));
   }
 
-  dragMove(y) {
-    const deltaY = this.#getConstrainedDeltaY(y);
-    const target = this.#findTargetSibling(y);
+  dragMove(pageY) {
+    const deltaY = this.#getConstrainedDeltaY(pageY);
+    const target = this.#findTargetSibling(pageY);
     this.#applyDragStyles(deltaY);
     if (target === this.#dragSession.dropTarget) return;
 
@@ -240,13 +243,12 @@ class CausalChain {
     this.#updateCloneNumber();
   }
 
-  #getConstrainedDeltaY(y) {
+  #getConstrainedDeltaY(pageY) {
     const { pageStartY, minDelta, maxDelta } = this.#dragSession.baseline;
-    return Math.max(minDelta, Math.min(maxDelta, y + window.scrollY - pageStartY));
+    return Math.max(minDelta, Math.min(maxDelta, pageY - pageStartY));
   }
 
-  #findTargetSibling(y) {
-    const pageY = y + window.scrollY;
+  #findTargetSibling(pageY) {
     return this.#dragSession.baseline.siblingThresholds
       .find(t => pageY <= t.pageThresholdY)?.sibling ?? null;
   }
