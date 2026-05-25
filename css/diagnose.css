@@ -68,6 +68,7 @@
 .chain-list {
   list-style-type: decimal;
   list-style-position: inside;
+  position: relative;
 }
 
 .chain-list > li {
@@ -80,7 +81,7 @@
   cursor: grab;
   font-size: var(--text-sm);
   touch-action: none;
-  transition: border-color var(--dur-fast);
+  transition: border-color var(--dur-normal), opacity var(--dur-slow);
 }
 
 .chain-list > li.correct {
@@ -94,21 +95,38 @@
 }
 
 .chain-list > li.active-drag-item {
-  z-index: 1;
-  opacity: .9;
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  opacity: .3;
   cursor: grabbing;
-  box-shadow: var(--box-shadow-md);
+}
+
+.chain-clone-list {
+  list-style-type: decimal;
+  list-style-position: inside;
+  position: absolute;
+  left: .5rem;
+  right: .5rem;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+  pointer-events: none;
   transform: translateY(var(--drag-offset, 0px));
 }
 
-.chain-list > li.active-drag-item::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  transform: translateY(calc(-1 * var(--drag-offset, 0px)));
-  outline: 2px dashed var(--border);
-  outline-offset: -2px;
-  pointer-events: none;
+.chain-clone-list.settling {
+  transition: transform var(--dur-slow) ease-out;
+}
+
+.chain-clone-list > li {
+  background: var(--accent-bg);
+  border-left: 4px solid var(--accent);
+  border-radius: 4px;
+  padding: .5rem .75rem;
+  margin: 0;
+  cursor: grabbing;
+  font-size: var(--text-sm);
+  box-shadow: var(--box-shadow-lg);
 }
 
 .chain-list > li.drop-target-before::before,
@@ -129,15 +147,6 @@
 
 .chain-list > li.drop-target-after::before {
   bottom: -.4rem;
-}
-
-.chain-list > li.just-dropped {
-  animation: drop-settle var(--dur-slow);
-}
-
-@keyframes drop-settle {
-  from { box-shadow: var(--box-shadow-md); }
-  to { box-shadow: none; }
 }
 
 html.active-chain-drag,
@@ -266,13 +275,6 @@ html.active-chain-drag * {
   margin-bottom: .75rem;
 }
 
-.chain-correct-list {
-  margin-left: 1.25rem;
-  list-style: decimal;
-  font-size: var(--text-xs);
-  margin-top: .35rem;
-}
-
 .exercise-tags {
   margin-top: .35rem;
 }
@@ -280,10 +282,6 @@ html.active-chain-drag * {
 .empty-message {
   font-size: var(--text-sm);
   color: var(--text-dim);
-}
-
-.feedback-gap {
-  margin-top: .5rem;
 }
 
 .subview-tabs {

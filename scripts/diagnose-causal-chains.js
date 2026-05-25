@@ -2,6 +2,7 @@ import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
 import {toShuffled} from './shuffle.js';
+import {newEl} from './el-create.js';
 
 let causalChains = {};
 
@@ -12,7 +13,7 @@ chainsWrap.addEventListener('click', handleChainClick);
 wireChainDrag(chainsWrap);
 
 function renderAll(container) {
-  container.innerHTML = '';
+  container.replaceChildren();
   CausalChain.discardAll();
 
   Object.entries(causalChains).forEach(([id, definition]) => {
@@ -30,12 +31,11 @@ function handleChainClick(e) {
   const chainList = card.querySelector('.chain-list');
   if (!chainList) return;
 
-  if (e.target.closest('.chain-reset')) {
+  if (e.target.closest('.chain-reshuffle')) {
     CausalChain.discard(chainList.id);
     renderChainList(CausalChain.getInstance(chainList), chainList);
-    card.querySelector('.chain-feedback').innerHTML = '';
   } else if (e.target.closest('.chain-check')) {
-    showCheckResult(CausalChain.getInstance(chainList), chainList);
+    markOrderResults(CausalChain.getInstance(chainList), chainList);
   }
 }
 
@@ -44,26 +44,22 @@ function wireChainDrag(container) {
   let activeChainList = null;
   let activePointerId = null;
 
-  function cleanup() {
+  const cleanup = () => {
     activeChain.endDrag();
     document.documentElement.classList.remove('active-chain-drag');
     activeChainList.classList.remove('dragging-chain');
     activeChain = null;
     activeChainList = null;
     activePointerId = null;
-  }
+  };
 
-  function handlePointerDown(e) {
+  container.addEventListener('pointerdown', (e) => {
     if (!e.isPrimary || e.button !== 0) return;
 
     const chainItem = e.target.closest('.chain-list > li');
     if (!chainItem) return;
 
     const chainList = chainItem.closest('.chain-list');
-    for (const el of chainList.querySelectorAll('.just-dropped')) {
-      el.classList.remove('just-dropped');
-    }
-
     activeChain = CausalChain.getInstance(chainList);
     activeChainList = chainList;
     activePointerId = e.pointerId;
@@ -71,46 +67,27 @@ function wireChainDrag(container) {
     activeChain.startDrag(chainItem, e.clientY);
     document.documentElement.classList.add('active-chain-drag');
     chainList.classList.add('dragging-chain');
-  }
+  });
 
-  function handlePointerMove(e) {
+  container.addEventListener('pointermove', (e) => {
     if (!activeChain || e.pointerId !== activePointerId) return;
-
     activeChain.dragMove(e.clientY, activeChainList);
-  }
+  });
 
-  function handlePointerUp(e) {
+  container.addEventListener('pointerup', (e) => {
     if (!activeChain || e.pointerId !== activePointerId) return;
-
-    const moved = activeChain.commitDrop(activeChainList);
-    if (moved) {
-      moved.addEventListener('animationend', () => {
-        moved.classList.remove('just-dropped');
-      }, { once: true });
-      moved.classList.add('just-dropped');
-    }
+    activeChain.commitDrop(activeChainList);
     cleanup();
-  }
+  });
 
-  function handlePointerCancel(e) {
-    if (e.pointerId !== activePointerId) return;
-    if (!activeChain) return;
-
+  container.addEventListener('pointercancel', (e) => {
+    if (e.pointerId !== activePointerId || !activeChain) return;
     cleanup();
-  }
+  });
 
-  function handleEscKey(e) {
-    if (e.key !== 'Escape') return;
-    if (!activeChain) return;
-
-    cleanup();
-  }
-
-  container.addEventListener('pointerdown', handlePointerDown);
-  container.addEventListener('pointermove', handlePointerMove);
-  container.addEventListener('pointerup', handlePointerUp);
-  container.addEventListener('pointercancel', handlePointerCancel);
-  document.addEventListener('keydown', handleEscKey);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && activeChain) cleanup();
+  });
 }
 
 function buildChainCard(chain, { title, start, end }) {
@@ -125,8 +102,7 @@ function buildChainCard(chain, { title, start, end }) {
     + '<ol class="chain-list" id="' + chain.id + '"></ol>'
     + '<div class="btn-row">'
       + '<button class="primary chain-check">Check Order</button>'
-      + '<button class="chain-reset">Reset</button></div>'
-    + '<div class="feedback-gap chain-feedback"></div>';
+      + '<button class="chain-reshuffle">Reshuffle</button></div>';
   return {
     card,
     chainListEl: card.querySelector('.chain-list')
@@ -134,7 +110,7 @@ function buildChainCard(chain, { title, start, end }) {
 }
 
 function renderChainList(chain, chainListEl) {
-  chainListEl.innerHTML = '';
+  chainListEl.replaceChildren();
   const itemTemplate = document.createElement('li');
   chain.currentOrder().forEach((step) => {
     const chainItem = itemTemplate.cloneNode(false);
@@ -144,21 +120,17 @@ function renderChainList(chain, chainListEl) {
   });
 }
 
-function showCheckResult(chain, chainList) {
+// chainList may contain a transient .chain-clone-list OL during drag/settle;
+// :scope > li excludes it.
+const realItems = chainList =>
+  chainList.querySelectorAll(':scope > li');
+
+function markOrderResults(chain, chainList) {
   const results = chain.orderResults();
-  [...chainList.children].forEach((chainItem, i) => {
+  realItems(chainList).forEach((chainItem, i) => {
     chainItem.classList.toggle('correct', results[i].isCorrect);
     chainItem.classList.toggle('incorrect', !results[i].isCorrect);
   });
-  const card = chainList.closest('.card');
-  const feedbackEl = card.querySelector('.chain-feedback');
-  feedbackEl.innerHTML = chain.isOrderCorrect()
-    ? '<div class="feedback-box">Correct order.</div>'
-    : '<div class="feedback-box error">'
-      + 'Not quite. Correct order:'
-      + ' <ol class="chain-correct-list"><li>'
-      + chain.correctOrder().map((s) => expandAbbr(s))
-        .join('</li><li>') + '</li></ol></div>';
 }
 
 const chainCardText = ({ title, start, end }) => ({ title, start, end });
@@ -173,9 +145,8 @@ class CausalChain {
   }
 
   static #create(id, definition) {
-    // Fallback for the discard-and-recreate reset path: the
-    // delegated click handler has the element but not the
-    // definition, so look it up from the cached slice.
+    // Reshuffle calls getInstance(chainList) without a definition;
+    // recover it from the cached data.
     definition ??= causalChains[id];
     if (!definition) throw new Error(
       'CausalChain: no definition for "' + id + '"'
@@ -197,8 +168,11 @@ class CausalChain {
   #activeDragItem = null;
   #startY = 0;
   #initialItemTop = 0;
-  #dropTarget;
+  #dropTarget = null;
   #dropTargetMarker = null;
+  #clone = null;
+  #items;        // Cached real LIs at drag start (stable through drag).
+  #itemNumber;   // 1-based position of the dragged item in #items.
 
   constructor(id, { steps }, key) {
     if (key !== CausalChain.#KEY) throw new Error(
@@ -211,68 +185,90 @@ class CausalChain {
 
   get id() { return this.#id; }
   currentOrder() { return this.#order.slice(); }
-  correctOrder() { return this.#steps; }
 
   startDrag(chainItem, startY) {
     this.#activeDragItem = chainItem;
     this.#startY = startY;
     this.#initialItemTop = chainItem.getBoundingClientRect().top;
-    this.#dropTarget = undefined;
+    // Item's current next-sibling — insertBefore against it is a no-op.
+    this.#dropTarget = chainItem.nextElementSibling;
+
+    const chainList = chainItem.parentNode;
+    this.#items = [...realItems(chainList)];
+    this.#itemNumber = this.#items.indexOf(chainItem) + 1;
+
+    chainList.querySelector('.chain-clone-list')?.remove();
+    this.#clone = chainList.insertBefore(newEl('ol', {
+      className: 'chain-clone-list',
+      attrs: {start: this.#itemNumber},
+      children: [chainItem.cloneNode(true)]
+    }), chainItem);
     chainItem.classList.add('active-drag-item');
   }
 
   dragMove(y, chainList) {
-    if (!this.#activeDragItem) return;
+    const deltaY = this.#getConstrainedDeltaY(y, chainList);
+    const target = this.#findTargetSibling(y, chainList);
+    this.#applyDragStyles(deltaY);
+    if (target === this.#dropTarget) return;
 
-    const item = this.#activeDragItem;
+    this.#updateDropMarker(target, chainList);
+    this.#dropTarget = target;
+    this.#updateCloneNumber();
+  }
+
+  #getConstrainedDeltaY(y, chainList) {
     const listBox = chainList.getBoundingClientRect();
-    const itemHeight = item.getBoundingClientRect().height;
+    const itemHeight = this.#activeDragItem.getBoundingClientRect().height;
     const minDelta = listBox.top - this.#initialItemTop;
     const maxDelta = listBox.bottom - itemHeight - this.#initialItemTop;
-    const deltaY = Math.max(
-      minDelta, Math.min(maxDelta, y - this.#startY)
-    );
-    item.style.setProperty('--drag-offset', deltaY + 'px');
+    return Math.max(minDelta, Math.min(maxDelta, y - this.#startY));
+  }
 
-    let target = null;
+  #findTargetSibling(y, chainList) {
     for (const sibling of chainList.children) {
-      if (sibling === item) continue;
+      if (sibling === this.#activeDragItem || sibling === this.#clone) continue;
       const box = sibling.getBoundingClientRect();
-      if (y <= box.top + box.height / 2) {
-        target = sibling;
-        break;
-      }
+      if (y <= box.top + box.height / 2) return sibling;
     }
+    return null;
+  }
 
-    const wouldNoOp = target === item.nextElementSibling
-      || (target === null && item === chainList.lastElementChild);
-    const finalTarget = wouldNoOp ? undefined : target;
-    if (finalTarget === this.#dropTarget) return;
+  #applyDragStyles(deltaY) {
+    this.#clone.style.setProperty('--drag-offset', deltaY + 'px');
+    this.#clone.scrollIntoView({block: 'nearest', behavior: 'instant'});
+  }
 
+  #updateDropMarker(target, chainList) {
     this.#dropTargetMarker?.classList.remove(
       'drop-target-before', 'drop-target-after'
     );
-    this.#dropTargetMarker = null;
-
-    if (finalTarget === null) {
-      this.#dropTargetMarker = chainList.lastElementChild;
-      this.#dropTargetMarker.classList.add('drop-target-after');
-    } else if (finalTarget) {
-      this.#dropTargetMarker = finalTarget;
-      this.#dropTargetMarker.classList.add('drop-target-before');
-    }
-    this.#dropTarget = finalTarget;
+    const item = this.#activeDragItem;
+    const wouldNotMove = target === item.nextElementSibling
+      || (target === null && item === chainList.lastElementChild);
+    this.#dropTargetMarker = wouldNotMove
+      ? null
+      : (target ?? chainList.lastElementChild);
+    this.#dropTargetMarker?.classList.add(
+      target ? 'drop-target-before' : 'drop-target-after'
+    );
   }
 
   commitDrop(chainList) {
-    const item = this.#activeDragItem;
-    if (!item || this.#dropTarget === undefined) return null;
-
-    chainList.insertBefore(item, this.#dropTarget);
+    chainList.insertBefore(this.#activeDragItem, this.#dropTarget);
     this.#order = Array.from(
-      chainList.children, (li) => li.dataset.step
+      realItems(chainList), (li) => li.dataset.step
     );
-    return item;
+  }
+
+  // Marker shows the prospective drop position. Moving down lands one
+  // slot before the target (target shifts down); moving up lands at it.
+  #updateCloneNumber() {
+    const targetNumber = this.#dropTarget
+      ? this.#items.indexOf(this.#dropTarget) + 1
+      : this.#items.length + 1;
+    this.#clone.start = this.#itemNumber < targetNumber
+      ? targetNumber - 1 : targetNumber;
   }
 
   endDrag() {
@@ -282,17 +278,52 @@ class CausalChain {
     this.#dropTargetMarker?.classList.remove(
       'drop-target-before', 'drop-target-after'
     );
-    item.classList.remove('active-drag-item');
-    item.style.removeProperty('--drag-offset');
+    if (this.#clone) this.#settleClone(item);
+
     this.#activeDragItem = null;
-    this.#dropTarget = undefined;
+    this.#dropTarget = null;
     this.#dropTargetMarker = null;
-    this.#startY = 0;
-    this.#initialItemTop = 0;
   }
 
-  isOrderCorrect() {
-    return this.#order.every((step, i) => step === this.#steps[i]);
+  // Animate the clone from its drag position to the item's resting
+  // position (new slot on drop, original slot on Esc/cancel) with
+  // distance-proportional duration. On transition end, remove the clone.
+  #settleClone(item) {
+    const clone = this.#clone;
+    this.#clone = null;
+
+    item.classList.remove('active-drag-item');
+
+    const dy = item.getBoundingClientRect().top
+      - clone.getBoundingClientRect().top;
+
+    // Click-without-drag: clone is already aligned with item. No transform
+    // change means no transition fires, which means transitionend never
+    // fires — listener would stall and the clone would stay in the DOM.
+    if (dy === 0) {
+      clone.remove();
+      return;
+    }
+
+    const currentOffset = parseFloat(
+      clone.style.getPropertyValue('--drag-offset')
+    ) || 0;
+
+    clone.style.transitionDuration = this.#calculateSettleDuration(dy) + 'ms';
+    clone.classList.add('settling');
+
+    requestAnimationFrame(() => {
+      clone.style.setProperty('--drag-offset', (currentOffset + dy) + 'px');
+    });
+
+    clone.addEventListener('transitionend', () => clone.remove(), {once: true});
+  }
+
+  #calculateSettleDuration(dy) {
+    const SETTLE_SPEED = 1.5;  // px per ms
+    const MIN_MS = 200;
+    const MAX_MS = 600;
+    return Math.max(MIN_MS, Math.min(MAX_MS, Math.abs(dy) / SETTLE_SPEED));
   }
 
   orderResults() {
