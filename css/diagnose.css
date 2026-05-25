@@ -65,6 +65,19 @@
   margin: .25rem 0;
 }
 
+.chain-title {
+  font-family: var(--mono);
+  font-size: var(--text-sm);
+  color: var(--accent);
+  margin-bottom: .25rem;
+}
+
+.chain-subtitle {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  margin-bottom: .75rem;
+}
+
 .chain-list {
   list-style-type: decimal;
   list-style-position: inside;
@@ -81,9 +94,6 @@
   cursor: grab;
   font-size: var(--text-sm);
   touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
   transition: border-color var(--dur-normal), opacity var(--dur-slow);
 }
 
@@ -130,9 +140,6 @@
   cursor: grabbing;
   font-size: var(--text-sm);
   box-shadow: var(--box-shadow-lg);
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
 }
 
 .chain-list > li.drop-target-before::before,
@@ -266,19 +273,6 @@ html.active-chain-drag * {
   font-size: var(--text-sm);
   color: var(--accent);
   margin-bottom: 1rem;
-}
-
-.chain-title {
-  font-family: var(--mono);
-  font-size: var(--text-sm);
-  color: var(--accent);
-  margin-bottom: .25rem;
-}
-
-.chain-subtitle {
-  font-size: var(--text-xs);
-  color: var(--text-dim);
-  margin-bottom: .75rem;
 }
 
 .exercise-tags {
