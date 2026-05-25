@@ -249,6 +249,47 @@ async function decoderActivationTest() {
 // Second subtabbed family (patterns): the activateSubtab delegation
 // path is not nomenclature-specific. Render, breadcrumb shown, switch,
 // re-click active is a no-op.
+// Regression guard for the applyHash truncation bug. navigation-tabs used to
+// rebuild location.hash from the two captured segments, dropping any third
+// segment before diagnose-muscle-map.applySubview could read it. Clicking
+// the byFinding subview link would end up back on byMuscle.
+async function muscleMapSubviewTest() {
+  const page = await newPage();
+  await page.goto(`${BASE}/index.html#diagnose/muscle-map`);
+  await page.waitForSelector('#muscle-view-byFinding', {timeout: 5000});
+
+  const initialActive = await page.locator('.subview-tab[aria-current]')
+    .getAttribute('id');
+  ok('muscle-map: initial subview is byMuscle (markup default)',
+     initialActive === 'muscle-view-byMuscle', `id=${initialActive}`);
+
+  await page.locator('#muscle-view-byFinding').click();
+  await page.waitForTimeout(300);
+
+  const hashAfterClick = await page.evaluate(() => location.hash);
+  const activeAfterClick = await page.locator('.subview-tab[aria-current]')
+    .getAttribute('id');
+  ok('muscle-map: byFinding click preserves third hash segment',
+     hashAfterClick === '#diagnose/muscle-map/byFinding',
+     `hash=${hashAfterClick}`);
+  ok('muscle-map: byFinding aria-current activates',
+     activeAfterClick === 'muscle-view-byFinding', `id=${activeAfterClick}`);
+
+  // Deep link with the third segment should also activate the right subview.
+  await page.goto(`${BASE}/index.html#diagnose/muscle-map/byFinding`);
+  await page.waitForSelector('.subview-tab[aria-current]', {timeout: 5000});
+  await page.waitForTimeout(300);
+  const deepLinkActive = await page.locator('.subview-tab[aria-current]')
+    .getAttribute('id');
+  const deepLinkHash = await page.evaluate(() => location.hash);
+  ok('muscle-map: deep link to byFinding activates the right subview',
+     deepLinkActive === 'muscle-view-byFinding', `id=${deepLinkActive}`);
+  ok('muscle-map: deep link preserves third hash segment',
+     deepLinkHash === '#diagnose/muscle-map/byFinding', `hash=${deepLinkHash}`);
+
+  await page.context().close();
+}
+
 async function patternsSubtabTest() {
   const page = await newPage();
   await page.goto(`${BASE}/index.html#patterns/cheat-sheet`);
@@ -345,6 +386,7 @@ await flashcardsFilterTest();
 await flashcardsAddFormEnterTest();
 await patternsSubtabTest();
 await decoderActivationTest();
+await muscleMapSubviewTest();
 await sameHashImportRetryTest();
 
 await browser.close();

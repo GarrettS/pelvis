@@ -180,11 +180,14 @@ function activateSubtab(tabId, subtabId) {
 function applyHash() {
   let {tab: tabId = defaultTabId, subtab: subtabId} =
       ROUTE_REGEX.exec(location.hash)?.groups || {};
-  if (!byId(tabKey.navLink(tabId))) { tabId = defaultTabId; subtabId = undefined; }
-
-  const canonicalHash = '#' + tabId + (subtabId ? '/' + subtabId : '');
-  if (location.hash !== canonicalHash) {
-    window.history.replaceState(null, '', canonicalHash);
+  const tabValid = byId(tabKey.navLink(tabId));
+  if (!tabValid) {
+    tabId = defaultTabId;
+    subtabId = undefined;
+  }
+  if (!tabValid || !location.hash) {
+    window.history.replaceState(null, '',
+      '#' + tabId + (subtabId ? '/' + subtabId : ''));
   }
   activateTab(tabId, subtabId);
 }
