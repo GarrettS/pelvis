@@ -67,7 +67,13 @@ function renderEquivChain() {
       ...Object.entries(equiv).map(([rid, d], i) => newEl('div', {
         className: equivLineClass(rid),
         textContent: `${i === 0 ? '' : '= '}${side} ${rid} ${d}`
-      }))
+      })),
+      ...(region === 'FA' ? [newEl('div', {
+        className: 'equiv-chain-note',
+        textContent:
+            'FA describes the same hip-joint state as AF, with the femur '
+            + 'as the named mover. FA ER ≡ AF ER. (Manual p.4, 11)'
+      })] : [])
   );
 }
 

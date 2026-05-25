@@ -133,7 +133,7 @@ async function tabLevelTest(label, route, navId, contentId, renderedSel) {
   const contentHidden = await page.locator(`#${contentId}`)
     .evaluate(el => el.hidden);
   const crumbHidden = await page.locator('#breadcrumb')
-    .evaluate(el => el.classList.contains('hidden'));
+    .evaluate(el => el.classList.contains('breadcrumb-empty'));
   const rendered = await page.locator(renderedSel).count();
 
   ok(`${label}: nav current=page`, current === 'page', `current=${current}`);
@@ -303,7 +303,7 @@ async function patternsSubtabTest() {
   const subCurrent = await page.locator('#patterns-cheat-sheet-subtab')
     .getAttribute('aria-current');
   const crumbHidden = await page.locator('#breadcrumb')
-    .evaluate(el => el.classList.contains('hidden'));
+    .evaluate(el => el.classList.contains('breadcrumb-empty'));
   const grid = await page.locator('#cheat-sheet-grid > *').count();
   ok('patterns: cheat-sheet renders, nav+subtab current, row+breadcrumb shown',
      navCurrent === 'page' && rowHidden === false && subCurrent === 'true'

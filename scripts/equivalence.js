@@ -10,7 +10,7 @@ export const REGION_LABELS = {
 export function getAllEquivalent(regionId, directionId) {
   const ipIsER = (() => {
     switch (regionId) {
-      case 'IP': case 'AF': return directionId === 'ER';
+      case 'IP': case 'AF': case 'FA': return directionId === 'ER';
       case 'IS': case 'IsP': case 'SI': return directionId === 'IR';
       default: return true;
     }
