@@ -107,6 +107,12 @@
   background: var(--error-bg);
 }
 
+.chain-list.grading-stale > li.correct,
+.chain-list.grading-stale > li.incorrect {
+  border-left-color: var(--border);
+  background: var(--panel-bg-sunken);
+}
+
 .chain-list > li.active-drag-item {
   outline: 2px dashed var(--accent);
   outline-offset: -2px;

@@ -95,22 +95,63 @@ const buildChainListForm = (chainList, { title, start, end }) =>
     `
   });
 
-const renderChainList = chainList =>
-  document.getElementById(chainList.id).replaceChildren(
+const renderChainList = chainList => {
+  const ol = document.getElementById(chainList.id);
+  ol.classList.remove('grading-stale');
+  document.forms[ol.id].check.disabled = false;
+  ol.replaceChildren(
     ...chainList.currentOrder().map(step =>
       newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}})));
+  realItems(ol).forEach(item => {
+    item.animate([
+      { opacity: 0, transform: 'translateY(-6px)' },
+      { opacity: 1, transform: 'translateY(0)' }
+    ], {
+      duration: DUR_NORMAL,
+      easing: 'ease-out'
+    });
+  });
+};
 
 // chainListEl may contain a transient .chain-clone-list OL during drag/settle;
 // :scope > li excludes it.
 const realItems = chainListEl =>
   chainListEl.querySelectorAll(':scope > li');
 
+const playCorrectCascade = items => {
+  items.forEach((item, i) => {
+    item.animate([
+      { transform: 'scale(1)', boxShadow: 'none' },
+      {
+        transform: 'scale(1.02)',
+        boxShadow: '0 0 12px var(--correct-border), inset 0 0 8px var(--correct-border)',
+        borderColor: 'transparent',
+        offset: 0.3
+      },
+      { transform: 'scale(1)', boxShadow: 'none' }
+    ], {
+      duration: DUR_NORMAL,
+      delay: i * DUR_FAST / 2,
+      easing: 'ease-out'
+    });
+  });
+};
+
 const markOrderResults = chainList => {
+  const ol = document.getElementById(chainList.id);
+  ol.classList.remove('grading-stale');
   const results = chainList.orderResults();
-  realItems(document.getElementById(chainList.id)).forEach((chainItem, i) => {
+  const items = realItems(ol);
+
+  items.forEach((chainItem, i) => {
     chainItem.classList.toggle('correct', results[i].isCorrect);
     chainItem.classList.toggle('incorrect', !results[i].isCorrect);
   });
+
+  if (results.every(r => r.isCorrect)) {
+    document.forms[ol.id].check.disabled = true;
+    playCorrectCascade(items);
+  }
 };
 
 const SETTLE_SPEED = 1.5;   // px per ms
@@ -119,6 +160,11 @@ const SETTLE_MAX_MS = 600;
 
 const calculateSettleDuration = dy =>
   Math.max(SETTLE_MIN_MS, Math.min(SETTLE_MAX_MS, Math.abs(dy) / SETTLE_SPEED));
+
+const cssTokens = getComputedStyle(document.documentElement);
+const DUR_SLOW = parseFloat(cssTokens.getPropertyValue('--dur-slow'));
+const DUR_NORMAL = parseFloat(cssTokens.getPropertyValue('--dur-normal'));
+const DUR_FAST = parseFloat(cssTokens.getPropertyValue('--dur-fast'));
 
 class CausalChain {
   static #instances = Object.create(null);
@@ -218,6 +264,12 @@ class CausalChain {
       children: [chainItem.cloneNode(true)]
     }), chainItem);
     chainItem.classList.add('active-drag-item');
+    // Drag start = user has signaled intent to change the order, so any
+    // prior grading is stale. CSS suppresses .correct / .incorrect under
+    // the OL-level class; Check Order or Reshuffle clears it. Re-enable
+    // Check Order in case the prior grading disabled it (all-correct).
+    chainListEl.classList.add('grading-stale');
+    document.forms[chainListEl.id].check.disabled = false;
 
     return {
       dropTarget: initialDropTarget,
@@ -275,7 +327,11 @@ class CausalChain {
 
   commitDrop() {
     const { dropTarget, baseline } = this.#dragSession;
-    if (dropTarget === baseline.initialDropTarget) return;
+    if (dropTarget === baseline.initialDropTarget) {
+      // No actual reorder — restore the prior grading display.
+      baseline.chainListEl.classList.remove('grading-stale');
+      return;
+    }
     const { chainItem, chainListEl } = baseline;
     chainListEl.insertBefore(chainItem, dropTarget);
     this.#order = Array.from(realItems(chainListEl), li => li.dataset.step);

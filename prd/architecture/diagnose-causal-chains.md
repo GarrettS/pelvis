@@ -180,3 +180,20 @@ No per-button data attributes, no `data-chain-id` carriers, no DOM walks to reco
 The submitting button is routed through `e.submitter.name` — `"check"` or `"reshuffle"`. Native button semantics: no `onclick` handlers, no class-selector matches, no custom event detail.
 
 Reshuffle evicts the cached instance via `CausalChain.discard(id)`; the next `getById(id)` rebuilds it with a fresh `toShuffled` order. Check runs `orderResults` (per-row comparison against `#steps`) and toggles `.correct` / `.incorrect` on each LI.
+
+## Grading Display Lifecycle
+
+Check Order applies `.correct` / `.incorrect` classes per LI. The classes *stay on the elements*, but their visibility is gated by state on the OL.
+
+When a drag starts, `#commitDragDOM` adds `.grading-stale` to the OL. A CSS rule with higher specificity than `.correct` / `.incorrect` overrides the colored backgrounds and borders back to the neutral row style while `.grading-stale` is present. The existing `transition: border-color` on `.chain-list > li` fades the borders smoothly as the cascade flips — so the moment the user picks up an item, the grading visually clears with a brief transition rather than a hard pop.
+
+What removes `.grading-stale`:
+
+- **Drop in the same place** — `commitDrop`'s fast-exit removes the class, and the prior grading reappears unchanged.
+- **Drop that reorders** — `.grading-stale` *stays*, because the grading is genuinely stale.
+- **Check Order** — re-grades, then removes the class.
+- **Reshuffle** — re-renders LIs (without color classes), removes the class.
+
+All-correct grades disable that form's Check Order button until the next dragstart or Reshuffle. Re-clicking Check Order on an unchanged all-correct chain wouldn't add information, so the button takes itself out of play. The enable/disable lives in the same handlers that toggle `.grading-stale`. Both reads use `document.forms[id].check` — the Shared Key keeps each chain's Check button addressable by chain id.
+
+A brief WAAPI cascade fires on the all-correct event (`playCorrectCascade`), and `renderChainList` fades new LIs in on initial render and Reshuffle. Animation timing reads `--dur-normal` and `--dur-fast` from the CSS token sheet, so a single timing change ripples to every animation in the module.
