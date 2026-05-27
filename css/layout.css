@@ -352,6 +352,7 @@ button.primary {
 button.primary:hover:not(:disabled) {
   box-shadow: var(--box-shadow-md);
   opacity: .9;
+  color: var(--bg);
 }
 
 button.warn {
