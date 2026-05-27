@@ -26,24 +26,11 @@
   color: var(--text-dim);
   padding: .3rem .6rem;
   border-radius: 4px;
-  cursor: pointer;
   margin: .25rem 0;
   display: block;
   text-align: left;
   transition: all var(--dur-fast);
   width: 100%;
-  list-style: none;
-}
-
-.tree-answer-toggle::before {
-  content: "▶";
-  display: inline-block;
-  margin-right: .35rem;
-  transition: transform var(--dur-fast);
-}
-
-.tree-branch[open] > .tree-answer-toggle::before {
-  transform: rotate(90deg);
 }
 
 .tree-answer-toggle:hover {
@@ -172,6 +159,32 @@ html.active-chain-drag,
 html.active-chain-drag * {
   cursor: grabbing;
   user-select: none;
+}
+
+.chain-infobonus {
+  display: none;
+  margin-top: 1rem;
+  padding: .75rem .9rem;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-dim);
+  border-radius: 4px;
+  font-size: var(--text-sm);
+}
+
+.card.revealed .chain-infobonus {
+  display: block;
+}
+
+.chain-infobonus > summary {
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  color: var(--accent);
+}
+
+.chain-infobonus > p {
+  margin: .5rem 0 0;
+  color: var(--text);
+  line-height: 1.5;
 }
 
 .scenario-header {

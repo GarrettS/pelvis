@@ -80,7 +80,7 @@ function wireChainDrag(container) {
     activeChainList && e.key === 'Escape' && cleanup());
 }
 
-const buildChainListForm = (chainList, { title, start, end }) =>
+const buildChainListForm = (chainList, { title, start, end, infoBonus }) =>
   newEl('form', {
     className: 'card',
     attrs: {name: chainList.id},
@@ -92,13 +92,19 @@ const buildChainListForm = (chainList, { title, start, end }) =>
         <button name="check" class="primary">Check Order</button>
         <button name="reshuffle">Reshuffle</button>
       </div>
+      ${infoBonus ? `<details class="chain-infobonus" name="${chainList.id}">
+        <summary>${expandAbbr(infoBonus.summary)}</summary>
+        <p>${expandAbbr(infoBonus.content)}</p>
+      </details>` : ''}
     `
   });
 
 const renderChainList = chainList => {
   const ol = document.getElementById(chainList.id);
+  const form = document.forms[ol.id];
   ol.classList.remove('grading-stale');
-  document.forms[ol.id].check.disabled = false;
+  clearBonusReveal(form);
+  form.check.disabled = false;
   ol.replaceChildren(
     ...chainList.currentOrder().map(step =>
       newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}})));
@@ -117,6 +123,20 @@ const renderChainList = chainList => {
 // :scope > li excludes it.
 const realItems = chainListEl =>
   chainListEl.querySelectorAll(':scope > li');
+
+const bonusDetailsFor = form =>
+  form.querySelector(`details[name="${form.name}"]`);
+
+const clearBonusReveal = form => {
+  form.classList.remove('revealed');
+  bonusDetailsFor(form)?.removeAttribute('open');
+};
+
+const revealBonus = form => {
+  form.classList.add('revealed');
+  const details = bonusDetailsFor(form);
+  if (details) details.open = true;
+};
 
 const playCorrectCascade = items => {
   items.forEach((item, i) => {
@@ -139,6 +159,7 @@ const playCorrectCascade = items => {
 
 const markOrderResults = chainList => {
   const ol = document.getElementById(chainList.id);
+  const form = document.forms[ol.id];
   ol.classList.remove('grading-stale');
   const results = chainList.orderResults();
   const items = realItems(ol);
@@ -149,8 +170,11 @@ const markOrderResults = chainList => {
   });
 
   if (results.every(r => r.isCorrect)) {
-    document.forms[ol.id].check.disabled = true;
+    revealBonus(form);
+    form.check.disabled = true;
     playCorrectCascade(items);
+  } else if (chainList.needsHint()) {
+    revealBonus(form);
   }
 };
 
@@ -165,6 +189,8 @@ const cssTokens = getComputedStyle(document.documentElement);
 const DUR_SLOW = parseFloat(cssTokens.getPropertyValue('--dur-slow'));
 const DUR_NORMAL = parseFloat(cssTokens.getPropertyValue('--dur-normal'));
 const DUR_FAST = parseFloat(cssTokens.getPropertyValue('--dur-fast'));
+
+const BONUS_HINT_THRESHOLD = 3;
 
 class CausalChain {
   static #instances = Object.create(null);
@@ -194,6 +220,7 @@ class CausalChain {
   #steps;
   #order;
   #dragSession = null;
+  #wrongChecks = 0;
   // session: { dropTarget, marker, clone, baseline }
   // baseline (frozen): { chainListEl, chainItem, pageStartY, cloneTop,
   //                     items, displayRank, initialDropTarget,
@@ -210,6 +237,10 @@ class CausalChain {
 
   get id() { return this.#id; }
   currentOrder() { return this.#order.slice(); }
+
+  needsHint() {
+    return ++this.#wrongChecks === BONUS_HINT_THRESHOLD;
+  }
 
   static #captureBaseline(chainItem, pageStartY) {
     const chainListEl = chainItem.parentNode;
@@ -269,7 +300,8 @@ class CausalChain {
     // the OL-level class; Check Order or Reshuffle clears it. Re-enable
     // Check Order in case the prior grading disabled it (all-correct).
     chainListEl.classList.add('grading-stale');
-    document.forms[chainListEl.id].check.disabled = false;
+    const form = document.forms[chainListEl.id];
+    form.check.disabled = false;
 
     return {
       dropTarget: initialDropTarget,
@@ -280,6 +312,7 @@ class CausalChain {
   }
 
   startDrag(chainItem, pageStartY) {
+    this.#wrongChecks = 0;
     this.#dragSession = CausalChain.#commitDragDOM(
       CausalChain.#captureBaseline(chainItem, pageStartY));
   }
