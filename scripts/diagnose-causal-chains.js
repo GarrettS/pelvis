@@ -49,8 +49,10 @@ function wireChainDrag(container) {
 
     const chainItem = e.target.closest('.chain-list > li');
     if (!chainItem) return;
+    const ol = chainItem.parentNode;
+    if (ol.ariaDisabled === 'true') return;
 
-    activeChainList = CausalChain.getById(chainItem.parentNode.id);
+    activeChainList = CausalChain.getById(ol.id);
     activePointerId = e.pointerId;
     chainItem.setPointerCapture(e.pointerId);
     activeChainList.startDrag(chainItem, e.pageY);
@@ -103,6 +105,7 @@ const renderChainList = chainList => {
   const ol = document.getElementById(chainList.id);
   const form = document.forms[ol.id];
   ol.classList.remove('grading-stale');
+  ol.ariaDisabled = false;
   clearBonusReveal(form);
   form.check.disabled = false;
   ol.replaceChildren(
@@ -171,6 +174,7 @@ const markOrderResults = chainList => {
 
   if (results.every(r => r.isCorrect)) {
     revealBonus(form);
+    ol.ariaDisabled = true;
     form.check.disabled = true;
     playCorrectCascade(items);
   } else if (chainList.needsHint()) {

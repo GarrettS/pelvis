@@ -107,6 +107,10 @@
   cursor: grabbing;
 }
 
+.chain-list[aria-disabled="true"] > li {
+  cursor: default;
+}
+
 .chain-clone-list {
   list-style-type: decimal;
   list-style-position: inside;
