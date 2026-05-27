@@ -96,7 +96,7 @@ const buildChainListForm = (chainList, { title, start, end, infoBonus }) =>
       </div>
       ${infoBonus ? `<details class="chain-infobonus" name="${chainList.id}">
         <summary>${expandAbbr(infoBonus.summary)}</summary>
-        <p>${expandAbbr(infoBonus.content)}</p>
+        <ul>${infoBonus.points.map(p => `<li>${expandAbbr(p)}</li>`).join('')}</ul>
       </details>` : ''}
     `
   });

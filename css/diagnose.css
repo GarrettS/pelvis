@@ -185,8 +185,14 @@ html.active-chain-drag * {
   color: var(--accent);
 }
 
-.chain-infobonus > p {
+.chain-infobonus > ul {
+  list-style: disc;
+  padding-left: 1.5rem;
   margin: .5rem 0 0;
+}
+
+.chain-infobonus > ul > li {
+  margin: .25rem 0;
   color: var(--text);
   line-height: 1.5;
 }

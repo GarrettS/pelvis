@@ -40,7 +40,11 @@
     ],
     "infoBonus": {
       "summary": "In standard anatomical terms",
-      "content": "PRI's L IS IR (Manual p.7) equates to left sacral nutation — same SI joint motion, opposite reference frame (PRI describes the ilium moving on the sacrum; standard biomechanics describes the sacrum moving on the ilium). The rightward rotation of the spine (Manual p.viii) is yaw — transverse-plane motion around the vertical axis. The L AIC pattern combines sagittal-plane anterior tilt of the left innominate with transverse-plane rightward yaw of the spine; the +R PART finding (Manual p.43) is the frontal-plane consequence at the right hip as the reoriented acetabulum produces a lateral abduction limit."
+      "points": [
+        "The left side of the sacrum tips forward; the right side stays back. This is left-sided sacral nutation in standard anatomy, or L IS IR in PRI's terms (Manual p.7).",
+        "Because the left side moved forward, the sacrum has twisted — its front face now angles toward the right side of the body. The spine follows that twist (Manual p.viii).",
+        "On the right, the hip socket tilts along with the pelvis. When the leg is passively lifted to the side, the head of the thigh bone hits the upper rim of the socket and the lift gets blocked — that's the positive right PART (Manual p.43)."
+      ]
     }
   },
   "iota-weakness-to-respiratory": {
