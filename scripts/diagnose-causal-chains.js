@@ -111,7 +111,7 @@ const renderChainList = chainList => {
   const oldTops = new Map(
     [...realItems(ol)].map(li => [li.dataset.step, li.getBoundingClientRect().top])
   );
-  ol.classList.remove('grading-stale');
+  ol.classList.remove('grading-stale', 'all-correct');
   ol.ariaDisabled = false;
   clearBonusReveal(form);
   form.check.disabled = false;
@@ -154,25 +154,6 @@ const revealBonus = form => {
   if (details) details.open = true;
 };
 
-const playCorrectCascade = items => {
-  items.forEach((item, i) => {
-    item.animate([
-      { transform: 'scale(1)', boxShadow: 'none' },
-      {
-        transform: 'scale(1.02)',
-        boxShadow: '0 0 12px var(--correct-border), inset 0 0 8px var(--correct-border)',
-        borderColor: 'transparent',
-        offset: 0.3
-      },
-      { transform: 'scale(1)', boxShadow: 'none' }
-    ], {
-      duration: DUR_NORMAL,
-      delay: i * DUR_FAST / 2,
-      easing: 'ease-out'
-    });
-  });
-};
-
 const markOrderResults = chainList => {
   const ol = document.getElementById(chainList.id);
   const form = document.forms[ol.id];
@@ -187,9 +168,9 @@ const markOrderResults = chainList => {
 
   if (results.every(r => r.isCorrect)) {
     revealBonus(form);
-    ol.ariaDisabled = true;
-    form.check.disabled = true;
-    playCorrectCascade(items);
+    ol.ariaDisabled = form.check.disabled = true;
+    items.forEach(({style}, i) => style.setProperty('--i', i));
+    ol.classList.add('all-correct');
   } else if (chainList.needsHint()) {
     revealBonus(form);
   }
@@ -203,9 +184,7 @@ const calculateSettleDuration = dy =>
   Math.max(SETTLE_MIN_MS, Math.min(SETTLE_MAX_MS, Math.abs(dy) / SETTLE_SPEED));
 
 const cssTokens = getComputedStyle(document.documentElement);
-const DUR_SLOW = parseFloat(cssTokens.getPropertyValue('--dur-slow'));
 const DUR_NORMAL = parseFloat(cssTokens.getPropertyValue('--dur-normal'));
-const DUR_FAST = parseFloat(cssTokens.getPropertyValue('--dur-fast'));
 
 const BONUS_HINT_THRESHOLD = 3;
 
@@ -318,13 +297,10 @@ class CausalChain {
       children: [chainItem.cloneNode(true)]
     }), chainItem);
     chainItem.classList.add('active-drag-item');
-    // Drag start = user has signaled intent to change the order, so any
-    // prior grading is stale. CSS suppresses .correct / .incorrect under
-    // the OL-level class; Check Order or Reshuffle clears it. Re-enable
-    // Check Order in case the prior grading disabled it (all-correct).
+    // Drag start = user signaled intent to change the order, so prior
+    // grading is stale. CSS suppresses .correct / .incorrect under the
+    // OL-level class; Check Order or Reshuffle clears it.
     chainListEl.classList.add('grading-stale');
-    const form = document.forms[chainListEl.id];
-    form.check.disabled = false;
 
     return {
       dropTarget: initialDropTarget,

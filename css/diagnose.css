@@ -111,6 +111,23 @@
   cursor: default;
 }
 
+@keyframes chain-correct-pulse {
+  30% {
+    transform: scale(1.02);
+    box-shadow: 0 0 12px var(--correct-border), inset 0 0 8px var(--correct-border);
+    border-color: transparent;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.chain-list.all-correct > li {
+  animation: chain-correct-pulse var(--dur-normal) ease-out;
+  animation-delay: calc(var(--i) * var(--dur-fast) / 2);
+}
+
 .chain-clone-list {
   list-style-type: decimal;
   list-style-position: inside;
