@@ -52,6 +52,10 @@ function wireChainDrag(container) {
     const ol = chainItem.parentNode;
     if (ol.ariaDisabled === 'true') return;
 
+    // Pressing on an LI is drag intent, never selection-initiation.
+    // Selection started outside an LI can still extend through it.
+    e.preventDefault();
+
     activeChainList = CausalChain.getById(ol.id);
     activePointerId = e.pointerId;
     chainItem.setPointerCapture(e.pointerId);
@@ -104,21 +108,30 @@ const buildChainListForm = (chainList, { title, start, end, infoBonus }) =>
 const renderChainList = chainList => {
   const ol = document.getElementById(chainList.id);
   const form = document.forms[ol.id];
+  const oldTops = new Map(
+    [...realItems(ol)].map(li => [li.dataset.step, li.getBoundingClientRect().top])
+  );
   ol.classList.remove('grading-stale');
   ol.ariaDisabled = false;
   clearBonusReveal(form);
   form.check.disabled = false;
   ol.replaceChildren(
-    ...chainList.currentOrder().map(step =>
+    ...chainList.getCurrentOrder().map(step =>
       newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}})));
-  realItems(ol).forEach(item => {
-    item.animate([
-      { opacity: 0, transform: 'translateY(-6px)' },
-      { opacity: 1, transform: 'translateY(0)' }
-    ], {
-      duration: DUR_NORMAL,
-      easing: 'ease-out'
-    });
+  realItems(ol).forEach(li => {
+    const oldTop = oldTops.get(li.dataset.step);
+    if (oldTop !== undefined) {
+      const delta = oldTop - li.getBoundingClientRect().top;
+      if (delta) li.animate(
+        [{ transform: `translateY(${delta}px)` }, { transform: 'translateY(0)' }],
+        { duration: DUR_NORMAL, easing: 'ease-out' }
+      );
+    } else {
+      li.animate([
+        { opacity: 0, transform: 'translateY(-6px)' },
+        { opacity: 1, transform: 'translateY(0)' }
+      ], { duration: DUR_NORMAL, easing: 'ease-out' });
+    }
   });
 };
 
@@ -222,7 +235,7 @@ class CausalChain {
 
   #id;
   #steps;
-  #order;
+  #currentOrder;
   #dragSession = null;
   #wrongChecks = 0;
   // session: { dropTarget, marker, clone, baseline }
@@ -236,11 +249,11 @@ class CausalChain {
     );
     this.#id = id;
     this.#steps = Object.freeze([...steps]);
-    this.#order = toShuffled(steps);
+    this.#currentOrder = toShuffled(steps);
   }
 
   get id() { return this.#id; }
-  currentOrder() { return this.#order.slice(); }
+  getCurrentOrder() { return this.#currentOrder.slice(); }
 
   needsHint() {
     return ++this.#wrongChecks === BONUS_HINT_THRESHOLD;
@@ -266,10 +279,16 @@ class CausalChain {
     const siblingThresholds = [];
     for (const sibling of itemsExcludingClones) {
       if (sibling === chainItem) continue;
+      // Use the sibling's final layout position (subtract any in-flight
+      // transform) so hit-tests stay calibrated when the user picks up
+      // mid-FLIP — animations finish in the background; thresholds are
+      // already pointed at where the slots will end up.
       const box = sibling.getBoundingClientRect();
+      const transform = getComputedStyle(sibling).transform;
+      const animOffsetY = transform === 'none' ? 0 : new DOMMatrix(transform).m42;
       siblingThresholds.push({
         sibling,
-        pageThresholdY: box.top + box.height / 2 + scroll
+        pageThresholdY: box.top - animOffsetY + box.height / 2 + scroll
       });
     }
 
@@ -363,15 +382,34 @@ class CausalChain {
   }
 
   commitDrop() {
-    const { dropTarget, baseline } = this.#dragSession;
+    const session = this.#dragSession;
+    const { dropTarget, baseline, clone, marker } = session;
     if (dropTarget === baseline.initialDropTarget) {
-      // No actual reorder — restore the prior grading display.
+      // No reorder — restore the prior grading display; endDrag will
+      // settle the clone back to its origin.
       baseline.chainListEl.classList.remove('grading-stale');
       return;
     }
     const { chainItem, chainListEl } = baseline;
+    marker?.classList.remove('drop-target-before', 'drop-target-after');
+    const items = [...realItems(chainListEl)];
+    const oldTops = new Map(items.map(li => [li, li.getBoundingClientRect().top]));
+    // Dragged LI sits dim at its old DOM slot during drag; the user sees
+    // the clone at the release position. FLIP from the clone's position
+    // so the dragged item doesn't snap back to its origin on commit.
+    oldTops.set(chainItem, clone.getBoundingClientRect().top);
     chainListEl.insertBefore(chainItem, dropTarget);
-    this.#order = Array.from(realItems(chainListEl), li => li.dataset.step);
+    this.#currentOrder = Array.from(realItems(chainListEl), li => li.dataset.step);
+    chainItem.classList.remove('active-drag-item');
+    items.forEach(li => {
+      const delta = oldTops.get(li) - li.getBoundingClientRect().top;
+      if (delta) li.animate(
+        [{ transform: `translateY(${delta}px)` }, { transform: 'translateY(0)' }],
+        { duration: DUR_NORMAL, easing: 'ease-out' }
+      );
+    });
+    clone.remove();
+    this.#dragSession = null;
   }
 
   // Marker shows the prospective drop position. Moving down lands one
@@ -424,7 +462,7 @@ class CausalChain {
   }
 
   orderResults() {
-    return this.#order.map((step, i) => ({
+    return this.#currentOrder.map((step, i) => ({
       step,
       isCorrect: step === this.#steps[i]
     }));
