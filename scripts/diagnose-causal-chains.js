@@ -73,7 +73,7 @@ function wireChainDrag(container) {
 
   container.addEventListener('pointermove', e =>
     activeChainList && e.pointerId === activePointerId
-      && activeChainList.dragMove(e.pageY));
+      && activeChainList.dragMove(e.pageY, e.clientY));
 
   container.addEventListener('pointerup', e =>
     activeChainList && e.pointerId === activePointerId
@@ -105,34 +105,44 @@ const buildChainListForm = (chainList, { title, start, end, infoBonus }) =>
     `
   });
 
+// FLIP: record each row's top, run the DOM change, then animate every row
+// from its old top to its new one. customOrigins overrides a row's recorded
+// start — the drag clone's release point feeds in there so a dropped row
+// eases from the pointer instead of its dim DOM slot. A row with no recorded
+// start (a freshly rendered step) gets the entrance fade instead.
+const animateLayoutChange = (container, mutate, customOrigins = new Map()) => {
+  const oldTops = new Map(Array.from(realItems(container),
+    li => [li.dataset.step, li.getBoundingClientRect().top]));
+  customOrigins.forEach((top, step) => oldTops.set(step, top));
+
+  mutate();
+
+  realItems(container).forEach(li => {
+    const oldTop = oldTops.get(li.dataset.step);
+    if (oldTop === undefined) {
+      li.animate(
+        [{opacity: 0, transform: 'translateY(-6px)'},
+         {opacity: 1, transform: 'translateY(0)'}],
+        {duration: DUR_NORMAL, easing: 'ease-out'});
+      return;
+    }
+    const delta = oldTop - li.getBoundingClientRect().top;
+    if (delta) li.animate(
+      [{transform: `translateY(${delta}px)`}, {transform: 'translateY(0)'}],
+      {duration: DUR_NORMAL, easing: 'ease-out'});
+  });
+};
+
 const renderChainList = chainList => {
   const ol = document.getElementById(chainList.id);
   const form = document.forms[ol.id];
-  const oldTops = new Map(
-    [...realItems(ol)].map(li => [li.dataset.step, li.getBoundingClientRect().top])
-  );
   ol.classList.remove('grading-stale', 'all-correct');
   ol.ariaDisabled = false;
   clearBonusReveal(form);
   form.check.disabled = false;
-  ol.replaceChildren(
+  animateLayoutChange(ol, () => ol.replaceChildren(
     ...chainList.getCurrentOrder().map(step =>
-      newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}})));
-  realItems(ol).forEach(li => {
-    const oldTop = oldTops.get(li.dataset.step);
-    if (oldTop !== undefined) {
-      const delta = oldTop - li.getBoundingClientRect().top;
-      if (delta) li.animate(
-        [{ transform: `translateY(${delta}px)` }, { transform: 'translateY(0)' }],
-        { duration: DUR_NORMAL, easing: 'ease-out' }
-      );
-    } else {
-      li.animate([
-        { opacity: 0, transform: 'translateY(-6px)' },
-        { opacity: 1, transform: 'translateY(0)' }
-      ], { duration: DUR_NORMAL, easing: 'ease-out' });
-    }
-  });
+      newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}}))));
 };
 
 // chainListEl may contain a transient .chain-clone-list OL during drag/settle;
@@ -217,10 +227,6 @@ class CausalChain {
   #currentOrder;
   #dragSession = null;
   #wrongChecks = 0;
-  // session: { dropTarget, marker, clone, baseline }
-  // baseline (frozen): { chainListEl, chainItem, pageStartY, cloneTop,
-  //                     items, displayRank, initialDropTarget,
-  //                     minDelta, maxDelta, siblingThresholds }
 
   constructor(id, { steps }, key) {
     if (key !== CausalChain.#KEY) throw new Error(
@@ -238,50 +244,71 @@ class CausalChain {
     return ++this.#wrongChecks === BONUS_HINT_THRESHOLD;
   }
 
-  static #captureBaseline(chainItem, pageStartY) {
+  // One batched read of everything the baseline needs (the read phase).
+  // Everything after is pure math off this snapshot — no more layout reads.
+  static #measure(chainItem) {
     const chainListEl = chainItem.parentNode;
-    const chainItemRect = chainItem.getBoundingClientRect();
-    const chainListRect = chainListEl.getBoundingClientRect();
-    const itemsExcludingClones = [...realItems(chainListEl)];
-    const currentItemIndex = itemsExcludingClones.indexOf(chainItem);
-    const scroll = window.scrollY;
+    const items = [...realItems(chainListEl)];
+    return {
+      chainListEl,
+      items,
+      itemRect: chainItem.getBoundingClientRect(),
+      listRect: chainListEl.getBoundingClientRect(),
+      scroll: window.scrollY,
+      viewportHeight: window.innerHeight,
+      // Visible content starts below the sticky nav, whose height the scroller
+      // reserves as scroll-padding-top; the up-edge autoscroll trigger reads it.
+      topInset: parseFloat(
+        getComputedStyle(document.documentElement).scrollPaddingTop) || 0,
+      siblings: items
+        .filter(li => li !== chainItem)
+        .map(li => ({
+          li,
+          box: li.getBoundingClientRect(),
+          transform: getComputedStyle(li).transform
+        }))
+    };
+  }
 
-    // BCRs are viewport-relative; add scroll once at capture to land in
-    // document coords. The wire passes PointerEvent.pageY at both
-    // pointerdown and pointermove, so pointer coords arrive document-
-    // relative and stay race-free with async (compositor-thread) scroll.
-    const pageInitialItemTop = chainItemRect.top + scroll;
-    const pageListTop = chainListRect.top + scroll;
-    const pageListBottom = chainListRect.bottom + scroll;
-    const itemHeight = chainItemRect.height;
-
-    const siblingThresholds = [];
-    for (const sibling of itemsExcludingClones) {
-      if (sibling === chainItem) continue;
-      // Use the sibling's final layout position (subtract any in-flight
-      // transform) so hit-tests stay calibrated when the user picks up
-      // mid-FLIP — animations finish in the background; thresholds are
-      // already pointed at where the slots will end up.
-      const box = sibling.getBoundingClientRect();
-      const transform = getComputedStyle(sibling).transform;
+  // Hit-test midpoints in document coords. Subtract each sibling's in-flight
+  // transform so a mid-FLIP pickup still targets the settled slot, not the
+  // animating position.
+  static #siblingThresholds({ siblings, scroll }) {
+    return siblings.map(({ li, box, transform }) => {
       const animOffsetY = transform === 'none' ? 0 : new DOMMatrix(transform).m42;
-      siblingThresholds.push({
-        sibling,
-        pageThresholdY: box.top - animOffsetY + box.height / 2 + scroll
-      });
-    }
+      const pageThresholdY = box.top - animOffsetY + box.height / 2 + scroll;
+      return { sibling: li, pageThresholdY };
+    });
+  }
+
+  static #captureBaseline(chainItem, pageStartY) {
+    const m = CausalChain.#measure(chainItem);
+    const { itemRect, listRect, scroll, items } = m;
+    const index = items.indexOf(chainItem);
+
+    // BCRs are viewport-relative; + scroll lands them in document coords so the
+    // clamp range matches the document-space pointer delta (see the Scroll Trap).
+    const pageItemTop = itemRect.top + scroll;
+    const pageListTop = listRect.top + scroll;
+    const pageListBottom = listRect.bottom + scroll;
 
     return Object.freeze({
-      chainListEl,
+      chainListEl: m.chainListEl,
       chainItem,
       pageStartY,
-      cloneTop: Math.round(chainItemRect.top - chainListRect.top),
-      items: itemsExcludingClones,
-      displayRank: currentItemIndex + 1,
-      initialDropTarget: itemsExcludingClones[currentItemIndex + 1] ?? null,
-      minDelta: pageListTop - pageInitialItemTop,
-      maxDelta: pageListBottom - itemHeight - pageInitialItemTop,
-      siblingThresholds
+      items,
+      cloneTop: Math.round(itemRect.top - listRect.top),
+      displayRank: index + 1,
+      initialDropTarget: items[index + 1],
+      itemHeight: itemRect.height,
+      topInset: m.topInset,
+      // Clone is clamped inside the list, so it clips only when the list
+      // extends past the visible region — under the sticky nav (topInset) or
+      // below the fold — decided once; no per-frame scroll if it fits.
+      autoscroll: listRect.top < m.topInset || listRect.bottom > m.viewportHeight,
+      minDelta: pageListTop - pageItemTop,
+      maxDelta: pageListBottom - itemRect.height - pageItemTop,
+      siblingThresholds: CausalChain.#siblingThresholds(m)
     });
   }
 
@@ -316,11 +343,15 @@ class CausalChain {
       CausalChain.#captureBaseline(chainItem, pageStartY));
   }
 
-  dragMove(pageY) {
+  dragMove(pageY, clientY) {
     const deltaY = this.#getConstrainedDeltaY(pageY);
+    this.#dragSession.clone.style.setProperty('--drag-offset', deltaY + 'px');
+    this.#maybeAutoscroll(clientY);
+
     const target = this.#findTargetSibling(pageY);
-    this.#applyDragStyles(deltaY);
-    if (target === this.#dragSession.dropTarget) return;
+    // Loose ==: a null target and the undefined initial seed both mean
+    // "no target" (end of list), so a genuine no-move doesn't re-mark.
+    if (target == this.#dragSession.dropTarget) return;
 
     this.#updateDropMarker(target);
     this.#dragSession.dropTarget = target;
@@ -337,10 +368,17 @@ class CausalChain {
       .find(t => pageY <= t.pageThresholdY)?.sibling ?? null;
   }
 
-  #applyDragStyles(deltaY) {
-    const { clone } = this.#dragSession;
-    clone.style.setProperty('--drag-offset', deltaY + 'px');
-    clone.scrollIntoView({block: 'nearest'});
+  // All the autoscroll runtime in one place. baseline.autoscroll (decided once)
+  // gates it; then scroll when the pointer enters an itemHeight band at either
+  // edge of the visible region — the top edge is the sticky-nav inset, not the
+  // viewport top, and scroll-padding-top lands the clone clear of the nav.
+  // clientY is read fresh each frame (viewport coords, never cached) so it
+  // can't go stale as the page scrolls.
+  #maybeAutoscroll(clientY) {
+    const { autoscroll, topInset, itemHeight } = this.#dragSession.baseline;
+    if (!autoscroll) return;
+    if (clientY < topInset + itemHeight || clientY > window.innerHeight - itemHeight)
+      this.#dragSession.clone.scrollIntoView({block: 'nearest'});
   }
 
   #updateDropMarker(target) {
@@ -360,30 +398,30 @@ class CausalChain {
   commitDrop() {
     const session = this.#dragSession;
     const { dropTarget, baseline, clone, marker } = session;
-    if (dropTarget === baseline.initialDropTarget) {
+
+    // Loose ==: "no target" is null from #findTargetSibling but undefined from
+    // initialDropTarget at end-of-list — treat both as the same no-target.
+    if (dropTarget == baseline.initialDropTarget) {
       // No reorder — restore the prior grading display; endDrag will
       // settle the clone back to its origin.
       baseline.chainListEl.classList.remove('grading-stale');
       return;
     }
+
     const { chainItem, chainListEl } = baseline;
     marker?.classList.remove('drop-target-before', 'drop-target-after');
-    const items = [...realItems(chainListEl)];
-    const oldTops = new Map(items.map(li => [li, li.getBoundingClientRect().top]));
-    // Dragged LI sits dim at its old DOM slot during drag; the user sees
-    // the clone at the release position. FLIP from the clone's position
-    // so the dragged item doesn't snap back to its origin on commit.
-    oldTops.set(chainItem, clone.getBoundingClientRect().top);
-    chainListEl.insertBefore(chainItem, dropTarget);
-    this.#currentOrder = Array.from(realItems(chainListEl), li => li.dataset.step);
+
+    // Un-dim before the FLIP so the row eases at full opacity. The clone's
+    // release top seeds the dragged row's origin, so it settles from the
+    // pointer instead of snapping back to its dim DOM slot.
     chainItem.classList.remove('active-drag-item');
-    items.forEach(li => {
-      const delta = oldTops.get(li) - li.getBoundingClientRect().top;
-      if (delta) li.animate(
-        [{ transform: `translateY(${delta}px)` }, { transform: 'translateY(0)' }],
-        { duration: DUR_NORMAL, easing: 'ease-out' }
-      );
-    });
+    animateLayoutChange(chainListEl, () => {
+      chainListEl.insertBefore(chainItem, dropTarget);
+      this.#currentOrder = Array.from(realItems(chainListEl), li => li.dataset.step);
+    }, new Map([[chainItem.dataset.step, clone.getBoundingClientRect().top]]));
+    chainItem.classList.add('dropped');
+    chainItem.addEventListener('animationend',
+      () => chainItem.classList.remove('dropped'), {once: true});
     clone.remove();
     this.#dragSession = null;
   }
@@ -408,9 +446,9 @@ class CausalChain {
     this.#dragSession = null;
   }
 
-  // Animate the clone from its drag position to the item's resting
-  // position (new slot on drop, original slot on Esc/cancel) with
-  // distance-proportional duration. On transition end, remove the clone.
+  // Glide the clone back to the item's slot, then remove it on transitionend.
+  // Runs only for a no-op drop (released in place) or Esc/cancel — a real
+  // reorder animates through animateLayoutChange and skips this.
   #settleClone(clone, item) {
     item.classList.remove('active-drag-item');
 

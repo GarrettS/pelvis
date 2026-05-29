@@ -219,10 +219,23 @@ function initScrollAffordance() {
   checkScroll();
 }
 
+// The sticky nav overlays the top of the page's scrollport. Reserve its
+// current height as scroll-padding-top so scrollIntoView and #anchor targets
+// land below the nav, not behind it. Re-measured on every route change —
+// the subtab-row makes the nav taller on subtabbed routes, so a once-only
+// measure taken on a row-less route (e.g. Home) would be too short here.
+// Registered after applyHash so the subtab-row is already shown when measured.
+function updateScrollInset() {
+  document.documentElement.style.scrollPaddingTop =
+    document.querySelector('nav').getBoundingClientRect().bottom + 'px';
+}
+
 function initNavigationTabs() {
   document.querySelector('nav').addEventListener('click', handleNavClick);
   window.addEventListener('hashchange', applyHash);
+  window.addEventListener('hashchange', updateScrollInset);
   applyHash();
+  updateScrollInset();
   initScrollAffordance();
 }
 

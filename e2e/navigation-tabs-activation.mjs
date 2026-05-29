@@ -389,6 +389,27 @@ await decoderActivationTest();
 await muscleMapSubviewTest();
 await sameHashImportRetryTest();
 
+// The sticky nav occludes the top of the scrollport; navigation sets the
+// root's scroll-padding-top to the nav's height on each route change so
+// programmatic scrolls land below it. Guards that setter: without it the
+// value is 0 and the chain-drag up-autoscroll silently regresses. Uses a
+// subtabbed route so the measured nav includes the subtab-row.
+async function scrollInsetTest() {
+  const page = await newPage();
+  await page.goto(`${BASE}/index.html#diagnose/causal-chains`);
+  await page.waitForSelector('#diagnose-subtabs:not([hidden])', {timeout: 5000})
+    .catch(() => {});
+  const {inset, navBottom} = await page.evaluate(() => ({
+    inset: parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0,
+    navBottom: document.querySelector('nav').getBoundingClientRect().bottom
+  }));
+  ok('scroll inset: subtabbed route reserves nav height',
+     inset > 0 && Math.abs(inset - navBottom) < 1,
+     `inset=${inset} navBottom=${navBottom}`);
+  await page.context().close();
+}
+await scrollInsetTest();
+
 await browser.close();
 
 let allPass = true;

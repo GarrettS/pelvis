@@ -81,7 +81,7 @@
   cursor: grab;
   font-size: var(--text-sm);
   touch-action: none;
-  transition: border-color var(--dur-normal), opacity var(--dur-slow);
+  transition: border-color var(--dur-normal);
 }
 
 .chain-list > li.correct {
@@ -105,6 +105,28 @@
   outline-offset: -2px;
   opacity: .3;
   cursor: grabbing;
+  /* Opacity transition is scoped to this class: lifting dims slowly, but
+     removing it on drop snaps back to full opacity at once, so the dropped
+     item is solid the instant the cool-down animation starts. */
+  transition: border-color var(--dur-normal), opacity var(--dur-slow);
+}
+
+/* On drop the LI briefly wears the dragged clone's look, then cools to its
+   resting row. The keyframe declares the accent start, so it needs no
+   painted-first arming and overrides grading-stale while it runs. */
+@keyframes chain-drop-cool {
+  from {
+    background: var(--accent-bg);
+    border-left-color: var(--accent);
+    box-shadow: var(--box-shadow-lg);
+  }
+}
+
+.chain-list > li.dropped {
+  /* Stay above the displaced sibling that FLIPs past during the settle, so the
+     dropped row cools on top instead of being covered. Clears with the class. */
+  z-index: 1;
+  animation: chain-drop-cool var(--dur-normal) ease-out;
 }
 
 .chain-list[aria-disabled="true"] > li {
