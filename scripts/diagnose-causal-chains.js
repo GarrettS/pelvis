@@ -398,18 +398,19 @@ class CausalChain {
   commitDrop() {
     const session = this.#dragSession;
     const { dropTarget, baseline, clone, marker } = session;
+    const { chainItem, chainListEl } = baseline;
+    marker?.classList.remove('drop-target-before', 'drop-target-after');
 
     // Loose ==: "no target" is null from #findTargetSibling but undefined from
     // initialDropTarget at end-of-list — treat both as the same no-target.
     if (dropTarget == baseline.initialDropTarget) {
-      // No reorder — restore the prior grading display; endDrag will
-      // settle the clone back to its origin.
-      baseline.chainListEl.classList.remove('grading-stale');
+      // No reorder — restore the prior grading and settle the clone back to
+      // the item's unchanged slot.
+      chainListEl.classList.remove('grading-stale');
+      this.#settleClone(clone, chainItem);
+      this.#dragSession = null;
       return;
     }
-
-    const { chainItem, chainListEl } = baseline;
-    marker?.classList.remove('drop-target-before', 'drop-target-after');
 
     // Un-dim before the FLIP so the row eases at full opacity. The clone's
     // release top seeds the dragged row's origin, so it settles from the
@@ -438,6 +439,9 @@ class CausalChain {
       ? targetNumber - 1 : targetNumber;
   }
 
+  // Abort path: Esc or pointercancel. commitDrop fully resolves a real drop
+  // and nulls the session, so this runs only when the drag is cancelled —
+  // settle the clone back to the item's slot and clear the session.
   endDrag() {
     const session = this.#dragSession;
     if (!session) return;
