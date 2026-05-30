@@ -6,31 +6,32 @@ import {expandAbbr} from './abbr-expand.js';
 import {toShuffled} from './shuffle.js';
 import {newEl} from './el-create.js';
 
-let causalChains = {};
-
 const containerEl = document.getElementById('diagnose-causal-chains-content');
 const chainsWrap = document.getElementById('chains-wrap');
 
-const handleChainSubmit = e => {
-  e.preventDefault();
-  const id = e.target.name;
-  const isShuffle = e.submitter.name === 'reshuffle';
-  if (isShuffle) CausalChain.discard(id);
-  (isShuffle ? renderChainList : markOrderResults)(CausalChain.getById(id));
-};
+const handleChainSubmit = e =>
+  CausalChain.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
 
 chainsWrap.addEventListener('submit', handleChainSubmit);
 wireChainDrag(chainsWrap);
 
-function renderAll(container) {
-  container.replaceChildren();
-  CausalChain.discardAll();
+// Initial render is construction, not a measured layout change. Build detached;
+// one replaceChildren attaches every form together so the row entrances run in
+// sync — a single wrapper animationend then clears .entering for all of them.
+// :where() in the CSS lowers the entrance rule's specificity below
+// dropped/all-correct, so a lingering .entering can't suppress those.
+const clearChainEntering = e => {
+  if (e.animationName !== 'chain-enter') return;
+  e.currentTarget.classList.remove('entering');
+  e.currentTarget.removeEventListener('animationend', clearChainEntering);
+};
 
-  Object.entries(causalChains).forEach(([id, definition]) => {
-    const chainList = CausalChain.getById(id, definition);
-    container.appendChild(buildChainListForm(chainList, definition));
-    renderChainList(chainList);
-  });
+function renderAll(chainDefinitions) {
+  const forms = Object.entries(chainDefinitions).map(([id, def]) =>
+    CausalChain.getById(id, def).form);
+  chainsWrap.classList.add('entering');
+  chainsWrap.addEventListener('animationend', clearChainEntering);
+  chainsWrap.replaceChildren(...forms);
 }
 
 function wireChainDrag(container) {
@@ -86,106 +87,6 @@ function wireChainDrag(container) {
     activeChainList && e.key === 'Escape' && cleanup());
 }
 
-const buildChainListForm = (chainList, { title, start, end, infoBonus }) =>
-  newEl('form', {
-    className: 'card',
-    attrs: {name: chainList.id},
-    innerHTML: `
-      <h3 class="chain-title">${expandAbbr(title)}</h3>
-      <div class="chain-subtitle">${expandAbbr(start)} → ${expandAbbr(end)}</div>
-      <ol class="chain-list" id="${chainList.id}"></ol>
-      <div class="btn-row">
-        <button name="check" class="primary">Check Order</button>
-        <button name="reshuffle">Reshuffle</button>
-      </div>
-      ${infoBonus ? `<details class="chain-infobonus" name="${chainList.id}">
-        <summary>${expandAbbr(infoBonus.summary)}</summary>
-        <ul>${infoBonus.points.map(p => `<li>${expandAbbr(p)}</li>`).join('')}</ul>
-      </details>` : ''}
-    `
-  });
-
-// FLIP: record each row's top, run the DOM change, then animate every row
-// from its old top to its new one. customOrigins overrides a row's recorded
-// start — the drag clone's release point feeds in there so a dropped row
-// eases from the pointer instead of its dim DOM slot. A row with no recorded
-// start (a freshly rendered step) gets the entrance fade instead.
-const animateLayoutChange = (container, mutate, customOrigins = new Map()) => {
-  const oldTops = new Map(Array.from(realItems(container),
-    li => [li.dataset.step, li.getBoundingClientRect().top]));
-  customOrigins.forEach((top, step) => oldTops.set(step, top));
-
-  mutate();
-
-  realItems(container).forEach(li => {
-    const oldTop = oldTops.get(li.dataset.step);
-    if (oldTop === undefined) {
-      li.animate(
-        [{opacity: 0, transform: 'translateY(-6px)'},
-         {opacity: 1, transform: 'translateY(0)'}],
-        {duration: DUR_NORMAL, easing: 'ease-out'});
-      return;
-    }
-    const delta = oldTop - li.getBoundingClientRect().top;
-    if (delta) li.animate(
-      [{transform: `translateY(${delta}px)`}, {transform: 'translateY(0)'}],
-      {duration: DUR_NORMAL, easing: 'ease-out'});
-  });
-};
-
-const renderChainList = chainList => {
-  const ol = document.getElementById(chainList.id);
-  const form = document.forms[ol.id];
-  ol.classList.remove('grading-stale', 'all-correct');
-  ol.ariaDisabled = false;
-  clearBonusReveal(form);
-  form.check.disabled = false;
-  animateLayoutChange(ol, () => ol.replaceChildren(
-    ...chainList.getCurrentOrder().map(step =>
-      newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}}))));
-};
-
-// chainListEl may contain a transient .chain-clone-list OL during drag/settle;
-// :scope > li excludes it.
-const realItems = chainListEl =>
-  chainListEl.querySelectorAll(':scope > li');
-
-const bonusDetailsFor = form =>
-  form.querySelector(`details[name="${form.name}"]`);
-
-const clearBonusReveal = form => {
-  form.classList.remove('revealed');
-  bonusDetailsFor(form)?.removeAttribute('open');
-};
-
-const revealBonus = form => {
-  form.classList.add('revealed');
-  const details = bonusDetailsFor(form);
-  if (details) details.open = true;
-};
-
-const markOrderResults = chainList => {
-  const ol = document.getElementById(chainList.id);
-  const form = document.forms[ol.id];
-  ol.classList.remove('grading-stale');
-  const results = chainList.orderResults();
-  const items = realItems(ol);
-
-  items.forEach((chainItem, i) => {
-    chainItem.classList.toggle('correct', results[i].isCorrect);
-    chainItem.classList.toggle('incorrect', !results[i].isCorrect);
-  });
-
-  if (results.every(r => r.isCorrect)) {
-    revealBonus(form);
-    ol.ariaDisabled = form.check.disabled = true;
-    items.forEach(({style}, i) => style.setProperty('--i', i));
-    ol.classList.add('all-correct');
-  } else if (chainList.needsHint()) {
-    revealBonus(form);
-  }
-};
-
 const SETTLE_SPEED = 1.5;   // px per ms
 const SETTLE_MIN_MS = 200;
 const SETTLE_MAX_MS = 600;
@@ -193,8 +94,8 @@ const SETTLE_MAX_MS = 600;
 const calculateSettleDuration = dy =>
   Math.max(SETTLE_MIN_MS, Math.min(SETTLE_MAX_MS, Math.abs(dy) / SETTLE_SPEED));
 
-const cssTokens = getComputedStyle(document.documentElement);
-const DUR_NORMAL = parseFloat(cssTokens.getPropertyValue('--dur-normal'));
+const DUR_NORMAL = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--dur-normal'));
 
 const BONUS_HINT_THRESHOLD = 3;
 
@@ -207,48 +108,174 @@ class CausalChain {
   }
 
   static #create(id, definition) {
-    definition ??= causalChains[id];
     if (!definition) throw new Error(
       'CausalChain: no definition for "' + id + '"'
     );
-    return new CausalChain(id, definition, CausalChain.#KEY);
-  }
-
-  static discard(id) {
-    delete CausalChain.#instances[id];
-  }
-
-  static discardAll() {
-    CausalChain.#instances = Object.create(null);
+    const instance = new CausalChain(id, definition, CausalChain.#KEY);
+    instance.#buildForm(definition);
+    return instance;
   }
 
   #id;
+  #form;
   #steps;
   #currentOrder;
   #dragSession = null;
   #wrongChecks = 0;
 
-  constructor(id, { steps }, key) {
+  constructor(id, definition, key) {
     if (key !== CausalChain.#KEY) throw new Error(
       'CausalChain: use CausalChain.getById()'
     );
     this.#id = id;
-    this.#steps = Object.freeze([...steps]);
-    this.#currentOrder = toShuffled(steps);
+    this.#steps = Object.freeze([...definition.steps]);
+    this.#currentOrder = toShuffled(definition.steps);
   }
 
   get id() { return this.#id; }
-  getCurrentOrder() { return this.#currentOrder.slice(); }
+  get form() { return this.#form; }
 
-  needsHint() {
-    return ++this.#wrongChecks === BONUS_HINT_THRESHOLD;
+  reshuffle() {
+    this.#currentOrder = toShuffled(this.#steps);
+    this.#wrongChecks = 0;
+    const ol = this.#form.querySelector('.chain-list');
+    ol.classList.remove('grading-stale', 'all-correct');
+    ol.ariaDisabled = false;
+    this.#form.checkResults.disabled = false;
+    this.#clearBonusReveal();
+    CausalChain.#animateLayoutChange(ol,
+      () => ol.replaceChildren(...this.#buildItems()));
+  }
+
+  checkResults() {
+    const ol = this.#form.querySelector('.chain-list');
+    ol.classList.remove('grading-stale');
+    const items = CausalChain.#realItems(ol);
+    const results = this.#currentOrder.map((step, i) => ({
+      step, isCorrect: step === this.#steps[i]
+    }));
+    items.forEach((li, i) => {
+      li.classList.toggle('correct', results[i].isCorrect);
+      li.classList.toggle('incorrect', !results[i].isCorrect);
+    });
+    if (results.every(r => r.isCorrect)) {
+      this.#revealBonus();
+      ol.ariaDisabled = this.#form.checkResults.disabled = true;
+      items.forEach(({style}, i) => style.setProperty('--i', i));
+      ol.classList.add('all-correct');
+    } else if (++this.#wrongChecks === BONUS_HINT_THRESHOLD) {
+      this.#revealBonus();
+    }
+  }
+
+  #buildForm({ title, start, end, infoBonus }) {
+    this.#form = newEl('form', {
+      className: 'card',
+      attrs: {name: this.#id},
+      innerHTML: `
+        <h3 class="chain-title">${expandAbbr(title)}</h3>
+        <div class="chain-subtitle">${expandAbbr(start)} → ${expandAbbr(end)}</div>
+        <ol class="chain-list" id="${this.#id}"></ol>
+        <div class="btn-row">
+          <button name="checkResults" class="primary">Check Order</button>
+          <button name="reshuffle">Reshuffle</button>
+        </div>
+        ${infoBonus ? `<details class="chain-infobonus">
+          <summary>${expandAbbr(infoBonus.summary)}</summary>
+          <ul>${infoBonus.points.map(p => `<li>${expandAbbr(p)}</li>`).join('')}</ul>
+        </details>` : ''}
+      `
+    });
+    this.#form.querySelector('.chain-list').append(...this.#buildItems());
+  }
+
+  #buildItems() {
+    return this.#currentOrder.map(step =>
+      newEl('li', {innerHTML: expandAbbr(step), attrs: {'data-step': step}}));
+  }
+
+  #revealBonus() {
+    this.#form.classList.add('revealed');
+    const details = this.#form.querySelector('details');
+    if (details) details.open = true;
+  }
+
+  #clearBonusReveal() {
+    this.#form.classList.remove('revealed');
+    const details = this.#form.querySelector('details');
+    if (details) details.open = false;
+  }
+
+  startDrag(chainItem, pageStartY) {
+    this.#wrongChecks = 0;
+    this.#dragSession = CausalChain.#commitDragDOM(
+      CausalChain.#captureBaseline(chainItem, pageStartY));
+  }
+
+  dragMove(pageY, clientY) {
+    const deltaY = this.#getConstrainedDeltaY(pageY);
+    this.#dragSession.clone.style.setProperty('--drag-offset', deltaY + 'px');
+    this.#maybeAutoscroll(clientY);
+
+    const target = this.#findTargetSibling(pageY);
+    // Loose ==: a null target and the undefined initial seed both mean
+    // "no target" (end of list), so a genuine no-move doesn't re-mark.
+    if (target == this.#dragSession.dropTarget) return;
+
+    this.#updateDropMarker(target);
+    this.#dragSession.dropTarget = target;
+    this.#updateCloneNumber();
+  }
+
+  commitDrop() {
+    const session = this.#dragSession;
+    const { dropTarget, baseline, clone, marker } = session;
+    const { chainItem, chainListEl } = baseline;
+    marker?.classList.remove('drop-target-before', 'drop-target-after');
+
+    // Loose ==: "no target" is null from #findTargetSibling but undefined from
+    // initialDropTarget at end-of-list — treat both as the same no-target.
+    if (dropTarget == baseline.initialDropTarget) {
+      // No reorder — restore the prior grading and settle the clone back to
+      // the item's unchanged slot.
+      chainListEl.classList.remove('grading-stale');
+      this.#settleClone(clone, chainItem);
+      this.#dragSession = null;
+      return;
+    }
+
+    // Un-dim before the FLIP so the row eases at full opacity. The clone's
+    // release top seeds the dragged row's origin, so it settles from the
+    // pointer instead of snapping back to its dim DOM slot.
+    chainItem.classList.remove('active-drag-item');
+    CausalChain.#animateLayoutChange(chainListEl, () => {
+      chainListEl.insertBefore(chainItem, dropTarget);
+      this.#currentOrder = Array.from(
+        CausalChain.#realItems(chainListEl), li => li.dataset.step);
+    }, new Map([[chainItem.dataset.step, clone.getBoundingClientRect().top]]));
+    chainItem.classList.add('dropped');
+    chainItem.addEventListener('animationend',
+      () => chainItem.classList.remove('dropped'), {once: true});
+    clone.remove();
+    this.#dragSession = null;
+  }
+
+  // Abort path: Esc or pointercancel. commitDrop fully resolves a real drop
+  // and nulls the session, so this runs only when the drag is cancelled —
+  // settle the clone back to the item's slot and clear the session.
+  endDrag() {
+    const session = this.#dragSession;
+    if (!session) return;
+    session.marker?.classList.remove('drop-target-before', 'drop-target-after');
+    this.#settleClone(session.clone, session.baseline.chainItem);
+    this.#dragSession = null;
   }
 
   // One batched read of everything the baseline needs (the read phase).
   // Everything after is pure math off this snapshot — no more layout reads.
   static #measure(chainItem) {
     const chainListEl = chainItem.parentNode;
-    const items = [...realItems(chainListEl)];
+    const items = [...CausalChain.#realItems(chainListEl)];
     return {
       chainListEl,
       items,
@@ -337,27 +364,6 @@ class CausalChain {
     };
   }
 
-  startDrag(chainItem, pageStartY) {
-    this.#wrongChecks = 0;
-    this.#dragSession = CausalChain.#commitDragDOM(
-      CausalChain.#captureBaseline(chainItem, pageStartY));
-  }
-
-  dragMove(pageY, clientY) {
-    const deltaY = this.#getConstrainedDeltaY(pageY);
-    this.#dragSession.clone.style.setProperty('--drag-offset', deltaY + 'px');
-    this.#maybeAutoscroll(clientY);
-
-    const target = this.#findTargetSibling(pageY);
-    // Loose ==: a null target and the undefined initial seed both mean
-    // "no target" (end of list), so a genuine no-move doesn't re-mark.
-    if (target == this.#dragSession.dropTarget) return;
-
-    this.#updateDropMarker(target);
-    this.#dragSession.dropTarget = target;
-    this.#updateCloneNumber();
-  }
-
   #getConstrainedDeltaY(pageY) {
     const { pageStartY, minDelta, maxDelta } = this.#dragSession.baseline;
     return Math.max(minDelta, Math.min(maxDelta, pageY - pageStartY));
@@ -395,38 +401,6 @@ class CausalChain {
     );
   }
 
-  commitDrop() {
-    const session = this.#dragSession;
-    const { dropTarget, baseline, clone, marker } = session;
-    const { chainItem, chainListEl } = baseline;
-    marker?.classList.remove('drop-target-before', 'drop-target-after');
-
-    // Loose ==: "no target" is null from #findTargetSibling but undefined from
-    // initialDropTarget at end-of-list — treat both as the same no-target.
-    if (dropTarget == baseline.initialDropTarget) {
-      // No reorder — restore the prior grading and settle the clone back to
-      // the item's unchanged slot.
-      chainListEl.classList.remove('grading-stale');
-      this.#settleClone(clone, chainItem);
-      this.#dragSession = null;
-      return;
-    }
-
-    // Un-dim before the FLIP so the row eases at full opacity. The clone's
-    // release top seeds the dragged row's origin, so it settles from the
-    // pointer instead of snapping back to its dim DOM slot.
-    chainItem.classList.remove('active-drag-item');
-    animateLayoutChange(chainListEl, () => {
-      chainListEl.insertBefore(chainItem, dropTarget);
-      this.#currentOrder = Array.from(realItems(chainListEl), li => li.dataset.step);
-    }, new Map([[chainItem.dataset.step, clone.getBoundingClientRect().top]]));
-    chainItem.classList.add('dropped');
-    chainItem.addEventListener('animationend',
-      () => chainItem.classList.remove('dropped'), {once: true});
-    clone.remove();
-    this.#dragSession = null;
-  }
-
   // Marker shows the prospective drop position. Moving down lands one
   // slot before the target (target shifts down); moving up lands at it.
   #updateCloneNumber() {
@@ -439,20 +413,9 @@ class CausalChain {
       ? targetNumber - 1 : targetNumber;
   }
 
-  // Abort path: Esc or pointercancel. commitDrop fully resolves a real drop
-  // and nulls the session, so this runs only when the drag is cancelled —
-  // settle the clone back to the item's slot and clear the session.
-  endDrag() {
-    const session = this.#dragSession;
-    if (!session) return;
-    session.marker?.classList.remove('drop-target-before', 'drop-target-after');
-    this.#settleClone(session.clone, session.baseline.chainItem);
-    this.#dragSession = null;
-  }
-
   // Glide the clone back to the item's slot, then remove it on transitionend.
   // Runs only for a no-op drop (released in place) or Esc/cancel — a real
-  // reorder animates through animateLayoutChange and skips this.
+  // reorder animates through #animateLayoutChange and skips this.
   #settleClone(clone, item) {
     item.classList.remove('active-drag-item');
 
@@ -461,6 +424,9 @@ class CausalChain {
 
     // No transform change means no transition fires, so transitionend
     // never fires — clone would stay in the DOM.
+    // Can happen when clone is dropped on real item’s slot when #settleClone runs,
+    // or when user hits Escape:
+    // Escape -> cleanup() -> activeChainList.endDrag() -> #settleClone().
     if (Math.abs(dy) < 0.5) {
       clone.remove();
       return;
@@ -472,26 +438,46 @@ class CausalChain {
 
     clone.style.transitionDuration = calculateSettleDuration(dy) + 'ms';
     clone.classList.add('settling');
+    clone.addEventListener('transitionend', () => clone.remove(), {once: true});
 
+  // Let .settling take effect BEFORE changing --drag-offset. If the className add
+  // and variable write land in the same style update, the browser batches them
+  // and there is no transitionable before-state — the clone snaps home.
     requestAnimationFrame(() =>
       clone.style.setProperty('--drag-offset', (currentOffset + dy) + 'px'));
-
-    clone.addEventListener('transitionend', () => clone.remove(), {once: true});
   }
 
-  orderResults() {
-    return this.#currentOrder.map((step, i) => ({
-      step,
-      isCorrect: step === this.#steps[i]
-    }));
+  // chainListEl may contain a transient .chain-clone-list OL during drag/settle;
+  // :scope > li excludes it.
+  static #realItems(chainListEl) {
+    return chainListEl.querySelectorAll(':scope > li');
+  }
+
+  // FLIP: record each row's top, run the DOM change, then animate every row
+  // from its old top to its new one. customOrigins overrides a row's recorded
+  // start — the drag clone's release point feeds in there so a dropped row
+  // eases from the pointer instead of its dim DOM slot.
+  // Invariant: every post-mutation row's data-step is in oldTops — reshuffle
+  // keeps the step set; a drop persists the nodes and customOrigins covers the
+  // dragged row's release point.
+  static #animateLayoutChange(container, mutate, customOrigins = new Map()) {
+    const oldTops = new Map(Array.from(CausalChain.#realItems(container),
+      li => [li.dataset.step, li.getBoundingClientRect().top]));
+    customOrigins.forEach((top, step) => oldTops.set(step, top));
+
+    mutate();
+
+    CausalChain.#realItems(container).forEach(li => {
+      const delta = oldTops.get(li.dataset.step) - li.getBoundingClientRect().top;
+      if (delta) li.animate(
+        [{transform: `translateY(${delta}px)`}, {transform: 'translateY(0)'}],
+        {duration: DUR_NORMAL, easing: 'ease-out'});
+    });
   }
 }
 
 await attemptLoad({
   loader: () => loadJson('./data/diagnose-causal-chains.json'),
   container: containerEl,
-  render: (data) => {
-    causalChains = data;
-    renderAll(chainsWrap);
-  }
+  render: renderAll
 });
