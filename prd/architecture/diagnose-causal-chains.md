@@ -2,7 +2,7 @@
 
 The user reorders a chain's steps from a scrambled order into the correct sequence, then Check Order grades it. Reshuffle restarts the game with a new random order.
 
-Each chain renders as a numbered list inside its own form: title, a "start → end" summary, the steps in their current order, and the Check Order / Reshuffle buttons. Pressing a step picks it up — the original dims in place, a floating copy of the row tracks the pointer, a colored bar previews where the drop would land, and the copy's badge updates live. On release, a reorder animates the whole list into its new arrangement while the dropped row cools from the lifted look down to a resting row; a release back into the same slot — or an Escape/cancel — glides the floating copy home instead. Check Order colors each row correct or incorrect, and an all-correct chain plays a staggered pulse from top to bottom.
+Each chain renders as a numbered list inside its own form: title, a "start → end" summary, the steps in their current order, and the Check Order / Reshuffle buttons. Pressing a step picks it up — the original dims in place, a floating copy of the item tracks the pointer, a colored bar previews where the drop would land, and the copy's badge updates live. On release, a reorder animates the whole list into its new arrangement while the dropped item cools from the lifted look down to a resting item; a release back into the same slot — or an Escape/cancel — glides the floating copy home instead. Check Order colors each item correct or incorrect, and an all-correct chain plays a staggered pulse from top to bottom.
 
 ## Goals and Constraints
 
@@ -26,7 +26,7 @@ The chain id starts as the JSON key:
 }
 ```
 
-— and CausalChain instances get the same `id`, and use it to build their `form` and `ol` upon instantiation —
+— and SortableListForm instances get the same `id`, and use it to build their `form` and `ol` upon instantiation —
 
 ```html
 <form name="diaphragm-to-adt">
@@ -38,12 +38,14 @@ The chain id starts as the JSON key:
 
 The factory returns the instance. Its form getter exposes the `form` *element*, detached at this point.
 
-On module data load, `renderAll` iterates the definitions, instantiates the chains, and attaches their `form`s in one `chainsWrap.replaceChildren(...forms)`. This kicks off every row's entrance animation in sync, and `animationend` clears them all (see [Page-Load Entrance](#page-load-entrance)):
+On module data load, `renderAll` iterates the definitions, instantiates the chains, and attaches their `form`s in one `chainsWrap.replaceChildren(...forms)`. This kicks off every item's entrance animation in sync, and `animationend` clears them all (see [Page-Load Entrance](#page-load-entrance)):
 
 ```js
 function renderAll(chainDefinitions) {
   const forms = Object.entries(chainDefinitions).map(([id, def]) =>
-    CausalChain.getById(id, def).form);
+    SortableListForm.getById(id, {
+      ...def, renderFormHTML: renderChainForm, renderItemHTML: expandAbbr
+    }).form);
   chainsWrap.classList.add('entering');
   chainsWrap.addEventListener('animationend', clearChainEntering);
   chainsWrap.replaceChildren(...forms);
@@ -53,10 +55,10 @@ function renderAll(chainDefinitions) {
 Delegated handlers find the chain instance by reading the id off the DOM:
 
 ```js
-CausalChain.getById(e.target.name);
+SortableListForm.getById(e.target.name);
 
-const ol = chainItem.parentNode;
-activeChainList = CausalChain.getById(ol.id);
+const ol = dragItem.parentNode;
+activeForm = SortableListForm.getById(ol.id);
 ```
 
 That shared key obviates `data-chain-id`, selector walks, array searches, and translation maps.
@@ -66,36 +68,48 @@ That shared key obviates `data-chain-id`, selector walks, array searches, and tr
 The one-liner consumes two keys: `form.name` finds the chain instance via the Shared Key; `e.submitter.name` finds the method by matching its instance-method name.
 
 ```js
-const handleChainSubmit = e =>
-  CausalChain.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
+const handleSubmit = e =>
+  SortableListForm.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
 ```
 
 Both `checkResults` and `reshuffle` are instance methods named after their buttons. The button name also names the form control (used by `this.#form.checkResults.disabled`).
 
-### Row Identity Contract
+### Item Identity Contract
 
-Each sortable `<li>` carries its step text in `data-step`; the chain stores the correct sequence in `#steps` (set at construction, before the shuffle). Full contract: [Row Identity](#row-identity-step-text-as-the-key).
+Each sortable `<li>` carries its step text in `data-step`; the chain stores the correct sequence in `#steps` (set at construction, before the shuffle). Full contract: [Item Identity](#item-identity-step-text-as-the-key).
 
-## The CausalChain Decorator
+## SortableListForm
 
-Each `CausalChain` instance manages the state and DOM subtree for one keyed chain. The constructor uses the JSON definition to initialize the baseline correct order (`#steps`), the mutable display order (`#currentOrder`), and the drag session tracking.
+`SortableListForm` manages the state and DOM subtree for one keyed sortable list inside a form.
+
+Construction is via `getById(id, definition)`. The definition's contract:
+
+| Field | Type | Default | Purpose |
+|---|---|---|---|
+| `steps` | `string[]` | required | Correct order; each value identifies an item by `data-step` |
+| `renderFormHTML` | `(data) => string` | required | Form's innerHTML; receives `definition` minus the callbacks |
+| `renderItemHTML` | `(step) => string` | `escapeHTML` | Each item's innerHTML; default escapes step text for text-safe rendering |
+
+Any additional fields on `definition` pass through to `renderFormHTML` as `data` — the chain feature uses `title`, `start`, `end`, `infoBonus`. A missing `renderFormHTML` throws a TypeError on construction.
+
+The constructor reads `definition.steps` to initialize the correct order (`#steps`) and the mutable display order (`#currentOrder`), then builds the detached `<form>` inline.
 
 ### Factory-Gated Construction
 
-The `CausalChain.getById` factory encapsulates instantiation and caching. A private `#KEY` symbol gates the constructor, forcing all external access through the factory. This guarantees that consumers interact agnostically with fully built subtrees, enabling zero-wiring delegation:
+The `SortableListForm.getById` factory encapsulates instantiation and caching. A private `#KEY` symbol gates the constructor, forcing all external access through the factory. This guarantees that consumers interact agnostically with fully built subtrees, enabling zero-wiring delegation:
 
 ```js
-const handleChainSubmit = e =>
-  CausalChain.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
+const handleSubmit = e =>
+  SortableListForm.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
 ```
 
-The initial factory call runs the constructor and executes private `#buildForm` to populate the detached elements. Subsequent calls bypass construction and return the cached instance by `id`.
+The initial factory call runs the constructor, which builds the detached `<form>` and its OL inline using the supplied `renderFormHTML`. Subsequent calls bypass construction and return the cached instance by `id`.
 
-### Reshuffle Without Re-render
+### Reshuffle
 
-Each instance persists for the page lifetime. `reshuffle()` re-randomizes `#currentOrder`, clears grading state, and replaces the OL's children with rebuilt LIs inside `#animateLayoutChange`. The form and OL nodes persist — reshuffle does not go through `renderAll`, so `chainsWrap.entering` isn't re-added and `chain-enter` doesn't replay.
+Each instance persists for the page lifetime. `reshuffle()` re-randomizes `#currentOrder`, clears grading state, and replaces the OL's children with rebuilt LIs inside `#animateLayoutChange`. The form and OL nodes persist — reshuffle does not go through `renderAll`, so `chainsWrap.entering` isn't re-added and `list-enter` doesn't replay.
 
-Rebuilding from `#buildItems()` (rather than resetting and reordering existing LIs) resets the list to its initial state, reordered. Reset+reorder would save the allocation but force `#buildItems` and the reset step to stay in sync — a brittleness cost not worth saving allocations on a handful of rows.
+Rebuilding from `#buildItems()` (rather than resetting and reordering existing LIs) resets the list to its initial state, reordered. Reset+reorder would save the allocation but force `#buildItems` and the reset step to stay in sync — a brittleness cost not worth saving allocations on a handful of items.
 
 ### Symmetrical Action Dispatch
 
@@ -108,11 +122,12 @@ External method access is grouped by consumer:
 |**Consumer**|**Calls / Reads**|**Architectural Purpose**|
 |---|---|---|
 |`renderAll`|`form`|Mounts the prebuilt form.|
-|`handleChainSubmit`|`reshuffle()`, `checkResults()`|Runs the submitted form action.|
-|`wireChainDrag`|`startDrag()`, `dragMove()`, `commitDrop()`, `endDrag()`|Drives the drag pipeline via delegated pointer events.|
+|`bindContainer` submit handler|`reshuffle()`, `checkResults()`|Routes form submission to the named instance method.|
+|`bindContainer` pointer handlers|`startDrag()`, `dragMove()`, `commitDrop()`, `endDrag()`|Drives the drag pipeline via delegated pointer events.|
+
 ### DOM Architecture
 
-Each `CausalChain` instance builds its HTML subtree within `#buildForm`. The structure maps HTML elements directly to the instance runtime state and action dispatch loop.
+Each instance builds its HTML subtree at construction, stamping its own `id` as `form.name` and `ol.id` for [Shared Key](#the-shared-key) lookups.
 
 |**Component Element**|**Attributes**|**Architectural Purpose**|
 |---|---|---|
@@ -128,20 +143,20 @@ The `pointerdown` listener blocks multitouch to prevent secondary touches from i
 
 ```js
 container.addEventListener('pointerdown', e => {
-  if (!e.isPrimary || e.button !== 0 || activeChainList) return;
+  if (!e.isPrimary || e.button !== 0 || activeForm) return;
   // ...
-  activeChainList = CausalChain.getById(ol.id);
+  activeForm = SortableListForm.getById(ol.id);
   activePointerId = e.pointerId;
-  chainItem.setPointerCapture(e.pointerId);
+  dragItem.setPointerCapture(e.pointerId);
 });
 ```
 
 The activation assignments set the session tracking state:
 
-- `activeChainList` instance reference, blocking concurrent drag instances across the ChainList instances. Initially null. 
+- `activeForm` instance reference; while set, blocks a second drag from starting. Initially null.
 ```js
 container.addEventListener('pointerdown', e => {
-  if (!e.isPrimary || e.button !== 0 || activeChainList) return;
+  if (!e.isPrimary || e.button !== 0 || activeForm) return;
   ...
 ```
 
@@ -149,63 +164,73 @@ container.addEventListener('pointerdown', e => {
 And subsequent `pointermove`, `pointerup`, and `pointercancel` events *must* pass the pointer identity verification check before executing state or DOM mutations. 
 
 ```js
-if (activeChainList && e.pointerId === activePointerId)
+if (activeForm && e.pointerId === activePointerId)
 ```
 
 - `setPointerCapture()`: Binds the event stream to the target element so the browser routes events even if the pointer leaves the viewport.
 
-The `pointerup`, `pointercancel`, and `Escape` keydown handlers call cleanup. 
+The `pointerup`, `pointercancel`, and `Escape` keydown handlers call cleanup: 
 
 ```js
 const cleanup = () => {
-  activeChainList.endDrag();
-  document.documentElement.classList.remove('active-chain-drag');
-  activeChainList = null;
-  activePointerId = null;
+  activeForm.endDrag();
+  document.documentElement.classList.remove('list-drag-active');
+  activeForm = activePointerId = null;
 };
 ```
-This routine clears the `html.active-chain-drag` class and sets both `activeChainList` and `activePointerId` to `null`, and the browser implicitly releases pointer capture.
 
-## The Read/Write Split (Defeating Layout Thrashing)
+— which lets the user select text again —
 
-The architectural challenge for any DOM drag-and-drop is layout thrashing. A 120 Hz `pointermove` loop that interleaves layout-querying reads (`getBoundingClientRect`) with layout-invalidating writes (style updates, DOM mutations) forces the browser to recompute layout repeatedly, dropping frames.
+```css
+html.list-drag-active,
+html.list-drag-active * {
+  cursor: grabbing;
+  user-select: none;
+}
+```
 
-The drag is partitioned into three phases with a strict read/write boundary:
+— and the browser implicitly releases pointer capture.
 
-**Capture** (`#captureDragBaseline`) — pure reads, then pure math. The reads are split into two named helpers so each function does one honest thing:
+## The Read/Write Split: Dragging Without Layout Thrashing
 
-- `#readDragInputs(chainItem)` — one batched read of every layout fact the drag baseline needs: the chain's OL ref, the full items list, the chainItem and OL rects, `window.scrollY`, viewport height, and the scroll-padding-top inset. No derivations.
-- `#readSiblingDropMidpoints(items, chainItem, scroll)` — single pass over the items, skipping the chainItem itself, reading each sibling's BCR and in-flight transform and computing its page-coord drop midpoint. The read and the compute live together because the output *is* the midpoints.
+The challenge for any DOM drag-and-drop is layout thrashing. A 120 Hz `pointermove` loop that interleaves layout-querying reads (`getBoundingClientRect`) with layout-invalidating writes (style updates, DOM mutations) forces the browser to recompute layout repeatedly, dropping frames.
 
-`#captureDragBaseline` composes both, then derives the rest off the snapshot: the clamp boundaries (`minDelta`/`maxDelta`), the dragged item's rank, the initial drop target, the autoscroll-needed flag. Returns a frozen object. Runs once at drag start; even N=200 finishes in 1–2 ms — inside the ~100 ms window for an instant-feeling press.
+We partition dragging into three phases with a strict read/write boundary:
 
-**Commit** (`#commitDragDOM`) — pure writes. Removes any stale clone OL, inserts a fresh one, marks the dragged LI, assembles `#dragSession`. Runs once, immediately after capture.
+**Capture Phase** (`#captureDragBaseline`) — the read half of the read/write split: pre-drag measurement and calculation, returning a frozen baseline. All three capture helpers are private static; `static` because the work doesn't touch instance state, `#` because the calculation is internal to the class. The reads are split into two named helpers so each function does one thing:
 
-**Move** (`dragMove`) — reads the cached baseline plus `pageY`/`clientY` from the event, runs a clamp and an `Array.find`, writes `--drag-offset`, toggles marker classes, and calls `#maybeAutoscroll` (see [Autoscroll](#autoscroll-and-the-scroll-padding-contract)). No `getBoundingClientRect` per frame; the drop target and offset come entirely from the frozen baseline.
+- `#readDragInputs(dragItem)` — batched read of the layout facts the drag baseline needs: the chain's OL ref, the full items list, the dragItem and OL rects, `window.scrollY`, viewport height, and the scroll-padding-top inset. No derivations.
+- `#readSiblingDropMidpoints(items, dragItem, scroll)` — single pass over the items, skipping the dragItem itself, reading each sibling's BCR and in-flight transform and computing its page-coord drop midpoint. The read and the compute live together because the output *is* the midpoints.
+
+`#captureDragBaseline` composes both, then derives the rest off the snapshot: the clamp boundaries (`minDelta`/`maxDelta`), the dragged item's rank, the initial drop target, the `autoscroll` flag. Returns a frozen object. Runs once at drag start; even N=200 finishes in 1–2 ms — inside the ~100 ms window for an instant-feeling press.
+
+**Commit Phase** (`#commitDragDOM`) — pure writes. Removes any stale clone OL, inserts a fresh one, marks the dragged LI, assembles `#dragSession`. Runs once, immediately after capture.
+
+**Move Phase** (`dragMove`) — reads the cached baseline plus `pageY`/`clientY` from the event, runs a clamp and an `Array.find`, writes `--drag-offset`, toggles marker classes, and calls `#maybeAutoscroll` (see [Autoscroll](#autoscroll-and-the-scroll-padding-contract)). No `getBoundingClientRect` per frame; the drop target and offset come entirely from the frozen baseline.
 
 The split is structural: a stray BCR inside `#commitDragDOM` or `dragMove` would be obviously out of place. All layout reads live in `#readDragInputs` and `#readSiblingDropMidpoints`; the derivation in `#captureDragBaseline` touches no DOM.
 
 ## animateLayoutChange: One Safe, Interruptible Reflow
 
-Two runtime actions rearrange the list: Reshuffle, and a reordering drop. (Initial render is not one of them — see [Page-Load Entrance](#page-load-entrance); the form is built whole at instance creation, no FLIP needed.) Doing the FLIP ad hoc at each site invites both thrashing and breakage — a second Reshuffle landing mid-animation, or a rapid re-drag, would measure against positions an unfinished animation has already moved. One private static helper owns the move:
+Two runtime actions rearrange the list: Reshuffle, and a reordering drop. Doing the FLIP ad hoc at each site invites both thrashing and breakage — a second Reshuffle landing mid-animation, or a rapid re-drag, would measure against positions an unfinished animation has already moved. One private static helper owns the move:
 
 ```js
 static #animateLayoutChange(container, mutate, customOrigins = new Map()) {
-  const oldTops = new Map(Array.from(CausalChain.#realItems(container),
+  const oldTops = new Map(Array.from(SortableListForm.#realItems(container),
     li => [li.dataset.step, li.getBoundingClientRect().top]));
   customOrigins.forEach((top, step) => oldTops.set(step, top));
   mutate();                                  // the only structural mutation — after all reads
-  CausalChain.#realItems(container).forEach(li => { /* animate old top → new top */ });
+  SortableListForm.#realItems(container).forEach(li => { /* animate old top → new top */ });
 }
 ```
 
-First it reads every row's current top, then runs the caller's `mutate()` — the only structural DOM mutation — then animates each row from where it was to where it landed (those animation writes come after the new-top reads).
+First it reads every item's current top, then runs the caller's `mutate()` — the only structural DOM mutation — then animates each item from where it was to where it landed (those animation writes come after the new-top reads).
 
 It is interruptible because it re-reads *live* positions on entry. A spam-click or rapid re-drag recalibrates against reality instead of fighting a stale snapshot; mid-flight animations finish in the background, and the next call measures where things actually are.
 
-### Row Identity: Step Text as the Key
+### Item Identity: Step Text as the Key
 
-The chain id is the feature-level Shared Key; rows have their own smaller identity contract. A row is identified by its step text.
+List items have their own smaller identity, `data-step` the step text, which comes from a JSON key.
 
 ```
 definition.steps[] / #currentOrder[]
@@ -218,33 +243,31 @@ definition.steps[] / #currentOrder[]
           └── checkResults compares against #steps
 ```
 
-That choice is what lets Reshuffle rebuild the LIs with `replaceChildren` and still animate. The new LIs are not the old DOM nodes, but they carry the same `data-step` values. `#animateLayoutChange` records old positions by `li.dataset.step`, runs the mutation, then looks up each new row's old top by the same key.
+That choice is what lets Reshuffle rebuild the LIs with `replaceChildren` and still animate. The new LIs are not the old DOM nodes, but they carry the same `data-step` values. `#animateLayoutChange` records old positions by `li.dataset.step`, runs the mutation, then looks up each new item's old top by the same key.
 
-The cost is a data constraint: step strings must be unique within a chain. A duplicate step would collide in `oldTops`, make the FLIP identity ambiguous, and also corrupt the order model because drop commit rebuilds `#currentOrder` from `li.dataset.step`. The app does not add synthetic row ids because the step text is already the user's visible unit of ordering; adding another id would create a second truth to keep aligned for little gain.
+The cost is a data constraint: step strings must be unique within a chain. A duplicate step would collide in `oldTops`, make the FLIP identity ambiguous, and also corrupt the order model because drop commit rebuilds `#currentOrder` from `li.dataset.step`. The app does not add synthetic item ids because the step text is already the user's visible unit of ordering; adding another id would create a second truth to keep aligned for little gain.
 
-Reshuffle rebuilds the rows wholesale rather than reusing nodes — a real cost (layout, allocation, GC), accepted because rows carry no durable per-node state: no per-LI listeners (drag and submit are delegated on the container), no focusable controls, no expensive subtree. Fresh rows make reshuffle a clean reset boundary that drops stale `.correct`/`.incorrect`/`.dropped` and inline `--i` with no per-node cleanup. Reusing nodes would only earn its keep if a row gained local state, a focused control, or a direct listener.
+`customOrigins` lets a caller override an item's recorded start — the drop feeds the clone's release point, so the dragged item eases from the pointer rather than from its dim DOM slot.
 
-`customOrigins` lets a caller override a row's recorded start — the drop feeds the clone's release point, so the dragged row eases from the pointer rather than from its dim DOM slot.
-
-**Invariant:** every post-mutation row's `data-step` is already in `oldTops`. Reshuffle keeps the step set; a drop persists the nodes; `customOrigins` covers the dragged row's release point. The helper trusts this and doesn't guard for a missing entry; callers don't introduce new rows mid-flight.
+**Invariant:** every post-mutation item's `data-step` is already in `oldTops`. Reshuffle keeps the step set; a drop persists the nodes; `customOrigins` covers the dragged item's release point. The helper trusts this and doesn't guard for a missing entry; callers don't introduce new items mid-flight.
 
 The FLIP stays in the Web Animations API rather than CSS because its start frame is a *measured* per-element delta, which is inherently computed in JS. (The completion pulse, which needs no per-element measurement, went the other way — see [Completion Cascade](#completion-cascade).)
 
 ## Page-Load Entrance
 
-Initial render is construction, not a measured layout change — there's no prior committed layout to FLIP from. Each first `CausalChain.getById(id, def)` call creates the chain instance and builds its form whole (`#buildForm` populates the OL with rows from `#currentOrder`). `renderAll` collects every chain's `form` getter into an array and attaches the whole set in one `chainsWrap.replaceChildren(...forms)`, which makes all the rows render in the same frame. A subtle CSS animation (`chain-enter`: opacity 0 → 1, `translateY(-6px → 0)`) gives them a quiet entrance:
+Initial render is construction, not a measured layout change — there's no prior committed layout to [FLIP](#animatelayoutchange-one-safe-interruptible-reflow) from. Each first `SortableListForm.getById(id, def)` call creates the instance, which builds its form (the `renderFormHTML` template plus list items from `#currentOrder`). `renderAll` collects every form via the `form` getter and attaches the whole set in one `chainsWrap.replaceChildren(...forms)`, so the list items render in the same frame. A subtle CSS animation (`list-enter`: opacity 0 → 1, `translateY(-6px → 0)`) gives them a quiet entrance:
 
 ```css
-:where(#chains-wrap.entering) .chain-list > li {
-  animation: chain-enter var(--dur-normal) ease-out;
+:where(#chains-wrap.entering) .sortable-list > li {
+  animation: list-enter var(--dur-normal) ease-out;
 }
 ```
 
-The gating class lives on the wrapper, not on each OL or each row. Before the attach, `renderAll` adds `.entering` to `chainsWrap` and registers one `animationend` listener; the synchronized attach fires every row's `chain-enter` together, the listener catches the first bubbled `animationend` whose `animationName === 'chain-enter'`, removes `.entering`, and self-unregisters. One class, one listener, one cleanup — for the whole feature.
+The gating class lives on the wrapper, not on each OL or each item. Before the attach, `renderAll` adds `.entering` to `chainsWrap` and registers one `animationend` listener; the synchronized attach fires every item's `list-enter` together, the listener catches the first bubbled `animationend` whose `animationName === 'list-enter'`, removes `.entering`, and self-unregisters. One class, one listener, one cleanup — for the whole feature.
 
-**`:where()` is defense in depth.** The wrapper class is normally cleared synchronously, but if a user reshuffles or drops within the entrance window (~`--dur-normal`), the underlying `animationend` either gets cancelled or arrives interleaved with state-change animations. Without lowering specificity, the wrapper rule `#chains-wrap.entering .chain-list > li` (specificity 1,2,1) would outrank `.chain-list > li.dropped` (0,2,1) and `.chain-list.all-correct > li` (0,2,1), and a lingering `.entering` would suppress those animations — for `.dropped`, also stranding the class on the row because its `animationend`-driven cleanup never fires. `:where(#chains-wrap.entering)` drops the entrance rule to specificity (0,1,1), below both, so a lingering `.entering` becomes harmless.
+**`:where()` is defense in depth.** The wrapper class is normally cleared synchronously, but if a user reshuffles or drops within the entrance window (~`--dur-normal`), the underlying `animationend` either gets cancelled or arrives interleaved with state-change animations. Without lowering specificity, the wrapper rule `#chains-wrap.entering .sortable-list > li` (specificity 1,2,1) would outrank `.sortable-list > li.dropped` (0,2,1) and `.sortable-list.all-correct > li` (0,2,1), and a lingering `.entering` would suppress those animations — for `.dropped`, also stranding the class on the item because its `animationend`-driven cleanup never fires. `:where(#chains-wrap.entering)` drops the entrance rule to specificity (0,1,1), below both, so a lingering `.entering` becomes harmless.
 
-The entrance is deliberately small (the page-load liveliness is *barely noticeable*). A bigger entrance widens the window where the user could `pointerdown` on a row mid-animation, and the drag pipeline assumes settled positions; staying subtle makes that race practically impossible.
+The entrance is deliberately small (the page-load liveliness is *barely noticeable*). A bigger entrance widens the window where the user could `pointerdown` on an item mid-animation, and the drag pipeline assumes settled positions; staying subtle makes that race practically impossible.
 
 ## Autoscroll and the Scroll-Padding Contract
 
@@ -305,9 +328,9 @@ Nested objects inside baseline (the `items` array, the `siblingDropMidpoints` re
 
 The baseline holds two separate LI collections because they serve two different operations:
 
-`items` — full ordered list, *including* chainItem. Used for rank arithmetic in `#updateCloneNumber`: `items.indexOf(dropTarget) + 1` returns the dropTarget's 1-based position in the rendered list, and `items.length + 1` is the rank past the end. The math relies on indices matching what the user sees; excluding chainItem would shift indices for items below it and require an offset correction.
+`items` — full ordered list, *including* dragItem. Used for rank arithmetic in `#updateCloneNumber`: `items.indexOf(dropTarget) + 1` returns the dropTarget's 1-based position in the rendered list, and `items.length + 1` is the rank past the end. The math relies on indices matching what the user sees; excluding dragItem would shift indices for items below it and require an offset correction.
 
-`siblingDropMidpoints` — chainItem-excluded, each record carrying its `sibling` LI and the precomputed `pageMidpointY` (document-coord midpoint, with in-flight transform subtracted). Used for hit-testing in `#findTargetSibling`. Filtering chainItem out at capture means the 120 Hz `Array.find` never wastes a comparison on the dragged item's own footprint.
+`siblingDropMidpoints` — dragItem-excluded, each record carrying its `sibling` LI and the precomputed `pageMidpointY` (document-coord midpoint, with in-flight transform subtracted). Used for hit-testing in `#findTargetSibling`. Filtering dragItem out at capture means the 120 Hz `Array.find` never wastes a comparison on the dragged item's own footprint.
 
 Two collections, two purposes — duplication that earns its keep.
 
@@ -315,14 +338,14 @@ Two collections, two purposes — duplication that earns its keep.
 
 A drop's whole resolution lives in `commitDrop`; `endDrag` handles only cancellation. There are three outcomes:
 
-- **Reorder.** `commitDrop` runs `#animateLayoutChange` (the displaced rows FLIP into place; the dragged row eases from the clone's release point), tags the dragged row `.dropped` to cool it down, then removes the clone immediately. `#settleClone` is *not* part of a reorder.
+- **Reorder.** `commitDrop` runs `#animateLayoutChange` (the displaced items FLIP into place; the dragged item eases from the clone's release point), tags the dragged item `.dropped` to cool it down, then removes the clone immediately. `#settleClone` is *not* part of a reorder.
 - **No-op** — released back into its own slot. Detected with `dropTarget == baseline.initialDropTarget`. The comparison is loose on purpose: "no target" is `null` from the hit-test but `undefined` from an end-of-list `initialDropTarget`, and both mean the same absence. Prior grading is restored, and `#settleClone` glides the clone home.
 - **Abort** — Escape or `pointercancel`. `commitDrop` never runs; `endDrag` settles the clone back to the item's slot and clears the session.
 
-The cool-down is a `from`-only keyframe: the dropped row briefly wears the clone's lifted look, then CSS eases it down to the resting row.
+The cool-down is a `from`-only keyframe: the dropped item briefly wears the clone's lifted look, then CSS eases it down to the resting item.
 
 ```css
-@keyframes chain-drop-cool {
+@keyframes item-drop-cool {
   from {
     background: var(--accent-bg);
     border-left-color: var(--accent);
@@ -331,7 +354,7 @@ The cool-down is a `from`-only keyframe: the dropped row briefly wears the clone
 }
 ```
 
-A `from`-only block declares the start and animates to the element's own resting style — so the keyframe never restates the resting values, and a running animation outranks the `grading-stale` cascade for free. The dropped row also carries a `z-index` so it cools *above* the displaced sibling sliding past it (after `insertBefore`, an upward move leaves that sibling later in DOM order, so without the lift it would paint on top).
+A `from`-only block declares the start and animates to the element's own resting style — so the keyframe never restates the resting values, and a running animation outranks the `grading-stale` cascade for free. The dropped item also carries a `z-index` so it cools *above* the displaced sibling sliding past it (after `insertBefore`, an upward move leaves that sibling later in DOM order, so without the lift it would paint on top).
 
 **Sub-pixel deadlock.** `#settleClone` (the no-op and abort paths) transitions the clone from its release position to the item's slot; a `transitionend` listener removes it. Duration scales with distance (~1.5 px/ms, clamped 200–600 ms).
 
@@ -358,12 +381,12 @@ The class add enables the transition; the property write triggers it. If both la
 
 ### Pinning the Clone Origin
 
-The clone wrapper is `position: absolute`. Without an explicit `top`, its static position is its hypothetical in-flow position — which moves when `commitDrop` rearranges siblings. A drag-up commit places the dragged LI before the clone in DOM order, shifting the clone's static anchor down by roughly one row, and the clone visibly teleports before the settle starts.
+The clone wrapper is `position: absolute`. Without an explicit `top`, its static position is its hypothetical in-flow position — which moves when `commitDrop` rearranges siblings. A drag-up commit places the dragged LI before the clone in DOM order, shifting the clone's static anchor down by roughly one item, and the clone visibly teleports before the settle starts.
 
 Capture pins `top` explicitly via inline style:
 
 ```js
-cloneTop: Math.round(chainItemRect.top - chainListRect.top)
+cloneTop: Math.round(dragItemRect.top - chainListRect.top)
 ```
 
 The transform offset drives the live motion; `top` stays fixed. Rounding `cloneTop` once at capture keeps text rendering stable across the settle — the *fixed* component of the effective y is always an integer pixel, so anti-aliasing doesn't shift as the transform animates back to zero.
@@ -373,10 +396,10 @@ The transform offset drives the live motion; `top` stays fixed. Rounding `cloneT
 ### CSS Transform Handoff
 
 ```css
-.chain-clone-list {
+.sortable-list-clone {
   transform: translateY(var(--drag-offset, 0px));
 }
-.chain-clone-list.settling {
+.sortable-list-clone.settling {
   transition: transform var(--dur-slow) ease-out;
 }
 ```
@@ -387,13 +410,13 @@ Drag motion writes `--drag-offset`, not `transform`. CSS owns the property name 
 
 ### Marker Suppression (`wouldNotMove`)
 
-The drop marker — the colored bar previewing where the dragged row would land — is a `::before` pseudo-element on the receiving LI, painted via `drop-target-before` / `drop-target-after` class toggles. No marker element to create or position.
+The drop marker — the colored bar previewing where the dragged item would land — is a `::before` pseudo-element on the receiving LI, painted via `drop-target-before` / `drop-target-after` class toggles. No marker element to create or position.
 
 If the pointer hovers over a position that resolves to the dragged item's current slot, releasing is a no-op. The marker is suppressed:
 
 ```js
-const wouldNotMove = target === chainItem.nextElementSibling
-  || (target === null && chainItem === chainListEl.lastElementChild);
+const wouldNotMove = target === dragItem.nextElementSibling
+  || (target === null && dragItem === listEl.lastElementChild);
 ```
 
 Dropping in either position wouldn't move anything. Suppressing the bar signals that to the user.
@@ -409,13 +432,13 @@ clone.start = displayRank < targetNumber
 
 When the dragged LI is moving *down*, `dropTarget` is the LI it would land *before*. Inserting before that target shifts the target up by one slot to make room, so the dragged LI's new position is `targetNumber - 1`. When moving *up* (over a target with a smaller index), no other LI shifts — the dragged LI takes the target's slot directly.
 
-Without the conditional, the badge would flicker by one as the pointer crossed each row boundary.
+Without the conditional, the badge would flicker by one as the pointer crossed each item boundary.
 
 ## Grading Display Lifecycle
 
 `checkResults()` applies `.correct` / `.incorrect` classes per LI. The classes *stay on the elements*, but their visibility is gated by state on the OL.
 
-When a drag starts, `#commitDragDOM` adds `.grading-stale` to the OL. A CSS rule with higher specificity than `.correct` / `.incorrect` overrides the colored backgrounds and borders back to the neutral row style while `.grading-stale` is present. The existing `transition: border-color` on `.chain-list > li` fades the borders smoothly as the cascade flips — so the moment the user picks up an item, the grading visually clears with a brief transition rather than a hard pop.
+When a drag starts, `#commitDragDOM` adds `.grading-stale` to the OL. A CSS rule with higher specificity than `.correct` / `.incorrect` overrides the colored backgrounds and borders back to the neutral item style while `.grading-stale` is present. The existing `transition: border-color` on `.sortable-list > li` fades the borders smoothly as the cascade flips — so the moment the user picks up an item, the grading visually clears with a brief transition rather than a hard pop.
 
 What removes `.grading-stale`:
 
@@ -430,9 +453,9 @@ The info-bonus `<details>` reveals on the same grading path: on all-correct, or 
 
 ## Completion Cascade
 
-When `checkResults` grades all-correct, the rows play a brief staggered pulse, top-to-bottom, to mark the win.
+When `checkResults` grades all-correct, the items play a brief staggered pulse, top-to-bottom, to mark the win.
 
-The natural pure-CSS expression of "stagger by position" would index each row in the stylesheet. Two CSS-native indices were considered and rejected: `sibling-index()` (too thinly supported), and `counter(list-item)` (it resolves to a *string*, but `calc()` for an `animation-delay` needs a `<length>`/`<time>`). The fallback would be a Web Animations call that computes each row's delay in JS — exactly the kind of step-by-step timing math that bloats the script and pulls presentation into it.
+The natural pure-CSS expression of "stagger by position" would index each item in the stylesheet. Two CSS-native indices were considered and rejected: `sibling-index()` (too thinly supported), and `counter(list-item)` (it resolves to a *string*, but `calc()` for an `animation-delay` needs a `<length>`/`<time>`). The fallback would be a Web Animations call that computes each item's delay in JS — exactly the kind of step-by-step timing math that bloats the script and pulls presentation into it.
 
 The compromise keeps the timing declarative in CSS and pays one unavoidable JS line to hand the index across:
 
@@ -441,8 +464,8 @@ items.forEach(({style}, i) => style.setProperty('--i', i));
 ```
 
 ```css
-.chain-list.all-correct > li {
-  animation: chain-correct-pulse var(--dur-normal) ease-out;
+.sortable-list.all-correct > li {
+  animation: all-correct-pulse var(--dur-normal) ease-out;
   animation-delay: calc(var(--i) * var(--dur-fast) / 2);
 }
 ```
@@ -455,11 +478,11 @@ On iOS WebKit, the browser decides whether to initiate text selection at touch-d
 
 ```js
 container.addEventListener('touchstart',
-  e => e.target.closest('.chain-list > li') && e.preventDefault(),
+  e => e.target.closest('.sortable-list > li') && e.preventDefault(),
   {passive: false});
 ```
 
-`preventDefault` on `touchstart` (with `passive: false` to make that legal) cancels the selection. The `pointerdown` path runs unaffected. A document-wide `html.active-chain-drag { user-select: none }` rule covers any text the pointer passes over during the drag.
+`preventDefault` on `touchstart` (with `passive: false` to make that legal) cancels the selection. The `pointerdown` path runs unaffected. A document-wide `html.list-drag-active { user-select: none }` rule covers any text the pointer passes over during the drag.
 
 ## State Classes
 
@@ -467,8 +490,8 @@ Much of the behavior is encoded as classes rather than methods. The toggles and 
 
 | Class                           | On           | Set / cleared                                        | Governs                                                                  |
 | ------------------------------- | ------------ | ---------------------------------------------------- | ------------------------------------------------------------------------ |
-| `html.active-chain-drag`        | document     | `pointerdown` / `cleanup`                            | drag-wide `cursor` / `user-select` lock                                  |
-| `entering`                      | wrapper      | `renderAll` / wrapper `animationend`                 | gates the page-load row entrance (via `:where()` for specificity safety) |
+| `html.list-drag-active`        | document     | `pointerdown` / `cleanup`                            | drag-wide `cursor` / `user-select` lock                                  |
+| `entering`                      | wrapper      | `renderAll` / wrapper `animationend`                 | gates the page-load item entrance (via `:where()` for specificity safety) |
 | `revealed`                      | form         | `#revealBonus` / `#clearBonusReveal`                 | shows the info-bonus `<details>`                                         |
 | `grading-stale`                 | OL           | drag start / no-op drop, `checkResults`, `reshuffle` | neutralizes `.correct`/`.incorrect` while dragging                       |
 | `all-correct`                   | OL           | `checkResults` / `reshuffle`                         | the completion cascade                                                   |

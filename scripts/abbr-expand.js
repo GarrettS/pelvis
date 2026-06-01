@@ -1,3 +1,5 @@
+import {escapeHTML} from './escape-html.js';
+
 const ABBRS = [
   ['B Patho PEC', 'Bilateral Pathological Posterior Exterior Chain'],
   ['Patho PEC', 'Pathological Posterior Exterior Chain'],
@@ -54,13 +56,7 @@ const abbrPattern = longestFirst
   .join('|');
 const ABBR_RE = new RegExp('\\b(' + abbrPattern + ')\\b', 'g');
 
-const escapeHtml = str => str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-
-const expandAbbr = text => escapeHtml(text).replace(
+const expandAbbr = text => escapeHTML(text).replace(
     ABBR_RE, match =>
       '<abbr tabindex="0" data-title="' + ABBR_TITLES[match] + '">'
         + match + '</abbr>'

@@ -1,0 +1,146 @@
+.sortable-list {
+  list-style-type: decimal;
+  list-style-position: inside;
+  position: relative;
+}
+
+.sortable-list > li {
+  position: relative;
+  background: var(--panel-bg-sunken);
+  border-left: 3px solid var(--border);
+  padding: .5rem .75rem;
+  margin: .5rem .5rem;
+  border-radius: .25rem;
+  cursor: grab;
+  font-size: var(--text-sm);
+  touch-action: none;
+  transition: border-color var(--dur-normal);
+}
+
+@keyframes list-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.sortable-list > li.correct {
+  border-left-color: var(--correct-border);
+  background: var(--correct-bg);
+}
+
+.sortable-list > li.incorrect {
+  border-left-color: var(--error-border);
+  background: var(--error-bg);
+}
+
+.sortable-list.grading-stale > li.correct,
+.sortable-list.grading-stale > li.incorrect {
+  border-left-color: var(--border);
+  background: var(--panel-bg-sunken);
+}
+
+.sortable-list > li.active-drag-item {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+  opacity: .3;
+  cursor: grabbing;
+  /* Opacity transition is scoped to this class: lifting dims slowly, but
+     removing it on drop snaps back to full opacity at once, so the dropped
+     item is solid the instant the cool-down animation starts. */
+  transition: border-color var(--dur-normal), opacity var(--dur-slow);
+}
+
+/* On drop the LI briefly wears the dragged clone's look, then cools to its
+   resting row. The keyframe declares the accent start, so it needs no
+   painted-first arming and overrides grading-stale while it runs. */
+@keyframes item-drop-cool {
+  from {
+    background: var(--accent-bg);
+    border-left-color: var(--accent);
+    box-shadow: var(--box-shadow-lg);
+  }
+}
+
+.sortable-list > li.dropped {
+  /* Stay above the displaced sibling that FLIPs past during the settle, so
+     the dropped row cools on top instead of being covered. Clears with the
+     class. */
+  z-index: 1;
+  animation: item-drop-cool var(--dur-normal) ease-out;
+}
+
+.sortable-list[aria-disabled="true"] > li {
+  cursor: default;
+}
+
+@keyframes all-correct-pulse {
+  30% {
+    transform: scale(1.02);
+    box-shadow: 0 0 .75rem var(--correct-border), inset 0 0 .5rem var(--correct-border);
+    border-color: transparent;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.sortable-list.all-correct > li {
+  animation: all-correct-pulse var(--dur-normal) ease-out;
+  animation-delay: calc(var(--i) * var(--dur-fast) / 2);
+}
+
+.sortable-list-clone {
+  list-style-type: decimal;
+  list-style-position: inside;
+  position: absolute;
+  left: .5rem;
+  right: .5rem;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+  pointer-events: none;
+  transform: translateY(var(--drag-offset, 0px));
+}
+
+.sortable-list-clone.settling {
+  transition: transform var(--dur-slow) ease-out;
+}
+
+.sortable-list-clone > li {
+  background: var(--accent-bg);
+  border-left: 4px solid var(--accent);
+  border-radius: .25rem;
+  padding: .5rem .75rem;
+  margin: 0;
+  cursor: grabbing;
+  font-size: var(--text-sm);
+  box-shadow: var(--box-shadow-lg);
+}
+
+.sortable-list > li.drop-target-before::before,
+.sortable-list > li.drop-target-after::before {
+  content: '';
+  position: absolute;
+  left: -.5rem;
+  right: 0;
+  height: .4rem;
+  background: var(--accent);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.sortable-list > li.drop-target-before::before {
+  top: -.4rem;
+}
+
+.sortable-list > li.drop-target-after::before {
+  bottom: -.4rem;
+}
+
+html.list-drag-active,
+html.list-drag-active * {
+  cursor: grabbing;
+  user-select: none;
+}
