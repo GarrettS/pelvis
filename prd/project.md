@@ -8,38 +8,43 @@ An interactive study tool for the PRI Pelvis Restoration certification exam. Sin
 This project follows [Web XP](https://github.com/GarrettS/web-xp), installed at `~/.web-xp/`:
 - **`~/.web-xp/code-guidelines.md`** — what the code looks like. Principles, patterns, language rules, formatting.
 - **`~/.web-xp/code-philosophy.md`** — why the standards are structured this way.
-- wrap css and js to 88 chars. Don't be overly eager and wrap shorter than necessary.
-- prefer double quotes for non-template strings that do not contain quotation marks.
-- top-down file organization: exports / public API first, then file-private helpers and internals. Consistency across files matters more than the choice itself.
+- Wrap CSS and JS to 88 chars. Do not wrap shorter lines just to appear tidy.
+- Prefer double quotes for non-template strings that do not contain quotation marks.
+- Organize files top-down: exports / public API first, then file-private helpers and internals. Consistency across files matters more than the choice itself.
 
 This file (`project.md`) is the project overlay. Project-specific decisions live here, not in a fork of the standards. When this overlay overrides a default, it states which rule is overridden and why.
 
 ## Content Authority
-- **`Pelvis Restoration 2026 Complete Manual.md`** (parent directory) — the course manual. Authoritative for all PRI content. If app data contradicts this file, the manual wins. If Claude's training data contradicts this file, the manual wins.
+- **`Pelvis Restoration 2026 Complete Manual.md`** (parent directory) — the course manual. It governs PRI content. If app data or agent output contradicts the manual, the manual wins.
 
 ## Design
 - **`prd/style-guide.md`** — theme palette, typography, tone, responsive breakpoints.
+- **`css/tokens.css`** — app design tokens: theme colors, type scale, durations, shadows, and PRI semantic color variables.
 
 ## Feature PRDs
-- `prd/CC-BUILD-SPEC.md` — feature spec (all tabs, content requirements, data strategy)
-- `prd/CC-BUILD-SPEC-equiv-quiz.md` — equivalence quiz detail spec (bug fixes, enriched feedback, review screen)
-- `prd/anatomize-this.md` — Anatomize This interactive anatomy feature
-- `prd/coord-picker-workflow.md` — coordinate picker tools and image data workflow
+- `prd/anatomize-this.md` — Anatomize This interactive anatomy feature.
+- `tools/coord-picker-workflow.md` — coordinate picker tools and image data workflow.
+- `prd/archive/` — historical build specs and migration plans. Do not treat archive files as active requirements without checking newer architecture docs.
 
 ## Architecture
-- `prd/architecture/navigation-tabs.md` — lazy-load contract: two-set retry recovery (tab is the retry affordance), always-resolving importer, partial-failure handling for multi-path tabs.
-- `prd/architecture/equivalence-quiz.md` — state machine over fetch outcomes: pending, ready, load-failure with retry, missing-entry.
-- `prd/architecture/aic-chain.txt` — L AIC Chain tab: muscle ADT class, factory with static cache, SVG overlay with leader lines, single-active-muscle selection.
-- `prd/architecture/patterns.md` — dissolved-orchestrator tab: subtabs as direct LAZY_INIT entries, no `patterns.js`.
+- `prd/architecture/layering.md` — module boundaries, data-load contract, ADT guidance, and architectural anti-patterns.
+- `prd/architecture/navigation-tabs.md` — hash routing, lazy import lifecycle, retry recovery, and tab activation.
+- `prd/architecture/patterns.md` — Patterns tab dissolution: subtabs as direct `LAZY_INIT` entries, no `patterns.js`.
+- `prd/architecture/diagnose-causal-chains.md` — sortable-list architecture for causal-chain ordering.
+- `prd/architecture/equivalence-quiz.md` — state machine over answer-bundle fetch outcomes.
+- `prd/architecture/master-quiz.md` — Master Quiz state machine, progress storage, save-flashcard flow, and listener topology.
+- `prd/architecture/aic-chain.txt` — L AIC Chain ADT, SVG overlay, leader lines, and single-active-muscle selection.
+- `prd/architecture/abbr-popover.md` — abbreviation popover using Popover API, CSS Anchor Positioning, and Active Object state.
+- `prd/dlc-rule.md` — Data Load Consumption rule for JSON dependency validation.
 
 ## Directory Structure
 ```
 bin/          dev tooling (pre-commit-check.sh)
-css/          domain stylesheets
+css/          domain stylesheets and design tokens
 scripts/      JS modules
 data/         JSON data files
 img/          image assets
-prd/          PRDs, style guide, sprint specs
+prd/          PRDs, style guide, architecture notes, archive
 tools/        dev tools (coord-picker)
 sw.js         service worker (root — browser scope constraint)
 ```
