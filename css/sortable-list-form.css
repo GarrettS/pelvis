@@ -1,4 +1,7 @@
 .sortable-list {
+  --lift-z: 1;
+  --marker-bar-thickness: .4rem;
+  --marker-bar-offset: calc(var(--marker-bar-thickness) * -1);
   list-style-type: decimal;
   list-style-position: inside;
   position: relative;
@@ -52,7 +55,7 @@
 }
 
 /* On drop the LI briefly wears the dragged clone's look, then cools to its
-   resting row. The keyframe declares the accent start, so it needs no
+   resting item. The keyframe declares the accent start, so it needs no
    painted-first arming and overrides grading-stale while it runs. */
 @keyframes item-drop-cool {
   from {
@@ -63,10 +66,9 @@
 }
 
 .sortable-list > li.dropped {
-  /* Stay above the displaced sibling that FLIPs past during the settle, so
-     the dropped row cools on top instead of being covered. Clears with the
-     class. */
-  z-index: 1;
+  /* Stay above the displaced sibling that FLIPs past during the settle, so the
+  dropped item cools on top instead of being covered. Clears with the class. */
+  z-index: var(--lift-z);
   animation: item-drop-cool var(--dur-normal) ease-out;
 }
 
@@ -99,7 +101,7 @@
   right: .5rem;
   margin: 0;
   padding: 0;
-  z-index: 1;
+  z-index: var(--lift-z);
   pointer-events: none;
   transform: translateY(var(--drag-offset, 0px));
 }
@@ -125,18 +127,18 @@
   position: absolute;
   left: -.5rem;
   right: 0;
-  height: .4rem;
+  height: var(--marker-bar-thickness);
   background: var(--accent);
   border-radius: 9999px;
   pointer-events: none;
 }
 
 .sortable-list > li.drop-target-before::before {
-  top: -.4rem;
+  top: var(--marker-bar-offset);
 }
 
 .sortable-list > li.drop-target-after::before {
-  bottom: -.4rem;
+  bottom: var(--marker-bar-offset);
 }
 
 html.list-drag-active,
