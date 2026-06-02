@@ -2,21 +2,51 @@ import {toShuffled} from './shuffle.js';
 import {newEl} from './el-create.js';
 import {escapeHTML} from './escape-html.js';
 
-const handleSubmit = e =>
-  SortableListForm.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
+const SETTLE_SPEED = 1.5;   // px per ms
+const SETTLE_MIN_MS = 200;
+const SETTLE_MAX_MS = 600;
 
-function wireDrag(container) {
-  let activeForm = null;
-  let activePointerId = null;
+const calculateSettleDuration = dy =>
+  Math.max(SETTLE_MIN_MS, Math.min(SETTLE_MAX_MS, Math.abs(dy) / SETTLE_SPEED));
 
-  const cleanup = () => {
-    activeForm.endDrag();
-    document.documentElement.classList.remove('list-drag-active');
-    activeForm = activePointerId = null;
-  };
+const BONUS_HINT_THRESHOLD = 3;
 
-  container.addEventListener('pointerdown', e => {
-    if (!e.isPrimary || e.button !== 0 || activeForm) return;
+export class SortableListContainer {
+  #el;
+  renderFormHTML;
+  renderItemHTML;
+  flipDuration;
+  #activeForm = null;
+  #activePointerId = null;
+
+  constructor(el, {renderFormHTML, renderItemHTML = escapeHTML, flipDuration = 200} = {}) {
+    this.#el = el;
+    this.renderFormHTML = renderFormHTML;
+    this.renderItemHTML = renderItemHTML;
+    this.flipDuration = flipDuration;
+
+    el.addEventListener('submit', this.#onSubmit);
+    el.addEventListener('pointerdown', this.#onPointerdown);
+    el.addEventListener('touchstart', this.#onTouchstart, {passive: false});
+    el.addEventListener('pointermove', this.#onPointermove);
+    el.addEventListener('pointerup', this.#onPointerup);
+    el.addEventListener('pointercancel', this.#onPointercancel);
+    el.ownerDocument.addEventListener('keydown', this.#onKeydown);
+    el.ownerDocument.defaultView.addEventListener('resize', this.#onResize);
+  }
+
+  replaceForms(definitions) {
+    const fragment = this.#el.ownerDocument.createDocumentFragment();
+    Object.entries(definitions).forEach(([id, definition]) =>
+      fragment.append(SortableListForm.getById(id, definition, this).form));
+    this.#el.replaceChildren(fragment);
+  }
+
+  #onSubmit = e =>
+    SortableListForm.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
+
+  #onPointerdown = e => {
+    if (!e.isPrimary || e.button !== 0 || this.#activeForm) return;
 
     const dragItem = e.target.closest('.sortable-list > li');
     if (!dragItem) return;
@@ -27,96 +57,86 @@ function wireDrag(container) {
     // Selection started outside an LI can still extend through it.
     e.preventDefault();
 
-    activeForm = SortableListForm.getById(ol.id);
-    activePointerId = e.pointerId;
+    this.#activeForm = SortableListForm.getById(ol.id);
+    this.#activePointerId = e.pointerId;
     dragItem.setPointerCapture(e.pointerId);
-    activeForm.startDrag(dragItem, e.pageY);
-    document.documentElement.classList.add('list-drag-active');
-  });
+    this.#activeForm.startDrag(dragItem, e.pageY);
+    this.#el.ownerDocument.documentElement.classList.add('list-drag-active');
+  };
 
   // iOS WebKit's text-selection initiation is driven by touchstart's
   // default behavior. preventDefault on touchstart (passive: false) cancels
   // it. pointerdown.preventDefault doesn't — it only suppresses emulated
   // mouse events at tap end.
-  container.addEventListener('touchstart',
-    e => e.target.closest('.sortable-list > li') && e.preventDefault(),
-    {passive: false});
+  #onTouchstart = e =>
+    e.target.closest('.sortable-list > li') && e.preventDefault();
 
-  container.addEventListener('pointermove', e =>
-    activeForm && e.pointerId === activePointerId
-      && activeForm.dragMove(e.pageY, e.clientY));
+  #onPointermove = e =>
+    this.#activeForm && e.pointerId === this.#activePointerId
+      && this.#activeForm.dragMove(e.pageY, e.clientY);
 
-  container.addEventListener('pointerup', e =>
-    activeForm && e.pointerId === activePointerId
-      && (activeForm.commitDrop(), cleanup()));
+  #onPointerup = e =>
+    this.#activeForm && e.pointerId === this.#activePointerId
+      && (this.#activeForm.commitDrop(), this.#cleanup());
 
-  container.addEventListener('pointercancel', e =>
-    activeForm && e.pointerId === activePointerId && cleanup());
+  #onPointercancel = e =>
+    this.#activeForm && e.pointerId === this.#activePointerId && this.#cleanup();
 
-  document.addEventListener('keydown', e =>
-    activeForm && e.key === 'Escape' && cleanup());
+  #onKeydown = e =>
+    this.#activeForm && e.key === 'Escape' && this.#cleanup();
+
+  // Orientation or window resize relays out the page, staling the frozen
+  // baseline (BCRs, clamps, midpoints). Abort like Escape; #settleClone
+  // reads live positions, so the clone still glides to the item's slot.
+  #onResize = () => this.#activeForm && this.#cleanup();
+
+  #cleanup = () => {
+    this.#activeForm.endDrag();
+    this.#el.ownerDocument.documentElement.classList.remove('list-drag-active');
+    this.#activeForm = this.#activePointerId = null;
+  };
 }
-
-export function bindContainer(container) {
-  container.addEventListener('submit', handleSubmit);
-  wireDrag(container);
-}
-
-const SETTLE_SPEED = 1.5;   // px per ms
-const SETTLE_MIN_MS = 200;
-const SETTLE_MAX_MS = 600;
-
-const calculateSettleDuration = dy =>
-  Math.max(SETTLE_MIN_MS, Math.min(SETTLE_MAX_MS, Math.abs(dy) / SETTLE_SPEED));
-
-const DUR_NORMAL = parseFloat(
-    getComputedStyle(document.documentElement).getPropertyValue('--dur-normal'));
-
-const BONUS_HINT_THRESHOLD = 3;
 
 export class SortableListForm {
   static #instances = Object.create(null);
   static #KEY = Symbol();
 
-  static getById(id, definition) {
-    return SortableListForm.#instances[id] ??= SortableListForm.#create(id, definition);
+  static getById(id, definition, container) {
+    return SortableListForm.#instances[id] ??=
+      SortableListForm.#create(id, definition, container);
   }
 
-  static #create(id, definition) {
+  static #create(id, definition, container) {
     if (!definition) throw new Error(
       'SortableListForm: no definition for "' + id + '"'
     );
-    return new SortableListForm(id, definition, SortableListForm.#KEY);
+    return new SortableListForm(id, definition, container, SortableListForm.#KEY);
   }
 
-  #id;
   #form;
   #steps;
   #currentOrder;
-  #renderItemHTML;
+  #container;
   #dragSession = null;
   #wrongChecks = 0;
 
-  constructor(id, definition, key) {
+  constructor(id, definition, container, key) {
     if (key !== SortableListForm.#KEY) throw new Error(
       'SortableListForm: use SortableListForm.getById()'
     );
-    const { renderItemHTML = escapeHTML, renderFormHTML, ...data } = definition;
-    this.#id = id;
-    this.#steps = Object.freeze([...data.steps]);
-    this.#currentOrder = toShuffled(data.steps);
-    this.#renderItemHTML = renderItemHTML;
+    this.#steps = Object.freeze([...definition.steps]);
+    this.#currentOrder = toShuffled(definition.steps);
+    this.#container = container;
     this.#form = newEl('form', {
       className: 'card',
       attrs: {name: id},
-      innerHTML: renderFormHTML(data)
+      innerHTML: container.renderFormHTML(definition)
     });
     const ol = this.#form.querySelector('.sortable-list');
     ol.id = id;
     ol.append(...this.#buildItems());
   }
 
-  get id() { return this.#id; }
   get form() { return this.#form; }
 
   reshuffle() {
@@ -125,9 +145,9 @@ export class SortableListForm {
     const ol = this.#form.querySelector('.sortable-list');
     ol.classList.remove('grading-stale', 'all-correct');
     ol.ariaDisabled = false;
-    this.#form.checkResults.disabled = false;
-    this.#clearBonusReveal();
-    SortableListForm.#animateLayoutChange(ol,
+    this.#form.elements.checkResults.disabled = false;
+    this.#toggleBonusReveal(false);
+    this.#animateLayoutChange(ol,
       () => ol.replaceChildren(...this.#buildItems()));
   }
 
@@ -135,38 +155,31 @@ export class SortableListForm {
     const ol = this.#form.querySelector('.sortable-list');
     ol.classList.remove('grading-stale');
     const items = SortableListForm.#realItems(ol);
-    const results = this.#currentOrder.map((step, i) => ({
-      step, isCorrect: step === this.#steps[i]
-    }));
+    let allCorrect = true;
     items.forEach((li, i) => {
-      li.classList.toggle('correct', results[i].isCorrect);
-      li.classList.toggle('incorrect', !results[i].isCorrect);
+      const isCorrect = this.#currentOrder[i] === this.#steps[i];
+      li.classList.toggle('correct', isCorrect);
+      li.classList.toggle('incorrect', !isCorrect);
+      allCorrect &&= isCorrect;
     });
-    if (results.every(r => r.isCorrect)) {
-      this.#revealBonus();
-      ol.ariaDisabled = this.#form.checkResults.disabled = true;
+    if (allCorrect) {
+      this.#toggleBonusReveal(true);
+      ol.ariaDisabled = this.#form.elements.checkResults.disabled = true;
       items.forEach(({style}, i) => style.setProperty('--i', i));
       ol.classList.add('all-correct');
     } else if (++this.#wrongChecks === BONUS_HINT_THRESHOLD) {
-      this.#revealBonus();
+      this.#toggleBonusReveal(true);
     }
   }
 
   #buildItems() {
     return this.#currentOrder.map(step =>
-      newEl('li', {innerHTML: this.#renderItemHTML(step), attrs: {'data-step': step}}));
+      newEl('li', {innerHTML: this.#container.renderItemHTML(step), attrs: {'data-step': step}}));
   }
 
-  #revealBonus() {
-    this.#form.classList.add('revealed');
-    const details = this.#form.querySelector('details');
-    if (details) details.open = true;
-  }
-
-  #clearBonusReveal() {
-    this.#form.classList.remove('revealed');
-    const details = this.#form.querySelector('details');
-    if (details) details.open = false;
+  #toggleBonusReveal(open) {
+    this.#form.classList.toggle('revealed', open);
+    this.#form.querySelector('details')?.toggleAttribute('open', open);
   }
 
   startDrag(dragItem, pageStartY) {
@@ -176,29 +189,28 @@ export class SortableListForm {
   }
 
   dragMove(pageY, clientY) {
+    const session = this.#dragSession;
     const deltaY = this.#getConstrainedDeltaY(pageY);
-    this.#dragSession.clone.style.setProperty('--drag-offset', deltaY + 'px');
-    this.#maybeAutoscroll(clientY);
+    session.clone.style.setProperty('--drag-offset', deltaY + 'px');
+    if (session.baseline.autoscroll) this.#maybeAutoscroll(clientY);
 
     const target = this.#findTargetSibling(pageY);
-    // Loose ==: a null target and the undefined initial seed both mean
-    // "no target" (end of list), so a genuine no-move doesn't re-mark.
-    if (target == this.#dragSession.dropTarget) return;
+    // Unchanged target — no re-mark.
+    if (target === session.insertBeforeNode) return;
 
     this.#updateDropMarker(target);
-    this.#dragSession.dropTarget = target;
+    session.insertBeforeNode = target;
     this.#updateCloneNumber();
   }
 
   commitDrop() {
     const session = this.#dragSession;
-    const { dropTarget, baseline, clone, marker } = session;
+    const { insertBeforeNode, baseline, clone, marker } = session;
     const { dragItem, listEl } = baseline;
     marker?.classList.remove('drop-target-before', 'drop-target-after');
 
-    // Loose ==: "no target" is null from #findTargetSibling but undefined from
-    // initialDropTarget at end-of-list — treat both as the same no-target.
-    if (dropTarget == baseline.initialDropTarget) {
+    // Null on either side is end-of-list, where insertBefore(dragItem, null) appends.
+    if (insertBeforeNode === dragItem.nextElementSibling) {
       // No reorder — restore the prior grading and settle the clone back to
       // the item's unchanged slot.
       listEl.classList.remove('grading-stale');
@@ -211,8 +223,8 @@ export class SortableListForm {
     // release top seeds the dragged row's origin, so it settles from the
     // pointer instead of snapping back to its dim DOM slot.
     dragItem.classList.remove('active-drag-item');
-    SortableListForm.#animateLayoutChange(listEl, () => {
-      listEl.insertBefore(dragItem, dropTarget);
+    this.#animateLayoutChange(listEl, () => {
+      listEl.insertBefore(dragItem, insertBeforeNode);
       this.#currentOrder = Array.from(
         SortableListForm.#realItems(listEl), li => li.dataset.step);
     }, new Map([[dragItem.dataset.step, clone.getBoundingClientRect().top]]));
@@ -235,20 +247,25 @@ export class SortableListForm {
   }
 
   // One batched read of every layout fact the drag baseline needs: refs,
-  // BCRs, scroll, viewport, scroll-padding inset. No derivations.
+  // BCRs, scroll, viewport, scroll-padding insets. No derivations.
   static #readDragInputs(dragItem) {
+    const doc = dragItem.ownerDocument;
+    const win = doc.defaultView;
     const listEl = dragItem.parentNode;
+    const rootStyle = win.getComputedStyle(doc.documentElement);
     return {
       listEl,
       items: [...SortableListForm.#realItems(listEl)],
       itemRect: dragItem.getBoundingClientRect(),
       listRect: listEl.getBoundingClientRect(),
-      scroll: window.scrollY,
-      viewportHeight: window.innerHeight,
-      // Visible content starts below the document's scroll-padding-top
-      // inset; the up-edge autoscroll trigger reads it.
-      topInset: parseFloat(
-        getComputedStyle(document.documentElement).scrollPaddingTop) || 0
+      scroll: win.scrollY,
+      innerHeight: win.innerHeight,
+      // The scrollport is inset from each viewport edge by its
+      // scroll-padding — a sticky nav publishes scroll-padding-top, a footer
+      // would publish scroll-padding-bottom. The autoscroll triggers read
+      // both so they fire at the edges scrollIntoView itself lands on.
+      topInset: parseFloat(rootStyle.scrollPaddingTop) || 0,
+      bottomInset: parseFloat(rootStyle.scrollPaddingBottom) || 0
     };
   }
 
@@ -256,13 +273,14 @@ export class SortableListForm {
   // in-flight transform, subtracting the transform so a mid-FLIP pickup still
   // targets the settled slot, not the animating position.
   static #readSiblingDropMidpoints(items, dragItem, scroll) {
+    const win = dragItem.ownerDocument.defaultView;
     const midpoints = [];
     for (const li of items) {
       if (li === dragItem) continue;
       const box = li.getBoundingClientRect();
-      const transform = getComputedStyle(li).transform;
+      const transform = win.getComputedStyle(li).transform;
       const animOffsetY = transform === 'none'
-        ? 0 : new DOMMatrix(transform).m42;
+        ? 0 : new win.DOMMatrix(transform).m42;
       midpoints.push({
         sibling: li,
         pageMidpointY: box.top - animOffsetY + box.height / 2 + scroll
@@ -274,7 +292,7 @@ export class SortableListForm {
   static #captureDragBaseline(dragItem, pageStartY) {
     const dragInputs = SortableListForm.#readDragInputs(dragItem);
     const {
-      listEl, items, itemRect, listRect, scroll, viewportHeight, topInset
+      listEl, items, itemRect, listRect, scroll, topInset, bottomInset, innerHeight
     } = dragInputs;
     const index = items.indexOf(dragItem);
 
@@ -290,14 +308,16 @@ export class SortableListForm {
       pageStartY,
       items,
       cloneTop: Math.round(itemRect.top - listRect.top),
-      displayRank: index + 1,
-      initialDropTarget: items[index + 1],
+      ordinalValue: index + 1,
       itemHeight: itemRect.height,
       topInset,
+      bottomInset,
+      innerHeight,
       // Clone is clamped inside the list, so it clips only when the list
-      // extends past the visible region — above topInset or below the
-      // fold — decided once; no per-frame scroll if it fits.
-      autoscroll: listRect.top < topInset || listRect.bottom > viewportHeight,
+      // extends past the scrollport — above topInset or below
+      // innerHeight - bottomInset — decided once; no per-frame scroll if it fits.
+      autoscroll: listRect.top < topInset
+        || listRect.bottom > innerHeight - bottomInset,
       minDelta: pageListTop - pageItemTop,
       maxDelta: pageListBottom - itemRect.height - pageItemTop,
       siblingDropMidpoints:
@@ -307,13 +327,13 @@ export class SortableListForm {
 
   static #commitDragDOM(baseline) {
     const {
-      listEl, dragItem, displayRank, cloneTop, initialDropTarget
+      listEl, dragItem, ordinalValue, cloneTop
     } = baseline;
 
     listEl.querySelector('.sortable-list-clone')?.remove();
     const clone = listEl.insertBefore(newEl('ol', {
       className: 'sortable-list-clone',
-      attrs: {start: displayRank, style: `top: ${cloneTop}px`},
+      attrs: {start: ordinalValue, style: `top: ${cloneTop}px`},
       children: [dragItem.cloneNode(true)]
     }), dragItem);
     dragItem.classList.add('active-drag-item');
@@ -323,7 +343,7 @@ export class SortableListForm {
     listEl.classList.add('grading-stale');
 
     return {
-      dropTarget: initialDropTarget,
+      insertBeforeNode: dragItem.nextElementSibling,
       marker: null,
       clone,
       baseline
@@ -340,16 +360,17 @@ export class SortableListForm {
       .find(({ pageMidpointY }) => pageY <= pageMidpointY)?.sibling ?? null;
   }
 
-  // All the autoscroll runtime in one place. baseline.autoscroll (decided
-  // once) gates it; then scroll when the pointer enters an itemHeight band
-  // at either edge of the visible region. The top edge is `topInset` from
-  // document scroll-padding-top, not the viewport top. clientY is read
-  // fresh each frame (viewport coords, never cached) so it can't go stale
-  // as the page scrolls.
+  // Scroll when the pointer enters an itemHeight band at either edge of the
+  // scrollport — edges inset from the viewport by scroll-padding
+  // (`topInset`, `bottomInset`), not the raw top and bottom. The caller
+  // gates on baseline.autoscroll, so this runs only for overflowing lists.
+  // The insets and innerHeight are captured once; a resize cancels the drag
+  // (#onResize), so they can't go stale, and clientY arrives fresh per frame.
   #maybeAutoscroll(clientY) {
-    const { autoscroll, topInset, itemHeight } = this.#dragSession.baseline;
-    if (!autoscroll) return;
-    if (clientY < topInset + itemHeight || clientY > window.innerHeight - itemHeight)
+    const { topInset, bottomInset, itemHeight, innerHeight } =
+      this.#dragSession.baseline;
+    if (clientY < topInset + itemHeight
+        || clientY > innerHeight - bottomInset - itemHeight)
       this.#dragSession.clone.scrollIntoView({block: 'nearest'});
   }
 
@@ -370,13 +391,13 @@ export class SortableListForm {
   // Marker shows the prospective drop position. Moving down lands one
   // slot before the target (target shifts down); moving up lands at it.
   #updateCloneNumber() {
-    const { clone, dropTarget, baseline } = this.#dragSession;
-    const { items, displayRank } = baseline;
-    const targetNumber = dropTarget
-      ? items.indexOf(dropTarget) + 1
+    const { clone, insertBeforeNode, baseline } = this.#dragSession;
+    const { items, ordinalValue } = baseline;
+    const insertBeforeOrdinal = insertBeforeNode
+      ? items.indexOf(insertBeforeNode) + 1
       : items.length + 1;
-    clone.start = displayRank < targetNumber
-      ? targetNumber - 1 : targetNumber;
+    clone.start = ordinalValue < insertBeforeOrdinal
+      ? insertBeforeOrdinal - 1 : insertBeforeOrdinal;
   }
 
   // Glide the clone back to the item's slot, then remove it on
@@ -411,7 +432,7 @@ export class SortableListForm {
     // classList.add and the property write land in the same style update,
     // the browser collapses them — no transitionable before-state, the
     // clone snaps home.
-    requestAnimationFrame(() =>
+    clone.ownerDocument.defaultView.requestAnimationFrame(() =>
       clone.style.setProperty('--drag-offset', (currentOffset + dy) + 'px'));
   }
 
@@ -428,7 +449,7 @@ export class SortableListForm {
   // Invariant: every post-mutation row's data-step is in oldTops —
   // reshuffle keeps the step set; a drop persists the nodes and
   // customOrigins covers the dragged row's release point.
-  static #animateLayoutChange(container, mutate, customOrigins = new Map()) {
+  #animateLayoutChange(container, mutate, customOrigins = new Map()) {
     const oldTops = new Map(Array.from(SortableListForm.#realItems(container),
       li => [li.dataset.step, li.getBoundingClientRect().top]));
     customOrigins.forEach((top, step) => oldTops.set(step, top));
@@ -439,7 +460,7 @@ export class SortableListForm {
       const delta = oldTops.get(li.dataset.step) - li.getBoundingClientRect().top;
       if (delta) li.animate(
         [{transform: `translateY(${delta}px)`}, {transform: 'translateY(0)'}],
-        {duration: DUR_NORMAL, easing: 'ease-out'});
+        {duration: this.#container.flipDuration, easing: 'ease-out'});
     });
   }
 }

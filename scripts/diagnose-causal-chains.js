@@ -3,12 +3,10 @@
 import {loadJson} from './load.js';
 import {attemptLoad} from './error-ui.js';
 import {expandAbbr} from './abbr-expand.js';
-import {SortableListForm, bindContainer} from './sortable-list-form.js';
+import {SortableListContainer} from './sortable-list-form.js';
 
 const containerEl = document.getElementById('diagnose-causal-chains-content');
 const chainsWrap = document.getElementById('chains-wrap');
-
-bindContainer(chainsWrap);
 
 // Initial render is construction, not a measured layout change. Build detached;
 // one replaceChildren attaches every form together so the row entrances run in
@@ -35,18 +33,19 @@ const renderChainForm = ({ title, start, end, infoBonus }) => `
   </details>` : ''}
 `;
 
-function renderAll(chainDefinitions) {
-  const forms = Object.entries(chainDefinitions).map(([id, def]) =>
-    SortableListForm.getById(id, {
-      ...def, renderFormHTML: renderChainForm, renderItemHTML: expandAbbr
-    }).form);
+function initSortableLists(chainDefinitions) {
   chainsWrap.classList.add('entering');
   chainsWrap.addEventListener('animationend', clearChainEntering);
-  chainsWrap.replaceChildren(...forms);
+  new SortableListContainer(chainsWrap, {
+    renderFormHTML: renderChainForm,
+    renderItemHTML: expandAbbr,
+    flipDuration: parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue('--dur-normal'))
+  }).replaceForms(chainDefinitions);
 }
 
 await attemptLoad({
   loader: () => loadJson('./data/diagnose-causal-chains.json'),
   container: containerEl,
-  render: renderAll
+  render: initSortableLists
 });
