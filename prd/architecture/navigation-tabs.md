@@ -1,32 +1,39 @@
 # Navigation Tabs
+The core file that handles routing, app initialization, and global app behavior and configuration.
 
 `scripts/navigation-tabs.js`:
-- Routing and lazy module loading:
+- **Routing and lazy module loading:**
   - reads the URL hash to decide which tab and subtab to activate
   - loads that tab's module into its `section` the first time the tab is activated
   - tracks each loaded module through its pending → loaded / failed (with retry) lifecycle
   - imports each module at most once per page life — the import is the module's initialization; there is no `init()` export
-- App initialization:
-  - flips preloaded stylesheets to active
+- **App initialization and configuration:**
+  - flips the preloaded stylesheets to active
   - registers the service worker
-  - sets the scrollport: scrollPaddingTop on the documentElement
+  - sets the scrollport below the sticky nav (scroll-padding-top)
+  - fades the nav tab edge when it overflows horizontally (horizontal scroll for mobile)
 ## Navigation and Routing
-`initNavigationTabs` runs once when the module loads. It registers the listeners — a delegated click handler on `<nav>` and two `hashchange` handlers (`applyHash` to route, `updateScrollInset` to re-measure the sticky nav) — then runs `applyHash`, `updateScrollInset`, and `initScrollAffordance` once for the initial route.
+`initNavigationTabs` runs once when the app loads. It registers a delegated click handler on `<nav>` and a `hashchange` handler, `routeChangeHandler`, then runs `routeChangeHandler` and `initScrollAffordance` once for the initial route. `routeChangeHandler` runs `applyHash` to route, then `updateScrollInset` to re-measure the sticky nav, whose height changes with the route.
 
 ```js
-function initNavigationTabs() {
+(function initNavigationTabs() {
   document.querySelector('nav').addEventListener('click', handleNavClick);
-  window.addEventListener('hashchange', applyHash);
-  window.addEventListener('hashchange', updateScrollInset);
+  window.addEventListener('hashchange', routeChangeHandler);
+  routeChangeHandler();
+  initScrollAffordance();
+})();
+
+function routeChangeHandler() {
   applyHash();
   updateScrollInset();
-  initScrollAffordance();
 }
 ```
+We must apply routing in two cases: 1. Initial page load, and 2. hashchange navigation. 
+The named `initNavigationTabs` IIFE invoked at the bottom of the file wires `routeChangeHandler` to the hashchange listener and then invokes it to handle the initial page load.
 
-Function `applyHash` calls `activateTab`, which updates the UI and triggers `lazyInit`, which conditionally loads the route's module.
+The `routeChangeHandler` callback calls `applyHash`, which kicks off routing the path in the requested location's fragment identifier (e.g. `#diagnose/muscle-map`) to a js module, and can also call other functions it may need during hash navigation (`updateScrollInset`, explained below).
 ## Routing
-`applyHash` derives the active route from `location.hash`. `index.html` loads `scripts/navigation-tabs.js` at the bottom of the document with `<script type="module">`; module scripts are deferred by default, so `initNavigationTabs()` calls `applyHash` once after the HTML content has been parsed, not from a `load` event. After that, `applyHash` runs on every `hashchange`:
+Function `applyHash` derives the requested route from `location.hash`. calls `activateTab`, which calls `lazyInit` to conditionally load the route's module.
 
 ```js
 const ROUTE_REGEX = /^#(?<tab>[^/]+)(?:\/(?<subtab>[^/]+))?/;
@@ -49,9 +56,14 @@ function applyHash() {
 
 `ROUTE_REGEX` captures the tab and subtab; anything after is for the route's module to read (e.g. `diagnose-muscle-map.js` parses `byMuscle` with its own regex).
 
-A broken hash must not stick, but a working one must not be touched. So `replaceState` fires in exactly two cases: an unknown tab (fall back to `defaultTabId`) and an empty hash (canonicalize to the default route). A valid deep hash like `#diagnose/muscle-map/byMuscle` is left intact — canonicalization never strips the trailing segments a submodule reads. `replaceState` fires no `hashchange`, so this does not recurse.
+A broken hash must not stick, but a working one must not be touched. For that, `history.replaceState` fires in two cases: 1. an unknown tab (fall back to `defaultTabId`), and 2. an empty hash (maps to the default route).
 
-Navigation needs no click handler. The links are plain anchors (`href="#anatomy/decoder"`), so a click changes `location.hash`, which fires `hashchange` → `applyHash` — the browser routes for free. But that leaves one gesture dead: re-clicking the **already-active** tab. Its `href` hash already equals `location.hash`, so the click changes nothing, fires no `hashchange`, and `applyHash` never runs. That's correct when the tab is healthy — but if its module *failed* to load, a re-click is exactly how a user expects to retry, and there's no native event to hang that on.
+Valid partial hash with deeper hash paths, like `#diagnose/muscle-map/byMuscle`, are applied and left intact so the respective submodule can read the remaining fragment (`"byMuscle"). 
+
+Navigation needs no click handler. The links are anchors (`href="#anatomy/decoder"`), so activating them changes `location.hash`, which fires `hashchange` → `applyHash`.
+
+### Re-Clicking the Active Tab
+When the user re-clicks the **already-active** tab, its hash equals `location.hash`, so the click changes nothing, fires no `hashchange`, and `applyHash` never runs. That's correct when the tab is healthy — but if its module *failed* to load, re-clicks retry, and there's no native event to hang that on. (See: [Module Load Failure and Retry](## Module Load Failure and Retry))
 
 This is handled in `handleNavClick`, a delegated click handler on `<nav>`:
 ```js
@@ -63,9 +75,9 @@ function handleNavClick(e) {
 }
 ```
 
-Any click whose hash differs from the current one returns early — the native anchor takes over (hash change → `hashchange` → `applyHash`). Only the active-link re-click (`link.hash === location.hash`) is intercepted: `preventDefault` (a same-hash click has no useful default) and `retryActiveLoad`, which re-imports the module only if that base is in `failed` (see Retry). Normal navigation never touches the handler.
+Any hash navigation that differs from the current one is applied immediately (`hashchange` → `applyHash`). 
 
-Because those clicks resolve as native anchor targets, route fragments (`#tab` / `#tab/subtab`) must not equal any element `id`. The `tabKey` naming (`nav-X`, `X-content`, `X-subtabs`, `X-Y-subtab`, `X-Y-content`) keeps them disjoint. Don't add element ids that collide with a route fragment.
+Because navigation resolves as anchor targets, route fragments (`#tab` / `#tab/subtab`) must not equal any element `id`. The `tabKey` naming (`nav-X`, `X-content`, `X-subtabs`, `X-Y-subtab`, `X-Y-content`) keeps them disjoint. Don't add element ids that collide with a route fragment.
 
 Deeper segments (e.g. `#diagnose/muscle-map/byMuscle`) flow through native
 anchor behavior to `hashchange` and the submodule's own listener (`applySubview`
@@ -165,7 +177,7 @@ Modules can share data. For example: `home.js` and `masterquiz.js` both import `
 
 A consumer statically imports the owner; if the owner fails to load, the consumer's body never runs — no half-wired tab.
 
-## Retry
+## Module Load Failure and Retry
 When a module or its data fails to load, its container shows the same kind of error callout with a Retry button, but the retry target is owned by the requester that failed.
 
 A module-import failure can be retried two ways, both terminating in a direct `lazyInit(base, link)` call; neither routes through `applyHash`:
@@ -219,10 +231,7 @@ Modules that need a live update each time they're shown handle that with an `Int
 navigation-tabs deliberately does not fire a custom "shown" event for modules to subscribe to. That would make navigation-tabs responsible for firing at the right moment on every path that reveals a section — subtab switch, deep link, back/forward, default-tab fallback — and one missed path leaves the module silently stale.
 
 Custom events would be extra code, and modules can listen to `IntersectionObserver` which fires when they are shown.
-## Navigation UI enhancements
-The sticky nav overlays the top of the scrollport, so an un-inset `scrollIntoView` would land content behind it. `updateScrollInset` reserves the nav's current height as `scroll-padding-top`. The catch is that the nav's height is not fixed — the subtab row makes it taller on subtabbed routes — so the measure runs on every route change rather than once; a single measure taken on a row-less route (Home) would be too short everywhere else. It is registered after `applyHash`, so the subtab row is already shown when first measured.
-
-When the nav tabs overflow horizontally, `initScrollAffordance` toggles `scrolled-end` on `#nav-tabs` so the edge-fade affordance clears once the strip is scrolled to its end.
-
-## App initialization
-`navigation-tabs.js` also performs two page-level tasks: it flips every `<link rel="preload" as="style">` in the document head to `rel="stylesheet"`, and registers `sw.js` when `navigator.serviceWorker` exists. Service-worker registration is an optional background enhancement; failure is caught and intentionally silent.
+## Sticky-nav scroll offset
+The sticky nav overlays the top of the document, the default window scrollport, so an anchor jump or `scrollIntoView` aligns its target to that top edge — under the nav, where it's hidden. `updateScrollInset` reserves the nav's current height as `scroll-padding-top`. That height isn't fixed — the subtab row makes the nav taller on subtabbed routes — so `routeChangeHandler` re-measures every route, calling `updateScrollInset` after `applyHash` has shown the row. A single measure on a top-level route with no submenu (e.g. Home) would be too short elsewhere.
+## Tab-overflow affordance
+On narrow viewports the nav-tab strip scrolls sideways. `initScrollAffordance` toggles `scrolled-end` on `#nav-tabs` so the edge-fade — the cue that more tabs are offscreen — clears once the strip is scrolled to its end.

@@ -224,24 +224,26 @@ function initScrollAffordance() {
 // not behind it. Re-measured on every route change —
 // the subtab-row makes the nav taller on subtabbed routes, so a once-only
 // measure taken on a row-less route (e.g. Home) would be too short here.
-// Registered after applyHash so the subtab-row is already shown when measured.
 function updateScrollInset() {
   document.documentElement.style.scrollPaddingTop =
     document.querySelector('nav').getBoundingClientRect().bottom + 'px';
 }
 
-function initNavigationTabs() {
-  document.querySelector('nav').addEventListener('click', handleNavClick);
-  window.addEventListener('hashchange', applyHash);
-  window.addEventListener('hashchange', updateScrollInset);
+function routeChangeHandler() {
   applyHash();
+  // after applyHash, so the subtab row is shown and the nav measures its full height
   updateScrollInset();
-  initScrollAffordance();
 }
 
 for (const link of document.head.querySelectorAll('link[rel="preload"][as="style"]')) {
   link.rel = 'stylesheet';
 }
 
-initNavigationTabs();
+(function initNavigationTabs() {
+  document.querySelector('nav').addEventListener('click', handleNavClick);
+  window.addEventListener('hashchange', routeChangeHandler);
+  routeChangeHandler();
+  initScrollAffordance();
+})();
+
 navigator.serviceWorker?.register('./sw.js').catch(() => { /* optional SW; silent on failure */ });
