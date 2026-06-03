@@ -1,16 +1,32 @@
 # Navigation Tabs
 
 `scripts/navigation-tabs.js`:
-- reads the URL hash to decide which tab and subtab to activate
-- loads that tab's module into its mapped `section` the first time the tab is activated
-- tracks each loaded module through its pending → loaded / failed (with retry) lifecycle
-- initializes each module exactly once per page life
+- Routing and lazy module loading:
+  - reads the URL hash to decide which tab and subtab to activate
+  - loads that tab's module into its `section` the first time the tab is activated
+  - tracks each loaded module through its pending → loaded / failed (with retry) lifecycle
+  - imports each module at most once per page life — the import is the module's initialization; there is no `init()` export
+- App initialization:
+  - flips preloaded stylesheets to active
+  - registers the service worker
+  - sets the scrollport: scrollPaddingTop on the documentElement
+## Navigation and Routing
+`initNavigationTabs` runs once when the module loads. It registers the listeners — a delegated click handler on `<nav>` and two `hashchange` handlers (`applyHash` to route, `updateScrollInset` to re-measure the sticky nav) — then runs `applyHash`, `updateScrollInset`, and `initScrollAffordance` once for the initial route.
 
-Function `applyHash` calls `activateTab`, which updates the UI and triggers `lazyInit`, which conditionally loads the route's mapped module.
-  
+```js
+function initNavigationTabs() {
+  document.querySelector('nav').addEventListener('click', handleNavClick);
+  window.addEventListener('hashchange', applyHash);
+  window.addEventListener('hashchange', updateScrollInset);
+  applyHash();
+  updateScrollInset();
+  initScrollAffordance();
+}
+```
+
+Function `applyHash` calls `activateTab`, which updates the UI and triggers `lazyInit`, which conditionally loads the route's module.
 ## Routing
-
-Function `applyHash` runs at load and on every `hashchange`, parses the hash, finds a corresponding tab and subtab, and, failing a match`, falls back to their defaults:
+`applyHash` derives the active route from `location.hash`. `index.html` loads `scripts/navigation-tabs.js` at the bottom of the document with `<script type="module">`; module scripts are deferred by default, so `initNavigationTabs()` calls `applyHash` once after the HTML content has been parsed, not from a `load` event. After that, `applyHash` runs on every `hashchange`:
 
 ```js
 const ROUTE_REGEX = /^#(?<tab>[^/]+)(?:\/(?<subtab>[^/]+))?/;
@@ -18,44 +34,70 @@ const ROUTE_REGEX = /^#(?<tab>[^/]+)(?:\/(?<subtab>[^/]+))?/;
 function applyHash() {
   let {tab: tabId = defaultTabId, subtab: subtabId} =
       ROUTE_REGEX.exec(location.hash)?.groups || {};
-  if (!byId(tabKey.navLink(tabId))) { tabId = defaultTabId; subtabId = undefined; }
-
-  const canonicalHash = '#' + tabId + (subtabId ? '/' + subtabId : '');
-  if (location.hash !== canonicalHash) {
-    window.history.replaceState(null, '', canonicalHash);
+  const tabValid = byId(tabKey.navLink(tabId));
+  if (!tabValid) {
+    tabId = defaultTabId;
+    subtabId = undefined;
+  }
+  if (!tabValid || !location.hash) {
+    window.history.replaceState(null, '',
+      '#' + tabId + (subtabId ? '/' + subtabId : ''));
   }
   activateTab(tabId, subtabId);
 }
 ```
-`ROUTE_REGEX` captures the tab and subtab. Anything following that is for the respective route's module to read (e.g. submodule `diagnose-muscle-map.js` parses `byMuscle` from the hash with its own regex). 
 
-An invalid tab falls back to `defaultTabId`; `replaceState` rewrites the URL so refresh/bookmark/share do not capture the broken route. `replaceState` fires no `hashchange`, so this does not recurse.
+`ROUTE_REGEX` captures the tab and subtab; anything after is for the route's module to read (e.g. `diagnose-muscle-map.js` parses `byMuscle` with its own regex).
 
-Since `handleNavClick` lets different-hash clicks fall through to native
-anchor behavior, route fragments (`#tab` / `#tab/subtab`) must not equal any
-element `id`. The `tabKey` naming (`nav-X`, `X-content`, `X-subtabs`,
-`X-Y-subtab`, `X-Y-content`) keeps them disjoint. Don't add element ids that
-collide with a route fragment.
+A broken hash must not stick, but a working one must not be touched. So `replaceState` fires in exactly two cases: an unknown tab (fall back to `defaultTabId`) and an empty hash (canonicalize to the default route). A valid deep hash like `#diagnose/muscle-map/byMuscle` is left intact — canonicalization never strips the trailing segments a submodule reads. `replaceState` fires no `hashchange`, so this does not recurse.
+
+Navigation needs no click handler. The links are plain anchors (`href="#anatomy/decoder"`), so a click changes `location.hash`, which fires `hashchange` → `applyHash` — the browser routes for free. But that leaves one gesture dead: re-clicking the **already-active** tab. Its `href` hash already equals `location.hash`, so the click changes nothing, fires no `hashchange`, and `applyHash` never runs. That's correct when the tab is healthy — but if its module *failed* to load, a re-click is exactly how a user expects to retry, and there's no native event to hang that on.
+
+This is handled in `handleNavClick`, a delegated click handler on `<nav>`:
+```js
+function handleNavClick(e) {
+  const link = e.target.closest('.nav-tab, .subtab');
+  if (!link?.hash || link.hash !== location.hash) return;
+  e.preventDefault();
+  retryActiveLoad(link);
+}
+```
+
+Any click whose hash differs from the current one returns early — the native anchor takes over (hash change → `hashchange` → `applyHash`). Only the active-link re-click (`link.hash === location.hash`) is intercepted: `preventDefault` (a same-hash click has no useful default) and `retryActiveLoad`, which re-imports the module only if that base is in `failed` (see Retry). Normal navigation never touches the handler.
+
+Because those clicks resolve as native anchor targets, route fragments (`#tab` / `#tab/subtab`) must not equal any element `id`. The `tabKey` naming (`nav-X`, `X-content`, `X-subtabs`, `X-Y-subtab`, `X-Y-content`) keeps them disjoint. Don't add element ids that collide with a route fragment.
 
 Deeper segments (e.g. `#diagnose/muscle-map/byMuscle`) flow through native
 anchor behavior to `hashchange` and the submodule's own listener (`applySubview`
 in `diagnose-muscle-map.js`). `navigation-tabs.js` has no subview click handler.
 
 ## Tab activation
+Function `activateTab` swaps the active nav tab, top-level content section, and subtab row (Active Object). For subtabbed tabs it delegates entirely to `activateSubtab`, which owns the subtab swap, breadcrumb, and the single `lazyInit` call. For row-less tabs (`home`, `flashcards`, `equivalence`, `masterquiz`) it does the breadcrumb and `lazyInit` itself. Either way, the module loads via exactly one `lazyInit` call per activation.
 
-Function `activateTab` swaps the active nav tab, content section, and subtab row (Active Object). For subtabbed tabs it delegates entirely to `activateSubtab`, which owns the subtab swap, breadcrumb, and the single `lazyInit` call. For row-less tabs (`home`, `flashcards`, `equivalence`, `masterquiz`) it does the breadcrumb and `lazyInit` itself. Either way, the module loads via exactly one `lazyInit` call per activation.
+The Active Object design is intentional: `activeNavTab`, `activeSection`, and `activeSubtabRow` each hold the currently active element or null. `activeSubtabRow` is null before the first route and on row-less tabs (home, flashcards, equivalence, masterquiz). Navigation deactivates and activates those known elements directly; it never resets state by scanning the whole nav or content tree.
 
-## Module loading
-
-Function `lazyInit` loads each tab's module the first time its tab is activated and tracks its state through three Sets, keyed by `base` — the same Shared Key `LAZY_INIT` uses to resolve a module path and `tabKey.content` uses to derive the container id:
+`activeSubtabLink` and `activeSubtabContent` are objects keyed by tab id. On a tab's first activation the entry is `undefined`, so `??=` initializes it to the subtab the row already marks `aria-current`; later activations swap it to the chosen subtab:
 
 ```js
-const initialized = new Set();
-const pending = new Set();
-const failed = new Set();
+activeSubtabLink[tabId] ??= row.querySelector('.subtab[aria-current]');
+activeSubtabLink[tabId] = swapAriaCurrent(activeSubtabLink[tabId], link);
 ```
 
-`pending` holds an import in flight, `initialized` one that resolved, `failed` one that rejected.
+Per-tab entries track each tab family's active subtab and active subtab content, so reopening a tab restores whichever subtab it last showed without querying every sibling or clearing every panel.
+
+`applyHash` validates only the top tab; `activateSubtab` resolves the subtab by precedence — the requested subtab if its id exists, else the tab's retained subtab, else the row's first. So an unknown subtab segment still resolves to a valid subtab, with no rewrite.
+
+## Module loading
+Function `lazyInit` loads each tab's module the first time its tab is activated and tracks its state through three Sets, keyed by `base` — the same Shared Key `LAZY_INIT` uses to resolve the module path. `tabKey.content(base)` derives the section id from `base`, so a row-less tab's module renders into its `section.content` and a subtab's into its `section.subtab-content`.
+
+Module import and load happen once on the first successful load of that module.
+```js
+const initialized = new Set(); // resolved
+const pending = new Set(); // in-flight import
+const failed = new Set(); // rejected import
+```
+
+There is no `init()` export to call — importing *is* initialization. Each data-backed module opens with a top-level `await attemptLoad(...)` (see `nomenclature-joints.js`), so its import stays pending until that first render or failure settles. One `pending` flag therefore spans both "fetching the module" and "the module fetching its data," and a `base` reaches `initialized` only once the tab has rendered or shown its error callout.
 
 ```
                   tab activation              import ok
@@ -70,7 +112,7 @@ const failed = new Set();
     Loaded stays Loaded after a successful import.
 ```
 
-`importModule` wraps `import()` so it always resolves and never rejects; failure arrives as a value the caller branches on:
+Function `importModule` wraps `import()` so it always resolves and never rejects; failure arrives as a value the caller branches on:
 
 ```js
 const importModule = path => import(path).then(
@@ -96,7 +138,6 @@ On success there is no further clear; data-load errors are owned by
 `attemptLoad`.
 
 ## Module data loading
-
 A loaded module fetches its own JSON through `loadJson`, which resolves to `{ok: true, data}` or `{ok: false, path, cause}` and never throws. `attemptLoad` runs that loader inside the same lifecycle as a tab load: it adds `.loading` to the container, awaits the result, clears the indicator, and on success renders the data. On failure it shows an error callout whose Retry button re-runs the loader.
 
 ```js
@@ -120,21 +161,23 @@ export const attemptLoad = ({loader, container, render}) =>
 A module-import failure and a data-fetch failure therefore reach the user the same way — a callout with Retry in the tab's container — diagnosed by `handleImportError` and `handleFetchError` respectively.
 
 ## Module data sharing
-
 Modules can share data. For example: `home.js` and `masterquiz.js` both import `master-quiz-progress.js`, a DOM-free read/write module that owns the `masterQuiz_progress` and `masterQuiz_total` localStorage keys. `masterquiz.js` writes through it as the user answers; `home.js` reads `getSummary` to show progress.
 
 A consumer statically imports the owner; if the owner fails to load, the consumer's body never runs — no half-wired tab.
 
 ## Retry
+When a module or its data fails to load, its container shows the same kind of error callout with a Retry button, but the retry target is owned by the requester that failed.
 
-When a module or its data fails to load, its section shows an error callout with a Retry button. The user can retry two ways, both terminating in a direct `lazyInit(base, link)` call; neither routes through `applyHash`:
+A module-import failure can be retried two ways, both terminating in a direct `lazyInit(base, link)` call; neither routes through `applyHash`:
 
 - **Press Retry** in the error callout → `onRetry: () => lazyInit(base, link)`.
 - **Click the active tab/subtab again** → `handleNavClick` detects `link.hash === location.hash`, calls `retryActiveLoad(link)`, which decodes `base` from the link's hash and calls `lazyInit(base, link)` only if `failed.has(base)`. Re-clicking a working tab is a literal no-op.
 
-Spam-clicking needs no extra guard: `lazyInit` returns early while `base` is in `pending`, and CSS makes `.content.loading .callout-retry` non-interactive, so extra clicks during a retry do nothing on their own.
+Spam-clicking module-import retry needs no extra guard: `lazyInit` returns early while `base` is in `pending`, so extra clicks during a retry do nothing on their own.
 
-Whoever requests a load handles its failure — only the requester knows what a retry means.
+Data-load failure is different: once a module import resolves, `base` is `initialized`, so an active tab re-click does not retry the data request. The callout's Retry button re-runs the module's loader through `attemptLoad`.
+
+Whoever requests a load handles its failure; only the requester knows what a retry means.
 
 - **navigation-tabs requests the module** with `import()`. Its retry is to re-import, handed to `load.js`:
 
@@ -169,11 +212,17 @@ module · loadJson           ─┘       │      requester injects render + on
 The two paths above are module import (`lazyInit`) and `attemptLoad`-based data loads. A module that calls `loadJson` directly owns its own failure UI — equivalence does, with its own callout and retry; see `equivalence-quiz.md`.
 
 ## Re-activation and self-driven redraw
-
-`lazyInit` maps each tab's `base` 1:1 to a section element (`tabKey.content(base)`) and a module path (`LAZY_INIT[base]`); `base` is the Shared Key. It imports and initializes that module exactly once per page life and never calls back into it: when a loaded or still-loading tab is re-activated, `lazyInit` returns early on `initialized`/`pending`.
+`lazyInit` maps each tab's `base` 1:1 to a container element (`tabKey.content(base)`) and a module path (`LAZY_INIT[base]`); `base` is the Shared Key. It imports that module exactly once per page life and never calls back into it: when a loaded or still-loading tab is re-activated, `lazyInit` returns early on `initialized`/`pending`.
 
 Modules that need a live update each time they're shown handle that with an `IntersectionObserver` wired once at init — `home.js` keeps one on `#home-content` and re-runs `renderMasterQuizProgress` on each show.
 
 navigation-tabs deliberately does not fire a custom "shown" event for modules to subscribe to. That would make navigation-tabs responsible for firing at the right moment on every path that reveals a section — subtab switch, deep link, back/forward, default-tab fallback — and one missed path leaves the module silently stale.
 
-Besides, that would be extra code. Because modules can listen to IntersectionObserver which the platform provides for FREE, natively, and which fires when they are shown.
+Custom events would be extra code, and modules can listen to `IntersectionObserver` which fires when they are shown.
+## Navigation UI enhancements
+The sticky nav overlays the top of the scrollport, so an un-inset `scrollIntoView` would land content behind it. `updateScrollInset` reserves the nav's current height as `scroll-padding-top`. The catch is that the nav's height is not fixed — the subtab row makes it taller on subtabbed routes — so the measure runs on every route change rather than once; a single measure taken on a row-less route (Home) would be too short everywhere else. It is registered after `applyHash`, so the subtab row is already shown when first measured.
+
+When the nav tabs overflow horizontally, `initScrollAffordance` toggles `scrolled-end` on `#nav-tabs` so the edge-fade affordance clears once the strip is scrolled to its end.
+
+## App initialization
+`navigation-tabs.js` also performs two page-level tasks: it flips every `<link rel="preload" as="style">` in the document head to `rel="stylesheet"`, and registers `sw.js` when `navigator.serviceWorker` exists. Service-worker registration is an optional background enhancement; failure is caught and intentionally silent.
