@@ -6,11 +6,9 @@ Each chain renders as a numbered list inside its own form: title, a "start → e
 
 ## Goals and Constraints
 
-The choreography above sets the bar the rest of this document clears:
-
-- A 120 Hz `pointermove` drag with no dropped frames — no layout thrashing.
-- Interruptible: spamming Reshuffle, or dragging-and-dropping in quick succession, can't corrupt the order or strand a half-finished animation.
-- Correct while the page is scrolled and a sticky nav covers the top of the viewport.
+- `pointermove` drag with no layout thrashing.
+- Unbreakable: spamming Reshuffle, or dragging-and-dropping in quick succession, can't corrupt the order or strand a half-finished animation.
+- Accurate drop targeting while the page scrolls, and autoscroll that triggers below a sticky nav, not at the viewport top.
 - Pointer and touch, including messy multi-touch input.
 - Grading that survives a re-drag without showing colors for an order the user has since changed.
 
@@ -34,14 +32,14 @@ The chain id starts as the JSON key:
 </form>
 ```
 
-— so submit and drag handlers can recover the chain instance with `getById` from the form's `name` or the OL's `id`. The id lives in exactly three places: the factory's `#instances` registry key, `form.name`, and `ol.id`. Instances don't carry an `id` field — handlers read the id off a DOM event and resolve it via `getById`, which is a one-hop lookup against the registry.
+— so submit and drag handlers can recover the chain instance with `getById` from the form's `name` or the OL's `id`. The id is the factory's `#instances` registry key, `form.name`, and `ol.id`.
 
 The factory returns the instance. Its form getter exposes the `form` *element*, detached at this point.
 
 `initSortableLists` does two one-shot jobs:
 
 - **Builds the form instances.** Each [chain definition](#sortablelistform) runs through `getById(id, definition, container)` once, which constructs the form, stamps the id onto its DOM, and caches it. From then on, every other `getById` call — submit handlers, pointer handlers — passes only an id and pulls the cached instance back out.
-- **Wires the delegated listener set on the wrapper.** Constructing `SortableListContainer` attaches one listener per pointer/touch event (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`, plus `touchstart` with `passive: false` for iOS WebKit selection prevention), one `submit` listener for action dispatch, and one document-level `keydown` for Escape. The handlers route each event to the right form by reading the id off the event target — no per-form wiring.
+- **Wires the delegated listener set on the wrapper.** Constructing `SortableListContainer` attaches one listener per pointer/touch event (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`, plus `touchstart` with `passive: false` for iOS WebKit selection prevention), one `submit` listener for action dispatch, and one document-level `keydown` for Escape.
 
 The cache write is idempotent (`??=` skips already-keyed entries), but the listener wiring is not: a second `initSortableLists` invocation would re-attach the whole set and double-fire every event. The `init` name signals that constraint — call once at boot.
 
@@ -84,6 +82,10 @@ Both `checkResults` and `reshuffle` are instance methods named after their butto
 
 Each sortable `<li>` carries its step text in `data-step`; the chain stores the correct sequence in `#steps` (set at construction, before the shuffle). Full contract: [Item Identity](#item-identity-step-text-as-the-key).
 
+## SortableListContainer
+
+`SortableListContainer` appends each [`SortableListForm`](#sortablelistform)'s `<form>` to the element passed to its constructor and handles the lists' events with delegated listeners on that same element, resolving the owning form by the [Shared Key](#the-shared-key).
+
 ## SortableListForm
 
 `SortableListForm` manages the state and DOM subtree for one keyed sortable list inside a form.
@@ -94,7 +96,7 @@ Construction is via `getById(id, definition, container)`. `definition` is the pe
 |---|---|---|
 | `steps` | `string[]` (required) | Correct order. Frozen onto `#steps`; a shuffled copy seeds `#currentOrder`. Each value also lands on a list item as `data-step` — the [Item Identity](#item-identity-step-text-as-the-key) key. |
 
-Every other field on `definition` passes through unchanged as the argument to the container's `renderFormHTML`. The consumer decides the rest of the shape; the class never reads it. The chain feature's full definition shape, for reference:
+Every other field on `definition` passes through unchanged as the argument to the container's `renderFormHTML`. The consumer decides what else the object holds; the class never reads it. The chain feature's full definition, for reference:
 
 ```json
 {
@@ -110,7 +112,7 @@ Every other field on `definition` passes through unchanged as the argument to th
 
 `title`, `start`, `end`, and `infoBonus` exist only because `renderChainForm` in `diagnose-causal-chains.js` reads them. From `SortableListForm`'s perspective the contract is opaque: it hands the whole object to `renderFormHTML` and stores the HTML the renderer returns.
 
-The third argument is the owning `SortableListContainer` instance. The form holds that reference as `#container` and reads container-owned values through it: `renderFormHTML`, `renderItemHTML`, and `flipDuration`. The two classes live in the same module and reference each other by name; the back-ref makes that coupling explicit instead of threading individual properties through the form's constructor. Container options:
+The third argument is the owning `SortableListContainer` instance. The `SortableListForm` instance holds it as `#container` and reads container-owned values through it: `renderFormHTML`, `renderItemHTML`, and `flipDuration`. The two classes are tightly coupled — same module, referencing each other by name. Container options:
 
 | Option | Type | Default | Purpose |
 |---|---|---|---|
@@ -137,19 +139,19 @@ Each instance persists for the page lifetime. `reshuffle()` re-randomizes `#curr
 
 Rebuilding from `#buildItems()` (rather than resetting and reordering existing LIs) resets the list to its initial state, reordered. Reset+reorder would save the allocation but force `#buildItems` and the reset step to stay in sync — a brittleness cost not worth saving allocations on a handful of items.
 
-### Symmetrical Action Dispatch
+### The Button-Name Contract
 
-Dispatch is button↔method symmetry. Class methods share exact names with their submit button `name` attributes (`reshuffle`, `checkResults`). One delegated submit listener on the container dispatches via `[e.submitter.name]()`, eliminating per-button event wiring. The instance manages the grade button's `disabled` state — `true` on all-correct, `false` on reshuffle — so `renderFormHTML` must emit `<button name="checkResults">` for the toggle to land.
+Each submit button's `name` matches a method on the `SortableListForm` decorating its form; [dispatch](#action-dispatch-keys) calls that method on submit. So `renderFormHTML` must emit `<button name="checkResults">` and `<button name="reshuffle">`, matching `checkResults()` and `reshuffle()`.
 
 ### The Public Interface
 
 External method access is grouped by consumer:
 
-|**Consumer**|**Calls / Reads**|**Architectural Purpose**|
+| **Consumer** | **Calls / Reads** | **Architectural Purpose** |
 |---|---|---|
-|`SortableListContainer.replaceForms`|`form`|Mounts the prebuilt form.|
-|Container submit handler|`reshuffle()`, `checkResults()`|Routes form submission to the named instance method.|
-|Container pointer handlers|`startDrag()`, `dragMove()`, `commitDrop()`, `endDrag()`|Drives the drag pipeline via delegated pointer events.|
+| `SortableListContainer.replaceForms` | `.form` getter | Sets the built `<form>` elements as the wrapper's children with `replaceChildren`. |
+| Container submit handler | `reshuffle()`, `checkResults()` | Calls the instance method matching the activated submit button's `name`. |
+| Container pointer handlers | `startDrag()`, `dragMove()`, `commitDrop()`, `endDrag()` | Calls the active form's drag methods from the delegated pointer events. |
 
 ### DOM Architecture
 
@@ -160,7 +162,7 @@ Each instance builds its HTML subtree at construction, stamping the constructor'
 |**Component Root** `<form>`|`name="[id]"`|Binds the subtree to a specific chain identity. The global submit handler uses `e.target.name` to look up the cached instance immediately.|
 |**Sortable List** `<ol>`|None|Semantic `<ol>` (screen readers announce position). Serves as the DOM container for pointer tracking and FLIP layout calculations.|
 |**Sequence Steps** `<li>`|`data-step="[step-id]"`|Identifies the step. The attribute acts as the lookup key for FLIP animations and grading.|
-|**Submit Buttons** `<button>`|`name="reshuffle"`, `name="checkResults"`|Trigger form submission natively. The `name` attributes route actions directly to the matching class methods.|
+|**Submit Buttons** `<button>`|`name="reshuffle"`, `name="checkResults"`|Trigger form submission natively. Each `name` matches a `SortableListForm` method the submit handler calls.|
 |**Bonus Disclosure** `<details>`|None|Native disclosure widget handles open/close.|
 
 ## Single-Pointer Dragging
@@ -187,7 +189,7 @@ Two instance fields lock the session to a single pointer for its entire lifetime
 this.#activeForm && e.pointerId === this.#activePointerId && /* act */
 ```
 
-`setPointerCapture(e.pointerId)` routes the event stream to the dragged LI even when the pointer leaves the viewport — without it, the browser would re-target events to whatever is under the pointer.
+`setPointerCapture(e.pointerId)` keeps the event stream targeted at the dragged LI even when the pointer leaves the viewport — without it, the browser would re-target events to whatever is under the pointer.
 
 The release path (`pointerup`, `pointercancel`, `Escape` keydown, and a viewport `resize`) all funnel through `#cleanup`:
 
@@ -215,7 +217,7 @@ html.list-drag-active * {
 
 The challenge for any DOM drag-and-drop is layout thrashing. A 120 Hz `pointermove` loop that interleaves layout-querying reads (`getBoundingClientRect`) with layout-invalidating writes (style updates, DOM mutations) forces the browser to recompute layout repeatedly, dropping frames.
 
-We partition dragging into three phases with a strict read/write boundary:
+Dragging splits into three phases with a strict read/write boundary. Each phase is represented by one or more functions:
 
 **Capture Phase** (`#captureDragBaseline`) — the read half of the split: pre-drag measurement and calculation, returning a frozen baseline. The three capture helpers are private static; `static` because the work doesn't touch instance state, `#` because the calculation is internal to the class. The reads are split into two named helpers so each function does one thing:
 
@@ -228,28 +230,75 @@ We partition dragging into three phases with a strict read/write boundary:
 
 **Move Phase** (`dragMove`) — reads the cached baseline plus `pageY`/`clientY` from the event, runs a clamp and an `Array.find` over the frozen midpoints, writes `--drag-offset`, toggles marker classes, and calls `#maybeAutoscroll` (see [Autoscroll](#autoscroll-and-the-scroll-padding-contract)). No `getBoundingClientRect` per frame; the drop target and offset come entirely from the frozen baseline.
 
-The split is structural, not runtime-checked. A stray BCR inside `#commitDragDOM` or `dragMove` would be obviously out of place because the file's organization makes "reads happen at capture time only" visible at a glance.
+The split is structural, not runtime-checked. A stray BCR inside `#commitDragDOM` or `dragMove` would be out of place because the file's organization makes "reads happen at capture time only" visible at a glance.
 
-## animateLayoutChange: One Safe, Interruptible Reflow
+## The Reorder Animation
 
-Two runtime actions rearrange the list: Reshuffle, and a reordering drop. Doing the FLIP ad hoc at each site invites both thrashing and breakage — a second Reshuffle landing mid-animation, or a rapid re-drag, would measure against positions an unfinished animation has already moved. One private helper owns the move:
+Reshuffle and a pointerup-driven drag-drop both trigger a list reorder. To provide a smoother user-experience in both of those scenarios, the reordering is animated:
 
 ```js
-#animateLayoutChange(container, mutate, customOrigins = new Map()) {
-  const oldTops = new Map(Array.from(SortableListForm.#realItems(container),
-    li => [li.dataset.step, li.getBoundingClientRect().top]));
-  customOrigins.forEach((top, step) => oldTops.set(step, top));
-  mutate();                                  // the only structural mutation — after all reads
-  SortableListForm.#realItems(container).forEach(li => { /* animate old top → new top */ });
-}
+  static #readDeltas(items, oldTops) {
+    return Array.from(items, li =>
+      oldTops.get(li.dataset.step) - li.getBoundingClientRect().top);
+  }
+
+  #animateLayoutChange(container, mutate, customOrigins = new Map()) {
+    const oldTops = new Map(Array.from(SortableListForm.#realItems(container),
+      li => [li.dataset.step, li.getBoundingClientRect().top]));
+    customOrigins.forEach((top, step) => oldTops.set(step, top));
+
+    mutate();
+
+    const items = SortableListForm.#realItems(container);
+    const deltas = SortableListForm.#readDeltas(items, oldTops);
+    deltas.forEach((delta, i) => {
+      if (delta) items[i].animate(
+        [{transform: `translateY(${delta}px)`}, {transform: 'translateY(0)'}],
+        {duration: this.#container.flipDuration, easing: 'ease-out'});
+    });
+  }
+
 ```
 
-First it reads every item's current top, then runs the caller's `mutate()` — the only structural DOM mutation — then animates each item from where it was to where it landed (those animation writes come after the new-top reads).
+ Function `#animateLayoutChange` first records every item's top (`oldTops`), runs the caller's `mutate()`, then reads every new top and animates each item `translateY(oldTop − newTop) → 0`. A standard FLIP. 
 
-It is interruptible because it re-reads *live* positions on entry. A spam-click or rapid re-drag recalibrates against reality instead of fighting a stale snapshot; mid-flight animations finish in the background, and the next call measures where things actually are.
+### Calculating oldTops
+The `oldTops` Map stores item keys and the current positions:
+  - **key** — li.dataset.step, the step text (the Item Identity (#item-identity-step-text-as-the-key) key)
+  - **value** — li.getBoundingClientRect().top, that row's top edge in viewport pixels, captured _before_ mutate()
+  
+Printed out, it would look something like:—
+```js
+  Map {
+    "Diaphragm descends"        => 412.5,
+    "ZOA established"           => 444.5,
+    "Abdominals engage"         => 476.5,
+    "Pelvic floor counter-rotates" => 508.5
+  }
+```
+
+### Running mutate
+For Reshuffle, `mutate` calls `replaceChildren(...#buildItems())` — a fresh slate of LIs in the new order, each carrying the same `data-step` (see [Reshuffle](#reshuffle) for why it rebuilds rather than reorders). Through that shared key, every new row inherits its predecessor's `oldTops` entry, so the FLIP slides it from where the old row sat to where it now lands. A drop's `mutate` is an `insertBefore` instead — the same nodes, moved.
+### Read, Then Write
+`li.animate()` is a write that dirties the render tree, and a `getBoundingClientRect()` right after can't return an accurate rect until the browser reconciles it — so it stops and reflows, then and there. A single read-then-write loop makes every read pay for the previous write: they fight, once per item. Two passes let all the reads share one reflow and the writes pile up behind it. `#readDeltas` is the read pass, like `#captureDragBaseline` and `#commitDragDOM` are for dragging (see [The Read/Write Split](#the-readwrite-split-dragging-without-layout-thrashing)).
+
+Chromium's own counters, interleaved against batched at N=2000 ([`e2e/flip-read-write-split.mjs`](../../e2e/flip-read-write-split.mjs)):
+
+| | RecalcStyleCount | LayoutCount | time |
+|---|---|---|---|
+| interleaved | +2000 | +2000 | 2405 ms |
+| batched | +2 | +1 | 25 ms |
+
+One forced style-and-layout reflow per item against one for the whole list — O(N²) versus O(N), because each interleaved read re-lays-out all N. A chain has a handful of steps, so the split saves microseconds, not frames. But the discipline holds — reads before writes — and these numbers are why the rule holds. To watch it live, [`flip-read-write-split.html`](../../e2e/flip-read-write-split.html) runs the same comparison by wall-clock in any browser — open it locally or paste it into a CSS/JS playground.
+
+### Surviving Spam
+Measuring live on every call prevents a later action from measuring against positions a previous slide has already moved. Reshuffle and a reordering drop avoid it differently:
+
+**Reshuffle** discards the old nodes and any animations still running on them. `oldTops` was read just before the mutation, so it holds each outgoing node's current *visual* top — `getBoundingClientRect()` includes the in-flight transform — and a reshuffle landing mid-slide restarts from there.
+
+**A reordering drop** keeps the nodes (`insertBefore`), so a sibling caught mid-slide by a rapid re-drop already has a running animation. `li.animate()` defaults to `composite: 'replace'`, so the new animation supersedes the old instead of adding to it, and the delta comes from live layout: the in-flight transform appears in both the old and new reads and cancels. The order is correct and no animation strands. The cost is that `replace` drops the prior transform, so a sibling can jump by the animation's unplayed offset — correct, not visually seamless on a re-drop. The dragged item avoids a jump of its own: `customOrigins` overrides its FLIP start with the clone's release point, so it eases from the pointer rather than its dimmed slot.
 
 ### Item Identity: Step Text as the Key
-
 List items have their own smaller identity, `data-step` the step text, which comes from a JSON key.
 
 ```
@@ -274,7 +323,6 @@ The cost is a data constraint: step strings must be unique within a chain. A dup
 The FLIP stays in the Web Animations API rather than CSS because its start frame is a *measured* per-element delta, which is inherently computed in JS. (The completion pulse, which needs no per-element measurement, went the other way — see [Completion Cascade](#completion-cascade).)
 
 ## Page-Load Entrance
-
 There's no prior committed layout to [FLIP](#animatelayoutchange-one-safe-interruptible-reflow) from at first render, so the entrance is a CSS animation, not a measured transform: a quiet opacity-and-translate on each list item (`list-enter`: opacity 0 → 1, `translateY(-6px → 0)`), gated by an `.entering` class on the wrapper.
 
 ```css

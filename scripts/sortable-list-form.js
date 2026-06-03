@@ -442,6 +442,14 @@ export class SortableListForm {
     return listEl.querySelectorAll(':scope > li');
   }
 
+  // FLIP read pass: each row's post-mutation top minus its recorded old
+  // top. Kept out of the animate() loop — a getBoundingClientRect() after
+  // an li.animate() write forces a synchronous reflow, one per row.
+  static #readDeltas(items, oldTops) {
+    return Array.from(items, li =>
+      oldTops.get(li.dataset.step) - li.getBoundingClientRect().top);
+  }
+
   // FLIP: record each row's top, run the DOM change, then animate every
   // row from its old top to its new one. customOrigins overrides a row's
   // recorded start — the drag clone's release point feeds in there so a
@@ -456,9 +464,10 @@ export class SortableListForm {
 
     mutate();
 
-    SortableListForm.#realItems(container).forEach(li => {
-      const delta = oldTops.get(li.dataset.step) - li.getBoundingClientRect().top;
-      if (delta) li.animate(
+    const items = SortableListForm.#realItems(container);
+    const deltas = SortableListForm.#readDeltas(items, oldTops);
+    deltas.forEach((delta, i) => {
+      if (delta) items[i].animate(
         [{transform: `translateY(${delta}px)`}, {transform: 'translateY(0)'}],
         {duration: this.#container.flipDuration, easing: 'ease-out'});
     });

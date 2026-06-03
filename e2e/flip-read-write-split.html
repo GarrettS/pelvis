@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FLIP read/write split — forced-reflow demo</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
+  h1 { font-size: 1.3rem; }
+  code { background: #f2f2f2; padding: 0 .2rem; border-radius: .2rem; }
+  button { font: inherit; padding: .4rem .9rem; cursor: pointer; }
+  input { font: inherit; width: 6rem; }
+  table { border-collapse: collapse; margin-top: 1rem; width: 100%; }
+  th, td { border: 1px solid #ccc; padding: .4rem .7rem; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  tr.ratio td { font-weight: bold; background: #fafafa; }
+  .note { color: #555; font-size: .9rem; }
+  #list { height: 160px; overflow: auto; border: 1px solid #ddd; margin-top: 1rem;
+    list-style: none; padding: 0; }
+  #list li { height: 20px; padding: 0 .5rem; }
+</style>
+</head>
+<body>
+<h1>FLIP read/write split: one reflow vs. N</h1>
+
+<p>Both passes do identical work — read every row's position, then animate each
+by its delta. Only the <em>order</em> differs:</p>
+
+<ul class="note">
+  <li><strong>Interleaved</strong> — read a row, animate it, next row (read, write, read, write…).</li>
+  <li><strong>Batched</strong> — read every row, <em>then</em> animate every row.</li>
+</ul>
+
+<p><code>li.animate()</code> dirties the render tree, so the next
+<code>getBoundingClientRect()</code> can't answer until the browser reflows.
+Interleaved pays that reflow once per row; batched pays it once. The wall-clock
+gap below is the tell — the interleaved loop is O(N²).</p>
+
+<p>
+  Rows: <input id="n" type="number" value="2000" min="100" step="100">
+  <button id="run">Run</button>
+  <span id="status" class="note"></span>
+</p>
+
+<table id="out" hidden>
+  <thead><tr><th>pass</th><th>median of 3</th></tr></thead>
+  <tbody></tbody>
+</table>
+
+<p class="note">For the reflow <em>count</em> itself: open DevTools → Performance,
+record, then click Run. The interleaved pass logs a “Forced reflow” warning per
+row; the batched pass logs one.</p>
+
+<ul id="list"></ul>
+
+<script>
+const TRIALS = 3;
+const median = a => a.slice().sort((x, y) => x - y)[Math.floor(a.length / 2)];
+
+function buildList(n) {
+  const list = document.getElementById('list');
+  list.replaceChildren(...Array.from({length: n}, (_, i) => {
+    const li = document.createElement('li');
+    li.textContent = 'row ' + i;
+    return li;
+  }));
+  list.getBoundingClientRect();   // settle layout before timing
+}
+
+function runPass(mode) {
+  const items = document.querySelectorAll('#list > li');
+  const kf = [{transform: 'translateY(5px)'}, {transform: 'translateY(0)'}];
+  const opt = {duration: 1};
+  const t0 = performance.now();
+  if (mode === 'interleaved') {
+    items.forEach(li => {
+      void li.getBoundingClientRect().top;   // read
+      li.animate(kf, opt);                   // write — interleaved
+    });
+  } else {
+    const tops = Array.from(items, li => li.getBoundingClientRect().top); // read all
+    items.forEach((li, i) => { void tops[i]; li.animate(kf, opt); });     // write all
+  }
+  const ms = performance.now() - t0;
+  document.getAnimations().forEach(a => a.cancel());
+  return ms;
+}
+
+function measure(mode, n) {
+  const runs = [];
+  for (let i = 0; i < TRIALS; i++) { buildList(n); runs.push(runPass(mode)); }
+  return median(runs);
+}
+
+function addRow(tbody, label, value, isRatio) {
+  const tr = document.createElement('tr');
+  if (isRatio) tr.className = 'ratio';
+  const td1 = document.createElement('td');
+  td1.textContent = label;
+  const td2 = document.createElement('td');
+  td2.textContent = value;
+  tr.append(td1, td2);
+  tbody.append(tr);
+}
+
+document.getElementById('run').addEventListener('click', () => {
+  const n = Math.max(100, Number(document.getElementById('n').value) || 2000);
+  const status = document.getElementById('status');
+  status.textContent = ' running… (the interleaved pass briefly blocks the tab)';
+  // Two frames so the status paints before the synchronous run blocks the thread.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const interleaved = measure('interleaved', n);
+    const batched = measure('batched', n);
+    const tbody = document.querySelector('#out tbody');
+    tbody.replaceChildren();
+    addRow(tbody, 'interleaved (read, write, read, write…)', interleaved.toFixed(1) + ' ms');
+    addRow(tbody, 'batched (all reads, then all writes)', batched.toFixed(1) + ' ms');
+    addRow(tbody, 'interleaved ÷ batched', (interleaved / batched).toFixed(0) + '×', true);
+    document.getElementById('out').hidden = false;
+    status.textContent = '';
+  }));
+});
+</script>
+</body>
+</html>
