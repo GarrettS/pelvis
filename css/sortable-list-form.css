@@ -37,8 +37,7 @@
   background: var(--error-bg);
 }
 
-.sortable-list.grading-stale > li.correct,
-.sortable-list.grading-stale > li.incorrect {
+.sortable-list:has(> li.active-drag-item) > li:is(.correct, .incorrect) {
   border-left-color: var(--border);
   background: var(--panel-bg-sunken);
 }
@@ -56,7 +55,7 @@
 
 /* On drop the LI briefly wears the dragged clone's look, then cools to its
    resting item. The keyframe declares the accent start, so it needs no
-   painted-first arming and overrides grading-stale while it runs. */
+   painted-first arming. */
 @keyframes item-drop-cool {
   from {
     background: var(--accent-bg);

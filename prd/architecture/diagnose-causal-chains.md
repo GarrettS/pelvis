@@ -56,27 +56,37 @@ function initSortableLists(chainDefinitions) {
 }
 ```
 
-Delegated handlers inside the container find the form instance by reading the id off the DOM:
+Delegated handlers inside the container read the form id off the DOM and resolve
+it through the container's private `#getForm` helper:
 
 ```js
-SortableListForm.getById(e.target.name);
+this.#getForm(e.target.name);
 
 const ol = dragItem.parentNode;
-activeForm = SortableListForm.getById(ol.id);
+activeForm = this.#getForm(ol.id);
 ```
 
 That shared key obviates `data-chain-id`, selector walks, array searches, and translation maps.
 
 ### Action Dispatch Keys
 
-The one-liner consumes two keys: `form.name` finds the SortableListForm instance via the Shared Key; `e.submitter.name` finds the method by matching its instance-method name.
+Submit dispatch consumes two keys: `form.name` finds the `SortableListForm`
+instance via the Shared Key; `e.submitter.name` selects an allowed action from
+the container's explicit `#actions` table. The button name never becomes a
+dynamic instance-method lookup.
 
 ```js
-#onSubmit = e =>
-  SortableListForm.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
+#actions = {
+  checkResults: form => form.checkResults(),
+  reshuffle: form => form.reshuffle()
+};
+
+#runAction(action, formId) {
+  this.#actions[action]?.(this.#getForm(formId));
+}
 ```
 
-Both `checkResults` and `reshuffle` are instance methods named after their buttons.
+Only `checkResults` and `reshuffle` are exposed to submit dispatch.
 
 ### Item Identity Contract
 
@@ -92,8 +102,8 @@ Each sortable `<li>` carries its step text in `data-step`; the chain stores the 
 
 Construction is via `getById(id, definition, container)`. `definition` is the per-chain data object that came from the JSON file's value side. Only one field is read by the class itself:
 
-| Field | Type | Purpose |
-|---|---|---|
+| Field   | Type                  | Purpose                                                                                                                                                                                         |
+| ------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `steps` | `string[]` (required) | Correct order. Frozen onto `#steps`; a shuffled copy seeds `#currentOrder`. Each value also lands on a list item as `data-step` — the [Item Identity](#item-identity-step-text-as-the-key) key. |
 
 Every other field on `definition` passes through unchanged as the argument to the container's `renderFormHTML`. The consumer decides what else the object holds; the class never reads it. The chain feature's full definition, for reference:
@@ -124,34 +134,32 @@ The constructor reads `definition.steps` to initialize the correct order (`#step
 
 ### Factory-Gated Construction
 
-The `SortableListForm.getById` factory encapsulates instantiation and caching. A private `#KEY` symbol gates the constructor, forcing all external access through the factory. This guarantees that consumers interact agnostically with fully built subtrees, enabling zero-wiring delegation:
+The `SortableListForm.getById` factory encapsulates instantiation and caching. A private `#KEY` symbol gates the constructor, forcing all external access through the factory. `SortableListContainer.#getForm` is the container's single delegation point into that factory:
 
 ```js
-#onSubmit = e =>
-  SortableListForm.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
+#getForm(id, definition) {
+  return SortableListForm.getById(id, definition, this);
+}
 ```
 
 The initial factory call runs the constructor, which builds the detached `<form>` and its OL inline using the supplied `renderFormHTML`. Subsequent calls bypass construction and return the cached instance by `id`.
 
 ### Reshuffle
-
-Each instance persists for the page lifetime. `reshuffle()` re-randomizes `#currentOrder`, clears grading state, and replaces the OL's children with rebuilt LIs inside `#animateLayoutChange`. The form and OL nodes persist — reshuffle does not go through `initSortableLists`, so `chainsWrap.entering` isn't re-added and `list-enter` doesn't replay.
+`SortableListForm` instances persist for the page lifetime. `reshuffle()` re-randomizes `#currentOrder`, clears grading state, and replaces the OL's children with rebuilt LIs inside `#animateLayoutChange`. The form and OL nodes persist — reshuffle does not go through `initSortableLists`, so `chainsWrap.entering` isn't re-added and `list-enter` doesn't replay.
 
 Rebuilding from `#buildItems()` (rather than resetting and reordering existing LIs) resets the list to its initial state, reordered. Reset+reorder would save the allocation but force `#buildItems` and the reset step to stay in sync — a brittleness cost not worth saving allocations on a handful of items.
 
 ### The Button-Name Contract
-
-Each submit button's `name` matches a method on the `SortableListForm` decorating its form; [dispatch](#action-dispatch-keys) calls that method on submit. So `renderFormHTML` must emit `<button name="checkResults">` and `<button name="reshuffle">`, matching `checkResults()` and `reshuffle()`.
+Each submit button's `name` matches a key in the container's private `#actions` whitelist. So `renderFormHTML` must emit `<button name="checkResults">` and `<button name="reshuffle">`; the table explicitly maps those keys to the corresponding `SortableListForm` operations.
 
 ### The Public Interface
-
 External method access is grouped by consumer:
 
-| **Consumer** | **Calls / Reads** | **Architectural Purpose** |
+| **Consumer** | **Calls / Reads** | **Architectural Purpose**                                                          |
 |---|---|---|
 | `SortableListContainer.replaceForms` | `.form` getter | Sets the built `<form>` elements as the wrapper's children with `replaceChildren`. |
-| Container submit handler | `reshuffle()`, `checkResults()` | Calls the instance method matching the activated submit button's `name`. |
-| Container pointer handlers | `startDrag()`, `dragMove()`, `commitDrop()`, `endDrag()` | Calls the active form's drag methods from the delegated pointer events. |
+| Container submit handler | `reshuffle()`, `checkResults()` | Activated submit button's `name` mapped to same-named method.                      |
+| Container pointer handlers | `startDrag()`, `dragMove()`, `commitDrop()`, `endDrag()` | Calls the active form's drag methods from the delegated pointer events.            |
 
 ### DOM Architecture
 
@@ -162,7 +170,7 @@ Each instance builds its HTML subtree at construction, stamping the constructor'
 |**Component Root** `<form>`|`name="[id]"`|Binds the subtree to a specific chain identity. The global submit handler uses `e.target.name` to look up the cached instance immediately.|
 |**Sortable List** `<ol>`|None|Semantic `<ol>` (screen readers announce position). Serves as the DOM container for pointer tracking and FLIP layout calculations.|
 |**Sequence Steps** `<li>`|`data-step="[step-id]"`|Identifies the step. The attribute acts as the lookup key for FLIP animations and grading.|
-|**Submit Buttons** `<button>`|`name="reshuffle"`, `name="checkResults"`|Trigger form submission natively. Each `name` matches a `SortableListForm` method the submit handler calls.|
+|**Submit Buttons** `<button>`|`name="reshuffle"`, `name="checkResults"`|Trigger form submission natively. Each `name` is an explicit `#actions` dispatch key.|
 |**Bonus Disclosure** `<details>`|None|Native disclosure widget handles open/close.|
 
 ## Single-Pointer Dragging
@@ -191,7 +199,7 @@ this.#activeForm && e.pointerId === this.#activePointerId && /* act */
 
 `setPointerCapture(e.pointerId)` keeps the event stream targeted at the dragged LI even when the pointer leaves the viewport — without it, the browser would re-target events to whatever is under the pointer.
 
-The release path (`pointerup`, `pointercancel`, `Escape` keydown, and a viewport `resize`) all funnel through `#cleanup`:
+The release path (`pointerup`, `pointercancel`, `Escape` keydown, and a window `resize`) all funnel through `#cleanup`:
 
 ```js
 #cleanup = () => {
@@ -215,11 +223,11 @@ html.list-drag-active * {
 
 ## The Read/Write Split: Dragging Without Layout Thrashing
 
-The challenge for any DOM drag-and-drop is layout thrashing. A 120 Hz `pointermove` loop that interleaves layout-querying reads (`getBoundingClientRect`) with layout-invalidating writes (style updates, DOM mutations) forces the browser to recompute layout repeatedly, dropping frames.
+Any DOM drag-and-drop must address layout thrashing. Interleaving layout reads (`getBoundingClientRect`) with layout-invalidating writes (style updates, DOM mutations) forces the browser layout engine to recompute layout repeatedly, a CPU intensive operation that hogs memory and can noticeably impact dragging experience.
 
-Dragging splits into three phases with a strict read/write boundary. Each phase is represented by one or more functions:
+Splitting the dragging into *phases* with a strict *read/write* boundary reduces layout recalculation to once per drag, not repeating at 120hz, per `pointermove` callback. Each *phase* is represented by one or more functions:
 
-**Capture Phase** (`#captureDragBaseline`) — the read half of the split: pre-drag measurement and calculation, returning a frozen baseline. The three capture helpers are private static; `static` because the work doesn't touch instance state, `#` because the calculation is internal to the class. The reads are split into two named helpers so each function does one thing:
+**Capture Phase** (`#captureDragBaseline`) — the *read* half of the split: pre-drag measurement and calculation, returning a frozen baseline. The three capture helpers are private static; `static` because the work doesn't touch instance state, `#` because the calculation is internal to the class. The reads are split into two named helpers so each function does one thing:
 
 - `#readDragInputs(dragItem)` — batched read of the layout facts the baseline needs: the chain's OL ref, the items list, the dragItem and OL rects, `window.scrollY`, the viewport height, and the scroll-padding-top inset. No derivations.
 - `#readSiblingDropMidpoints(items, dragItem, scroll)` — single pass over the items (skipping the dragItem), reading each sibling's BCR and in-flight transform, computing its page-coord drop midpoint. Read and compute live together because the output *is* the midpoints. The transform read is what makes a mid-FLIP drag-start safe: a sibling caught animating into place renders at its BCR top, but the user is mentally aiming at its settled position. `new DOMMatrix(getComputedStyle(li).transform).m42` extracts the Y-translation cell (row 4 column 2 of the 4×4 transform matrix); subtracting it from `box.top` cancels the in-flight FLIP offset, so the midpoint reflects where the sibling will be once the animation finishes. Without that subtraction, picking up an item during a Reshuffle would resolve drop targets against animating positions and land the wrong way.
@@ -228,44 +236,49 @@ Dragging splits into three phases with a strict read/write boundary. Each phase 
 
 **Commit Phase** (`#commitDragDOM`) — pure writes. Removes any stale clone OL, inserts a fresh one, marks the dragged LI, assembles `#dragSession`. Runs once, immediately after capture.
 
-**Move Phase** (`dragMove`) — reads the cached baseline plus `pageY`/`clientY` from the event, runs a clamp and an `Array.find` over the frozen midpoints, writes `--drag-offset`, toggles marker classes, and calls `#maybeAutoscroll` (see [Autoscroll](#autoscroll-and-the-scroll-padding-contract)). No `getBoundingClientRect` per frame; the drop target and offset come entirely from the frozen baseline.
+**Move Phase** (`dragMove`) — reads the cached baseline plus `pageY`/`clientY` from the event, runs a clamp and an `Array.find` over the frozen midpoints, writes `--drag-offset`, toggles marker classes, and calls `#maybeAutoscroll` (see [Autoscroll](#autoscroll-and-the-scroll-padding-contract)).
 
-The split is structural, not runtime-checked. A stray BCR inside `#commitDragDOM` or `dragMove` would be out of place because the file's organization makes "reads happen at capture time only" visible at a glance.
-
+The phase split bounded by separate functions. A stray getBoundingClientRect inside `#commitDragDOM` or `dragMove` would be out of place because the file's organization makes "reads happen at capture time only" visible at a glance. The `[maybeAutoscroll](#autoscroll-and-the-scroll-padding-contract)` call is a carefully gated exception to this rule: it is called *only* if both of the following conditions are met: autoscrolling is predetermined before dragMove to be *possibly* necessary, and, 2. during dragMove, the cursor hits and edge trigger near the scrollport edge.  
 ## The Reorder Animation
+Dropping to a new position and reshuffle both trigger list reorder. Animating this reordering provides user feedback for a much smoother-feeling user-experience.
 
-Reshuffle and a pointerup-driven drag-drop both trigger a list reorder. To provide a smoother user-experience in both of those scenarios, the reordering is animated:
-
+This reordering animation is done in phases to preserve thrashing:
+1. record each LI's current top
+2. mutate (replaceChildren on reorder) 
+3. record each LI's ending top position - this forces post-mutation layout reflow and recalc
+4. animate from the starting positions to the ending positions calculated in step 3.
 ```js
-  static #readDeltas(items, oldTops) {
-    return Array.from(items, li =>
-      oldTops.get(li.dataset.step) - li.getBoundingClientRect().top);
-  }
+  // FLIP: record each LI's top, run the DOM change, then animate every LI
+  // from its old top to its new one. The drag clone's LI overrides, so it eases
+  // from the pointer instead of the LI's dim DOM slot.
+  #animateLayoutChange(container, mutate, cloneLI) {
+    // Phase 1: reads (before mutation)
+    const startingTops = new Map();
+    for (const li of SortableListForm.#realItems(container)) {
+      startingTops.set(li.dataset.step, li.getBoundingClientRect().top);
+    }
+    if (cloneLI)
+      startingTops.set(cloneLI.dataset.step, cloneLI.getBoundingClientRect().top);
 
-  #animateLayoutChange(container, mutate, customOrigins = new Map()) {
-    const oldTops = new Map(Array.from(SortableListForm.#realItems(container),
-      li => [li.dataset.step, li.getBoundingClientRect().top]));
-    customOrigins.forEach((top, step) => oldTops.set(step, top));
-
+    // Phase 2: mutation
     mutate();
 
-    const items = SortableListForm.#realItems(container);
-    const deltas = SortableListForm.#readDeltas(items, oldTops);
-    deltas.forEach((delta, i) => {
-      if (delta) items[i].animate(
-        [{transform: `translateY(${delta}px)`}, {transform: 'translateY(0)'}],
-        {duration: this.#container.flipDuration, easing: 'ease-out'});
-    });
+    // Phase 3: reads (after mutation)
+    const settledItems = SortableListForm.#realItems(container);
+    const deltas = Array.from(settledItems, li =>
+      startingTops.get(li.dataset.step) - li.getBoundingClientRect().top);
+
+    // Phase 4: writes (per-item animation)
+    deltas.forEach((dy, i) => dy && settledItems[i].animate(
+      [{transform: `translateY(${dy}px)`}, {transform: 'translateY(0)'}],
+      {duration: this.#container.flipDuration, easing: 'ease-out'}));
   }
-
 ```
-
- Function `#animateLayoutChange` first records every item's top (`oldTops`), runs the caller's `mutate()`, then reads every new top and animates each item `translateY(oldTop − newTop) → 0`. A standard FLIP. 
-
-### Calculating oldTops
-The `oldTops` Map stores item keys and the current positions:
+Per-item animation is by each LIs predetermined `dy`. When `dy === 0`, `&&` short-circuits and `animate()` isn't called. This works because these keyframes animate transform only. 
+### Calculating `startingTops`
+The `startingTops` Map stores item keys and the current positions:
   - **key** — li.dataset.step, the step text (the Item Identity (#item-identity-step-text-as-the-key) key)
-  - **value** — li.getBoundingClientRect().top, that row's top edge in viewport pixels, captured _before_ mutate()
+  - **value** — li.getBoundingClientRect().top, that item's top edge in viewport pixels, captured _before_ mutate()
   
 Printed out, it would look something like:—
 ```js
@@ -276,30 +289,28 @@ Printed out, it would look something like:—
     "Pelvic floor counter-rotates" => 508.5
   }
 ```
-
-### Running mutate
-For Reshuffle, `mutate` calls `replaceChildren(...#buildItems())` — a fresh slate of LIs in the new order, each carrying the same `data-step` (see [Reshuffle](#reshuffle) for why it rebuilds rather than reorders). Through that shared key, every new row inherits its predecessor's `oldTops` entry, so the FLIP slides it from where the old row sat to where it now lands. A drop's `mutate` is an `insertBefore` instead — the same nodes, moved.
+### Running Mutate
+For reshuffle, `mutate` calls `replaceChildren(...#buildItems())` — which gives us a fresh slate of LIs in the new order, each carrying the same `data-step` (see [Reshuffle](#reshuffle) for why it rebuilds rather than reorders). Through that shared key, every new LI inherits its predecessor's `startingTops` entry, so the FLIP slides it from where the old LI sat to where it now lands. A drop's `mutate` is an `insertBefore` instead — the same nodes, moved.
 ### Read, Then Write
-`li.animate()` is a write that dirties the render tree, and a `getBoundingClientRect()` right after can't return an accurate rect until the browser reconciles it — so it stops and reflows, then and there. A single read-then-write loop makes every read pay for the previous write: they fight, once per item. Two passes let all the reads share one reflow and the writes pile up behind it. `#readDeltas` is the read pass, like `#captureDragBaseline` and `#commitDragDOM` are for dragging (see [The Read/Write Split](#the-readwrite-split-dragging-without-layout-thrashing)).
+`li.animate()` is a write that dirties the render tree, and a `getBoundingClientRect()` right after can't return an accurate rect until the browser reconciles it — so it stops and reflows, then and there. A single read-then-write loop makes every read pay for the previous write: they fight, once per item. Two passes let all the reads share one reflow and the writes pile up behind it  (see [The Read/Write Split](#the-readwrite-split-dragging-without-layout-thrashing)).
 
 Chromium's own counters, interleaved against batched at N=2000 ([`e2e/flip-read-write-split.mjs`](../../e2e/flip-read-write-split.mjs)):
 
-| | RecalcStyleCount | LayoutCount | time |
-|---|---|---|---|
-| interleaved | +2000 | +2000 | 2405 ms |
-| batched | +2 | +1 | 25 ms |
+|             | RecalcStyleCount | LayoutCount | time    |
+| ----------- | ---------------- | ----------- | ------- |
+| interleaved | +2000            | +2000       | 2405 ms |
+| batched     | +2               | +1          | 25 ms   |
 
 One forced style-and-layout reflow per item against one for the whole list — O(N²) versus O(N), because each interleaved read re-lays-out all N. A chain has a handful of steps, so the split saves microseconds, not frames. But the discipline holds — reads before writes — and these numbers are why the rule holds. To watch it live, [`flip-read-write-split.html`](../../e2e/flip-read-write-split.html) runs the same comparison by wall-clock in any browser — open it locally or paste it into a CSS/JS playground.
 
 ### Surviving Spam
 Measuring live on every call prevents a later action from measuring against positions a previous slide has already moved. Reshuffle and a reordering drop avoid it differently:
 
-**Reshuffle** discards the old nodes and any animations still running on them. `oldTops` was read just before the mutation, so it holds each outgoing node's current *visual* top — `getBoundingClientRect()` includes the in-flight transform — and a reshuffle landing mid-slide restarts from there.
+**Reshuffle** discards the old nodes and any animations still running on them. `startingTops` was read just before the mutation, so it holds each outgoing node's current *visual* top — `getBoundingClientRect()` includes the in-flight transform — and a reshuffle landing mid-slide restarts from there.
 
-**A reordering drop** keeps the nodes (`insertBefore`), so a sibling caught mid-slide by a rapid re-drop already has a running animation. `li.animate()` defaults to `composite: 'replace'`, so the new animation supersedes the old instead of adding to it, and the delta comes from live layout: the in-flight transform appears in both the old and new reads and cancels. The order is correct and no animation strands. The cost is that `replace` drops the prior transform, so a sibling can jump by the animation's unplayed offset — correct, not visually seamless on a re-drop. The dragged item avoids a jump of its own: `customOrigins` overrides its FLIP start with the clone's release point, so it eases from the pointer rather than its dimmed slot.
-
+**Reordering drop** does not replace elements. It can't because it needs to add the `.dropped` class to the dropped LI for its cool-down effect. To address this, it removes the LIs' correct/incorrect`className` (clears grading), removes `active-drag-item` from the dragged LI, re-inserts the dragged LI, and adds the `.dropped` class to the dropped LI for its cool-down effect.
 ### Item Identity: Step Text as the Key
-List items have their own smaller identity, `data-step` the step text, which comes from a JSON key.
+List items have their own smaller identity, `data-step` per-chain unique step text that comes from a JSON key.
 
 ```
 definition.steps[] / #currentOrder[]
@@ -307,23 +318,17 @@ definition.steps[] / #currentOrder[]
           ▼
       <li data-step>
           │
-          ├── #animateLayoutChange oldTops key
+          ├── #animateLayoutChange startingTops key
           ├── drop commit rebuilds #currentOrder
           └── checkResults compares against #steps
 ```
 
-That choice is what lets Reshuffle rebuild the LIs with `replaceChildren` and still animate. The new LIs are not the old DOM nodes, but they carry the same `data-step` values. `#animateLayoutChange` records old positions by `li.dataset.step`, runs the mutation, then looks up each new item's old top by the same key.
-
-The cost is a data constraint: step strings must be unique within a chain. A duplicate step would collide in `oldTops`, make the FLIP identity ambiguous, and also corrupt the order model because drop commit rebuilds `#currentOrder` from `li.dataset.step`. The app does not add synthetic item ids because the step text is already the user's visible unit of ordering; adding another id would create a second truth to keep aligned for little gain.
-
-`customOrigins` lets a caller override an item's recorded start — the drop feeds the clone's release point, so the dragged item eases from the pointer rather than from its dim DOM slot.
-
-**Invariant:** every post-mutation item's `data-step` is already in `oldTops`. Reshuffle keeps the step set; a drop persists the nodes; `customOrigins` covers the dragged item's release point. The helper trusts this and doesn't guard for a missing entry; callers don't introduce new items mid-flight.
+That lets Reshuffle rebuild the LIs with `replaceChildren` and still animate. The new LIs are new elements that carry the same `data-step`. Function `#animateLayoutChange` records old positions by `li.dataset.step`, runs the mutation, then looks up each new item's old top by the same key.
 
 The FLIP stays in the Web Animations API rather than CSS because its start frame is a *measured* per-element delta, which is inherently computed in JS. (The completion pulse, which needs no per-element measurement, went the other way — see [Completion Cascade](#completion-cascade).)
 
 ## Page-Load Entrance
-There's no prior committed layout to [FLIP](#animatelayoutchange-one-safe-interruptible-reflow) from at first render, so the entrance is a CSS animation, not a measured transform: a quiet opacity-and-translate on each list item (`list-enter`: opacity 0 → 1, `translateY(-6px → 0)`), gated by an `.entering` class on the wrapper.
+There's no prior committed layout to [FLIP](#the-reorder-animation) from at first render, so the entrance is a CSS animation, not a measured transform: a quiet opacity-and-translate on each list item (`list-enter`: opacity 0 → 1, `translateY(-6px → 0)`), gated by an `.entering` class on the wrapper.
 
 ```css
 :where(#chains-wrap.entering) .sortable-list > li {
@@ -338,14 +343,25 @@ The gating class lives on the wrapper, not on each OL or each item. Before the a
 The entrance is deliberately small (the page-load liveliness is *barely noticeable*). A bigger entrance widens the window where the user could `pointerdown` on an item mid-animation, and the drag pipeline assumes settled positions; staying subtle makes that race practically impossible.
 
 ## Autoscroll and the Scroll-Padding Contract
-
-A chain taller than the viewport must scroll while the user drags toward an edge, via `clone.scrollIntoView`. But `scrollIntoView` forces a synchronous relayout on every call — running it each frame thrashes. So it is gated twice:
+A chain taller than the scrollport must scroll while the user drags toward an edge, via `clone.scrollIntoView({block: 'nearest'})` keeping the dragged clone visible when a list exceeds the scrollport. Because `scrollIntoView` forces layout, the move path gates this twice.
 
 - **At capture**, `baseline.autoscroll` decides whether the list can clip at all (does it extend past the visible region?). A list that fits never scrolls.
-- **Per frame**, `#maybeAutoscroll` fires only when the pointer (`clientY`) enters an `itemHeight`-wide band at the top or bottom of the *visible* region.
-
+- **Per frame**, `#maybeAutoscroll` fires only when the pointer (`clientY`) enters an `itemHeight`-wide band at the top or bottom of the *visible* region with a CSS pseudo-element:
+```css
+.sortable-list > li.drop-target-before::before,
+.sortable-list > li.drop-target-after::before {
+  content: '';
+  position: absolute;
+  left: -.5rem;
+  right: 0;
+  height: var(--marker-bar-thickness);
+  background: var(--accent);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+```
+### Setting the Scrollport
 The visible region's top is not the viewport top — a sticky nav covers it. That inset is the scroller's `scroll-padding-top`, which `navigation-tabs` publishes on every route change:
-
 ```js
 function updateScrollInset() {
   document.documentElement.style.scrollPaddingTop =
@@ -359,13 +375,12 @@ function updateScrollInset() {
    (owns the nav)                (the contract)               (knows only its scroller)
 ```
 
-The widget reads its scroller's `scroll-padding-top`, never the nav, so it stays decoupled from the layout — and the same value makes the scroll engine land `scrollIntoView` *below* the nav instead of behind it, for free. The nav publishes per route because the subtab-row makes it taller on subtabbed routes; a measure taken once on a row-less route would be too short.
+The widget reads its scroller's `scroll-padding-top`, never the nav, so it stays decoupled from the layout — and the same value makes the scroll engine land `scrollIntoView` *below* the nav instead of behind it, for free. The nav publishes per route because the subtab row makes it taller on subtabbed routes; a measure taken once on a route without subtabs would be too short.
 
 (Rejected: calling `scrollIntoView` unconditionally every frame — correct, but layout-forcing on frames where nothing needs to scroll.)
 
 ## Coordinate Translation: The Scroll Trap
-
-When the user drags an item toward an edge of the documentElement's scrollport we call `scrollIntoView`, but only past two gated tests. `scrollIntoView` forces a relayout per call, so running it each frame would thrash.
+Whenever the user drags an item toward an edge of the documentElement's scrollport we call `scrollIntoView`, but only past two gated tests. `scrollIntoView` forces a relayout per call, so running it each frame would thrash.
 
 **Test 1 — `autoscroll`, captured once at drag start** (`#captureDragBaseline`):
 
@@ -373,7 +388,20 @@ When the user drags an item toward an edge of the documentElement's scrollport w
 autoscroll: listRect.top < topInset || listRect.bottom > innerHeight - bottomInset
 ```
 
-Does the list extend past the visible region — above the inset or below the fold? Frozen into the baseline.
+Does the list extend past the visible region — above the inset or below the fold? Frozen into the baseline. Any time the list is obscured by the scrollport, either top or bottom:
+
+### The `autoscroll` Boolean
+If the list is partially obscured, then it doesn't fit. If either it's top or bottom is obscured, than scrolling the container in that direction, either up or down, can obscure the other half of it.
+
+Current container top?
+  1. User initiates drag with the bottom list item obscured.
+  2. autoscroll is captured as true.
+  3. User drags the item to the bottom of the list
+  4. clone.scrollIntoView({block: 'nearest'}) can then scroll downward.
+  5. Downward autoscroll moves the list upward, obscuring its top.
+  6. User continues dragging, moving the pointer towards the first item, now obscured.
+  7. `#maybeAutoscroll` is called again
+  8. clone.scrollIntoView({block: 'nearest'}) can then scroll upward.
 
 **Test 2 — per frame, but `dragMove` calls `#maybeAutoscroll` only when `autoscroll` is true:**
 
@@ -389,11 +417,10 @@ The gates skip per-frame calculations and the relayout for lists that fit within
 That same mid-drag scroll is why the rest of the drag works in `pageY`. The item's clamp to its list and its drop-target midpoints are fixed at pickup; autoscroll then scrolls the window past them, but their positions in the document — their `pageY` — don't change with it. The two failure modes it avoids:
 
 **Stale thresholds.** `scrollIntoView` can scroll the page mid-drag for an overflowing chain. Cached *viewport* positions would invalidate the instant scroll fired. Cached *document* positions don't: LIs don't move in the document when the page scrolls.
-
+ 
 **Compositor-thread tearing.** `PointerEvent.clientY` is captured at event creation. `window.scrollY` is a separate read at handler-invocation time. With async scrolling on the compositor thread, those two values can drift across the gap, producing a misaligned coordinate and visible clone jitter. `e.pageY` is computed by the browser engine inside the event with scroll state from the same instant — race-free by construction. The capture-time `+ scroll` for BCRs is fine because all the BCRs and the scroll read sit in one layout pass, internally consistent.
 
 ## State Isolation: The Shallow Freeze
-
 Transient drag state lives in `#dragSession`, split by lifecycle volatility:
 
 ```js
@@ -447,8 +474,8 @@ Two collections, two purposes — duplication that earns its keep.
 A drop's whole resolution lives in `commitDrop`; `endDrag` handles only cancellation. There are three outcomes:
 
 - **Reorder.** `commitDrop` runs `#animateLayoutChange` (the displaced items FLIP into place; the dragged item eases from the clone's release point), tags the dragged item `.dropped` to cool it down, then removes the clone immediately. `#settleClone` is *not* part of a reorder.
-- **No-op** — released back into its own slot. Detected with `insertBeforeNode == dragItem.nextElementSibling`: the item would land before the LI it already sits before, so nothing moves. At end-of-list both sides are `null` — no hit-test target, no next sibling — the same no-op. Prior grading is restored, and `#settleClone` glides the clone home.
-- **Abort** — Escape or `pointercancel`. `commitDrop` never runs; `endDrag` settles the clone back to the item's slot and clears the session.
+- **No-op** — released back into its own slot. Detected with `insertBeforeNode == dragItem.nextElementSibling`: the item would land before the LI it already sits before, so nothing moves. At end-of-list both sides are `null` — no hit-test target, no next sibling — the same no-op. `#settleClone` removes `.active-drag-item`, re-showing unchanged grading, and glides the clone home.
+- **Abort** — Escape, `pointercancel`, or resize. `commitDrop` never runs; `endDrag` settles the clone back to the item's slot, removes `.active-drag-item`, and re-shows unchanged grading.
 
 The cool-down is a `from`-only keyframe: the dropped item briefly wears the clone's lifted look, then CSS eases it down to the resting item.
 
@@ -462,7 +489,7 @@ The cool-down is a `from`-only keyframe: the dropped item briefly wears the clon
 }
 ```
 
-A `from`-only block declares the start and animates to the element's own resting style — so the keyframe never restates the resting values, and a running animation outranks the `grading-stale` cascade for free. The dropped item also carries a `z-index` so it cools *above* the displaced sibling sliding past it (after `insertBefore`, an upward move leaves that sibling later in DOM order, so without the lift it would paint on top).
+A `from`-only block declares the start and animates to the element's own resting style, so the keyframe never restates the resting values. The dropped item also carries a `z-index` so it cools *above* the displaced sibling sliding past it (after `insertBefore`, an upward move leaves that sibling later in DOM order, so without the lift it would paint on top).
 
 **Sub-pixel deadlock.** `#settleClone` (the no-op and abort paths) transitions the clone from its release position to the item's slot; a `transitionend` listener removes it. Duration scales with distance (~1.5 px/ms, clamped 200–600 ms).
 
@@ -542,17 +569,28 @@ clone.start = ordinalValue < insertBeforeOrdinal ? insertBeforeOrdinal - 1 : ins
 Without the conditional, the badge would flicker by one as the pointer crossed each item boundary.
 
 ## Grading Display Lifecycle
+Function `checkResults()` applies `.correct` / `.incorrect` classes per LI. Those classes
+exist only while they describe the current order.
 
-`checkResults()` applies `.correct` / `.incorrect` classes per LI. The classes *stay on the elements*, but their visibility is gated by state on the OL.
+When a drag starts, `#commitDragDOM` adds `.active-drag-item` to the picked-up
+LI. This lets us temporarily hide any grading on dragStart.
+### Hiding Grading on Drag Start
+```css
+.sortable-list:has(> li.active-drag-item) > li:is(.correct, .incorrect) {
+  border-left-color: var(--border);
+  background: var(--panel-bg-sunken);
+}
+```
 
-When a drag starts, `#commitDragDOM` adds `.grading-stale` to the OL. A CSS rule with higher specificity than `.correct` / `.incorrect` overrides the colored backgrounds and borders back to the neutral item style while `.grading-stale` is present. The existing `transition: border-color` on `.sortable-list > li` fades the borders smoothly as the cascade flips — so the moment the user picks up an item, the grading visually clears with a brief transition rather than a hard pop.
+When the user drops the LI (its clone), `li.active-drag-item` is removed. If the user dropped the clone on the originating LI, `#settleClone` removes active-drag-item and glides the clone home. But if the user dropped it on a new drop target, we need to clean all the LIs and apply `dropped` to the LI that was dropped. Each drag exit then resolves grading from whether the order changed:
 
-What removes `.grading-stale`:
-
-- **No-op drop** — `commitDrop` removes the class and the prior grading reappears unchanged.
-- **Reordering drop** — `.grading-stale` *stays*, because the grading is genuinely stale.
-- **`checkResults`** — re-grades, then removes the class.
-- **`reshuffle`** — re-renders LIs (without color classes), removes the class.
+- **No-op drop or abort** — `#settleClone` removes `.active-drag-item`. The
+  unchanged grading classes become visible again.
+- **Reordering drop** — `commitDrop` removes every `.correct` / `.incorrect`
+  class before removing `.active-drag-item`, so invalid grading cannot flash or
+  reappear later.
+- **`checkResults`** — applies fresh grading for the current order.
+- **`reshuffle`** — replaces the LIs with ungraded items.
 
 All-correct disables the Check button, sets `aria-disabled` on the OL (which blocks subsequent `pointerdown`), and plays a [completion cascade](#completion-cascade) through the LIs. Reshuffle alone can re-arm Check — drag-start can't, because the OL lock makes `pointerdown` bail.
 
@@ -599,9 +637,8 @@ Much of the behavior is encoded as classes rather than methods. The toggles and 
 | `html.list-drag-active`        | document     | `pointerdown` / `cleanup`                            | drag-wide `cursor` / `user-select` lock                                  |
 | `entering`                      | wrapper      | `initSortableLists` / wrapper `animationend`                 | gates the page-load item entrance (via `:where()` for specificity safety) |
 | `revealed`                      | form         | `#toggleBonusReveal`                                 | shows the info-bonus `<details>`                                         |
-| `grading-stale`                 | OL           | drag start / no-op drop, `checkResults`, `reshuffle` | neutralizes `.correct`/`.incorrect` while dragging                       |
 | `all-correct`                   | OL           | `checkResults` / `reshuffle`                         | the completion cascade                                                   |
-| `active-drag-item`              | dragged LI   | `#commitDragDOM` / drop or settle                    | dims the original; slow-dim on lift, instant on drop                     |
+| `active-drag-item`              | dragged LI   | `#commitDragDOM` / drop or settle                    | dims the original and temporarily neutralizes visible grading            |
 | `drop-target-before` / `-after` | receiving LI | `#updateDropMarker`                                  | the `::before` drop-position bar                                         |
 | `dropped`                       | reordered LI | `commitDrop` / `animationend`                        | the cool-down keyframe                                                   |
 | `settling`                      | clone OL     | `#settleClone`                                       | enables the clone's settle transition                                    |

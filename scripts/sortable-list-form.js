@@ -143,7 +143,7 @@ export class SortableListForm {
     this.#currentOrder = toShuffled(this.#steps);
     this.#wrongChecks = 0;
     const ol = this.#form.querySelector('.sortable-list');
-    ol.classList.remove('grading-stale', 'all-correct');
+    ol.classList.remove('all-correct');
     ol.ariaDisabled = false;
     this.#form.elements.checkResults.disabled = false;
     this.#toggleBonusReveal(false);
@@ -153,7 +153,6 @@ export class SortableListForm {
 
   checkResults() {
     const ol = this.#form.querySelector('.sortable-list');
-    ol.classList.remove('grading-stale');
     const items = SortableListForm.#realItems(ol);
     let allCorrect = true;
     items.forEach((li, i) => {
@@ -206,36 +205,40 @@ export class SortableListForm {
   commitDrop() {
     const session = this.#dragSession;
     const { insertBeforeNode, baseline, clone, marker } = session;
-    const { dragItem, listEl } = baseline;
+    const { dragItem } = baseline;
     marker?.classList.remove('drop-target-before', 'drop-target-after');
 
-    // Null on either side is end-of-list, where insertBefore(dragItem, null) appends.
-    if (insertBeforeNode === dragItem.nextElementSibling) {
-      // No reorder — restore the prior grading and settle the clone back to
-      // the item's unchanged slot.
-      listEl.classList.remove('grading-stale');
+    // No reorder when the target is already the next sibling — or both null at
+    // end-of-list (insertBefore(_, null) appends). Settle home; #settleClone
+    // removes active-drag-item, re-showing the still-valid grading.
+    if (insertBeforeNode === dragItem.nextElementSibling)
       this.#settleClone(clone, dragItem);
-      this.#dragSession = null;
-      return;
-    }
+    else
+      this.#commitReorder(baseline, insertBeforeNode, clone);
 
-    // Un-dim before the FLIP so the row eases at full opacity. The clone's
-    // release top seeds the dragged row's origin, so it settles from the
-    // pointer instead of snapping back to its dim DOM slot.
+    this.#dragSession = null;
+  }
+
+  #commitReorder({ dragItem, listEl, items }, insertBeforeNode, clone) {
+    // Order changed, so the prior grading is invalid — clear it before
+    // un-dimming, else it flashes as active-drag-item is removed.
+    items.forEach(li => li.classList.remove('correct', 'incorrect'));
+    // Un-dim before the FLIP so the dropped LI eases at full opacity. The
+    // clone's release top seeds the dragged LI's origin, so it settles from
+    // the pointer instead of snapping back to its dim DOM slot.
     dragItem.classList.remove('active-drag-item');
     this.#animateLayoutChange(listEl, () => {
       listEl.insertBefore(dragItem, insertBeforeNode);
       this.#currentOrder = Array.from(
         SortableListForm.#realItems(listEl), li => li.dataset.step);
-    }, new Map([[dragItem.dataset.step, clone.getBoundingClientRect().top]]));
+    }, clone.firstElementChild);
     dragItem.classList.add('dropped');
     dragItem.addEventListener('animationend',
       () => dragItem.classList.remove('dropped'), {once: true});
     clone.remove();
-    this.#dragSession = null;
   }
 
-  // Abort path: Esc or pointercancel. commitDrop fully resolves a real drop
+  // Abort path: Esc or pointercancel. commitDrop fully resolves a drop
   // and nulls the session, so this runs only when the drag is cancelled —
   // settle the clone back to the item's slot and clear the session.
   endDrag() {
@@ -336,11 +339,10 @@ export class SortableListForm {
       attrs: {start: ordinalValue, style: `top: ${cloneTop}px`},
       children: [dragItem.cloneNode(true)]
     }), dragItem);
+    // active-drag-item dims the picked-up LI and, via CSS
+    // :has(> li.active-drag-item), suppresses the now-stale grading until the
+    // drop resolves: no-op/abort re-show it, a reorder clears it.
     dragItem.classList.add('active-drag-item');
-    // Drag start = user signaled intent to change the order, so prior
-    // grading is stale. CSS suppresses .correct / .incorrect under the
-    // OL-level class; checkResults() or reshuffle() clears it.
-    listEl.classList.add('grading-stale');
 
     return {
       insertBeforeNode: dragItem.nextElementSibling,
@@ -442,34 +444,29 @@ export class SortableListForm {
     return listEl.querySelectorAll(':scope > li');
   }
 
-  // FLIP read pass: each row's post-mutation top minus its recorded old
-  // top. Kept out of the animate() loop — a getBoundingClientRect() after
-  // an li.animate() write forces a synchronous reflow, one per row.
-  static #readDeltas(items, oldTops) {
-    return Array.from(items, li =>
-      oldTops.get(li.dataset.step) - li.getBoundingClientRect().top);
-  }
+  // FLIP: record each LI's top, run the DOM change, then animate every LI
+  // from its old top to its new one. The drag clone's LI overrides, so it eases
+  // from the pointer instead of the LI's dim DOM slot.
+  #animateLayoutChange(container, mutate, cloneLI) {
+    // Phase 1: reads (before mutation)
+    const startingTops = new Map();
+    for (const li of SortableListForm.#realItems(container)) {
+      startingTops.set(li.dataset.step, li.getBoundingClientRect().top);
+    }
+    if (cloneLI)
+      startingTops.set(cloneLI.dataset.step, cloneLI.getBoundingClientRect().top);
 
-  // FLIP: record each row's top, run the DOM change, then animate every
-  // row from its old top to its new one. customOrigins overrides a row's
-  // recorded start — the drag clone's release point feeds in there so a
-  // dropped row eases from the pointer instead of its dim DOM slot.
-  // Invariant: every post-mutation row's data-step is in oldTops —
-  // reshuffle keeps the step set; a drop persists the nodes and
-  // customOrigins covers the dragged row's release point.
-  #animateLayoutChange(container, mutate, customOrigins = new Map()) {
-    const oldTops = new Map(Array.from(SortableListForm.#realItems(container),
-      li => [li.dataset.step, li.getBoundingClientRect().top]));
-    customOrigins.forEach((top, step) => oldTops.set(step, top));
-
+    // Phase 2: mutation
     mutate();
 
-    const items = SortableListForm.#realItems(container);
-    const deltas = SortableListForm.#readDeltas(items, oldTops);
-    deltas.forEach((delta, i) => {
-      if (delta) items[i].animate(
-        [{transform: `translateY(${delta}px)`}, {transform: 'translateY(0)'}],
-        {duration: this.#container.flipDuration, easing: 'ease-out'});
-    });
+    // Phase 3: reads (after mutation)
+    const settledItems = SortableListForm.#realItems(container);
+    const deltas = Array.from(settledItems, li =>
+      startingTops.get(li.dataset.step) - li.getBoundingClientRect().top);
+
+    // Phase 4: writes (per-item animation)
+    deltas.forEach((dy, i) => dy && settledItems[i].animate(
+      [{transform: `translateY(${dy}px)`}, {transform: 'translateY(0)'}],
+      {duration: this.#container.flipDuration, easing: 'ease-out'}));
   }
 }
