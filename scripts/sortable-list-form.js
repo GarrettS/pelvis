@@ -46,7 +46,7 @@ export class SortableListContainer {
     !e.preventDefault() && SortableListForm.getById(e.target.name)[e.submitter.name]();
 
   #onPointerdown = e => {
-    if (!e.isPrimary || e.button !== 0 || this.#activeForm) return;
+    if (!e.isPrimary || e.button !== 0 || e.ctrlKey || this.#activeForm) return;
 
     const dragItem = e.target.closest('.sortable-list > li');
     if (!dragItem) return;

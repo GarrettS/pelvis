@@ -585,7 +585,6 @@ All-correct disables the Check button, sets `aria-disabled` on the OL (which blo
 The info-bonus `<details>` reveals on the same grading path: on all-correct, or once a chain has been checked wrong `BONUS_HINT_THRESHOLD` times *since the last drag or reshuffle* (`startDrag` and `reshuffle` both reset `#wrongChecks`), `#toggleBonusReveal(true)` opens it — a hint appears when the user is stuck or has finished, not before.
 
 ## Completion Cascade
-
 When `checkResults` grades all-correct, the items play a brief staggered pulse, top-to-bottom, to mark the win.
 
 The natural pure-CSS expression of "stagger by position" would index each item in the stylesheet. Two CSS-native indices were considered and rejected: `sibling-index()` (too thinly supported), and `counter(list-item)` (it resolves to a *string*, but `calc()` for an `animation-delay` needs a `<length>`/`<time>`). The fallback would be a Web Animations call that computes each item's delay in JS — exactly the kind of step-by-step timing math that bloats the script and pulls presentation into it.
@@ -604,29 +603,49 @@ items.forEach(({style}, i) => style.setProperty('--i', i));
 ```
 
 The loop is presentation logic in the script — a cross-concern cost — but it's the smallest bridge that lets the layout engine own the stagger, and it avoids hand-rolled WAAPI timing.
+## Preventing Text Selection
+We add a class to the root to prevent selection of any text the pointer passes over during the drag.
+```css
+html.list-drag-active,
+html.list-drag-active * {
+  cursor: grabbing;
+  user-select: none;
+}
+```
 
-## iOS WebKit Text Selection
-
-On iOS WebKit, the browser decides whether to initiate text selection at touch-down — before any `pointerdown` handler runs. `touch-action: none` prevents scroll and zoom but not selection initiation. The fix is one extra listener, `#onTouchstart`, registered with `{passive: false}` so its `preventDefault` is allowed to take effect:
-
+But to allow text selection under normal circumstances, `list-drag-active` is added only in the `pointerdown` handler:—
 ```js
+this.#el.ownerDocument.documentElement.classList.add('list-drag-active');
+```
+— and remove it in `pointerup`, in `#cleanup`—
+```js
+this.#el.ownerDocument.documentElement.classList.remove('list-drag-active');
+```
+— disabling text-selection while a drag is in progress; reenabling it when done. 
+
+This works in browsers other than WebKit on iOS. There, text selection is initiated before any javascript can intercept touch and pointer events, and once that text selection has been initiated, it is too late to prevent it by `user-select`. WebKit's native gesture recognizer exists below the JavaScript event loop, and intercepts and processes touches before the JavaScript layer so that slow scripts won't cause scroll jank.
+### iOS and {passive: false}
+The fix to "can't prevent text selection during drag" in WebKit is not to disable text-selection at all times, but to add one extra listener. A `touchstart` handler registered with `{passive: false}` tells the browser to wait for that listener's callback function to return its `defaultPrevented` flag, and that flag *also* prevents selection:
+```js
+el.addEventListener('touchstart', this.#onTouchstart, {passive: false});
+// iOS WebKit's text-selection initiation is driven by touchstart's
+// default behavior. preventDefault on touchstart (passive: false) cancels
+// it. pointerdown.preventDefault doesn't — it only suppresses emulated
+// mouse events at tap end.
 #onTouchstart = e =>
   e.target.closest('.sortable-list > li') && e.preventDefault();
 ```
-
-`preventDefault` on `touchstart` cancels the selection. The `pointerdown` path runs unaffected. A document-wide `html.list-drag-active { user-select: none }` rule covers any text the pointer passes over during the drag.
-
+Registering the listener with `{passive: false}` tells the browser's Compositor Thread to defer native touch handling until the Main Thread finishes running that specific listener and returns its `defaultPrevented` flag. 
 ## State Classes
-
 Much of the behavior is encoded as classes rather than methods. The toggles and what they govern:
 
-| Class                           | On           | Set / cleared                                        | Governs                                                                  |
-| ------------------------------- | ------------ | ---------------------------------------------------- | ------------------------------------------------------------------------ |
-| `html.list-drag-active`        | document     | `pointerdown` / `cleanup`                            | drag-wide `cursor` / `user-select` lock                                  |
-| `entering`                      | wrapper      | `initSortableLists` / wrapper `animationend`                 | gates the page-load item entrance (via `:where()` for specificity safety) |
-| `revealed`                      | form         | `#toggleBonusReveal`                                 | shows the info-bonus `<details>`                                         |
-| `all-correct`                   | OL           | `checkResults` / `reshuffle`                         | the completion cascade                                                   |
-| `active-drag-item`              | dragged LI   | `#commitDragDOM` / drop or settle                    | dims the original and temporarily neutralizes visible grading            |
-| `drop-target-before` / `-after` | receiving LI | `#updateDropMarker`                                  | the `::before` drop-position bar                                         |
-| `dropped`                       | reordered LI | `commitDrop` / `animationend`                        | the cool-down keyframe                                                   |
-| `settling`                      | clone OL     | `#settleClone`                                       | enables the clone's settle transition                                    |
+| Class                           | On           | Set / cleared                                | Governs                                                                   |
+| ------------------------------- | ------------ | -------------------------------------------- | ------------------------------------------------------------------------- |
+| `html.list-drag-active`         | document     | `pointerdown` / `cleanup`                    | drag-wide `cursor` / `user-select` lock                                   |
+| `entering`                      | wrapper      | `initSortableLists` / wrapper `animationend` | gates the page-load item entrance (via `:where()` for specificity safety) |
+| `revealed`                      | form         | `#toggleBonusReveal`                         | shows the info-bonus `<details>`                                          |
+| `all-correct`                   | OL           | `checkResults` / `reshuffle`                 | the completion cascade                                                    |
+| `active-drag-item`              | dragged LI   | `#commitDragDOM` / drop or settle            | dims the original and temporarily neutralizes visible grading             |
+| `drop-target-before` / `-after` | receiving LI | `#updateDropMarker`                          | the `::before` drop-position bar                                          |
+| `dropped`                       | reordered LI | `commitDrop` / `animationend`                | the cool-down keyframe                                                    |
+| `settling`                      | clone OL     | `#settleClone`                               | enables the clone's settle transition                                     |
