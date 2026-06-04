@@ -70,23 +70,14 @@ That shared key obviates `data-chain-id`, selector walks, array searches, and tr
 
 ### Action Dispatch Keys
 
-Submit dispatch consumes two keys: `form.name` finds the `SortableListForm`
-instance via the Shared Key; `e.submitter.name` selects an allowed action from
-the container's explicit `#actions` table. The button name never becomes a
-dynamic instance-method lookup.
+Submit dispatch uses two keys: `e.target.name` — `SortableListForm.getById(e.target.name)` finds the instance — and `e.submitter.name`, its activated button's `name`, is the method called on it.
 
 ```js
-#actions = {
-  checkResults: form => form.checkResults(),
-  reshuffle: form => form.reshuffle()
-};
-
-#runAction(action, formId) {
-  this.#actions[action]?.(this.#getForm(formId));
-}
+#onSubmit = e =>
+  !e.preventDefault() && SortableListForm.getById(e.target.name)[e.submitter.name]();
 ```
 
-Only `checkResults` and `reshuffle` are exposed to submit dispatch.
+So `<button name="checkResults">` calls `form.checkResults()` and `<button name="reshuffle">` calls `form.reshuffle()` — the button `name` *is* the method name. Nothing whitelists the call; the only constraint is `renderFormHTML`, which emits just those two buttons, so those are the only names that reach the lookup.
 
 ### Item Identity Contract
 

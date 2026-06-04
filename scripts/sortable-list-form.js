@@ -43,7 +43,7 @@ export class SortableListContainer {
   }
 
   #onSubmit = e =>
-    SortableListForm.getById(e.target.name)[e.submitter.name]?.(e.preventDefault());
+    !e.preventDefault() && SortableListForm.getById(e.target.name)[e.submitter.name]();
 
   #onPointerdown = e => {
     if (!e.isPrimary || e.button !== 0 || this.#activeForm) return;
