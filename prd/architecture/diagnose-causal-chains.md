@@ -222,7 +222,6 @@ html.list-drag-active * {
 — and the browser implicitly releases pointer capture when the captured element loses its capture-eligible state (drag ended, capture released by GC of the session).
 
 ## The Read/Write Split: Dragging Without Layout Thrashing
-
 Any DOM drag-and-drop must address layout thrashing. Interleaving layout reads (`getBoundingClientRect`) with layout-invalidating writes (style updates, DOM mutations) forces the browser layout engine to recompute layout repeatedly, a CPU intensive operation that hogs memory and can noticeably impact dragging experience.
 
 Splitting the dragging into *phases* with a strict *read/write* boundary reduces layout recalculation to once per drag, not repeating at 120hz, per `pointermove` callback. Each *phase* is represented by one or more functions:
@@ -238,11 +237,11 @@ Splitting the dragging into *phases* with a strict *read/write* boundary reduces
 
 **Move Phase** (`dragMove`) — reads the cached baseline plus `pageY`/`clientY` from the event, runs a clamp and an `Array.find` over the frozen midpoints, writes `--drag-offset`, toggles marker classes, and calls `#maybeAutoscroll` (see [Autoscroll](#autoscroll-and-the-scroll-padding-contract)).
 
-The phase split bounded by separate functions. A stray getBoundingClientRect inside `#commitDragDOM` or `dragMove` would be out of place because the file's organization makes "reads happen at capture time only" visible at a glance. The `[maybeAutoscroll](#autoscroll-and-the-scroll-padding-contract)` call is a carefully gated exception to this rule: it is called *only* if both of the following conditions are met: autoscrolling is predetermined before dragMove to be *possibly* necessary, and, 2. during dragMove, the cursor hits and edge trigger near the scrollport edge.  
+The phase split is bounded by separate functions. Each phase is its own function, so a stray `getBoundingClientRect` inside `#commitDragDOM` or `dragMove` reads as out of place at a glance. `#maybeAutoscroll` is the one deliberate exception: it forces layout (`scrollIntoView`) mid-move, but only when both hold — (1) capture already flagged the list as possibly needing to scroll (`baseline.autoscroll`), and (2) the pointer reaches a trigger band at the scrollport edge.
 ## The Reorder Animation
 Dropping to a new position and reshuffle both trigger list reorder. Animating this reordering provides user feedback for a much smoother-feeling user-experience.
 
-This reordering animation is done in phases to preserve thrashing:
+This reordering animation is done in phases to prevent thrashing:
 1. record each LI's current top
 2. mutate (replaceChildren on reorder) 
 3. record each LI's ending top position - this forces post-mutation layout reflow and recalc
@@ -346,20 +345,7 @@ The entrance is deliberately small (the page-load liveliness is *barely noticeab
 A chain taller than the scrollport must scroll while the user drags toward an edge, via `clone.scrollIntoView({block: 'nearest'})` keeping the dragged clone visible when a list exceeds the scrollport. Because `scrollIntoView` forces layout, the move path gates this twice.
 
 - **At capture**, `baseline.autoscroll` decides whether the list can clip at all (does it extend past the visible region?). A list that fits never scrolls.
-- **Per frame**, `#maybeAutoscroll` fires only when the pointer (`clientY`) enters an `itemHeight`-wide band at the top or bottom of the *visible* region with a CSS pseudo-element:
-```css
-.sortable-list > li.drop-target-before::before,
-.sortable-list > li.drop-target-after::before {
-  content: '';
-  position: absolute;
-  left: -.5rem;
-  right: 0;
-  height: var(--marker-bar-thickness);
-  background: var(--accent);
-  border-radius: 9999px;
-  pointer-events: none;
-}
-```
+- **Per frame**, `#maybeAutoscroll` fires only when the pointer (`clientY`) enters an `itemHeight`-wide band at the top or bottom of the *visible* region.
 ### Setting the Scrollport
 The visible region's top is not the viewport top — a sticky nav covers it. That inset is the scroller's `scroll-padding-top`, which `navigation-tabs` publishes on every route change:
 ```js
@@ -391,9 +377,8 @@ autoscroll: listRect.top < topInset || listRect.bottom > innerHeight - bottomIns
 Does the list extend past the visible region — above the inset or below the fold? Frozen into the baseline. Any time the list is obscured by the scrollport, either top or bottom:
 
 ### The `autoscroll` Boolean
-If the list is partially obscured, then it doesn't fit. If either it's top or bottom is obscured, than scrolling the container in that direction, either up or down, can obscure the other half of it.
+If the list is partially obscured, then it doesn't fit. If either its top or bottom is obscured, scrolling the container in that direction, either up or down, can obscure the other half of it. Consider the following user interaction:
 
-Current container top?
   1. User initiates drag with the bottom list item obscured.
   2. autoscroll is captured as true.
   3. User drags the item to the bottom of the list
@@ -547,15 +532,27 @@ Drag motion writes `--drag-offset`, not `transform`. CSS owns the property name 
 
 The drop marker — the colored bar previewing where the dragged item would land — is a `::before` pseudo-element on the receiving LI, painted via `drop-target-before` / `drop-target-after` class toggles. No marker element to create or position.
 
-If the pointer hovers over a position that resolves to the dragged item's current slot, releasing is a no-op. The marker is suppressed:
+If the pointer hovers over a position that resolves to the dragged item's current slot, releasing is a no-op. The marker is suppressed:—
 
 ```js
 const wouldNotMove = target === dragItem.nextElementSibling
   || (target === null && dragItem === listEl.lastElementChild);
 ```
 
-Dropping in either position wouldn't move anything. Suppressing the bar signals that to the user.
-
+— which triggers the following CSS —
+```css
+.sortable-list > li.drop-target-before::before,
+.sortable-list > li.drop-target-after::before {
+  content: '';
+  position: absolute;
+  left: -.5rem;
+  right: 0;
+  height: var(--marker-bar-thickness);
+  background: var(--accent);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+```
 ### Clone Number Rebinding (`-1` offset)
 
 The floating clone's `start` attribute updates on every drop-target change so the badge matches the prospective ordinal:
