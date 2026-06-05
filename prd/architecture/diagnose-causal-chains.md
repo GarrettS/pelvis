@@ -43,7 +43,7 @@ The factory returns the instance. Its form getter exposes the `form` *element*, 
 
 The cache write is idempotent (`??=` skips already-keyed entries), but the listener wiring is not: a second `initSortableLists` invocation would re-attach the whole set and double-fire every event. The `init` name signals that constraint — call once at boot.
 
-```js
+```
 function initSortableLists(chainDefinitions) {
   chainsWrap.classList.add('entering');
   chainsWrap.addEventListener('animationend', clearChainEntering);
@@ -56,21 +56,10 @@ function initSortableLists(chainDefinitions) {
 }
 ```
 
-Delegated handlers inside the container read the form id off the DOM and resolve
-it through the container's private `#getForm` helper:
-
-```js
-this.#getForm(e.target.name);
-
-const ol = dragItem.parentNode;
-activeForm = this.#getForm(ol.id);
-```
-
 That shared key obviates `data-chain-id`, selector walks, array searches, and translation maps.
 
-### Action Dispatch Keys
-
-Submit dispatch uses two keys: `e.target.name` — `SortableListForm.getById(e.target.name)` finds the instance — and `e.submitter.name`, its activated button's `name`, is the method called on it.
+### Submit Dispatch
+Submit dispatch uses two keys: `e.target.name`: `SortableListForm.getById(e.target.name)` finds the instance, and `e.submitter.name`, its activated button's `name`, is the method called on it.
 
 ```js
 #onSubmit = e =>
@@ -85,19 +74,33 @@ Each sortable `<li>` carries its step text in `data-step`; the chain stores the 
 
 ## SortableListContainer
 
-`SortableListContainer` appends each [`SortableListForm`](#sortablelistform)'s `<form>` to the element passed to its constructor and handles the lists' events with delegated listeners on that same element, resolving the owning form by the [Shared Key](#the-shared-key).
+`SortableListContainer` constructs each [`SortableListForm`](#sortablelistform) and appends its `<form>` to the element passed to its constructor:
+
+```js
+constructor(el, {renderFormHTML, renderItemHTML = escapeHTML, flipDuration = 200} = {}) 
+```
+
+SortableListContainer also handles the lists' events with delegated listeners on that same element, resolving the owning form by the [Shared Key](#the-shared-key).
 
 ## SortableListForm
+Class `SortableListForm` manages the state and DOM subtree for one keyed sortable list inside a form.
 
-`SortableListForm` manages the state and DOM subtree for one keyed sortable list inside a form.
+### Factory-Gated Construction
 
-Construction is via `getById(id, definition, container)`. `definition` is the per-chain data object that came from the JSON file's value side. Only one field is read by the class itself:
+The `SortableListForm.getById` symbol-gated factory encapsulates instantiation and caching.
 
-| Field   | Type                  | Purpose                                                                                                                                                                                         |
-| ------- | --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `steps` | `string[]` (required) | Correct order. Frozen onto `#steps`; a shuffled copy seeds `#currentOrder`. Each value also lands on a list item as `data-step` — the [Item Identity](#item-identity-step-text-as-the-key) key. |
+```js
+static getById(id, definition, container) {
+  return SortableListForm.#instances[id] ??=
+    SortableListForm.#create(id, definition, container);
+}
+```
 
-Every other field on `definition` passes through unchanged as the argument to the container's `renderFormHTML`. The consumer decides what else the object holds; the class never reads it. The chain feature's full definition, for reference:
+This method runs the constructor, which builds the detached `<form>` and its OL inline using the supplied `renderFormHTML`. Subsequent calls bypass construction and return the cached instance by `id`. The factory is called by `SortableListContainer`, which accepts a list of definitions for the instances.
+
+#### `definition`
+
+The `definition` argument is the per-chain data object from the JSON file's value side.
 
 ```json
 {
@@ -111,9 +114,11 @@ Every other field on `definition` passes through unchanged as the argument to th
 }
 ```
 
-`title`, `start`, `end`, and `infoBonus` exist only because `renderChainForm` in `diagnose-causal-chains.js` reads them. From `SortableListForm`'s perspective the contract is opaque: it hands the whole object to `renderFormHTML` and stores the HTML the renderer returns.
+The `SortableListForm` constructor reads `definition.steps` (as `#steps`), stores a shuffled copy as `#currentOrder`, then builds the detached `<form>`. Each step is added to a corresponding LI as `data-step`, the [Item Identity](#item-identity-step-text-as-the-key) key.
 
-The third argument is the owning `SortableListContainer` instance. The `SortableListForm` instance holds it as `#container` and reads container-owned values through it: `renderFormHTML`, `renderItemHTML`, and `flipDuration`. The two classes are tightly coupled — same module, referencing each other by name. Container options:
+The `title`, `start`, `end`, and `infoBonus` exist because `renderChainForm` in `diagnose-causal-chains.js` reads them. From `SortableListForm`'s perspective the contract is opaque: it hands the whole object to `renderFormHTML` and stores the HTML the renderer returns.
+
+`SortableListForm` constructor's third argument is the owning `SortableListContainer` instance. The `SortableListForm` instance holds it as `#container` and reads container-owned values through it: `renderFormHTML`, `renderItemHTML`, and `flipDuration`. The two classes are tightly coupled — same module, referencing each other by name. Container options:
 
 | Option | Type | Default | Purpose |
 |---|---|---|---|
@@ -121,22 +126,8 @@ The third argument is the owning `SortableListContainer` instance. The `Sortable
 | `renderItemHTML` | `(step) => string` | `escapeHTML` | Each item's innerHTML; default escapes step text |
 | `flipDuration` | `number` (ms) | `200` | FLIP layout-change duration; the consumer (`diagnose-causal-chains.js`) reads `--dur-normal` from the app's design tokens and passes the resolved number, so `sortable-list-form.js` doesn't reference any app-specific name |
 
-The constructor reads `definition.steps` to initialize the correct order (`#steps`) and the mutable display order (`#currentOrder`), then builds the detached `<form>` inline.
-
-### Factory-Gated Construction
-
-The `SortableListForm.getById` factory encapsulates instantiation and caching. A private `#KEY` symbol gates the constructor, forcing all external access through the factory. `SortableListContainer.#getForm` is the container's single delegation point into that factory:
-
-```js
-#getForm(id, definition) {
-  return SortableListForm.getById(id, definition, this);
-}
-```
-
-The initial factory call runs the constructor, which builds the detached `<form>` and its OL inline using the supplied `renderFormHTML`. Subsequent calls bypass construction and return the cached instance by `id`.
-
 ### The Button-Name Contract
-Each submit button's `name` matches a key in the container's private `#actions` whitelist. So `renderFormHTML` must emit `<button name="checkResults">` and `<button name="reshuffle">`; the table explicitly maps those keys to the corresponding `SortableListForm` operations.
+Function [`renderFormHTML`](#sortablelistform) must emit submit buttons whose `name` values match the public `SortableListForm` methods (see [submit dispatch](#submit-dispatch)).
 
 ### The Public Interface
 External method access is grouped by consumer:
@@ -151,18 +142,17 @@ External method access is grouped by consumer:
 
 Each instance builds its HTML subtree at construction, stamping the constructor's `id` argument onto `form.name` and `ol.id` for [Shared Key](#the-shared-key) lookups. The id is not stored on the instance — `form.name` and `ol.id` are its DOM-side storage; the registry key is its lookup-side storage.
 
-|**Component Element**|**Attributes**|**Architectural Purpose**|
+|**Component Element**|**Attributes**| **Architectural Purpose**                                                                                                                  |
 |---|---|---|
-|**Component Root** `<form>`|`name="[id]"`|Binds the subtree to a specific chain identity. The global submit handler uses `e.target.name` to look up the cached instance immediately.|
-|**Sortable List** `<ol>`|None|Semantic `<ol>` (screen readers announce position). Serves as the DOM container for pointer tracking and FLIP layout calculations.|
-|**Sequence Steps** `<li>`|`data-step="[step-id]"`|Identifies the step. The attribute acts as the lookup key for FLIP animations and grading.|
-|**Submit Buttons** `<button>`|`name="reshuffle"`, `name="checkResults"`|Trigger form submission natively. Each `name` is an explicit `#actions` dispatch key.|
-|**Bonus Disclosure** `<details>`|None|Native disclosure widget handles open/close.|
+|**Component Root** `<form>`|`name="[id]"`| Binds the subtree to a specific chain identity. The global submit handler uses `e.target.name` to look up the cached instance immediately. |
+|**Sortable List** `<ol>`|None| Semantic `<ol>` (screen readers announce position). Serves as the DOM container for pointer tracking and FLIP layout calculations.         |
+|**Sequence Steps** `<li>`|`data-step="[step-id]"`| Identifies the step. The attribute acts as the lookup key for FLIP animations and grading.                                                 |
+|**Submit Buttons** `<button>`|`name="reshuffle"`, `name="checkResults"`| Trigger form submission natively. Form's onsubmit dispatches to private method of same name.                                               |
+|**Bonus Disclosure** `<details>`|None| Native disclosure widget handles open/close.                                                                                               |
 
 ## Single-Pointer Dragging
 
 The container's `#onPointerdown` rejects secondary touches before any state changes — multitouch input could otherwise start a second drag mid-first-drag and corrupt the session:
-
 ```js
 #onPointerdown = e => {
   if (!e.isPrimary || e.button !== 0 || this.#activeForm) return;
@@ -269,7 +259,7 @@ Per-item animation is by each LIs predetermined `dy`. When `dy === 0`, `&&` shor
 The `startingTops` Map stores item keys and the current positions:
   - **key** — li.dataset.step, the step text (the Item Identity (#item-identity-step-text-as-the-key) key)
   - **value** — li.getBoundingClientRect().top, that item's top edge in viewport pixels, captured _before_ mutate()
-  
+
 Printed out, it would look something like:—
 ```js
   Map {
@@ -280,7 +270,8 @@ Printed out, it would look something like:—
   }
 ```
 ### Running Mutate
-For reshuffle, `mutate` calls `replaceChildren(...#buildItems())` — which gives us a fresh slate of LIs in the new order, each carrying the same `data-step` (see [Reshuffle](#reshuffle) for why it rebuilds rather than reorders). Through that shared key, every new LI inherits its predecessor's `startingTops` entry, so the FLIP slides it from where the old LI sat to where it now lands. A drop's `mutate` is an `insertBefore` instead — the same nodes, moved.
+Reshuffle's `mutate` is `replaceChildren(...#buildItems())` — fresh LIs in the new order ([why it rebuilds](#reshuffle)). A drop's is an `insertBefore` — the same nodes, moved. Either way the FLIP matches old top to new by `data-step` ([Item Identity](#item-identity-step-text-as-the-key)).
+
 ### Read, Then Write
 `li.animate()` is a write that dirties the render tree, and a `getBoundingClientRect()` right after can't return an accurate rect until the browser reconciles it — so it stops and reflows, then and there. A single read-then-write loop makes every read pay for the previous write: they fight, once per item. Two passes let all the reads share one reflow and the writes pile up behind it  (see [The Read/Write Split](#the-readwrite-split-dragging-without-layout-thrashing)).
 
@@ -293,7 +284,7 @@ Chromium's own counters, interleaved against batched at N=2000 ([`e2e/flip-read-
 
 One forced style-and-layout reflow per item against one for the whole list — O(N²) versus O(N), because each interleaved read re-lays-out all N. A chain has a handful of steps, so the split saves microseconds, not frames. But the discipline holds — reads before writes — and these numbers are why the rule holds. To watch it live, [`flip-read-write-split.html`](../../e2e/flip-read-write-split.html) runs the same comparison by wall-clock in any browser — open it locally or paste it into a CSS/JS playground.
 
-### Surviving Spam
+**Interrupting an In-Flight Reorder**
 Measuring live on every call prevents a later action from measuring against positions a previous slide has already moved. Reshuffle and a reordering drop avoid it differently:
 
 **Reshuffle** discards the old nodes and any animations still running on them. `startingTops` was read just before the mutation, so it holds each outgoing node's current *visual* top — `getBoundingClientRect()` includes the in-flight transform — and a reshuffle landing mid-slide restarts from there.
@@ -393,7 +384,7 @@ The gates skip per-frame calculations and the relayout for lists that fit within
 That same mid-drag scroll is why the rest of the drag works in `pageY`. The item's clamp to its list and its drop-target midpoints are fixed at pickup; autoscroll then scrolls the window past them, but their positions in the document — their `pageY` — don't change with it. The two failure modes it avoids:
 
 **Stale thresholds.** `scrollIntoView` can scroll the page mid-drag for an overflowing chain. Cached *viewport* positions would invalidate the instant scroll fired. Cached *document* positions don't: LIs don't move in the document when the page scrolls.
- 
+
 **Compositor-thread tearing.** `PointerEvent.clientY` is captured at event creation. `window.scrollY` is a separate read at handler-invocation time. With async scrolling on the compositor thread, those two values can drift across the gap, producing a misaligned coordinate and visible clone jitter. `e.pageY` is computed by the browser engine inside the event with scroll state from the same instant — race-free by construction. The capture-time `+ scroll` for BCRs is fine because all the BCRs and the scroll read sit in one layout pass, internally consistent.
 
 ## State Isolation: The Shallow Freeze
