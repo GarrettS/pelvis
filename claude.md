@@ -87,13 +87,12 @@ Fix anything found in steps 2–4 before proceeding. Do not commit until all ste
 
 ## Agent Handoff
 
-When collaborating with another agent, use the shared-file protocol in `handoff/AGENT-HANDOFF.md`.
+When collaborating with Codex, use the shared-file protocol below.
 
-`check` and `chk` mean: read `/tmp/study-tool-handoff//claude-to-codex.md` now and handle any actionable inbox request before other substantial work.
+`check` and `chk` mean: read your inbox `/tmp/study-tool-handoff/codex-to-claude.md` now and handle any actionable request before other substantial work.
 
 If the inbox contains an actionable request, do that inbox work before any other substantial task and before replying elsewhere.
 
-1. Read `/tmp/study-tool-handoff/codex-to-codex.md` (your inbox).
-2. Write to `/study-tool-handoff/claude-to-codex.md ` (your outbox).
-3. Do not read `/tmp//study-tool/codex-to-claude.md` for incoming messages - that is your outbox.
-4. Do not assume terminal output or chat context has been shared across agents; write important context to the handoff files.
+1. Read `/tmp/study-tool-handoff/codex-to-claude.md` — your inbox (Codex writes here).
+2. Write to `/tmp/study-tool-handoff/claude-to-codex.md` — your outbox (Codex reads here).
+3. Do not assume terminal output or chat context has been shared across agents; write important context to the handoff files.
