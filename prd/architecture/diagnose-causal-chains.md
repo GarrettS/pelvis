@@ -135,11 +135,6 @@ The `SortableListForm.getById` factory encapsulates instantiation and caching. A
 
 The initial factory call runs the constructor, which builds the detached `<form>` and its OL inline using the supplied `renderFormHTML`. Subsequent calls bypass construction and return the cached instance by `id`.
 
-### Reshuffle
-`SortableListForm` instances persist for the page lifetime. `reshuffle()` re-randomizes `#currentOrder`, clears grading state, and replaces the OL's children with rebuilt LIs inside `#animateLayoutChange`. The form and OL nodes persist — reshuffle does not go through `initSortableLists`, so `chainsWrap.entering` isn't re-added and `list-enter` doesn't replay.
-
-Rebuilding from `#buildItems()` (rather than resetting and reordering existing LIs) resets the list to its initial state, reordered. Reset+reorder would save the allocation but force `#buildItems` and the reset step to stay in sync — a brittleness cost not worth saving allocations on a handful of items.
-
 ### The Button-Name Contract
 Each submit button's `name` matches a key in the container's private `#actions` whitelist. So `renderFormHTML` must emit `<button name="checkResults">` and `<button name="reshuffle">`; the table explicitly maps those keys to the corresponding `SortableListForm` operations.
 
@@ -230,6 +225,11 @@ Splitting the dragging into *phases* with a strict *read/write* boundary reduces
 
 The phase split is bounded by separate functions. Each phase is its own function, so a stray `getBoundingClientRect` inside `#commitDragDOM` or `dragMove` reads as out of place at a glance. `#maybeAutoscroll` is the one deliberate exception: it forces layout (`scrollIntoView`) mid-move, but only when both hold — (1) capture already flagged the list as possibly needing to scroll (`baseline.autoscroll`), and (2) the pointer reaches a trigger band at the scrollport edge.
 ## The Reorder Animation
+### Reshuffle
+`SortableListForm` instances persist for the page lifetime. `reshuffle()` re-randomizes `#currentOrder`, clears grading state, and replaces the OL's children with rebuilt LIs inside `#animateLayoutChange`. The form and OL nodes persist — reshuffle does not go through `initSortableLists`, so `chainsWrap.entering` isn't re-added and `list-enter` doesn't replay.
+
+Rebuilding from `#buildItems()` (rather than resetting and reordering existing LIs) resets the list to its initial state, reordered. Reset+reorder would save the allocation but force `#buildItems` and the reset step to stay in sync — a brittleness cost not worth saving allocations on a handful of items.
+
 Dropping to a new position and reshuffle both trigger list reorder. Animating this reordering provides user feedback for a much smoother-feeling user-experience.
 
 This reordering animation is done in phases to prevent thrashing:
