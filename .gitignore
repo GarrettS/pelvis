@@ -5,3 +5,7 @@ handoff/
 node_modules/
 prd/*.pdf
 .obsidian/
+
+# Obsidian scratch — accidental "new note"/"new base"
+Untitled*
+*.base
