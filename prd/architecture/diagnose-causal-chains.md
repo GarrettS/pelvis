@@ -1,8 +1,30 @@
 # Diagnose Causal Chains
 
+[Live demo](https://garretts.github.io/pelvis/#diagnose/causal-chains) · [Source: `sortable-list-form.js`](../../scripts/sortable-list-form.js)
+
 The user reorders a chain's steps from a scrambled order into the correct sequence, then Check Order grades it. Reshuffle restarts the game with a new random order.
 
 Each chain renders as a numbered list inside its own form: title, a "start → end" summary, the steps in their current order, and the Check Order / Reshuffle buttons. Pressing a step picks it up — the original dims in place, a floating copy of the item tracks the pointer, a colored bar previews where the drop would land, and the copy's badge updates live. On release, a reorder animates the whole list into its new arrangement while the dropped item cools from the lifted look down to a resting item; a release back into the same slot — or an Escape/cancel — glides the floating copy home instead. Check Order colors each item correct or incorrect, and an all-correct chain plays a staggered pulse from top to bottom.
+
+## Contents
+
+- [Goals and Constraints](#goals-and-constraints)
+- [The Shared Key](#the-shared-key)
+- [SortableListContainer](#sortablelistcontainer)
+- [SortableListForm](#sortablelistform)
+- [Single-Pointer Dragging](#single-pointer-dragging)
+- [The Read/Write Split](#the-readwrite-split-dragging-without-layout-thrashing)
+- [The Drag Session](#the-drag-session)
+- [Target Resolution Collections](#target-resolution-collections)
+- [Preventing Text Selection](#preventing-text-selection)
+- [Autoscroll and the Scroll-Padding Contract](#autoscroll-and-the-scroll-padding-contract)
+- [Ending the Drag](#ending-the-drag)
+- [The Drop Marker](#the-drop-marker)
+- [The Reorder Animation](#the-reorder-animation)
+- [Grading Display Lifecycle](#grading-display-lifecycle)
+- [Completion Cascade](#completion-cascade)
+- [Page-Load Entrance](#page-load-entrance)
+- [State Classes](#state-classes)
 
 ## Goals and Constraints
 
@@ -292,6 +314,49 @@ The baseline holds two separate LI collections because they serve two different 
 `siblingDropMidpoints` — dragItem-excluded, each record carrying its `sibling` LI and the precomputed `pageMidpointY` (document-coord midpoint, with in-flight transform subtracted). Used for hit-testing in `#findTargetSibling`. Filtering dragItem out at capture means the 120 Hz `Array.find` never wastes a comparison on the dragged item's own footprint.
 
 Two collections, two purposes — duplication that earns its keep.
+
+## Preventing Text Selection
+
+Adding class to the root to prevents selection of any text the pointer passes over during the drag.
+
+```css
+html.list-drag-active,
+html.list-drag-active * {
+  cursor: grabbing;
+  user-select: none;
+}
+```
+
+— but disabling text-selection under normal circumstances, is user-hostile, so `list-drag-active` is added only in the `pointerdown` handler:—
+
+```js
+this.#el.ownerDocument.documentElement.classList.add('list-drag-active');
+```
+
+— and removed in `pointerup`, in `#cleanup`—
+
+```js
+this.#el.ownerDocument.documentElement.classList.remove('list-drag-active');
+```
+
+— which disables text-selection while a drag is in progress; reenabling it when done. 
+
+This works in browsers other than WebKit on iOS. There, text selection is initiated before any javascript can intercept touch and pointer events, and once that text selection has been initiated, it is too late to prevent it by `user-select`. WebKit's native gesture recognizer exists below the JavaScript event loop, and intercepts and processes touches before the JavaScript layer so that slow scripts won't cause scroll jank.
+
+### iOS and {passive: false}
+
+The fix to "can't prevent text selection during drag" in WebKit is not to disable text-selection at all times, but to add a `touchstart` handler registered with `{passive: false}`. When the event listener is registered with this flag, it tells the browser to wait for that listener's callback function to return its `defaultPrevented` flag. That flag *also* prevents selection during touchstart on WebKit:
+
+```js
+el.addEventListener('touchstart', this.#onTouchstart, {passive: false});
+// iOS WebKit's text-selection initiation is driven by touchstart's
+// default behavior. preventDefault on touchstart (passive: false) cancels
+// it. pointerdown.preventDefault doesn't — it only suppresses emulated
+// mouse events at tap end.
+#onTouchstart = e => e.target.closest('.sortable-list > li') && e.preventDefault();
+```
+
+Registering the listener with `{passive: false}` tells the browser's Compositor Thread to defer native touch handling until the Main Thread finishes running that specific listener and returns its `defaultPrevented` flag.
 
 ## Autoscroll and the Scroll-Padding Contract
 
@@ -702,40 +767,6 @@ items.forEach(({style}, i) => style.setProperty('--i', i));
 ```
 
 The loop is presentation logic in the script — a cross-concern cost — but it's the smallest bridge that lets the layout engine own the stagger, and it avoids hand-rolled WAAPI timing.
-## Preventing Text Selection
-We add a class to the root to prevent selection of any text the pointer passes over during the drag.
-```css
-html.list-drag-active,
-html.list-drag-active * {
-  cursor: grabbing;
-  user-select: none;
-}
-```
-
-But to allow text selection under normal circumstances, `list-drag-active` is added only in the `pointerdown` handler:—
-```js
-this.#el.ownerDocument.documentElement.classList.add('list-drag-active');
-```
-— and remove it in `pointerup`, in `#cleanup`—
-```js
-this.#el.ownerDocument.documentElement.classList.remove('list-drag-active');
-```
-— disabling text-selection while a drag is in progress; reenabling it when done. 
-
-This works in browsers other than WebKit on iOS. There, text selection is initiated before any javascript can intercept touch and pointer events, and once that text selection has been initiated, it is too late to prevent it by `user-select`. WebKit's native gesture recognizer exists below the JavaScript event loop, and intercepts and processes touches before the JavaScript layer so that slow scripts won't cause scroll jank.
-### iOS and {passive: false}
-The fix to "can't prevent text selection during drag" in WebKit is not to disable text-selection at all times, but to add one extra listener. A `touchstart` handler registered with `{passive: false}` tells the browser to wait for that listener's callback function to return its `defaultPrevented` flag, and that flag *also* prevents selection:
-```js
-el.addEventListener('touchstart', this.#onTouchstart, {passive: false});
-// iOS WebKit's text-selection initiation is driven by touchstart's
-// default behavior. preventDefault on touchstart (passive: false) cancels
-// it. pointerdown.preventDefault doesn't — it only suppresses emulated
-// mouse events at tap end.
-#onTouchstart = e =>
-  e.target.closest('.sortable-list > li') && e.preventDefault();
-```
-Registering the listener with `{passive: false}` tells the browser's Compositor Thread to defer native touch handling until the Main Thread finishes running that specific listener and returns its `defaultPrevented` flag.
-
 ## Page-Load Entrance
 
 There's no prior committed layout to [FLIP](#the-reorder-animation) from at first render, so the entrance is a CSS animation, not a measured transform: a quiet opacity-and-translate on each list item (`list-enter`: opacity 0 → 1, `translateY(-6px → 0)`), gated by an `.entering` class on the wrapper.
