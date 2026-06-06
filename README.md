@@ -24,8 +24,6 @@ The code guidelines ([code-guidelines.md](https://github.com/GarrettS/web-xp/blo
 
 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) proposes; the human author drives and owns design, review, and editorial direction. Every line is reviewed before commit. Constraints: [CLAUDE.md](CLAUDE.md) (behavioral), [code-guidelines.md](https://github.com/GarrettS/web-xp/blob/main/code-guidelines.md) (engineering), [bin/pre-commit-check.sh](bin/pre-commit-check.sh) (mechanical). Rules a grep can't catch — module cohesion, fail-safe handling, silent failures — require re-reading the guidelines before every commit.
 
-Fail-safe worked example — a state machine over fetch outcomes: [prd/architecture/equivalence-quiz.md](prd/architecture/equivalence-quiz.md).
-
 ## Architecture
 
 ```
@@ -55,7 +53,6 @@ Per-feature deep dives — the engineering decisions behind each module, not the
 - **[abbr-popover](prd/architecture/abbr-popover.md)** — `<abbr>` tooltips on the Popover API + CSS Anchor Positioning, Active Object pattern.
 - **[Navigation Tabs](prd/architecture/navigation-tabs.md)** — hash routing, app init, and the Active Object that owns tab and selection state.
 - **[L AIC Chain](prd/architecture/aic-chain.txt)** — muscle-chain SVG overlay: anchor circles, leader-line geometry, single-active-muscle selection. *(plain text — its ASCII diagrams wouldn't survive a markdown conversion.)*
-- **[Equivalence Quiz](prd/architecture/equivalence-quiz.md)** — a state machine over fetch outcomes (the fail-safe worked example).
 
 ## Code standards
 
