@@ -52,7 +52,7 @@ Each feature module loads its own data via `loadJson` (load.js) and is named for
 
 - `shuffle.js` — Fisher–Yates · `escape-html.js` — HTML-entity escaping · `el-create.js` — DOM/SVG construction
 
-Event delegation is the default, paired with the Shared Key — one container listener recovers the owning ADT straight from the clicked element. That buys class-based handling (one handler for a kind of element, not one per instance), skips the init-time loop that would attach a listener to each, and keeps working for elements added after load. One-off handlers go where delegation earns nothing, like `chainsWrap.addEventListener('animationend', clearChainEntering)`.
+Event delegation paired with the Shared Key buys class-based handling: one container listener gets or creates the instance from the clicked element — no init loop, no handlers attached per instance or per element, and it works for dynamically added elements. One-off handlers go where delegation earns nothing, like `chainsWrap.addEventListener('animationend', clearChainEntering)`.
 
 ### Design docs
 
