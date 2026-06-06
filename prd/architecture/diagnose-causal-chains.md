@@ -43,7 +43,7 @@ The factory returns the instance. Its form getter exposes the `form` *element*, 
 
 The cache write is idempotent (`??=` skips already-keyed entries), but the listener wiring is not: a second `initSortableLists` invocation would re-attach the whole set and double-fire every event. The `init` name signals that constraint — call once at boot.
 
-```
+```js
 function initSortableLists(chainDefinitions) {
   chainsWrap.classList.add('entering');
   chainsWrap.addEventListener('animationend', clearChainEntering);
@@ -136,7 +136,7 @@ External method access is grouped by consumer:
 |---|---|---|
 | `SortableListContainer.replaceForms` | `.form` getter | Sets the built `<form>` elements as the wrapper's children with `replaceChildren`. |
 | Container submit handler | `reshuffle()`, `checkResults()` | Activated submit button's `name` mapped to same-named method.                      |
-| Container pointer handlers | `startDrag()`, `dragMove()`, `commitDrop()`, `endDrag()` | Calls the active form's drag methods from the delegated pointer events.            |
+| Container pointer handlers | dragStart()`, `dragMove()`, `commitDrop()`, `dragEnd()` | Calls the active form's drag methods from the delegated pointer events.            |
 
 ### DOM Architecture
 
@@ -202,19 +202,364 @@ Any DOM drag-and-drop must address layout thrashing. Interleaving layout reads (
 
 Splitting the dragging into *phases* with a strict *read/write* boundary reduces layout recalculation to once per drag, not repeating at 120hz, per `pointermove` callback. Each *phase* is represented by one or more functions:
 
-**Capture Phase** (`#captureDragBaseline`) — the *read* half of the split: pre-drag measurement and calculation, returning a frozen baseline. The three capture helpers are private static; `static` because the work doesn't touch instance state, `#` because the calculation is internal to the class. The reads are split into two named helpers so each function does one thing:
+**Capture Phase** (`#captureDragBaseline`) — reads pre-calculates measurements pre-drag and returns a frozen baseline. The capture helpers are private and static, because the calculation is internal to the class but doesn't touch instance state.
 
-- `#readDragInputs(dragItem)` — batched read of the layout facts the baseline needs: the chain's OL ref, the items list, the dragItem and OL rects, `window.scrollY`, the viewport height, and the scroll-padding-top inset. No derivations.
+- `#captureScrollport(dragItem)` — autoscroll needs this to keep element within the scrollport, inset from the viewport by scroll-padding (a sticky nav covers the top).
+
 - `#readSiblingDropMidpoints(items, dragItem, scroll)` — single pass over the items (skipping the dragItem), reading each sibling's BCR and in-flight transform, computing its page-coord drop midpoint. Read and compute live together because the output *is* the midpoints. The transform read is what makes a mid-FLIP drag-start safe: a sibling caught animating into place renders at its BCR top, but the user is mentally aiming at its settled position. `new DOMMatrix(getComputedStyle(li).transform).m42` extracts the Y-translation cell (row 4 column 2 of the 4×4 transform matrix); subtracting it from `box.top` cancels the in-flight FLIP offset, so the midpoint reflects where the sibling will be once the animation finishes. Without that subtraction, picking up an item during a Reshuffle would resolve drop targets against animating positions and land the wrong way.
 
-`#captureDragBaseline` composes both reads, then derives the rest off the snapshot — clamp boundaries (`minDelta`/`maxDelta`), the dragged item's ordinal, the initial drop target, the `autoscroll` flag — and freezes the result. Even N=200 finishes in 1–2 ms, inside the ~100 ms window for an instant-feeling press.
+`#captureDragBaseline` composes both reads, then derives the rest off the snapshot — clamp boundaries (`minDelta`/`maxDelta`), the dragged item's ordinal, the initial drop target, the `isOutsideScrollport` flag — and freezes the result. Even N=200 finishes in 1–2 ms, inside the ~100 ms window for an instant-feeling press.
 
 **Commit Phase** (`#commitDragDOM`) — pure writes. Removes any stale clone OL, inserts a fresh one, marks the dragged LI, assembles `#dragSession`. Runs once, immediately after capture.
 
-**Move Phase** (`dragMove`) — reads the cached baseline plus `pageY`/`clientY` from the event, runs a clamp and an `Array.find` over the frozen midpoints, writes `--drag-offset`, toggles marker classes, and calls `#maybeAutoscroll` (see [Autoscroll](#autoscroll-and-the-scroll-padding-contract)).
+**Move Phase** (`dragMove`) — reads the cached baseline plus `pageY`/`clientY` from the event, runs a clamp and an `Array.find` over the frozen midpoints, writes `--drag-offset`, toggles marker classes, and calls `#autoscroll` (see [Autoscroll](#autoscroll-and-the-scroll-padding-contract)).
 
-The phase split is bounded by separate functions. Each phase is its own function, so a stray `getBoundingClientRect` inside `#commitDragDOM` or `dragMove` reads as out of place at a glance. `#maybeAutoscroll` is the one deliberate exception: it forces layout (`scrollIntoView`) mid-move, but only when both hold — (1) capture already flagged the list as possibly needing to scroll (`baseline.autoscroll`), and (2) the pointer reaches a trigger band at the scrollport edge.
+The phase split is bounded by separate functions. Each phase is its own function, so a stray `getBoundingClientRect` inside `#commitDragDOM` or `dragMove` reads as out of place at a glance. `#autoscroll` is the one deliberate exception: it forces layout (`scrollIntoView`) mid-move, but only when both hold — (1) capture already flagged the list as possibly needing to scroll (`baseline.isOutsideScrollport`), and (2) the pointer reaches a trigger band at the scrollport edge.
+## The Drag Session
+
+Before dragging, we determine drag measurements so `dragMove` reads precomputed values instead of re-measuring layout each frame.
+
+static #captureDragBaseline(dragItem, pageStartY) captures the object below; the table explains each field.
+
+```js
+{
+  listEl,
+  dragItem,
+  items,
+  cloneTop: Math.round(itemRect.top - listRect.top),
+  ordinalValue: items.indexOf(dragItem) + 1,
+  itemHeight: itemRect.height,
+  scrollport,
+  // Items can't be dragged outside the list, so scrolling is only possible
+  // when the list overflows the scrollport.
+  isOutsideScrollport: listRect.top < top || listRect.bottom > bottom,
+  dragRange: Object.freeze({
+    pageStartY,
+    minDelta: pageListTop - pageItemTop,
+    maxDelta: pageListBottom - itemRect.height - pageItemTop
+  }),
+  siblingDropMidpoints:
+    SortableListForm.#readSiblingDropMidpoints(items, dragItem, scroll)
+}
+```
+
+**What the baseline holds:**
+
+| Field                                                | What it is                                                   | Covered in                                                   |
+| ---------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `listEl`                                             | the chain's `.sortable-list` OL                              | [animateLayoutChange](#the-reorder-animation) — FLIP container, drop insertion |
+| `dragItem`                                           | the picked-up LI                                             | dimmed in place, re-inserted at the drop                     |
+| `items`                                              | every LI at capture, clone-excluded                          | [Target Resolution Collections](#target-resolution-collections) |
+| `cloneTop`                                           | the clone's pinned `top`                                     | [Pinning the Clone Origin](#pinning-the-clone-origin)        |
+| `ordinalValue`                                       | dragged item's 1-based position, written to the clone `<ol start>` | [Clone Number Rebinding](#clone-number-rebinding--1-offset)  |
+| `itemHeight`                                         | the dragged item's height                                    | autoscroll band depth & `maxDelta` — [Autoscroll](#autoscroll-and-the-scroll-padding-contract) |
+| `scrollport` ( `top`, `bottom` )                     | the scrollport's visible top / bottom edges (viewport coords) | [Autoscroll](#autoscroll-and-the-scroll-padding-contract)    |
+| `isOutsideScrollport`                                | whether the list overflows the scrollport                    | [Autoscroll](#autoscroll-and-the-scroll-padding-contract)    |
+| `dragRange` ( `pageStartY`, `minDelta`, `maxDelta` ) | drag origin and how far it may travel up / down (document coords) | the clamp — [Why the Drag Works in pageY](#why-the-drag-works-in-pagey) |
+| `siblingDropMidpoints`                               | every other item's document-coord drop midpoint              | [Target Resolution Collections](#target-resolution-collections) |
+
+The `#dragSession` property, initialized at `dragStart`, holds state read during `dragMove`, cleared on `commitDrop` or `dragEnd`. None of this is publicly exposed; all of it private; internally managed.
+
+```js
+#dragSession = {
+  // Volatile — updated during dragMove:
+  insertBeforeNode, // where the item would drop (an LI, or null = append)
+  marker,           // the LI showing the drop indicator
+  clone,            // the floating <ol> that follows the pointer
+  // Immutable — captured once at dragStart:
+  baseline          // the snapshot dragMove reads each frame
+};
+```
+
+**The volatile Element fields, updated each `dragMove`:**
+
+| Field              | What it is                                                   | Covered in                                                   |
+| ------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `insertBeforeNode` | the LI the dragged item would land before (`null` = append at end) | the move loop                                                |
+| `marker`           | the LI currently showing the drop indicator; kept so each move clears the previous mark | [The Marker and Badge Invariants](#the-marker-and-badge-invariants) |
+| `clone`            | the floating `<ol>` copy that tracks the pointer             | [Pinning the Clone Origin](#pinning-the-clone-origin)        |
+
+`insertBeforeNode` is the live insert-before reference — the LI the dragged item would land before, or `null` to append at the end. It's held as the node, not an index: `insertBefore` takes the node directly, with no lookup, and an index would have to be read against `listEl.children`, which includes the clone `<ol>` and would be skewed by it.
+
+## Target Resolution Collections
+
+The baseline holds two separate LI collections because they serve two different operations:
+
+`items` — the full ordered list, *including* dragItem. `#updateCloneNumber` reads the prospective ordinal from it: `items.indexOf(insertBeforeNode) + 1` when `insertBeforeNode` is an item, `items.length + 1` when it's `null` (a drop past the last item). It keeps dragItem because the drag leaves it on screen, dimmed in place — so its slot still counts and the ordinals match what the user sees.
+
+`items` is captured once, not read live: once `#commitDragDOM` inserts the clone, a live child read would count it. The clone is an `<ol start="N">` — its single `<li>` renders the [badge number](#clone-number-rebinding--1-offset) — dropped straight into `listEl`, so an `<ol>` sits inside an `<ol>`. That's non-conforming, but content models are a parser rule, not a DOM-API one: `insertBefore` adds the node without complaint, and the layout engine renders whatever tree it's handed. And an `<ol>` isn't an `<li>`, so `:scope > li` and the ordinal counter pass it over for free, keeping `#realItems` clone-free.
+
+`siblingDropMidpoints` — dragItem-excluded, each record carrying its `sibling` LI and the precomputed `pageMidpointY` (document-coord midpoint, with in-flight transform subtracted). Used for hit-testing in `#findTargetSibling`. Filtering dragItem out at capture means the 120 Hz `Array.find` never wastes a comparison on the dragged item's own footprint.
+
+Two collections, two purposes — duplication that earns its keep.
+
+## Autoscroll and the Scroll-Padding Contract
+
+The user must be able to drag the item to any slot he wants. For any chain taller than the viewable area (*scrollport*), that slot might be clipped. For any such chain, when the drag nears an edge, the page can be scrolled via `clone.scrollIntoView({block: 'nearest'})` to keep the dragged clone visible.
+
+But `scrollIntoView` forces the browser to perform an unscheduled synchronous layout reflow, and calling it on **pointermove** costs CPU, impacting performance. To mitigate this, this path is double-gated:
+
+**At drag start** — `baseline.isOutsideScrollport`: does the list overflow the scrollport at all?
+
+```js
+static #captureDragBaseline (dragItem, pageStartY) {
+// ...
+return {
+  // Items can't be dragged outside the list, so scrolling is only possible
+  // when the list overflows the scrollport — computed once, not per frame.
+  isOutsideScrollport: listRect.top < top || listRect.bottom > bottom,
+...
+```
+
+**Per frame** — `#autoscroll`: is the pointer within an item-height of an edge?
+
+```js
+#autoscroll(clientY) {
+  const { clone, baseline } = this.#dragSession;
+  if (!baseline.isOutsideScrollport) return;
+  const { itemHeight, scrollport: { top, bottom } } = baseline;
+  if (clientY < top + itemHeight || clientY > bottom - itemHeight)
+    clone.scrollIntoView({block: 'nearest'});
+}
+```
+
+### The `isOutsideScrollport` Boolean
+
+In gate 1, we determine if the list is partially obscured, then it doesn't fit. If either its top or bottom is obscured, scrolling the container in that direction, either up or down, can obscure the other half of it. Consider the following user interaction:
+
+1. User initiates drag with the bottom list item obscured.
+2. `isOutsideScrollport` is captured as true.
+3. User drags the item to the bottom of the list
+4. clone.scrollIntoView({block: 'nearest'}) can then scroll downward.
+5. Downward autoscroll moves the list upward, obscuring its top.
+6. User continues dragging, moving the pointer towards the first item, now obscured.
+7. `#autoscroll` is called again
+8. clone.scrollIntoView({block: 'nearest'}) can then scroll upward.
+
+### Caching innerHeight and Cancel-on-Resize
+
+Accessing `getComputedStyle(doc.documentElement)` and in some cases `window.innerHeight` forces the browser to calculate layout impacting performance, particularly on `pointermove`. To mitigate that performance hit, we pre-calculate and save the `scrollport` area in `dragStart`. 
+
+```js
+// Read once at drag start so the per-frame autoscroll check never re-measure
+// layout.
+static #captureScrollport(doc) {
+  const win = doc.defaultView;
+  const rootStyle = win.getComputedStyle(doc.documentElement);
+  return Object.freeze({
+    top: parseFloat(rootStyle.scrollPaddingTop) || 0,
+    bottom: win.innerHeight - (parseFloat(rootStyle.scrollPaddingBottom) || 0)
+  });
+}
+```
+
+#### Resize Invalidation
+
+This raises the question: what if the user resizes the window during drag? Given that it's potentially possible with multi-touch or orientation change, we cancel dragging by running a cleanup routine if there is any `#activeForm`.
+
+```js
+  // Orientation or window resize relays out the page, staling the frozen
+  // baseline (BCRs, clamps, midpoints). Abort like Escape; #settleClone
+  // reads live positions, so the clone still glides to the item's slot.
+  #onResize = () => this.#activeForm && this.#cleanup();
+```
+
+### Setting the Scrollport
+
+The visible region's top is not the viewport top — a sticky nav covers it. That inset is the scroller's `scroll-padding-top`, which `navigation-tabs` publishes on every route change:
+
+```js
+function updateScrollInset() {
+  document.documentElement.style.scrollPaddingTop =
+    document.querySelector('nav').getBoundingClientRect().bottom + 'px';
+}
+```
+
+```
+navigation-tabs.js                  :root                       SortableListForm
+updateScrollInset() ──sets──▶  scroll-padding-top  ──reads──▶  #captureScrollport
+(owns the nav)                   (the contract)                (knows its ownerDocument)
+```
+
+The widget reads its scroller's `scroll-padding-top`, never the nav, so it stays decoupled from the layout — and the same value makes the scroll engine land `scrollIntoView` *below* the nav instead of behind it, for free. The nav publishes per route because the subtab row makes it taller on subtabbed routes; a measure taken once on a route without subtabs would be too short.
+
+The gates skip per-frame calculations and the relayout for lists that fit within the scrollport, keeping the hot path fast and lean, while still covering the uncommon but plausible case — a list that overflows the scrollport, the item dragged toward the overflowing edge, as on a small or mobile window.
+
+### Why the Drag Works in pageY
+
+Because autoscroll scrolls the page in the middle of a drag, every position must be stored in document coordinates (`event.pageY`), not viewport coordinates (`event.clientY`) — otherwise the scroll would invalidate them. The item's clamp to its list and its drop-target midpoints are fixed at pickup; `autoscroll` then scrolls the window past them, but their positions in the document — their `pageY` — don't change with it. This avoids a few problems:
+
+1. **Stale thresholds.** `scrollIntoView` can scroll the page mid-drag for an overflowing chain. Cached *viewport* positions would invalidate the instant scroll fired. Cached *document* positions don't: LIs don't move in the document when the page scrolls.
+
+2. **Compositor-thread tearing.** `PointerEvent.clientY` is captured at event creation. `window.scrollY` is a separate read at handler-invocation time. With async scrolling on the compositor thread, those two values can drift across the gap, producing a misaligned coordinate and visible clone jitter. `e.pageY` is computed by the browser engine inside the event with scroll state from the same instant — race-free by construction. The capture-time `+ scroll` for BCRs is fine because all the BCRs and the scroll read sit in one layout pass, internally consistent.
+
+## Ending the Drag
+
+### Cancellation
+
+Cancellation, either by Escape key or window resize, is handled by `dragEnd`.
+
+```js
+// Abort path: Esc or pointercancel. runs only when the drag is cancelled —
+// settle the clone back to the item's slot and clear the session.
+dragEnd() {
+  const session = this.#dragSession;
+  if (!session) return;
+  session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
+  this.#settleClone(session.clone, session.baseline.dragItem);
+  this.#dragSession = null;
+}
+```
+
+### Dropping
+
+Drop resolution in `commitDrop`  ends one of three ways:
+
+- **Reorder.** `commitDrop` runs `#animateLayoutChange`  displaced items FLIP into place; the dragged item eases from the clone's release point), tags the dragged item `.dropped` to cool it down, then removes the clone immediately. `#settleClone` is *not* part of a reorder.
+- **No-op** — released back into its own slot. Detected with `insertBeforeNode == dragItem.nextElementSibling`: the item would land before the LI it already sits before, so nothing moves. At end-of-list both sides are `null` — no hit-test target, no next sibling — the same no-op. `#settleClone` removes `.active-drag-item`, re-showing unchanged grading, and glides the clone home.
+- **Abort** — Escape, `pointercancel`, or resize. `commitDrop` never runs; `dragEnd` settles the clone back to the item's slot, removes `.active-drag-item`, and re-shows unchanged grading.
+
+A cool-down is applied after the drop, using is a `from`-only keyframe: the dropped item briefly wears the clone's lifted look, then CSS eases it down to the resting item.
+
+```css
+@keyframes item-drop-cool {
+  from {
+    background: var(--accent-bg);
+    border-left-color: var(--accent);
+    box-shadow: var(--box-shadow-lg);
+  }
+}
+```
+
+A `from`-only block declares the start and animates to the element's own resting style, so the keyframe never restates the resting values. The dropped item also carries a `z-index` so it cools *above* the displaced sibling sliding past it (after `insertBefore`, an upward move leaves that sibling later in DOM order, so without the lift it would paint on top).
+
+**Sub-pixel deadlock.** `#settleClone` (the no-op and abort paths) transitions the clone from its release position to the item's slot; a `transitionend` listener removes it. Duration scales with distance (~1.5 px/ms, clamped 200–600 ms).
+
+```js
+if (Math.abs(dy) < 0.5) {
+  clone.remove();
+  return;
+}
+```
+
+If `dy` is near zero (a no-op drop on the item's own slot, or Escape with the clone directly over the slot), changing `--drag-offset` wouldn't move the transform enough for a transition to fire, so `transitionend` would never arrive and the clone would strand in the DOM. The guard removes it synchronously in that case.
+
+**Deferring the offset write.** Once the listener is attached, the offset change is scheduled in the next `requestAnimationFrame`:
+
+```js
+clone.classList.add('settling');
+clone.addEventListener('transitionend', () => clone.remove(), {once: true});
+requestAnimationFrame(() => clone.style.setProperty('--drag-offset', ...));
+```
+
+The class add enables the transition; the property write triggers it. If both land in the same style update, the browser collapses them — no transitionable before-state, and the clone snaps home instead of gliding. The rAF separates them.
+
+Finally, set the `#activeForm` to null and perform a few other cleanup activities.
+
+```js
+#cleanup = () => {
+  this.#activeForm.dragEnd();
+  this.#el.ownerDocument.documentElement.classList.remove('list-drag-active');
+  this.#activeForm = this.#activePointerId = null;
+};
+```
+
+### CSS Transform Handoff
+
+```css
+.sortable-list-clone {
+  transform: translateY(var(--drag-offset, 0px));
+}
+.sortable-list-clone.settling {
+  transition: transform var(--dur-slow) ease-out;
+}
+```
+
+Drag motion writes `--drag-offset`, not `transform`. CSS owns the property name and the transition declaration; JS only writes a number per frame, then adds `.settling` to enable the transition at settle time. The static `top` and the dynamic offset stay in separate authoring channels — JS never recomposes a `transform` string per frame, and JS never coordinates which property the transition targets.
+
+## The Drop Marker
+
+### Marker Suppression (`wouldNotMove`), Showing, and Removal
+
+The drop marker — the colored bar previewing where the dragged item would land — is a `::before` pseudo-element on the receiving LI, painted via `drop-target-before` / `drop-target-after` class toggles.
+
+If the pointer hovers over a position that resolves to the dragged item's current slot, releasing is a no-op. The marker is suppressed. That's identifiable by two characteristics:
+
+1. The dragOverTarget is `dragItem`'s `nextElementSibling` — no change: `insertBefore(dragItem, dragItem.nextElementSibling)`
+2. `dragOverTarget` is `null` *and* the `dragItem` is the `lastElementChild` (so its `nextElementSibling` is `null`).
+
+Case 2 is case 1 with both sides null, so:
+
+```js
+const wouldNotMove = dragOverTarget === dragItem.nextElementSibling;
+```
+
+— covers both scenarios. 
+
+Otherwise, the element can move, so we determine from that:
+
+1. which sibling LI, if any, to apply either `'drop-target-before'` or `'drop-target-after'` class —
+   ```js
+#updateDropMarker(dragOverTarget) {
+    const session = this.#dragSession;
+    const { dragItem, listEl } = session.baseline;
+    session.markedEl?.classList.remove('drop-target-before', 'drop-target-after');
+    const wouldNotMove = dragOverTarget === dragItem.nextElementSibling;
+    session.markedEl = wouldNotMove ? null : (dragOverTarget ?? listEl.lastElementChild);
+    session.markedEl?.classList.add(dragOverTarget ? 'drop-target-before' : 'drop-target-after');
+}
+   ```
+
+   — which applies the following CSS  —
+   
+```css
+.sortable-list > li:is(.drop-target-before, .drop-target-after)::before {
+    content: '';
+    position: absolute;
+    left: -.5rem;
+    right: 0;
+    height: var(--marker-bar-thickness);
+    background: var(--accent);
+    border-radius: 9999px;
+    pointer-events: none;
+}
+   ```
+
+   — and —
+
+2. Store `session.markerEl` so the **next** pointermove event can remove the marker classes from the marker element it marked *last* time, so it can clear that bar before drawing the new one.
+
+    ```js
+session.markedEl?.classList.remove('drop-target-before', 'drop-target-after');
+    ```
+
+
+### Positioning the Drag Clone
+
+The clone wrapper is `position: absolute`. Without an explicit `top`, its static position is its hypothetical in-flow position — which moves when `commitDrop` rearranges siblings. A drag-up commit places the dragged LI before the clone in DOM order, shifting the clone's static anchor down by roughly one item, and the clone visibly teleports before the settle starts.
+
+Capture pins `top` explicitly via inline style:
+
+```js
+cloneTop: Math.round(itemRect.top - listRect.top)
+```
+
+The transform offset drives the live motion; `top` stays fixed. Rounding `cloneTop` once at capture keeps text rendering stable across the settle — the *fixed* component of the effective y is always an integer pixel, so anti-aliasing doesn't shift as the transform animates back to zero.
+
+### Clone Number Rebinding (`-1` offset)
+
+The floating clone's `start` attribute updates on every drop-target change so the badge matches the prospective ordinal:
+
+```js
+clone.start = ordinalValue < insertBeforeOrdinal ? insertBeforeOrdinal - 1 : insertBeforeOrdinal;
+```
+
+`insertBeforeOrdinal` is `insertBeforeNode`'s 1-based position. Moving *down*, the dragged LI sits *above* it, so vacating that slot pulls it up one and the LI lands at `insertBeforeOrdinal - 1`. Moving *up*, the dragged LI sits *below* it, leaving that position untouched, so the LI lands at `insertBeforeOrdinal` — the node and the LIs it passes shift *down* to open the slot.
+
+Without the conditional, the badge would flicker by one as the pointer crossed each item boundary.
+
 ## The Reorder Animation
+
 ### Reshuffle
 `SortableListForm` instances persist for the page lifetime. `reshuffle()` re-randomizes `#currentOrder`, clears grading state, and replaces the OL's children with rebuilt LIs inside `#animateLayoutChange`. The form and OL nodes persist — reshuffle does not go through `initSortableLists`, so `chainsWrap.entering` isn't re-added and `list-enter` doesn't replay.
 
@@ -224,7 +569,7 @@ Dropping to a new position and reshuffle both trigger list reorder. Animating th
 
 This reordering animation is done in phases to prevent thrashing:
 1. record each LI's current top
-2. mutate (replaceChildren on reorder) 
+2. mutate (replaceChildren on reorder)
 3. record each LI's ending top position - this forces post-mutation layout reflow and recalc
 4. animate from the starting positions to the ending positions calculated in step 3.
 ```js
@@ -254,7 +599,7 @@ This reordering animation is done in phases to prevent thrashing:
       {duration: this.#container.flipDuration, easing: 'ease-out'}));
   }
 ```
-Per-item animation is by each LIs predetermined `dy`. When `dy === 0`, `&&` short-circuits and `animate()` isn't called. This works because these keyframes animate transform only. 
+Per-item animation is by each LIs pre-determined `dy`. When `dy === 0`, `&&` short-circuits and `animate()` isn't called. This works because these keyframes animate transform only. 
 ### Calculating `startingTops`
 The `startingTops` Map stores item keys and the current positions:
   - **key** — li.dataset.step, the step text (the Item Identity (#item-identity-step-text-as-the-key) key)
@@ -290,10 +635,11 @@ Measuring live on every call prevents a later action from measuring against posi
 **Reshuffle** discards the old nodes and any animations still running on them. `startingTops` was read just before the mutation, so it holds each outgoing node's current *visual* top — `getBoundingClientRect()` includes the in-flight transform — and a reshuffle landing mid-slide restarts from there.
 
 **Reordering drop** does not replace elements. It can't because it needs to add the `.dropped` class to the dropped LI for its cool-down effect. To address this, it removes the LIs' correct/incorrect`className` (clears grading), removes `active-drag-item` from the dragged LI, re-inserts the dragged LI, and adds the `.dropped` class to the dropped LI for its cool-down effect.
+
 ### Item Identity: Step Text as the Key
 List items have their own smaller identity, `data-step` per-chain unique step text that comes from a JSON key.
 
-```
+```text
 definition.steps[] / #currentOrder[]
           │
           ▼
@@ -307,245 +653,6 @@ definition.steps[] / #currentOrder[]
 That lets Reshuffle rebuild the LIs with `replaceChildren` and still animate. The new LIs are new elements that carry the same `data-step`. Function `#animateLayoutChange` records old positions by `li.dataset.step`, runs the mutation, then looks up each new item's old top by the same key.
 
 The FLIP stays in the Web Animations API rather than CSS because its start frame is a *measured* per-element delta, which is inherently computed in JS. (The completion pulse, which needs no per-element measurement, went the other way — see [Completion Cascade](#completion-cascade).)
-
-## Page-Load Entrance
-There's no prior committed layout to [FLIP](#the-reorder-animation) from at first render, so the entrance is a CSS animation, not a measured transform: a quiet opacity-and-translate on each list item (`list-enter`: opacity 0 → 1, `translateY(-6px → 0)`), gated by an `.entering` class on the wrapper.
-
-```css
-:where(#chains-wrap.entering) .sortable-list > li {
-  animation: list-enter var(--dur-normal) ease-out;
-}
-```
-
-The gating class lives on the wrapper, not on each OL or each item. Before the attach, `initSortableLists` adds `.entering` to `chainsWrap` and registers one `animationend` listener; because `replaceForms` attaches every form in one `replaceChildren`, every item's `list-enter` fires in the same frame, the listener catches the first bubbled `animationend` whose `animationName === 'list-enter'`, removes `.entering`, and self-unregisters. One class, one listener, one cleanup — for the whole feature.
-
-**`:where()` is defense in depth.** The wrapper class is normally cleared synchronously, but if a user reshuffles or drops within the entrance window (~`--dur-normal`), the underlying `animationend` either gets cancelled or arrives interleaved with state-change animations. Without lowering specificity, the wrapper rule `#chains-wrap.entering .sortable-list > li` (specificity 1,2,1) would outrank `.sortable-list > li.dropped` (0,2,1) and `.sortable-list.all-correct > li` (0,2,1), and a lingering `.entering` would suppress those animations — for `.dropped`, also stranding the class on the item because its `animationend`-driven cleanup never fires. `:where(#chains-wrap.entering)` drops the entrance rule to specificity (0,1,1), below both, so a lingering `.entering` becomes harmless.
-
-The entrance is deliberately small (the page-load liveliness is *barely noticeable*). A bigger entrance widens the window where the user could `pointerdown` on an item mid-animation, and the drag pipeline assumes settled positions; staying subtle makes that race practically impossible.
-
-## Autoscroll and the Scroll-Padding Contract
-A chain taller than the scrollport must scroll while the user drags toward an edge, via `clone.scrollIntoView({block: 'nearest'})` keeping the dragged clone visible when a list exceeds the scrollport. Because `scrollIntoView` forces layout, the move path gates this twice.
-
-- **At capture**, `baseline.autoscroll` decides whether the list can clip at all (does it extend past the visible region?). A list that fits never scrolls.
-- **Per frame**, `#maybeAutoscroll` fires only when the pointer (`clientY`) enters an `itemHeight`-wide band at the top or bottom of the *visible* region.
-### Setting the Scrollport
-The visible region's top is not the viewport top — a sticky nav covers it. That inset is the scroller's `scroll-padding-top`, which `navigation-tabs` publishes on every route change:
-```js
-function updateScrollInset() {
-  document.documentElement.style.scrollPaddingTop =
-    document.querySelector('nav').getBoundingClientRect().bottom + 'px';
-}
-```
-
-```
-   navigation-tabs.js              :root                  diagnose-causal-chains.js
-   updateScrollInset() ──sets──▶ scroll-padding-top ──reads──▶ #maybeAutoscroll
-   (owns the nav)                (the contract)               (knows only its scroller)
-```
-
-The widget reads its scroller's `scroll-padding-top`, never the nav, so it stays decoupled from the layout — and the same value makes the scroll engine land `scrollIntoView` *below* the nav instead of behind it, for free. The nav publishes per route because the subtab row makes it taller on subtabbed routes; a measure taken once on a route without subtabs would be too short.
-
-(Rejected: calling `scrollIntoView` unconditionally every frame — correct, but layout-forcing on frames where nothing needs to scroll.)
-
-## Coordinate Translation: The Scroll Trap
-Whenever the user drags an item toward an edge of the documentElement's scrollport we call `scrollIntoView`, but only past two gated tests. `scrollIntoView` forces a relayout per call, so running it each frame would thrash.
-
-**Test 1 — `autoscroll`, captured once at drag start** (`#captureDragBaseline`):
-
-```js
-autoscroll: listRect.top < topInset || listRect.bottom > innerHeight - bottomInset
-```
-
-Does the list extend past the visible region — above the inset or below the fold? Frozen into the baseline. Any time the list is obscured by the scrollport, either top or bottom:
-
-### The `autoscroll` Boolean
-If the list is partially obscured, then it doesn't fit. If either its top or bottom is obscured, scrolling the container in that direction, either up or down, can obscure the other half of it. Consider the following user interaction:
-
-  1. User initiates drag with the bottom list item obscured.
-  2. autoscroll is captured as true.
-  3. User drags the item to the bottom of the list
-  4. clone.scrollIntoView({block: 'nearest'}) can then scroll downward.
-  5. Downward autoscroll moves the list upward, obscuring its top.
-  6. User continues dragging, moving the pointer towards the first item, now obscured.
-  7. `#maybeAutoscroll` is called again
-  8. clone.scrollIntoView({block: 'nearest'}) can then scroll upward.
-
-**Test 2 — per frame, but `dragMove` calls `#maybeAutoscroll` only when `autoscroll` is true:**
-
-```js
-if (clientY < topInset + itemHeight || clientY > innerHeight - bottomInset - itemHeight)
-  this.#dragSession.clone.scrollIntoView({block: 'nearest'});
-```
-
-Is the pointer within an item-height of the top edge (`topInset`) or bottom edge (`innerHeight - bottomInset`)?
-
-The gates skip per-frame calculations and the relayout for lists that fit within the scrollport, keeping the hot path fast and lean, while still covering the uncommon but plausible case — a list that overflows the scrollport, the item dragged toward the overflowing edge, as on a small or mobile window.
-
-That same mid-drag scroll is why the rest of the drag works in `pageY`. The item's clamp to its list and its drop-target midpoints are fixed at pickup; autoscroll then scrolls the window past them, but their positions in the document — their `pageY` — don't change with it. The two failure modes it avoids:
-
-**Stale thresholds.** `scrollIntoView` can scroll the page mid-drag for an overflowing chain. Cached *viewport* positions would invalidate the instant scroll fired. Cached *document* positions don't: LIs don't move in the document when the page scrolls.
-
-**Compositor-thread tearing.** `PointerEvent.clientY` is captured at event creation. `window.scrollY` is a separate read at handler-invocation time. With async scrolling on the compositor thread, those two values can drift across the gap, producing a misaligned coordinate and visible clone jitter. `e.pageY` is computed by the browser engine inside the event with scroll state from the same instant — race-free by construction. The capture-time `+ scroll` for BCRs is fine because all the BCRs and the scroll read sit in one layout pass, internally consistent.
-
-## State Isolation: The Shallow Freeze
-Transient drag state lives in `#dragSession`, split by lifecycle volatility:
-
-```js
-#dragSession = {
-  // Volatile — updated during dragMove:
-  insertBeforeNode,
-  marker,
-  clone,
-  // Immutable — captured once at drag start:
-  baseline
-};
-```
-
-`insertBeforeNode` is the live insert-before reference — the LI the dragged item would land before, or `null` to append at the end. It's held as the node, not an index: `insertBefore` takes the node directly, with no lookup, and an index would have to be read against `listEl.children`, which includes the clone `<ol>` and would be skewed by it.
-
-`baseline` is the immutable half — everything the drag measures and derives once at pickup, frozen via `Object.freeze()` so a stray `session.baseline.pageStartY = 0` throws at runtime instead of silently corrupting the cache and producing a bug a release later.
-
-**What the frozen baseline holds:**
-
-| Field                      | What it is                                                         | Covered in                                             |
-| -------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------ |
-| `listEl`                   | the chain's `.sortable-list` OL                                    | *animateLayoutChange* — FLIP container, drop insertion |
-| `dragItem`                 | the picked-up LI                                                   | dimmed in place, re-inserted at the drop               |
-| `items`                    | every LI at capture, clone-excluded                                | *Target Resolution Collections*                        |
-| `pageStartY`               | pointer Y at pickup (document coords)                              | the per-frame delta's origin — *The Scroll Trap*       |
-| `cloneTop`                 | the clone's pinned `top`                                           | *Pinning the Clone Origin*                             |
-| `ordinalValue`             | dragged item's 1-based position, written to the clone `<ol start>` | *Clone Number Rebinding*                               |
-| `itemHeight`               | the dragged item's height                                          | autoscroll band depth & `maxDelta` — *Autoscroll*      |
-| `topInset` / `bottomInset` | the scrollport's scroll-padding insets                             | *Autoscroll*                                           |
-| `innerHeight`              | viewport height                                                    | *Autoscroll*                                           |
-| `autoscroll`               | whether the list overflows the scrollport                          | *Autoscroll*                                           |
-| `minDelta` / `maxDelta`    | how far the item may travel up / down (document coords)            | the clamp — *The Scroll Trap*                          |
-| `siblingDropMidpoints`     | every other item's document-coord drop midpoint                    | *Target Resolution Collections*                        |
-
-Nested objects inside baseline (the `items` array, the `siblingDropMidpoints` records) are left raw. Deep-freezing them would walk and freeze N+1 objects every drag, churning the GC for state that exists for two seconds. The outer freeze enforces the contract; freezing the inner data would add no real protection at the cost of allocation overhead.
-
-## Target Resolution Collections
-
-The baseline holds two separate LI collections because they serve two different operations:
-
-`items` — the full ordered list, *including* dragItem. `#updateCloneNumber` reads the prospective ordinal from it: `items.indexOf(insertBeforeNode) + 1` when `insertBeforeNode` is an item, `items.length + 1` when it's `null` (a drop past the last item). It keeps dragItem because the drag leaves it on screen, dimmed in place — so its slot still counts and the ordinals match what the user sees.
-
-`items` is captured once, not read live: once `#commitDragDOM` inserts the clone, a live child read would count it. The clone is an `<ol start="N">` — its single `<li>` renders the [badge number](#clone-number-rebinding--1-offset) — dropped straight into `listEl`, so an `<ol>` sits inside an `<ol>`. That's non-conforming, but content models are a parser rule, not a DOM-API one: `insertBefore` adds the node without complaint, and the layout engine renders whatever tree it's handed. And an `<ol>` isn't an `<li>`, so `:scope > li` and the ordinal counter pass it over for free, keeping `#realItems` clone-free.
-
-`siblingDropMidpoints` — dragItem-excluded, each record carrying its `sibling` LI and the precomputed `pageMidpointY` (document-coord midpoint, with in-flight transform subtracted). Used for hit-testing in `#findTargetSibling`. Filtering dragItem out at capture means the 120 Hz `Array.find` never wastes a comparison on the dragged item's own footprint.
-
-Two collections, two purposes — duplication that earns its keep.
-
-## The Settle Lifecycle
-
-A drop's whole resolution lives in `commitDrop`; `endDrag` handles only cancellation. There are three outcomes:
-
-- **Reorder.** `commitDrop` runs `#animateLayoutChange` (the displaced items FLIP into place; the dragged item eases from the clone's release point), tags the dragged item `.dropped` to cool it down, then removes the clone immediately. `#settleClone` is *not* part of a reorder.
-- **No-op** — released back into its own slot. Detected with `insertBeforeNode == dragItem.nextElementSibling`: the item would land before the LI it already sits before, so nothing moves. At end-of-list both sides are `null` — no hit-test target, no next sibling — the same no-op. `#settleClone` removes `.active-drag-item`, re-showing unchanged grading, and glides the clone home.
-- **Abort** — Escape, `pointercancel`, or resize. `commitDrop` never runs; `endDrag` settles the clone back to the item's slot, removes `.active-drag-item`, and re-shows unchanged grading.
-
-The cool-down is a `from`-only keyframe: the dropped item briefly wears the clone's lifted look, then CSS eases it down to the resting item.
-
-```css
-@keyframes item-drop-cool {
-  from {
-    background: var(--accent-bg);
-    border-left-color: var(--accent);
-    box-shadow: var(--box-shadow-lg);
-  }
-}
-```
-
-A `from`-only block declares the start and animates to the element's own resting style, so the keyframe never restates the resting values. The dropped item also carries a `z-index` so it cools *above* the displaced sibling sliding past it (after `insertBefore`, an upward move leaves that sibling later in DOM order, so without the lift it would paint on top).
-
-**Sub-pixel deadlock.** `#settleClone` (the no-op and abort paths) transitions the clone from its release position to the item's slot; a `transitionend` listener removes it. Duration scales with distance (~1.5 px/ms, clamped 200–600 ms).
-
-```js
-if (Math.abs(dy) < 0.5) {
-  clone.remove();
-  return;
-}
-```
-
-If `dy` is near zero (a no-op drop on the item's own slot, or Escape with the clone directly over the slot), changing `--drag-offset` wouldn't move the transform enough for a transition to fire, so `transitionend` would never arrive and the clone would strand in the DOM. The guard removes it synchronously in that case.
-
-**Deferring the offset write.** Once the listener is attached, the offset change is scheduled in the next `requestAnimationFrame`:
-
-```js
-clone.classList.add('settling');
-clone.addEventListener('transitionend', () => clone.remove(), {once: true});
-requestAnimationFrame(() => clone.style.setProperty('--drag-offset', ...));
-```
-
-The class add enables the transition; the property write triggers it. If both land in the same style update, the browser collapses them — no transitionable before-state, and the clone snaps home instead of gliding. The rAF separates them.
-
-## Visual Stabilizers
-
-### Pinning the Clone Origin
-
-The clone wrapper is `position: absolute`. Without an explicit `top`, its static position is its hypothetical in-flow position — which moves when `commitDrop` rearranges siblings. A drag-up commit places the dragged LI before the clone in DOM order, shifting the clone's static anchor down by roughly one item, and the clone visibly teleports before the settle starts.
-
-Capture pins `top` explicitly via inline style:
-
-```js
-cloneTop: Math.round(itemRect.top - listRect.top)
-```
-
-The transform offset drives the live motion; `top` stays fixed. Rounding `cloneTop` once at capture keeps text rendering stable across the settle — the *fixed* component of the effective y is always an integer pixel, so anti-aliasing doesn't shift as the transform animates back to zero.
-
-`offsetTop` isn't an option here: the CSSOM View spec defines it loosely and browsers diverge on edge cases. BCR-diff is the well-defined cross-browser path.
-
-### CSS Transform Handoff
-
-```css
-.sortable-list-clone {
-  transform: translateY(var(--drag-offset, 0px));
-}
-.sortable-list-clone.settling {
-  transition: transform var(--dur-slow) ease-out;
-}
-```
-
-Drag motion writes `--drag-offset`, not `transform`. CSS owns the property name and the transition declaration; JS only writes a number per frame, then adds `.settling` to enable the transition at settle time. The static `top` and the dynamic offset stay in separate authoring channels — JS never recomposes a `transform` string per frame, and JS never coordinates which property the transition targets.
-
-## The Marker and Badge Invariants
-
-### Marker Suppression (`wouldNotMove`)
-
-The drop marker — the colored bar previewing where the dragged item would land — is a `::before` pseudo-element on the receiving LI, painted via `drop-target-before` / `drop-target-after` class toggles. No marker element to create or position.
-
-If the pointer hovers over a position that resolves to the dragged item's current slot, releasing is a no-op. The marker is suppressed:—
-
-```js
-const wouldNotMove = target === dragItem.nextElementSibling
-  || (target === null && dragItem === listEl.lastElementChild);
-```
-
-— which triggers the following CSS —
-```css
-.sortable-list > li.drop-target-before::before,
-.sortable-list > li.drop-target-after::before {
-  content: '';
-  position: absolute;
-  left: -.5rem;
-  right: 0;
-  height: var(--marker-bar-thickness);
-  background: var(--accent);
-  border-radius: 9999px;
-  pointer-events: none;
-}
-```
-### Clone Number Rebinding (`-1` offset)
-
-The floating clone's `start` attribute updates on every drop-target change so the badge matches the prospective ordinal:
-
-```js
-clone.start = ordinalValue < insertBeforeOrdinal ? insertBeforeOrdinal - 1 : insertBeforeOrdinal;
-```
-
-`insertBeforeOrdinal` is `insertBeforeNode`'s 1-based position. Moving *down*, the dragged LI sits *above* it, so vacating that slot pulls it up one and the LI lands at `insertBeforeOrdinal - 1`. Moving *up*, the dragged LI sits *below* it, leaving that position untouched, so the LI lands at `insertBeforeOrdinal` — the node and the LIs it passes shift *down* to open the slot.
-
-Without the conditional, the badge would flicker by one as the pointer crossed each item boundary.
 
 ## Grading Display Lifecycle
 Function `checkResults()` applies `.correct` / `.incorrect` classes per LI. Those classes
@@ -573,7 +680,7 @@ When the user drops the LI (its clone), `li.active-drag-item` is removed. If the
 
 All-correct disables the Check button, sets `aria-disabled` on the OL (which blocks subsequent `pointerdown`), and plays a [completion cascade](#completion-cascade) through the LIs. Reshuffle alone can re-arm Check — drag-start can't, because the OL lock makes `pointerdown` bail.
 
-The info-bonus `<details>` reveals on the same grading path: on all-correct, or once a chain has been checked wrong `BONUS_HINT_THRESHOLD` times *since the last drag or reshuffle* (`startDrag` and `reshuffle` both reset `#wrongChecks`), `#toggleBonusReveal(true)` opens it — a hint appears when the user is stuck or has finished, not before.
+The info-bonus `<details>` reveals on the same grading path: on all-correct, or once a chain has been checked wrong `BONUS_HINT_THRESHOLD` times *since the last drag or reshuffle* (`dragStart` and `reshuffle` both reset `#wrongChecks`), `#toggleBonusReveal(true)` opens it — a hint appears when the user is stuck or has finished, not before.
 
 ## Completion Cascade
 When `checkResults` grades all-correct, the items play a brief staggered pulse, top-to-bottom, to mark the win.
@@ -626,7 +733,24 @@ el.addEventListener('touchstart', this.#onTouchstart, {passive: false});
 #onTouchstart = e =>
   e.target.closest('.sortable-list > li') && e.preventDefault();
 ```
-Registering the listener with `{passive: false}` tells the browser's Compositor Thread to defer native touch handling until the Main Thread finishes running that specific listener and returns its `defaultPrevented` flag. 
+Registering the listener with `{passive: false}` tells the browser's Compositor Thread to defer native touch handling until the Main Thread finishes running that specific listener and returns its `defaultPrevented` flag.
+
+## Page-Load Entrance
+
+There's no prior committed layout to [FLIP](#the-reorder-animation) from at first render, so the entrance is a CSS animation, not a measured transform: a quiet opacity-and-translate on each list item (`list-enter`: opacity 0 → 1, `translateY(-6px → 0)`), gated by an `.entering` class on the wrapper.
+
+```css
+:where(#chains-wrap.entering) .sortable-list > li {
+  animation: list-enter var(--dur-normal) ease-out;
+}
+```
+
+The gating class lives on the wrapper, not on each OL or each item. Before the attach, `initSortableLists` adds `.entering` to `chainsWrap` and registers one `animationend` listener; because `replaceForms` attaches every form in one `replaceChildren`, every item's `list-enter` fires in the same frame, the listener catches the first bubbled `animationend` whose `animationName === 'list-enter'`, removes `.entering`, and self-unregisters. One class, one listener, one cleanup — for the whole feature.
+
+**`:where()` is defense in depth.** The wrapper class is normally cleared synchronously, but if a user reshuffles or drops within the entrance window (~`--dur-normal`), the underlying `animationend` either gets cancelled or arrives interleaved with state-change animations. Without lowering specificity, the wrapper rule `#chains-wrap.entering .sortable-list > li` (specificity 1,2,1) would outrank `.sortable-list > li.dropped` (0,2,1) and `.sortable-list.all-correct > li` (0,2,1), and a lingering `.entering` would suppress those animations — for `.dropped`, also stranding the class on the item because its `animationend`-driven cleanup never fires. `:where(#chains-wrap.entering)` drops the entrance rule to specificity (0,1,1), below both, so a lingering `.entering` becomes harmless.
+
+The entrance is deliberately small (the page-load liveliness is *barely noticeable*). A bigger entrance widens the window where the user could `pointerdown` on an item mid-animation, and the drag pipeline assumes settled positions; staying subtle makes that race practically impossible.
+
 ## State Classes
 Much of the behavior is encoded as classes rather than methods. The toggles and what they govern:
 
