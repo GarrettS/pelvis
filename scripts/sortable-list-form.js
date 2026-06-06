@@ -60,7 +60,7 @@ export class SortableListContainer {
     this.#activeForm = SortableListForm.getById(ol.id);
     this.#activePointerId = e.pointerId;
     dragItem.setPointerCapture(e.pointerId);
-    this.#activeForm.startDrag(dragItem, e.pageY);
+    this.#activeForm.dragStart(dragItem, e.pageY);
     this.#el.ownerDocument.documentElement.classList.add('list-drag-active');
   };
 
@@ -91,7 +91,7 @@ export class SortableListContainer {
   #onResize = () => this.#activeForm && this.#cleanup();
 
   #cleanup = () => {
-    this.#activeForm.endDrag();
+    this.#activeForm.dragEnd();
     this.#el.ownerDocument.documentElement.classList.remove('list-drag-active');
     this.#activeForm = this.#activePointerId = null;
   };
@@ -181,7 +181,7 @@ export class SortableListForm {
     this.#form.querySelector('details')?.toggleAttribute('open', open);
   }
 
-  startDrag(dragItem, pageStartY) {
+  dragStart(dragItem, pageStartY) {
     this.#wrongChecks = 0;
     this.#dragSession = SortableListForm.#commitDragDOM(
       SortableListForm.#captureDragBaseline(dragItem, pageStartY));
@@ -191,22 +191,22 @@ export class SortableListForm {
     const session = this.#dragSession;
     const deltaY = this.#getConstrainedDeltaY(pageY);
     session.clone.style.setProperty('--drag-offset', deltaY + 'px');
-    if (session.baseline.autoscroll) this.#maybeAutoscroll(clientY);
+    this.#autoscroll(clientY);
 
-    const target = this.#findTargetSibling(pageY);
+    const siblingAtPageY = this.#findTargetSibling(pageY);
     // Unchanged target — no re-mark.
-    if (target === session.insertBeforeNode) return;
+    if (siblingAtPageY === session.insertBeforeNode) return;
 
-    this.#updateDropMarker(target);
-    session.insertBeforeNode = target;
+    this.#updateDropMarker(siblingAtPageY);
+    session.insertBeforeNode = siblingAtPageY;
     this.#updateCloneNumber();
   }
 
   commitDrop() {
     const session = this.#dragSession;
-    const { insertBeforeNode, baseline, clone, marker } = session;
+    const { insertBeforeNode, baseline, clone, markerEl } = session;
     const { dragItem } = baseline;
-    marker?.classList.remove('drop-target-before', 'drop-target-after');
+    markerEl?.classList.remove('drop-target-before', 'drop-target-after');
 
     // No reorder when the target is already the next sibling — or both null at
     // end-of-list (insertBefore(_, null) appends). Settle home; #settleClone
@@ -238,38 +238,25 @@ export class SortableListForm {
     clone.remove();
   }
 
-  // Abort path: Esc or pointercancel. commitDrop fully resolves a drop
-  // and nulls the session, so this runs only when the drag is cancelled —
+  // Abort path: Esc or pointercancel. runs only when the drag is cancelled —
   // settle the clone back to the item's slot and clear the session.
-  endDrag() {
+  dragEnd() {
     const session = this.#dragSession;
     if (!session) return;
-    session.marker?.classList.remove('drop-target-before', 'drop-target-after');
+    session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
     this.#settleClone(session.clone, session.baseline.dragItem);
     this.#dragSession = null;
   }
 
-  // One batched read of every layout fact the drag baseline needs: refs,
-  // BCRs, scroll, viewport, scroll-padding insets. No derivations.
-  static #readDragInputs(dragItem) {
-    const doc = dragItem.ownerDocument;
+  // Read once at drag start so the per-frame autoscroll check never re-measures
+  // layout.
+  static #captureScrollport(doc) {
     const win = doc.defaultView;
-    const listEl = dragItem.parentNode;
     const rootStyle = win.getComputedStyle(doc.documentElement);
-    return {
-      listEl,
-      items: [...SortableListForm.#realItems(listEl)],
-      itemRect: dragItem.getBoundingClientRect(),
-      listRect: listEl.getBoundingClientRect(),
-      scroll: win.scrollY,
-      innerHeight: win.innerHeight,
-      // The scrollport is inset from each viewport edge by its
-      // scroll-padding — a sticky nav publishes scroll-padding-top, a footer
-      // would publish scroll-padding-bottom. The autoscroll triggers read
-      // both so they fire at the edges scrollIntoView itself lands on.
-      topInset: parseFloat(rootStyle.scrollPaddingTop) || 0,
-      bottomInset: parseFloat(rootStyle.scrollPaddingBottom) || 0
-    };
+    return Object.freeze({
+      top: parseFloat(rootStyle.scrollPaddingTop) || 0,
+      bottom: win.innerHeight - (parseFloat(rootStyle.scrollPaddingBottom) || 0)
+    });
   }
 
   // Hit-test midpoints in document coords. Reads each sibling's BCR and its
@@ -286,21 +273,24 @@ export class SortableListForm {
         ? 0 : new win.DOMMatrix(transform).m42;
       midpoints.push({
         sibling: li,
-        pageMidpointY: box.top - animOffsetY + box.height / 2 + scroll
+        midpointPageY: box.top - animOffsetY + box.height / 2 + scroll
       });
     }
     return midpoints;
   }
 
   static #captureDragBaseline(dragItem, pageStartY) {
-    const dragInputs = SortableListForm.#readDragInputs(dragItem);
-    const {
-      listEl, items, itemRect, listRect, scroll, topInset, bottomInset, innerHeight
-    } = dragInputs;
-    const index = items.indexOf(dragItem);
+    const listEl = dragItem.parentNode;
+    const items = [...SortableListForm.#realItems(listEl)];
+    const itemRect = dragItem.getBoundingClientRect();
+    const listRect = listEl.getBoundingClientRect();
+    const doc = dragItem.ownerDocument;
+    const scroll = doc.defaultView.scrollY;
+    const scrollport = SortableListForm.#captureScrollport(doc);
+    const { top, bottom } = scrollport;
 
-    // BCRs are viewport-relative; + scroll lands them in document coords so
-    // the clamp range matches the document-space pointer delta.
+    // BCRs are viewport-relative; + scroll lands them in document coords so the
+    // drag range matches the document-space pointer delta.
     const pageItemTop = itemRect.top + scroll;
     const pageListTop = listRect.top + scroll;
     const pageListBottom = listRect.bottom + scroll;
@@ -308,21 +298,19 @@ export class SortableListForm {
     return Object.freeze({
       listEl,
       dragItem,
-      pageStartY,
       items,
       cloneTop: Math.round(itemRect.top - listRect.top),
-      ordinalValue: index + 1,
+      ordinalValue: items.indexOf(dragItem) + 1,
       itemHeight: itemRect.height,
-      topInset,
-      bottomInset,
-      innerHeight,
-      // Clone is clamped inside the list, so it clips only when the list
-      // extends past the scrollport — above topInset or below
-      // innerHeight - bottomInset — decided once; no per-frame scroll if it fits.
-      autoscroll: listRect.top < topInset
-        || listRect.bottom > innerHeight - bottomInset,
-      minDelta: pageListTop - pageItemTop,
-      maxDelta: pageListBottom - itemRect.height - pageItemTop,
+      scrollport,
+      // Items can't be dragged outside the list, so scrolling is only possible
+      // when the list overflows the scrollport.
+      isOutsideScrollport: listRect.top < top || listRect.bottom > bottom,
+      dragRange: Object.freeze({
+        pageStartY,
+        minDelta: pageListTop - pageItemTop,
+        maxDelta: pageListBottom - itemRect.height - pageItemTop
+      }),
       siblingDropMidpoints:
         SortableListForm.#readSiblingDropMidpoints(items, dragItem, scroll)
     });
@@ -346,47 +334,38 @@ export class SortableListForm {
 
     return {
       insertBeforeNode: dragItem.nextElementSibling,
-      marker: null,
+      markerEl: null,
       clone,
       baseline
     };
   }
 
   #getConstrainedDeltaY(pageY) {
-    const { pageStartY, minDelta, maxDelta } = this.#dragSession.baseline;
+    const { pageStartY, minDelta, maxDelta } = this.#dragSession.baseline.dragRange;
     return Math.max(minDelta, Math.min(maxDelta, pageY - pageStartY));
   }
 
   #findTargetSibling(pageY) {
     return this.#dragSession.baseline.siblingDropMidpoints
-      .find(({ pageMidpointY }) => pageY <= pageMidpointY)?.sibling ?? null;
+      .find(({ midpointPageY }) => pageY <= midpointPageY)?.sibling ?? null;
+  }
+  
+  #autoscroll(clientY) {
+    const { clone, baseline } = this.#dragSession;
+    if (!baseline.isOutsideScrollport) return;
+    const { itemHeight, scrollport: { top, bottom } } = baseline;
+    if (clientY < top + itemHeight || clientY > bottom - itemHeight)
+      clone.scrollIntoView({block: 'nearest'});
   }
 
-  // Scroll when the pointer enters an itemHeight band at either edge of the
-  // scrollport — edges inset from the viewport by scroll-padding
-  // (`topInset`, `bottomInset`), not the raw top and bottom. The caller
-  // gates on baseline.autoscroll, so this runs only for overflowing lists.
-  // The insets and innerHeight are captured once; a resize cancels the drag
-  // (#onResize), so they can't go stale, and clientY arrives fresh per frame.
-  #maybeAutoscroll(clientY) {
-    const { topInset, bottomInset, itemHeight, innerHeight } =
-      this.#dragSession.baseline;
-    if (clientY < topInset + itemHeight
-        || clientY > innerHeight - bottomInset - itemHeight)
-      this.#dragSession.clone.scrollIntoView({block: 'nearest'});
-  }
-
-  #updateDropMarker(target) {
+  #updateDropMarker(dragOverTarget) {
     const session = this.#dragSession;
     const { dragItem, listEl } = session.baseline;
-    session.marker?.classList.remove('drop-target-before', 'drop-target-after');
-    const wouldNotMove = target === dragItem.nextElementSibling
-      || (target === null && dragItem === listEl.lastElementChild);
-    session.marker = wouldNotMove
-      ? null
-      : (target ?? listEl.lastElementChild);
-    session.marker?.classList.add(
-      target ? 'drop-target-before' : 'drop-target-after'
+    session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
+    const wouldNotMove = dragOverTarget === dragItem.nextElementSibling;
+    session.markerEl = wouldNotMove ? null : (dragOverTarget ?? listEl.lastElementChild);
+    session.markerEl?.classList.add(
+      dragOverTarget ? 'drop-target-before' : 'drop-target-after'
     );
   }
 
@@ -409,8 +388,7 @@ export class SortableListForm {
   #settleClone(clone, item) {
     item.classList.remove('active-drag-item');
 
-    const dy = item.getBoundingClientRect().top
-      - clone.getBoundingClientRect().top;
+    const dy = item.getBoundingClientRect().top - clone.getBoundingClientRect().top;
 
     // Sub-pixel dy: changing --drag-offset by < .5px wouldn't move the
     // transform enough for a transition to fire, so transitionend wouldn't

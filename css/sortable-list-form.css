@@ -120,8 +120,7 @@
   box-shadow: var(--box-shadow-lg);
 }
 
-.sortable-list > li.drop-target-before::before,
-.sortable-list > li.drop-target-after::before {
+.sortable-list > li:is(.drop-target-before, .drop-target-after)::before {
   content: '';
   position: absolute;
   left: -.5rem;
