@@ -56,9 +56,6 @@ Per-feature deep dives — the engineering decisions behind each module, not the
 - **[Navigation Tabs](prd/architecture/navigation-tabs.md)** — hash routing, app init, and the Active Object that owns tab and selection state.
 - **[L AIC Chain](prd/architecture/aic-chain.txt)** — muscle-chain SVG overlay: anchor circles, leader-line geometry, single-active-muscle selection. *(plain text — its ASCII diagrams wouldn't survive a markdown conversion.)*
 - **[Equivalence Quiz](prd/architecture/equivalence-quiz.md)** — a state machine over fetch outcomes (the fail-safe worked example).
-- **[Layering](prd/architecture/layering.md)** — the target per-tab architecture: named pieces, clear contracts.
-- **[Master Quiz](prd/architecture/master-quiz.md)** — orchestration of the 175-question study quiz.
-- **[Patterns](prd/architecture/patterns.md)** — three independent subtabs, no orchestrator.
 
 ## Code standards
 
