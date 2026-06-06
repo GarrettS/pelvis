@@ -26,7 +26,7 @@ What's left for JS:
 
 ## State
 
-Module-scoped `activeAbbr`, initially null, is the reference for the current actuator for the popover (Active Object Pattern).
+Closure-scoped inside `initAbbrPopover` (alongside `popover`, `main`, and `anchorCount`), `activeAbbr` — initially null — is the reference for the current actuator for the popover (Active Object Pattern).
 
 ### Anchor Binding
 
@@ -39,6 +39,8 @@ Assignment is lazy (in `showForAbbr`) rather than eager (in the init walk) becau
 The reason for this is dynamic content: abbrs inserted after document load would be missed by an eager pass. The lazy check is `!abbr.style.anchorName` covering both paths.
 
 ## Event Flow
+
+The focus path (`focusin`/`focusout`) always registers; the pointer path (`mouseover`/`mouseout`, and the popover's `mouseleave`) registers only on hover-capable devices, behind `matchMedia('(hover: hover)').matches`. Touch devices get focus-driven show/hide only — no spurious pointer events.
 
 - **Show**: Delegated `focusin` and `mouseover` handlers on `main` dispatch to `showForAbbr`, gated by `shouldShow`. Function `shouldShow` returns true when the target is an abbr **and** either it differs from the active actuator **or** the popover is not currently showing — the second clause re-opens the popover when the cursor re-enters the actuator for which the popover was hidden.
 
@@ -122,13 +124,16 @@ const showForAbbr = abbr => {
 };
 ```
 
-Each hide listener checks the destination:
+One `hidePopover` function backs both `focusout` and `mouseout` (the "one definition, two bubbling events" above); the popover's own `mouseleave` is a separate, directly-bound handler. Each checks the destination before closing:
 
 ```js
-main.addEventListener('mouseout', ({target, relatedTarget}) =>
+const hidePopover = ({target, relatedTarget}) =>
     target === activeAbbr
     && relatedTarget !== popover
-    && popover.hidePopover());
+    && popover.hidePopover();
+
+main.addEventListener('focusout', hidePopover);
+main.addEventListener('mouseout', hidePopover);   // pointer path only
 
 popover.addEventListener('mouseleave', ({relatedTarget}) =>
     relatedTarget !== activeAbbr && popover.hidePopover());
