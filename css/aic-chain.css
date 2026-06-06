@@ -86,7 +86,7 @@
 
 .aic-chain-row.activeMuscle {
   background: var(--pri-bg);
-  border-left: 3px solid var(--pri-fg);
+  border-left-color: var(--pri-fg);
   color: var(--pri-fg);
   font-weight: 600;
 }
@@ -133,10 +133,10 @@
 
 .aic-chain-overlay g {
   display: none;
-}
 
-.aic-chain-overlay g.activeMuscle {
-  display: inline;
+  &.activeMuscle {
+    display: inline;
+  }
 }
 
 .aic-anchor-casing {
