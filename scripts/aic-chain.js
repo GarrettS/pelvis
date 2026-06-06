@@ -108,17 +108,13 @@ class AicMuscle {
   activate() {
     this.#rowEl.classList.add('activeMuscle');
     this.#rowEl.scrollIntoView({behavior: 'smooth', block: 'nearest'});
-    this.#anchorsByView.forEach((anchor) => {
-      anchor.classList.add('activeMuscle');
-    });
+    this.#anchorsByView.forEach(anchor => anchor.classList.add('activeMuscle'));
   }
 
   deactivate() {
     this.#rowEl.classList.remove('activeMuscle');
-    this.#anchorsByView.forEach((anchor) => {
-      anchor.classList.remove('activeMuscle');
-    });
-    this.#leaderPathsByView.forEach((path) => path.removeAttribute('d'));
+    this.#anchorsByView.forEach(anchor => anchor.classList.remove('activeMuscle'));
+    this.#leaderPathsByView.forEach(path => path.removeAttribute('d'));
   }
 
   drawLeader({start, imageRect, sectionRect, animate}) {
@@ -273,13 +269,15 @@ function showDetail(muscle) {
     className: `detail-panel ${muscle.priColor()}`,
     children: [
       newEl('h3', {textContent: muscle.label()}),
-      ...AicMuscle.fieldLabelEntries().map(([key, label]) => newEl('div', {
-        className: 'detail-row',
-        children: [
-          newEl('span', {className: 'detail-label', textContent: label}),
-          newEl('span', {innerHTML: expandAbbr(muscle.field(key))})
-        ]
-      }))
+      ...AicMuscle.fieldLabelEntries()
+          .filter(([key]) => typeof muscle.field(key) === 'string')
+          .map(([key, label]) => newEl('div', {
+            className: 'detail-row',
+            children: [
+              newEl('span', {className: 'detail-label', textContent: label}),
+              newEl('span', {innerHTML: expandAbbr(muscle.field(key))})
+            ]
+          }))
     ]
   }));
 }
@@ -292,6 +290,7 @@ function drawLeaderLine({animate} = {}) {
     const sectionRect = tabSectionEl.getBoundingClientRect();
     const rowRect = muscle.rowEl().getBoundingClientRect();
     const panelRect = panelScrollEl.getBoundingClientRect();
+    const imageRect = imgEl.getBoundingClientRect();
     const originY = clamp(rowRect.top + rowRect.height / 2,
         panelRect.top, panelRect.bottom);
     const start = {
@@ -300,12 +299,7 @@ function drawLeaderLine({animate} = {}) {
     };
 
     sizeLeaderSvg(sectionRect);
-    muscle.drawLeader({
-      start,
-      imageRect: imgEl.getBoundingClientRect(),
-      sectionRect,
-      animate
-    });
+    muscle.drawLeader({start, imageRect, sectionRect, animate});
 
     drawFrameId = null;
   });

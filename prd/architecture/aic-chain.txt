@@ -4,9 +4,9 @@ L AIC Chain tab: High-Level Architecture
 Scope
 -----
 Architecture of the L AIC Chain tab, in scripts/aic-chain.js.
-Renders the muscle chain panel, an SVG overlay of anchor circles on the
-body image, leader lines from row to circle, and a detail panel for the
-active muscle. Single active-muscle selection model.
+Renders the muscle chain panel, an SVG overlay of anchors on the body
+image, leader lines from each row to its anchor, and a detail panel for
+the active muscle. Single active-muscle selection model.
 
 Reference: layering doctrine in prd/architecture/layering.md.
 Related: prd/architecture/navigation-tabs.md for lazy import, module-top
@@ -16,10 +16,10 @@ Pillar mapping
 --------------
 Module code  - scripts/aic-chain.js (module-top bootstrap,
                resolveDomRefs, ensureLeaderDefs, buildPanel, setupUi,
-               setActiveMuscle, drawLeaderLine, getOrCreateDetailView).
+               setActiveMuscle, drawLeaderLine, showDetail).
                Co-located with the ADT.
 ADT          - AicMuscle. One class fuses the per-muscle decorator and
-               the chain-level data holder + lazy instance cache.
+               the chain-level data + lazy instance pool.
                Static facet: data acceptance, instance pool, iteration
                helpers. Instance facet: per-muscle DOM and behavior.
                Symbol-guarded constructor — only AicMuscle.getInstance
@@ -27,20 +27,22 @@ ADT          - AicMuscle. One class fuses the per-muscle decorator and
 Data         - data/aic-chain.json. Top-level keys: chain, detail,
                fieldLabels. fieldLabels keys (role, pattern,
                correction) drive detail-panel row construction.
-Loader       - loadJson('./data/aic-chain.json') at module top.
-               Data failures return POJO {ok, path, cause}; module glue
-               branches on result.ok and calls showFetchError on failure.
-               No schema validation; the file ships with the app.
+Loader       - loadJson('./data/aic-chain.json'), run at module top
+               through attemptLoad: it renders on success and shows a
+               retry callout in the container on failure. No schema
+               validation; the file ships with the app.
 
 
 Module evaluation
 -----------------
 import aic-chain.js
-          +--> resolve .aic-chain-container and required descendants
-          |    missing DOM: appendErrorCallout -> stop before data load
-          +--> loadJson('./data/aic-chain.json')
-          |    !ok: showFetchError(containerEl, result) -> stop
-          +--> AicMuscle.acceptData(result.data)
+          +--> containerEl := querySelector('.aic-chain-container'),
+          |    then resolveDomRefs() resolves the required descendants.
+          |    missing descendant: appendErrorCallout -> stop before
+          |    data load
+          +--> attemptLoad(loadJson('./data/aic-chain.json'))
+          |    failure: retry callout -> stop. success: render callback:
+          +--> AicMuscle.acceptData(data)
           |       (destructures chain/detail/fieldLabels into statics)
           +--> buildPanel() iterates AicMuscle.forEachEntry:
           |       row(id, chainEntry) + optional connection note
@@ -48,7 +50,7 @@ import aic-chain.js
           +--> setupUi() runs ensureLeaderDefs() (idempotent — inserts
                          <defs><marker> into the leader SVG via
                          insertAdjacentHTML), then binds panel click
-                         delegation, resize handle, and
+                         delegation, resize handle, panel scroll, and
                          ResizeObserver(tabSectionEl) -> drawLeaderLine.
 
 Navigation-tabs lazy-loads this file for anatomy-aic-content. The import
@@ -65,12 +67,14 @@ User input -> behavior method
 |       id     := rowEl.id                                       |
 |       muscle := AicMuscle.getInstance(id)                      |
 |       setActiveMuscle(muscle):                                 |
+|         - if muscle === activeMuscle: return (no-op)           |
 |         - if activeMuscle: activeMuscle.deactivate()           |
 |         - muscle.mount()            (idempotent;               |
 |                                      reads module overlayEl    |
 |                                      and leaderEl)             |
 |         - muscle.activate()                                    |
-|         - drawLeaderLine()          (rAF-coalesced; reads      |
+|         - drawLeaderLine({animate: true})                      |
+|                                      (rAF-coalesced; reads     |
 |                                      activeMuscle inside the   |
 |                                      rAF, so back-to-back      |
 |                                      clicks always render the  |
@@ -85,10 +89,11 @@ AicMuscle: static facet (chain-level data + lazy instance pool)
 |                                         initialized once at class load)
 +-- #chainData    { id -> chainEntry }   (label, priColor, anchor,
 |                                         connection?, terminus?)
-+-- #detailData   { id -> detailEntry }  (role, pattern, correction)
++-- #detailData   { id -> detailEntry }  (per-field values; fieldLabels
+|                                         keys select what renders)
 +-- #fieldLabels  { key -> label }       (drives detail row order)
 +-- #KEY          Symbol                 (constructor guard token)
-+-- #toXY         ([x, y]) => ({x, y})   (data-tuple -> point object)
++-- #toXY         ([x, y]) => ({x, y})   (data tuple -> point object)
 |
 +-- acceptData(data)         destructure chain/detail/fieldLabels
 +-- getInstance(id)          cache hit, else `new AicMuscle(id, ..., #KEY)`
@@ -100,7 +105,7 @@ AicMuscle: instance facet (per-muscle decorator)
 ------------------------------------------------
 +-- private  #id #chainEntry #detailEntry
 |            #rowEl
-|            #circlesByView      Map<view, SVGCircle>     (overlay)
+|            #anchorsByView      Map<view, SVG <g>>      (overlay)
 |            #leaderPathsByView  Map<view, SVGPath>       (leader SVG)
 |            #mounted
 +-- constructor(id, chainEntry, detailEntry, key)
@@ -108,70 +113,70 @@ AicMuscle: instance facet (per-muscle decorator)
 |     throws if chainEntry is falsy (unknown id; named in the error)
 +-- public   label() priColor() rowEl() anchor(view)
 |            hasDetail() field(key)
-|            anchor(view)        returns {x, y} (data-shape converted
+|            anchor(view)        returns {x, y} (data tuple converted
 |                                via static #toXY)
 |            mount()             idempotent: resolves rowEl from id,
-|                                builds anterior+posterior circles into
-|                                module overlayEl, builds anterior+
+|                                builds anterior+posterior anchor groups
+|                                into module overlayEl, builds anterior+
 |                                posterior leader paths into module
 |                                leaderEl. Path classList carries the
-|                                muscle's priColor; stroke flows via
-|                                CSS (.aic-leader-path { stroke:
+|                                muscle's priColor; the stroke color comes
+|                                from CSS (.aic-leader-path { stroke:
 |                                var(--pri-fg) }), and the arrowhead
 |                                marker uses fill="context-stroke" so
 |                                it matches automatically.
-|            activate()          add .activeMuscle to row + circles;
+|            activate()          add .activeMuscle to row + anchor groups;
 |                                scroll row into view
-|            deactivate()        remove .activeMuscle from row + circles;
-|                                clear `d` attribute on this muscle's
-|                                leader paths (hides them — no
+|            deactivate()        remove .activeMuscle from row + anchor
+|                                groups; clear `d` attribute on this
+|                                muscle's leader paths (hides them — no
 |                                display toggle, no class on paths)
-|            drawLeader(rowRect, imageRect, sectionRect)
-|                                indexed-for over VIEWS: compute end
-|                                point per view (anchorPointInSection),
-|                                build pathState, apply to this muscle's
-|                                path. Final step: #kickAnimation()
-|                                schedules next-frame stroke-dashoffset
-|                                = 0 to trigger the CSS reveal.
-+-- effects  DOM mutations on its own row + its circles + its leader
+|            drawLeader({start, imageRect, sectionRect, animate})
+|                                for each view: compute the end point
+|                                (anchorPointInSection), then
+|                                drawLeaderPath sets the path d and, when
+|                                animate is set, runs the Web Animations
+|                                draw-on.
++-- effects  DOM mutations on its own row + its anchors + its leader
              paths only.
 
 
 Module orchestration layer
 --------------------------
-+-- DOM regions     containerEl, panelEl, overlayEl, leaderEl,
-|                   imgEl, detailEl, imageColEl, tabSectionEl
++-- DOM regions     containerEl, panelEl, panelScrollEl, overlayEl,
+|                   leaderEl, imgEl, detailEl, detailScrollEl,
+|                   imageColEl, tabSectionEl
 |                   (resolved once in resolveDomRefs; AicMuscle.mount
 |                   reads overlayEl and leaderEl directly from the
 |                   module scope)
 +-- Active Object   activeMuscle (single AicMuscle reference)
-+-- Lazy views      detailView (cached panel + valueElsByKey)
-+-- Once-only setup panel listener, resize handle, ResizeObserver,
-|                   ensureLeaderDefs all wire during module evaluation;
-|                   ES module caching prevents duplicate work on revisit
-+-- Templates       detailFieldRowTemplate (lazy, cloneNode for rows)
++-- Detail panel    showDetail rebuilds it per selection
+|                   (replaceChildren); skipped when the muscle has no
+|                   detail entry
++-- Once-only setup panel listener, resize handle, ResizeObserver, panel
+|                   scroll listener, and ensureLeaderDefs all wire in
+|                   setupUi, which runs once per page load
 +-- rAF coalescing  drawFrameId — module-scope handle. drawLeaderLine
 |                   coalesces back-to-back triggers (rapid resize,
-|                   click then resize) into one rAF tick. Inside the
-|                   rAF: three module-level reads (sectionRect,
-|                   rowRect, imageRect), then delegate writes to
-|                   muscle.drawLeader(). No DOM reads after writes.
-+-- SVG helper      createSvg(tag, attrs) — single function builds an
-|                   SVG element with attributes from an object, no
-|                   per-element closure allocation; used by mount for
-|                   circles and leader paths.
+|                   scroll, click then resize) into one rAF tick. Inside
+|                   the rAF: all four rects (sectionRect, rowRect,
+|                   panelRect, imgRect) are read first — section/row/panel
+|                   give the clamped start, imgRect the end points — then
+|                   sizeLeaderSvg and the path writes run.
++-- DOM helpers     newSvg / newEl (el-create.js) build elements from an
+|                   attrs object; mount uses newSvg for anchor groups and
+|                   leader paths, the row builders use newEl.
 
 
 Coupling channels
 -----------------
 +-- id          DOM row id  <->  AicMuscle.#chainData key  <->
 |               AicMuscle.#instances key. One string, three lookups.
-+-- key         fieldLabels key <-> detailEntry field <-> valueElsByKey
-|               (drives detail-panel row construction generically)
++-- key         fieldLabels key <-> detailEntry field <-> rendered detail
+|               rows (drives detail-panel row construction generically)
 +-- priColor    chainEntry.priColor names a CSS class on:
-|               - the chain row (sets --pri-fg via layout.css)
-|               - the overlay circle (.aic-chain-overlay circle uses
-|                 --pri-fg)
+|               - the chain row (pri-X class sets --pri-fg, tokens.css)
+|               - the anchor group (.aic-anchor-dot fills --pri-fg)
 |               - each leader path (.aic-leader-path stroke is
 |                 var(--pri-fg), the marker arrowhead uses
 |                 fill="context-stroke" so it inherits the path's
@@ -183,14 +188,14 @@ Coupling channels
 
 Layout redraw
 -------------
-ResizeObserver(tabSectionEl) and the resize handle's onResize callback
-both reference drawLeaderLine directly — there is no handleResize
-wrapper. drawLeaderLine guards on `!activeMuscle` and bails before
-scheduling, so resize events that fire before any selection are no-ops.
-rAF coalescing absorbs bursts (drag-resize, observer chains) into one
-redraw per frame. `getBoundingClientRect()` returns zero when tabs are
-display:none, so the activation/redraw signal is the ResizeObserver fire
-when the subtab becomes visible.
+ResizeObserver(tabSectionEl), the resize handle's onResize callback, and
+the panel's scroll listener all reference drawLeaderLine directly — there
+is no handleResize wrapper. drawLeaderLine guards on `!activeMuscle` and
+bails before scheduling, so events that fire before any selection are
+no-ops. rAF coalescing absorbs bursts (drag-resize, observer chains,
+scroll) into one redraw per frame. `getBoundingClientRect()` returns zero
+when tabs are display:none, so the activation/redraw signal is the
+ResizeObserver fire when the subtab becomes visible.
 
 
 Doctrine alignment
@@ -201,45 +206,44 @@ Shared Key       - id is the only string crossing DOM, DATA, and pool.
 Decorator + pool - AicMuscle.getInstance lazily caches AicMuscle
                    decorators per id. Static facet (data + pool +
                    iteration) and instance facet (per-muscle DOM)
-                   co-located in one class — same shape as
+                   co-located in one class — same pattern as
                    BlankPanelSite in anatomize.js.
 Symbol guard     - Constructor takes a private-symbol key argument.
                    Throws on mismatch (`new AicMuscle(...)` outside the
                    factory) or on unknown id (chainEntry falsy). Catches
-                   programmer error at the source rather than letting it
-                   surface as a TypeError on a downstream method call.
+                   programmer error at the source rather than as a later
+                   TypeError on a downstream method call.
 Encapsulation    - AicMuscle private state (#chainEntry, #detailEntry,
-                   #circlesByView, #leaderPathsByView, #mounted); only
+                   #anchorsByView, #leaderPathsByView, #mounted); only
                    id-derived accessors and lifecycle methods are public.
 DOM-Light        - SVG container declared in index.html. <defs> +
                    <marker> are inserted once at setupUi via
                    insertAdjacentHTML and a template literal — no
                    element-by-element setAttribute scaffolding.
-                   Circles and per-muscle leader paths are constructed
-                   via createSvg in AicMuscle.mount.
-CSS over JS for  - .activeMuscle class drives row + circle highlight.
-state              Leader stroke colors flow entirely through CSS:
-                   path's pri-X class sets --pri-fg via layout.css;
+                   Anchor groups and per-muscle leader paths are
+                   constructed via newSvg in AicMuscle.mount.
+CSS over JS for  - .activeMuscle class drives row + anchor highlight.
+state              Leader stroke colors come entirely from CSS:
+                   path's pri-X class sets --pri-fg via tokens.css;
                    .aic-leader-path uses stroke: var(--pri-fg); marker
                    uses fill="context-stroke". No resolveColor in JS.
-                 - Leader line transition (stroke-dashoffset) lives in
-                   CSS. JS sets dasharray + dashoffset to the path
-                   length, then on next frame sets dashoffset to 0;
-                   CSS animates the reveal.
+                 - Leader draw-on is a Web Animations call: drawLeaderPath
+                   sets the path d and strokeDasharray to the path length,
+                   then animates strokeDashoffset to 0. Resize and scroll
+                   redraws reposition without replaying it.
                  - .aic-chain-connection arrow via ::before, scoped
                    :not(.aic-chain-terminal).
-Read/Write batch - Inside drawLeaderLine's rAF callback: all three
-                   getBoundingClientRect reads happen up front, then
-                   all writes (sizeLeaderSvg, then muscle.drawLeader's
-                   per-view path writes). No DOM read after any write.
-                   Pattern memory: read-write-batching-raf.md.
+Read/Write batch - drawLeaderLine's rAF reads every rect up front
+                   (sectionRect, rowRect, panelRect, imgRect), then
+                   writes: sizeLeaderSvg's viewBox, then the per-view
+                   path d's in muscle.drawLeader. No DOM read after any
+                   write. Pattern memory: read-write-batching-raf.md.
 Native First     - Panel rows are <div>s; click delegation on panelEl
                    reaches any row via .closest('.aic-chain-row').
 Active Object    - activeMuscle holds the single live decorator; no
                    querySelectorAll scans to clear .activeMuscle state.
 Data boundary    - loadJson catches network, HTTP, and JSON parse
-                   failures into a POJO result. Module-top glue branches
-                   on result.ok and calls showFetchError(containerEl,
-                   result) on failure. Render bugs are not caught as
-                   data errors. No schema validation; data is shipped
-                   with the app.
+                   failures into a POJO result. attemptLoad branches on
+                   result.ok, rendering on success and showing a retry
+                   callout on failure. Render bugs are not caught as data
+                   errors. No schema validation; data ships with the app.
