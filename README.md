@@ -56,15 +56,13 @@ Per-feature deep dives — the engineering decisions behind each module, not the
 
 ## Code standards
 
-[Google JS](https://google.github.io/styleguide/jsguide.html)/[CSS](https://google.github.io/styleguide/htmlcssguide.html)/[HTML](https://google.github.io/styleguide/htmlcssguide.html) style guides as baseline, extended with project-specific rules:
+Built to **[Web XP](https://github.com/GarrettS/web-xp)** — a web-platform engineering method, applied to every line and re-checked before every commit. Three of its rules:
 
 - **Fail-safe handling.** Every failure case handled explicitly. `return null`, `console.error`, and `throw` are the same anti-pattern — all silent failures that delegate the problem to the user's blank screen.
 - **Module naming by domain concept.** No `utils.js`, `helpers.js`, `tools.js`. If a module cannot be named after what it does, it does not have a single responsibility.
 - **Active Object for exclusive state.** Hold a reference to the active element. Deactivate it directly on switch. Never scan siblings.
-- **Event delegation over per-element listeners.** Attach to ancestors, match via `closest()`.
-- **Dead code removal after every change.** Orphaned selectors, unreferenced IDs, stale variables — cleaned on commit, not accumulated.
 
-Full standards: [code-guidelines.md](https://github.com/GarrettS/web-xp/blob/main/code-guidelines.md)
+Full guidelines: [code-guidelines.md](https://github.com/GarrettS/web-xp/blob/main/code-guidelines.md)
 
 ## Run locally
 
