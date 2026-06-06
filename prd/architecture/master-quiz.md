@@ -1,5 +1,7 @@
 # Master Quiz HLA
 
+[Live](https://garretts.github.io/pelvis/#masterquiz) · [Source: `masterquiz.js`](../../scripts/masterquiz.js)
+
 `scripts/masterquiz.js` orchestrates the multiple-choice study quiz: domain
 selection, queue generation, per-question grading, and the results screen.
 Question bank, correct answer, and explanation prose all live inline in

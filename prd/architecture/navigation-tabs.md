@@ -1,4 +1,7 @@
 # Navigation Tabs
+
+[Source: `navigation-tabs.js`](../../scripts/navigation-tabs.js)
+
 The core file that handles routing, app initialization, and global app behavior and configuration.
 
 `scripts/navigation-tabs.js`:

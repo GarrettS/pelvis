@@ -1,5 +1,7 @@
 # abbr-popover
 
+[Source: `abbr-popover.js`](../../scripts/abbr-popover.js)
+
 Finds `<abbr>` elements with a `title` attribute, replaces `title` with `data-title` (after capability gate), and shows a CSS-styled popover on hover or focus, replacing the browser's default tooltip. Built on the Popover API and CSS Anchor Positioning using Active Object Pattern.
 
 ## What the Platform Handles

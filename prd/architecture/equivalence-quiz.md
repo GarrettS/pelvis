@@ -1,5 +1,7 @@
 # Equivalence Quiz HLA
 
+[Live](https://garretts.github.io/pelvis/#equivalence) · [Source: `equivalence-quiz.js`](../../scripts/equivalence-quiz.js)
+
 ```mermaid
 stateDiagram-v2
   [*] --> QuestionsReady: module import
