@@ -158,7 +158,7 @@ External method access is grouped by consumer:
 |---|---|---|
 | `SortableListContainer.replaceForms` | `.form` getter | Sets the built `<form>` elements as the wrapper's children with `replaceChildren`. |
 | Container submit handler | `reshuffle()`, `checkResults()` | Activated submit button's `name` mapped to same-named method.                      |
-| Container pointer handlers | dragStart()`, `dragMove()`, `commitDrop()`, `dragEnd()` | Calls the active form's drag methods from the delegated pointer events.            |
+| Container pointer handlers | dragStart()`, `dragMove()`, `dragDrop()`, `dragCancel()` | Calls the active form's drag methods from the delegated pointer events.            |
 
 ### DOM Architecture
 
@@ -280,7 +280,7 @@ static #captureDragBaseline(dragItem, pageStartY) captures the object below; the
 | `dragRange` ( `pageStartY`, `minDelta`, `maxDelta` ) | drag origin and how far it may travel up / down (document coords) | the clamp — [Why the Drag Works in pageY](#why-the-drag-works-in-pagey) |
 | `siblingDropMidpoints`                               | every other item's document-coord drop midpoint              | [Target Resolution Collections](#target-resolution-collections) |
 
-The `#dragSession` property, initialized at `dragStart`, holds state read during `dragMove`, cleared on `commitDrop` or `dragEnd`. None of this is publicly exposed; all of it private; internally managed.
+The `#dragSession` property, initialized at `dragStart`, holds state read during `dragMove`, cleared on `dragDrop` or `dragCancel`. None of this is publicly exposed; all of it private; internally managed.
 
 ```js
 #dragSession = {
@@ -462,12 +462,12 @@ Because autoscroll scrolls the page in the middle of a drag, every position must
 
 ### Cancellation
 
-Cancellation, either by Escape key or window resize, is handled by `dragEnd`.
+Cancellation, either by Escape key or window resize, is handled by `dragCancel`.
 
 ```js
 // Abort path: Esc or pointercancel. runs only when the drag is cancelled —
 // settle the clone back to the item's slot and clear the session.
-dragEnd() {
+dragCancel() {
   const session = this.#dragSession;
   if (!session) return;
   session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
@@ -478,11 +478,11 @@ dragEnd() {
 
 ### Dropping
 
-Drop resolution in `commitDrop`  ends one of three ways:
+Drop resolution in `dragDrop`  ends one of three ways:
 
-- **Reorder.** `commitDrop` runs `#animateLayoutChange`  displaced items FLIP into place; the dragged item eases from the clone's release point), tags the dragged item `.dropped` to cool it down, then removes the clone immediately. `#settleClone` is *not* part of a reorder.
+- **Reorder.** `dragDrop` runs `#animateLayoutChange`  displaced items FLIP into place; the dragged item eases from the clone's release point), tags the dragged item `.dropped` to cool it down, then removes the clone immediately. `#settleClone` is *not* part of a reorder.
 - **No-op** — released back into its own slot. Detected with `insertBeforeNode == dragItem.nextElementSibling`: the item would land before the LI it already sits before, so nothing moves. At end-of-list both sides are `null` — no hit-test target, no next sibling — the same no-op. `#settleClone` removes `.active-drag-item`, re-showing unchanged grading, and glides the clone home.
-- **Abort** — Escape, `pointercancel`, or resize. `commitDrop` never runs; `dragEnd` settles the clone back to the item's slot, removes `.active-drag-item`, and re-shows unchanged grading.
+- **Abort** — Escape, `pointercancel`, or resize. `dragDrop` never runs; `dragCancel` settles the clone back to the item's slot, removes `.active-drag-item`, and re-shows unchanged grading.
 
 A cool-down is applied after the drop, using is a `from`-only keyframe: the dropped item briefly wears the clone's lifted look, then CSS eases it down to the resting item.
 
@@ -523,7 +523,7 @@ Finally, set the `#activeForm` to null and perform a few other cleanup activitie
 
 ```js
 #cleanup = () => {
-  this.#activeForm.dragEnd();
+  this.#activeForm.dragCancel();
   this.#el.ownerDocument.documentElement.classList.remove('list-drag-active');
   this.#activeForm = this.#activePointerId = null;
 };
@@ -602,7 +602,7 @@ Otherwise, the element can move, so we determine from that:
 
 ### Positioning the Drag Clone
 
-The clone wrapper is `position: absolute`. Without an explicit `top`, its static position is its hypothetical in-flow position — which moves when `commitDrop` rearranges siblings. A drag-up commit places the dragged LI before the clone in DOM order, shifting the clone's static anchor down by roughly one item, and the clone visibly teleports before the settle starts.
+The clone wrapper is `position: absolute`. Without an explicit `top`, its static position is its hypothetical in-flow position — which moves when `dragDrop` rearranges siblings. A drag-up commit places the dragged LI before the clone in DOM order, shifting the clone's static anchor down by roughly one item, and the clone visibly teleports before the settle starts.
 
 Capture pins `top` explicitly via inline style:
 
@@ -738,7 +738,7 @@ When the user drops the LI (its clone), `li.active-drag-item` is removed. If the
 
 - **No-op drop or abort** — `#settleClone` removes `.active-drag-item`. The
   unchanged grading classes become visible again.
-- **Reordering drop** — `commitDrop` removes every `.correct` / `.incorrect`
+- **Reordering drop** — `dragDrop` removes every `.correct` / `.incorrect`
   class before removing `.active-drag-item`, so invalid grading cannot flash or
   reappear later.
 - **`checkResults`** — applies fresh grading for the current order.
@@ -794,5 +794,5 @@ Much of the behavior is encoded as classes rather than methods. The toggles and 
 | `all-correct`                   | OL           | `checkResults` / `reshuffle`                 | the completion cascade                                                    |
 | `active-drag-item`              | dragged LI   | `#commitDragDOM` / drop or settle            | dims the original and temporarily neutralizes visible grading             |
 | `drop-target-before` / `-after` | receiving LI | `#updateDropMarker`                          | the `::before` drop-position bar                                          |
-| `dropped`                       | reordered LI | `commitDrop` / `animationend`                | the cool-down keyframe                                                    |
+| `dropped`                       | reordered LI | `dragDrop` / `animationend`                | the cool-down keyframe                                                    |
 | `settling`                      | clone OL     | `#settleClone`                               | enables the clone's settle transition                                     |

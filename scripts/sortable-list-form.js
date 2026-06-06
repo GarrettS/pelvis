@@ -77,7 +77,7 @@ export class SortableListContainer {
 
   #onPointerup = e =>
     this.#activeForm && e.pointerId === this.#activePointerId
-      && (this.#activeForm.commitDrop(), this.#cleanup());
+      && (this.#activeForm.dragDrop(), this.#cleanup());
 
   #onPointercancel = e =>
     this.#activeForm && e.pointerId === this.#activePointerId && this.#cleanup();
@@ -91,7 +91,7 @@ export class SortableListContainer {
   #onResize = () => this.#activeForm && this.#cleanup();
 
   #cleanup = () => {
-    this.#activeForm.dragEnd();
+    this.#activeForm.dragCancel();
     this.#el.ownerDocument.documentElement.classList.remove('list-drag-active');
     this.#activeForm = this.#activePointerId = null;
   };
@@ -139,144 +139,15 @@ export class SortableListForm {
 
   get form() { return this.#form; }
 
-  reshuffle() {
-    this.#currentOrder = toShuffled(this.#steps);
-    this.#wrongChecks = 0;
-    const ol = this.#form.querySelector('.sortable-list');
-    ol.classList.remove('all-correct');
-    ol.ariaDisabled = false;
-    this.#form.elements.checkResults.disabled = false;
-    this.#toggleBonusReveal(false);
-    this.#animateLayoutChange(ol,
-      () => ol.replaceChildren(...this.#buildItems()));
-  }
-
-  checkResults() {
-    const ol = this.#form.querySelector('.sortable-list');
-    const items = SortableListForm.#realItems(ol);
-    let allCorrect = true;
-    items.forEach((li, i) => {
-      const isCorrect = this.#currentOrder[i] === this.#steps[i];
-      li.classList.toggle('correct', isCorrect);
-      li.classList.toggle('incorrect', !isCorrect);
-      allCorrect &&= isCorrect;
-    });
-    if (allCorrect) {
-      this.#toggleBonusReveal(true);
-      ol.ariaDisabled = this.#form.elements.checkResults.disabled = true;
-      items.forEach(({style}, i) => style.setProperty('--i', i));
-      ol.classList.add('all-correct');
-    } else if (++this.#wrongChecks === BONUS_HINT_THRESHOLD) {
-      this.#toggleBonusReveal(true);
-    }
-  }
-
   #buildItems() {
     return this.#currentOrder.map(step =>
       newEl('li', {innerHTML: this.#container.renderItemHTML(step), attrs: {'data-step': step}}));
-  }
-
-  #toggleBonusReveal(open) {
-    this.#form.classList.toggle('revealed', open);
-    this.#form.querySelector('details')?.toggleAttribute('open', open);
   }
 
   dragStart(dragItem, pageStartY) {
     this.#wrongChecks = 0;
     this.#dragSession = SortableListForm.#commitDragDOM(
       SortableListForm.#captureDragBaseline(dragItem, pageStartY));
-  }
-
-  dragMove(pageY, clientY) {
-    const session = this.#dragSession;
-    const deltaY = this.#getConstrainedDeltaY(pageY);
-    session.clone.style.setProperty('--drag-offset', deltaY + 'px');
-    this.#autoscroll(clientY);
-
-    const siblingAtPageY = this.#findTargetSibling(pageY);
-    // Unchanged target — no re-mark.
-    if (siblingAtPageY === session.insertBeforeNode) return;
-
-    this.#updateDropMarker(siblingAtPageY);
-    session.insertBeforeNode = siblingAtPageY;
-    this.#updateCloneNumber();
-  }
-
-  commitDrop() {
-    const session = this.#dragSession;
-    const { insertBeforeNode, baseline, clone, markerEl } = session;
-    const { dragItem } = baseline;
-    markerEl?.classList.remove('drop-target-before', 'drop-target-after');
-
-    // No reorder when the target is already the next sibling — or both null at
-    // end-of-list (insertBefore(_, null) appends). Settle home; #settleClone
-    // removes active-drag-item, re-showing the still-valid grading.
-    if (insertBeforeNode === dragItem.nextElementSibling)
-      this.#settleClone(clone, dragItem);
-    else
-      this.#commitReorder(baseline, insertBeforeNode, clone);
-
-    this.#dragSession = null;
-  }
-
-  #commitReorder({ dragItem, listEl, items }, insertBeforeNode, clone) {
-    // Order changed, so the prior grading is invalid — clear it before
-    // un-dimming, else it flashes as active-drag-item is removed.
-    items.forEach(li => li.classList.remove('correct', 'incorrect'));
-    // Un-dim before the FLIP so the dropped LI eases at full opacity. The
-    // clone's release top seeds the dragged LI's origin, so it settles from
-    // the pointer instead of snapping back to its dim DOM slot.
-    dragItem.classList.remove('active-drag-item');
-    this.#animateLayoutChange(listEl, () => {
-      listEl.insertBefore(dragItem, insertBeforeNode);
-      this.#currentOrder = Array.from(
-        SortableListForm.#realItems(listEl), li => li.dataset.step);
-    }, clone.firstElementChild);
-    dragItem.classList.add('dropped');
-    dragItem.addEventListener('animationend',
-      () => dragItem.classList.remove('dropped'), {once: true});
-    clone.remove();
-  }
-
-  // Abort path: Esc or pointercancel. runs only when the drag is cancelled —
-  // settle the clone back to the item's slot and clear the session.
-  dragEnd() {
-    const session = this.#dragSession;
-    if (!session) return;
-    session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
-    this.#settleClone(session.clone, session.baseline.dragItem);
-    this.#dragSession = null;
-  }
-
-  // Read once at drag start so the per-frame autoscroll check never re-measures
-  // layout.
-  static #captureScrollport(doc) {
-    const win = doc.defaultView;
-    const rootStyle = win.getComputedStyle(doc.documentElement);
-    return Object.freeze({
-      top: parseFloat(rootStyle.scrollPaddingTop) || 0,
-      bottom: win.innerHeight - (parseFloat(rootStyle.scrollPaddingBottom) || 0)
-    });
-  }
-
-  // Hit-test midpoints in document coords. Reads each sibling's BCR and its
-  // in-flight transform, subtracting the transform so a mid-FLIP pickup still
-  // targets the settled slot, not the animating position.
-  static #readSiblingDropMidpoints(items, dragItem, scroll) {
-    const win = dragItem.ownerDocument.defaultView;
-    const midpoints = [];
-    for (const li of items) {
-      if (li === dragItem) continue;
-      const box = li.getBoundingClientRect();
-      const transform = win.getComputedStyle(li).transform;
-      const animOffsetY = transform === 'none'
-        ? 0 : new win.DOMMatrix(transform).m42;
-      midpoints.push({
-        sibling: li,
-        midpointPageY: box.top - animOffsetY + box.height / 2 + scroll
-      });
-    }
-    return midpoints;
   }
 
   static #captureDragBaseline(dragItem, pageStartY) {
@@ -316,6 +187,37 @@ export class SortableListForm {
     });
   }
 
+  // Read once at drag start so the per-frame autoscroll check never re-measures
+  // layout.
+  static #captureScrollport(doc) {
+    const win = doc.defaultView;
+    const rootStyle = win.getComputedStyle(doc.documentElement);
+    return Object.freeze({
+      top: parseFloat(rootStyle.scrollPaddingTop) || 0,
+      bottom: win.innerHeight - (parseFloat(rootStyle.scrollPaddingBottom) || 0)
+    });
+  }
+
+  // Hit-test midpoints in document coords. Reads each sibling's BCR and its
+  // in-flight transform, subtracting the transform so a mid-FLIP pickup still
+  // targets the settled slot, not the animating position.
+  static #readSiblingDropMidpoints(items, dragItem, scroll) {
+    const win = dragItem.ownerDocument.defaultView;
+    const midpoints = [];
+    for (const li of items) {
+      if (li === dragItem) continue;
+      const box = li.getBoundingClientRect();
+      const transform = win.getComputedStyle(li).transform;
+      const animOffsetY = transform === 'none'
+        ? 0 : new win.DOMMatrix(transform).m42;
+      midpoints.push({
+        sibling: li,
+        midpointPageY: box.top - animOffsetY + box.height / 2 + scroll
+      });
+    }
+    return midpoints;
+  }
+
   static #commitDragDOM(baseline) {
     const {
       listEl, dragItem, ordinalValue, cloneTop
@@ -340,6 +242,21 @@ export class SortableListForm {
     };
   }
 
+  dragMove(pageY, clientY) {
+    const session = this.#dragSession;
+    const deltaY = this.#getConstrainedDeltaY(pageY);
+    session.clone.style.setProperty('--drag-offset', deltaY + 'px');
+    this.#autoscroll(clientY);
+
+    const siblingAtPageY = this.#findTargetSibling(pageY);
+    // Unchanged target — no re-mark.
+    if (siblingAtPageY === session.insertBeforeNode) return;
+
+    this.#updateDropMarker(siblingAtPageY);
+    session.insertBeforeNode = siblingAtPageY;
+    this.#updateCloneNumber();
+  }
+
   #getConstrainedDeltaY(pageY) {
     const { pageStartY, minDelta, maxDelta } = this.#dragSession.baseline.dragRange;
     return Math.max(minDelta, Math.min(maxDelta, pageY - pageStartY));
@@ -349,7 +266,7 @@ export class SortableListForm {
     return this.#dragSession.baseline.siblingDropMidpoints
       .find(({ midpointPageY }) => pageY <= midpointPageY)?.sibling ?? null;
   }
-  
+
   #autoscroll(clientY) {
     const { clone, baseline } = this.#dragSession;
     if (!baseline.isOutsideScrollport) return;
@@ -379,6 +296,68 @@ export class SortableListForm {
       : items.length + 1;
     clone.start = ordinalValue < insertBeforeOrdinal
       ? insertBeforeOrdinal - 1 : insertBeforeOrdinal;
+  }
+
+  dragDrop() {
+    const session = this.#dragSession;
+    const { insertBeforeNode, baseline, clone, markerEl } = session;
+    const { dragItem } = baseline;
+    markerEl?.classList.remove('drop-target-before', 'drop-target-after');
+
+    // No reorder when the target is already the next sibling — or both null at
+    // end-of-list (insertBefore(_, null) appends). Settle home; #settleClone
+    // removes active-drag-item, re-showing the still-valid grading.
+    if (insertBeforeNode === dragItem.nextElementSibling)
+      this.#settleClone(clone, dragItem);
+    else
+      this.#reorderList(baseline, insertBeforeNode, clone);
+
+    this.#dragSession = null;
+  }
+
+  #reorderList({ dragItem, listEl, items }, insertBeforeNode, clone) {
+    // Order changed, so the prior grading is invalid — clear it before
+    // un-dimming, else it flashes as active-drag-item is removed.
+    items.forEach(li => li.classList.remove('correct', 'incorrect'));
+    // Un-dim before the FLIP so the dropped LI eases at full opacity. The
+    // clone's release top seeds the dragged LI's origin, so it settles from
+    // the pointer instead of snapping back to its dim DOM slot.
+    dragItem.classList.remove('active-drag-item');
+    this.#animateLayoutChange(listEl, () => {
+      listEl.insertBefore(dragItem, insertBeforeNode);
+      this.#currentOrder = Array.from(
+        SortableListForm.#realItems(listEl), li => li.dataset.step);
+    }, clone.firstElementChild);
+    dragItem.classList.add('dropped');
+    dragItem.addEventListener('animationend',
+      () => dragItem.classList.remove('dropped'), {once: true});
+    clone.remove();
+  }
+
+  // FLIP: record each LI's top, run the DOM change, then animate every LI
+  // from its old top to its new one. The drag clone's LI overrides, so it eases
+  // from the pointer instead of the LI's dim DOM slot.
+  #animateLayoutChange(container, mutate, cloneLI) {
+    // Phase 1: reads (before mutation)
+    const startingTops = new Map();
+    for (const li of SortableListForm.#realItems(container)) {
+      startingTops.set(li.dataset.step, li.getBoundingClientRect().top);
+    }
+    if (cloneLI)
+      startingTops.set(cloneLI.dataset.step, cloneLI.getBoundingClientRect().top);
+
+    // Phase 2: mutation
+    mutate();
+
+    // Phase 3: reads (after mutation)
+    const settledItems = SortableListForm.#realItems(container);
+    const deltas = Array.from(settledItems, li =>
+      startingTops.get(li.dataset.step) - li.getBoundingClientRect().top);
+
+    // Phase 4: writes (per-item animation)
+    deltas.forEach((dy, i) => dy && settledItems[i].animate(
+      [{transform: `translateY(${dy}px)`}, {transform: 'translateY(0)'}],
+      {duration: this.#container.flipDuration, easing: 'ease-out'}));
   }
 
   // Glide the clone back to the item's slot, then remove it on
@@ -416,35 +395,56 @@ export class SortableListForm {
       clone.style.setProperty('--drag-offset', (currentOffset + dy) + 'px'));
   }
 
+  // Abort path: Esc or pointercancel. runs only when the drag is cancelled —
+  // settle the clone back to the item's slot and clear the session.
+  dragCancel() {
+    const session = this.#dragSession;
+    if (!session) return;
+    session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
+    this.#settleClone(session.clone, session.baseline.dragItem);
+    this.#dragSession = null;
+  }
+
+  checkResults() {
+    const ol = this.#form.querySelector('.sortable-list');
+    const items = SortableListForm.#realItems(ol);
+    let allCorrect = true;
+    items.forEach((li, i) => {
+      const isCorrect = this.#currentOrder[i] === this.#steps[i];
+      li.classList.toggle('correct', isCorrect);
+      li.classList.toggle('incorrect', !isCorrect);
+      allCorrect &&= isCorrect;
+    });
+    if (allCorrect) {
+      this.#toggleBonusReveal(true);
+      ol.ariaDisabled = this.#form.elements.checkResults.disabled = true;
+      items.forEach(({style}, i) => style.setProperty('--i', i));
+      ol.classList.add('all-correct');
+    } else if (++this.#wrongChecks === BONUS_HINT_THRESHOLD) {
+      this.#toggleBonusReveal(true);
+    }
+  }
+
+  reshuffle() {
+    this.#currentOrder = toShuffled(this.#steps);
+    this.#wrongChecks = 0;
+    const ol = this.#form.querySelector('.sortable-list');
+    ol.classList.remove('all-correct');
+    ol.ariaDisabled = false;
+    this.#form.elements.checkResults.disabled = false;
+    this.#toggleBonusReveal(false);
+    this.#animateLayoutChange(ol,
+      () => ol.replaceChildren(...this.#buildItems()));
+  }
+
+  #toggleBonusReveal(open) {
+    this.#form.classList.toggle('revealed', open);
+    this.#form.querySelector('details')?.toggleAttribute('open', open);
+  }
+
   // listEl may contain a transient .sortable-list-clone OL during
   // drag/settle; :scope > li excludes it.
   static #realItems(listEl) {
     return listEl.querySelectorAll(':scope > li');
-  }
-
-  // FLIP: record each LI's top, run the DOM change, then animate every LI
-  // from its old top to its new one. The drag clone's LI overrides, so it eases
-  // from the pointer instead of the LI's dim DOM slot.
-  #animateLayoutChange(container, mutate, cloneLI) {
-    // Phase 1: reads (before mutation)
-    const startingTops = new Map();
-    for (const li of SortableListForm.#realItems(container)) {
-      startingTops.set(li.dataset.step, li.getBoundingClientRect().top);
-    }
-    if (cloneLI)
-      startingTops.set(cloneLI.dataset.step, cloneLI.getBoundingClientRect().top);
-
-    // Phase 2: mutation
-    mutate();
-
-    // Phase 3: reads (after mutation)
-    const settledItems = SortableListForm.#realItems(container);
-    const deltas = Array.from(settledItems, li =>
-      startingTops.get(li.dataset.step) - li.getBoundingClientRect().top);
-
-    // Phase 4: writes (per-item animation)
-    deltas.forEach((dy, i) => dy && settledItems[i].animate(
-      [{transform: `translateY(${dy}px)`}, {transform: 'translateY(0)'}],
-      {duration: this.#container.flipDuration, easing: 'ease-out'}));
   }
 }
