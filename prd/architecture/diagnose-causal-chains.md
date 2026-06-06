@@ -499,20 +499,20 @@ const wouldNotMove = dragOverTarget === dragItem.nextElementSibling;
 Otherwise, the element can move, so we determine from that:
 
 1. which sibling LI, if any, to apply either `'drop-target-before'` or `'drop-target-after'` class —
-   ```js
+    ```js
 #updateDropMarker(dragOverTarget) {
     const session = this.#dragSession;
     const { dragItem, listEl } = session.baseline;
-    session.markedEl?.classList.remove('drop-target-before', 'drop-target-after');
+    session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
     const wouldNotMove = dragOverTarget === dragItem.nextElementSibling;
-    session.markedEl = wouldNotMove ? null : (dragOverTarget ?? listEl.lastElementChild);
-    session.markedEl?.classList.add(dragOverTarget ? 'drop-target-before' : 'drop-target-after');
+    session.markerEl = wouldNotMove ? null : (dragOverTarget ?? listEl.lastElementChild);
+    session.markerEl?.classList.add(dragOverTarget ? 'drop-target-before' : 'drop-target-after');
 }
-   ```
-
-   — which applies the following CSS  —
-   
-```css
+    ```
+    
+    — which applies the following CSS  —
+    
+    ```css
 .sortable-list > li:is(.drop-target-before, .drop-target-after)::before {
     content: '';
     position: absolute;
@@ -522,15 +522,15 @@ Otherwise, the element can move, so we determine from that:
     background: var(--accent);
     border-radius: 9999px;
     pointer-events: none;
-}
-   ```
+    }
+    ```
 
-   — and —
+    — and —
 
 2. Store `session.markerEl` so the **next** pointermove event can remove the marker classes from the marker element it marked *last* time, so it can clear that bar before drawing the new one.
 
     ```js
-session.markedEl?.classList.remove('drop-target-before', 'drop-target-after');
+session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
     ```
 
 
