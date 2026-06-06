@@ -20,9 +20,9 @@ Zero dependencies means every failure path is handled in app code. No framework 
 
 The code guidelines ([code-guidelines.md](https://github.com/GarrettS/web-xp/blob/main/code-guidelines.md)) codify this and the rest of the engineering standards.
 
-## Built with Claude Code
+## Built with Web XP
 
-[Claude Code](https://docs.anthropic.com/en/docs/claude-code) proposes; the human author drives and owns design, review, and editorial direction. Every line is reviewed before commit. Constraints: [CLAUDE.md](CLAUDE.md) (behavioral), [code-guidelines.md](https://github.com/GarrettS/web-xp/blob/main/code-guidelines.md) (engineering), [bin/pre-commit-check.sh](bin/pre-commit-check.sh) (mechanical). Rules a grep can't catch — module cohesion, fail-safe handling, silent failures — require re-reading the guidelines before every commit.
+Agentic pair programming under [Web XP](https://github.com/GarrettS/web-xp) doctrine, with adapter skill files for Claude Code and Codex. Code guidelines, pre-commit, and agent skill files are in Web XP.
 
 ## Architecture
 
