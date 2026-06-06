@@ -272,7 +272,7 @@ static #captureDragBaseline(dragItem, pageStartY) captures the object below; the
 | `listEl`                                             | the chain's `.sortable-list` OL                              | [animateLayoutChange](#the-reorder-animation) — FLIP container, drop insertion |
 | `dragItem`                                           | the picked-up LI                                             | dimmed in place, re-inserted at the drop                     |
 | `items`                                              | every LI at capture, clone-excluded                          | [Target Resolution Collections](#target-resolution-collections) |
-| `cloneTop`                                           | the clone's pinned `top`                                     | [Pinning the Clone Origin](#pinning-the-clone-origin)        |
+| `cloneTop`                                           | the clone's pinned `top`                                     | [Positioning the Drag Clone](#positioning-the-drag-clone)        |
 | `ordinalValue`                                       | dragged item's 1-based position, written to the clone `<ol start>` | [Clone Number Rebinding](#clone-number-rebinding--1-offset)  |
 | `itemHeight`                                         | the dragged item's height                                    | autoscroll band depth & `maxDelta` — [Autoscroll](#autoscroll-and-the-scroll-padding-contract) |
 | `scrollport` ( `top`, `bottom` )                     | the scrollport's visible top / bottom edges (viewport coords) | [Autoscroll](#autoscroll-and-the-scroll-padding-contract)    |
@@ -286,7 +286,7 @@ The `#dragSession` property, initialized at `dragStart`, holds state read during
 #dragSession = {
   // Volatile — updated during dragMove:
   insertBeforeNode, // where the item would drop (an LI, or null = append)
-  marker,           // the LI showing the drop indicator
+  markerEl,         // the LI showing the drop indicator
   clone,            // the floating <ol> that follows the pointer
   // Immutable — captured once at dragStart:
   baseline          // the snapshot dragMove reads each frame
@@ -298,8 +298,8 @@ The `#dragSession` property, initialized at `dragStart`, holds state read during
 | Field              | What it is                                                   | Covered in                                                   |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | `insertBeforeNode` | the LI the dragged item would land before (`null` = append at end) | the move loop                                                |
-| `marker`           | the LI currently showing the drop indicator; kept so each move clears the previous mark | [The Marker and Badge Invariants](#the-marker-and-badge-invariants) |
-| `clone`            | the floating `<ol>` copy that tracks the pointer             | [Pinning the Clone Origin](#pinning-the-clone-origin)        |
+| `markerEl`         | the LI currently showing the drop indicator; kept so each move clears the previous mark | [The Drop Marker](#the-drop-marker) |
+| `clone`            | the floating `<ol>` copy that tracks the pointer             | [Positioning the Drag Clone](#positioning-the-drag-clone)        |
 
 `insertBeforeNode` is the live insert-before reference — the LI the dragged item would land before, or `null` to append at the end. It's held as the node, not an index: `insertBefore` takes the node directly, with no lookup, and an index would have to be read against `listEl.children`, which includes the clone `<ol>` and would be skewed by it.
 
