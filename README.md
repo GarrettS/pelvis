@@ -35,15 +35,15 @@ data/        — one JSON file per feature; curated PRI content, no runtime gene
 img/         — diagrams and screenshots
 ```
 
-Modules are ES modules (`type="module"`) that share no global state; each loads its own data through `load.js`. Feature modules are named after their feature (`anatomize.js`, `flashcards.js`, `masterquiz.js`, …). The cross-cutting modules carry the shared behavior:
+Each feature module loads its own data via `loadJson` (load.js) and is named for what it does — `anatomize.js`, `flashcards.js`, `masterquiz.js`. The cross-cutting modules carry the shared behavior:
 
-- `load.js` / `error-ui.js` — JSON fetch, and the user-visible load and import error UI
-- `navigation-tabs.js` / `select-group.js` — Active Object for tab and selection state (deactivate the held reference, never scan siblings)
+- `load.js` / `error-ui.js` — JSON fetch and the load/import error UI
+- `navigation-tabs.js` / `select-group.js` — hold the active tab directly and switch it off on change, never scanning to find it: the Active Object pattern
 - `sortable-list-form.js` — drag-to-reorder list (causal chains)
 - `quiz-form.js` / `level-quiz.js` — shared quiz rendering and the level-quiz state machine
 - `el-create.js` / `escape-html.js` / `shuffle.js` — element construction, HTML escaping, Fisher–Yates
 
-Event delegation throughout — no inline handlers, no `querySelectorAll` loops for state changes.
+Events bind once to each container and resolve the target with `closest()` — event delegation — so no handler is inline and no `querySelectorAll` loop drifts out of sync.
 
 ### Design docs
 
