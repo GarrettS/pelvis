@@ -47,6 +47,19 @@ Modules are ES modules (`type="module"`) that share no global state; each loads 
 
 Event delegation throughout — no inline handlers, no `querySelectorAll` loops for state changes.
 
+### Design docs
+
+Per-feature deep dives — the engineering decisions behind each module, not the feature list:
+
+- **[Diagnose Causal Chains](prd/architecture/diagnose-causal-chains.md)** — `pointermove` drag-to-reorder: FLIP layout animation, document-coordinate hit-testing, autoscroll beneath a sticky nav, grading that survives a re-drag. · [Live](https://garretts.github.io/pelvis/#diagnose/causal-chains)
+- **[abbr-popover](prd/architecture/abbr-popover.md)** — `<abbr>` tooltips on the Popover API + CSS Anchor Positioning, Active Object pattern.
+- **[Navigation Tabs](prd/architecture/navigation-tabs.md)** — hash routing, app init, and the Active Object that owns tab and selection state.
+- **[L AIC Chain](prd/architecture/aic-chain.txt)** — muscle-chain SVG overlay: anchor circles, leader-line geometry, single-active-muscle selection. *(plain text — its ASCII diagrams wouldn't survive a markdown conversion.)*
+- **[Equivalence Quiz](prd/architecture/equivalence-quiz.md)** — a state machine over fetch outcomes (the fail-safe worked example).
+- **[Layering](prd/architecture/layering.md)** — the target per-tab architecture: named pieces, clear contracts.
+- **[Master Quiz](prd/architecture/master-quiz.md)** — orchestration of the 175-question study quiz.
+- **[Patterns](prd/architecture/patterns.md)** — three independent subtabs, no orchestrator.
+
 ## Code standards
 
 [Google JS](https://google.github.io/styleguide/jsguide.html)/[CSS](https://google.github.io/styleguide/htmlcssguide.html)/[HTML](https://google.github.io/styleguide/htmlcssguide.html) style guides as baseline, extended with project-specific rules:
