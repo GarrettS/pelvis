@@ -35,15 +35,24 @@ data/        — one JSON file per feature; curated PRI content, no runtime gene
 img/         — diagrams and screenshots
 ```
 
-Each feature module loads its own data via `loadJson` (load.js) and is named for what it does — `anatomize.js`, `flashcards.js`, `masterquiz.js`. The cross-cutting modules carry the shared behavior:
+Each feature module loads its own data via `loadJson` (load.js) and is named for what it does — `anatomize.js`, `flashcards.js`, `masterquiz.js`. The shared modules:
 
-- `load.js` / `error-ui.js` — JSON fetch and the load/import error UI
-- `navigation-tabs.js` / `select-group.js` — hold the active tab directly and switch it off on change, never scanning to find it: the Active Object pattern
-- `sortable-list-form.js` — drag-to-reorder list (causal chains)
-- `quiz-form.js` / `level-quiz.js` — shared quiz rendering and the level-quiz state machine
-- `el-create.js` / `escape-html.js` / `shuffle.js` — element construction, HTML escaping, Fisher–Yates
+**Extracted behaviors** — encapsulation chosen by fit:
 
-Events bind once to each container and resolve the target with `closest()` — event delegation — so no handler is inline and no `querySelectorAll` loop drifts out of sync.
+- `sortable-list-form.js` — `SortableListContainer` / `SortableListForm` (classes): drag-to-reorder (causal chains)
+- `resize-handle.js` — `createResizeHandle` (factory): a draggable resize handle
+- `select-group.js` — `bindSelectGroup` (closure): a generic single-select binder
+
+**Structural** — drive the app:
+
+- `navigation-tabs.js` — routing, init, the Active Object tab state
+- `load.js` / `error-ui.js` — the data-load + error boundary every feature runs through
+
+**Generic functions** — domain-agnostic, drop into any project:
+
+- `shuffle.js` — Fisher–Yates · `escape-html.js` — HTML-entity escaping · `el-create.js` — DOM/SVG construction
+
+Event delegation is the default, paired with the Shared Key — one container listener recovers the owning ADT straight from the clicked element. That buys class-based handling (one handler for a kind of element, not one per instance), skips the init-time loop that would attach a listener to each, and keeps working for elements added after load. One-off handlers go where delegation earns nothing, like `chainsWrap.addEventListener('animationend', clearChainEntering)`.
 
 ### Design docs
 
