@@ -1,3 +1,16 @@
+.sortable-list-parent {
+  position: relative;
+  --lift-z: 1;
+  --sortable-item-inset: .5rem;
+  --sortable-item-gap: .5rem;
+  --item-border-width: 3px;
+  /* Contain the items' block-margins (BFC) so they don't collapse out through the
+     flat container into neighboring layout. */
+  display: flow-root;
+  width: max-content;
+  max-width: 100%;
+}
+
 .sortable-list-parent,
 .sortable-list,
 .sortable-list-clone {
@@ -8,16 +21,6 @@ const cloneTop = sourceRect.top - listParentRect.top;
   margin: 0;
   border: 0;
   padding: 0;
-}
-
-.sortable-list-parent {
-  position: relative;
-  --lift-z: 1;
-  --sortable-item-inset: .5rem;
-  --sortable-item-gap: .5rem;
-  /* Contain the items' block-margins (BFC) so they don't collapse out through the
-     flat container into neighboring layout. */
-  display: flow-root;
 }
 
 .sortable-list {
@@ -31,8 +34,6 @@ const cloneTop = sourceRect.top - listParentRect.top;
    overflow-anchor: none tells the browser to not scroll — leave it where it was dropped.
   */
   overflow-anchor: none;
-  width: max-content;
-  max-width: 100%;
 }
 
 .sortable-list,
@@ -50,7 +51,7 @@ const cloneTop = sourceRect.top - listParentRect.top;
 .sortable-list > li {
   position: relative;
   background: var(--panel-bg-sunken);
-  border-left: 3px solid var(--border);
+  border-left: var(--item-border-width) solid var(--border);
   cursor: grab;
   /* Prevents native scrolling/zooming for stylus and hybrid
      inputs where touchstart is bypassed */
@@ -105,7 +106,7 @@ const cloneTop = sourceRect.top - listParentRect.top;
 
 .sortable-list-clone > li {
   background: var(--accent-bg);
-  border-left: 4px solid var(--warn);
+  border-left: var(--item-border-width) solid var(--warn);
   cursor: grabbing;
   box-shadow: var(--box-shadow-lg);
 }
