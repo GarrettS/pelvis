@@ -22,7 +22,7 @@ const clearChainEntering = e => {
 const renderChainForm = ({ title, start, end, infoBonus }) => `
   <h3 class="form-title">${expandAbbr(title)}</h3>
   <div class="form-subtitle">${expandAbbr(start)} → ${expandAbbr(end)}</div>
-  <ol class="sortable-list"></ol>
+  <div class="sortable-list-parent"><ol class="sortable-list"></ol></div>
   <div class="btn-row">
     <button name="checkResults" class="primary">Check Order</button>
     <button name="reshuffle">Reshuffle</button>
@@ -37,11 +37,13 @@ function initSortableLists(chainDefinitions) {
   chainsWrap.classList.add('entering');
   chainsWrap.addEventListener('animationend', clearChainEntering);
   new SortableListContainer(chainsWrap, {
+    definitions: chainDefinitions,
+    getSteps: chain => chain.steps,
     renderFormHTML: renderChainForm,
     renderItemHTML: expandAbbr,
     flipDuration: parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue('--dur-normal'))
-  }).replaceForms(chainDefinitions);
+  });
 }
 
 await attemptLoad({

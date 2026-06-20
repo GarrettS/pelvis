@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LPC → pointerup / pointermove</title>
+<style>
+  html { user-select: none; -webkit-user-select: none; touch-action: none; }
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; background: #234; color: #eee; }
+  #box {
+    width: 140px; height: 140px; margin: 1rem; border-radius: .5rem;
+    background: #468; color: #fff; display: grid; place-items: center;
+    font-size: 18px; cursor: grab; touch-action: none;
+  }
+  #box.down { background: #2a7; cursor: grabbing; }
+  #hint { margin: 0 1rem; }
+  #hint b { color: #6f6; }
+  #log {
+    margin: 1rem; padding: .5rem; min-height: 30vh; border-radius: .5rem;
+    background: #111; color: #6f6; font: 13px/1.5 ui-monospace, monospace; white-space: pre;
+  }
+  #log .lpc { color: #6cf; }              /* lostpointercapture */
+  #log .out { color: #fb4; }              /* event fired with the pointer outside the window */
+</style>
+</head>
+<body>
+  <div id="box">click me</div>
+  <p id="hint">Hold, drag <b>out of the window</b>, release out there. Logs <b>nothing</b>
+    until <b>lostpointercapture</b> fires — then only the <b>pointerup</b> and the first few
+    <b>pointermove</b>s after it. The line that matters: <b>pointerup … reach=DOC</b>.</p>
+  <button id="clear" type="button">clear</button>
+  <pre id="log"></pre>
+
+<script>
+  const box = document.getElementById('box');
+  const logEl = document.getElementById('log');
+  let activeId = null;
+  let lpcFired = false;
+  let pmAfter = 0;          // cap pointermoves after LPC so re-entry can't stream
+
+  const inWin = e => e.clientX >= 0 && e.clientY >= 0
+    && e.clientX <= innerWidth && e.clientY <= innerHeight;
+  const tgtName = t => t && t.nodeName ? t.nodeName + (t.id ? '#' + t.id : '') : String(t);
+  // reach: does the captured box receive it? capture held → tgt=box → EL+DOC; lost → DOC.
+  const reach = e => box.contains(e.target) ? 'EL+DOC' : 'DOC';
+
+  function log(cls, e) {
+    const win = inWin(e);
+    const text = `${e.type.padEnd(18)} btn=${e.buttons} in=${win ? 'Y' : 'N'}` +
+      ` hasCap=${activeId != null && box.hasPointerCapture(activeId) ? 'Y' : 'N'}` +
+      ` reach=${reach(e)} tgt=${tgtName(e.target)}`;
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.className = cls || (win ? '' : 'out');
+    logEl.appendChild(div);
+    console.log(text);
+  }
+
+  box.addEventListener('pointerdown', e => {
+    activeId = e.pointerId;
+    lpcFired = false;
+    pmAfter = 0;
+    box.classList.add('down');
+    box.setPointerCapture(e.pointerId);   // press anywhere on the box arms it (turns green)
+  });
+
+  // Log lostpointercapture. Only AFTER it fires do pointerup / pointermove log.
+  document.addEventListener('lostpointercapture', e => {
+    if (e.pointerId !== activeId) return;
+    lpcFired = true;
+    log('lpc', e);
+  }, true);
+
+  document.addEventListener('pointerup', e => {
+    if (e.pointerId !== activeId) return;
+    if (lpcFired) log('', e);
+    box.classList.remove('down');
+  }, true);
+
+  document.addEventListener('pointermove', e => {
+    if (lpcFired && e.pointerId === activeId && pmAfter++ < 3) log('', e);
+  }, true);
+
+  document.getElementById('clear').addEventListener('click', () => { logEl.textContent = ''; });
+</script>
+</body>
+</html>

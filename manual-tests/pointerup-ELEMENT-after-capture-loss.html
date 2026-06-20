@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Does pointerup reach document after pointer-capture is lost off-window?</title>
+<style>
+  html { touch-action: none; user-select: none; -webkit-user-select: none; }
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 1rem; max-width: 40rem; }
+  #box {
+    width: 160px; height: 160px; margin: 1rem 0; border-radius: .5rem;
+    background: #888; color: #fff; display: grid; place-items: center;
+    font-size: 17px; text-align: center; touch-action: none; cursor: grab;
+  }
+  #box.holding { background: #2a7; cursor: grabbing; }   /* green while the button is held */
+  #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre; background: #f4f4f4;
+         padding: .5rem; border-radius: .5rem; }
+</style>
+</head>
+<body>
+  <p><b>Top-level page, no iframe.</b> The box captures the pointer on press. The
+    <code>pointerup</code> listener is on <code>document</code>, not the box.</p>
+  <p>Press the box (turns <b>green</b>), drag the cursor <b>off the window</b>, release out
+    there, move back in. If the box returns to grey, <code>document</code> received the
+    <code>pointerup</code>. <b>If it stays green, the release never reached the page</b> — the
+    bug. The loss is intermittent; repeat. macOS / Chromium / Magic Mouse to reproduce.</p>
+  <div id="box">press, drag off-window, release</div>
+  <button id="clear" type="button">clear log</button>
+  <pre id="log"></pre>
+
+<script>
+  const box = document.getElementById('box');
+  const logEl = document.getElementById('log');
+  let id = null;
+  let move0Logged = false;
+
+  const log = s => { logEl.append(s + '\n'); console.log(s); };
+  const where = e => box.contains(e.target) ? 'ELEMENT' : 'document';
+
+  box.addEventListener('pointerdown', e => {
+    id = e.pointerId;
+    move0Logged = false;
+    box.classList.add('holding');
+    box.setPointerCapture(e.pointerId);
+    log(`--- pointerdown, captured (${e.pointerType}) ---`);
+  });
+
+  // The verdict: grey only if document actually receives the release.
+  document.addEventListener('pointerup', e => {
+    if (e.pointerId !== id) return;
+    box.classList.remove('holding');
+    log(`pointerup            buttons=${e.buttons}  on=${where(e)} (${e.target.nodeName})`);
+  });
+
+  document.addEventListener('lostpointercapture', e => {
+    if (e.pointerId !== id) return;
+    log(`lostpointercapture   buttons=${e.buttons}  on=${where(e)} (${e.target.nodeName})`);
+  });
+
+  // A buttons===0 move (mouse/pen) means the button is already up — the release showing
+  // through when no pointerup arrived. Logged once per drag so it can't stream.
+  document.addEventListener('pointermove', e => {
+    if (e.pointerId === id && e.buttons === 0 && e.pointerType !== 'touch' && !move0Logged) {
+      move0Logged = true;
+      log(`pointermove buttons=0          on=${where(e)} (${e.target.nodeName})  [button is up]`);
+    }
+  });
+
+  document.getElementById('clear').addEventListener('click', () => { logEl.textContent = ''; });
+</script>
+</body>
+</html>

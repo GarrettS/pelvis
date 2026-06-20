@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pointer capture sometimes lost crossing onto the scrollbar; pointerup retargets above the captured element</title>
+<style>
+  html { overflow-y: scroll; }                  /* force a classic, always-present scrollbar */
+  ::-webkit-scrollbar { width: 15px; }
+  ::-webkit-scrollbar-thumb { background: #bbb; border-radius: 7px; }
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 1rem; min-height: 220vh; }
+  #box {
+    position: fixed; top: 30vh; right: 24px;     /* parked hard against the scrollbar */
+    width: 150px; height: 150px; border-radius: .5rem;
+    background: #888; touch-action: none; cursor: grab;
+    display: grid; place-items: center; color: #fff; text-align: center;
+  }
+  #box.held { background: #2a7; cursor: grabbing; }
+  #log { position: fixed; left: 1rem; bottom: 1rem; margin: 0; max-width: 28rem;
+         font: 12px/1.5 ui-monospace, monospace; white-space: pre;
+         background: #f4f4f4; padding: .5rem; border-radius: .5rem; }
+  b { color: #b00; }
+</style>
+</head>
+<body>
+  <h1>Capture lost crossing onto the scrollbar</h1>
+  <p>Top-level page, no iframe. The page overflows so a vertical scrollbar appears. Capture is
+     dropped when the captured pointer leaves the page's viewport and crosses into browser chrome
+     — the scrollbar here, though the toolbar and a docked DevTools pane do it too.</p>
+  <ol>
+    <li>Press the box (turns <b>green</b>) and hold the button.</li>
+    <li>Drag the cursor <b>right onto the scrollbar</b> and release there.</li>
+    <li>Repeat several times — intermittent, roughly 1 in 3.</li>
+  </ol>
+  <p><b>Pass</b> (no bug): the box turns gray — its own <code>pointerup</code> ran.
+     <b>Fail</b> (bug): the box <b>stays green</b> — <code>lostpointercapture</code> fired on
+     the box before any release, the <code>pointerup</code> retargeted to <code>BODY</code>/<code>HTML</code>
+     above the box, and the box's own listener never saw it. Only the <code>document</code> listener did.</p>
+
+  <div id="box">press, drag onto the scrollbar, release</div>
+  <pre id="log"></pre>
+
+<script>
+  const box = document.getElementById('box');
+  const out = document.getElementById('log');
+  let id = null;
+  const log = s => out.append(s + '\n');
+
+  box.addEventListener('pointerdown', e => {
+    id = e.pointerId;
+    box.classList.add('held');
+    box.setPointerCapture(e.pointerId);
+    log('pointerdown: setPointerCapture on #box');
+  });
+
+  box.addEventListener('pointerup', e => {              // listener on the CAPTURED element
+    box.classList.remove('held');
+    log('#box     pointerup  target=' + e.target.nodeName);
+  });
+
+  document.addEventListener('lostpointercapture', e => {
+    // buttons is always 0 here: capture releases at the button-up, not mid-gesture (buttons=1
+    // does not reproduce). The bug isn't an early release — it's that this LPC sometimes fires
+    // BEFORE the triggering pointerup, so the pointerup retargets off #box. Ordering, not loss.
+    if (e.pointerId === id) log('lostpointercapture  target=' + e.target.nodeName + '  buttons=' + e.buttons);
+  });
+  document.addEventListener('pointerup', e => {          // listener on the DOCUMENT
+    if (e.pointerId === id) log('document pointerup  target=' + e.target.nodeName + ' buttons=' + e.buttons);
+  });
+</script>
+</body>
+</html>

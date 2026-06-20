@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype: off-window drag tracking without setPointerCapture</title>
+<!-- Prototype for the hypothesis that the drag needs no explicit setPointerCapture:
+     a button-held mouse drag is implicitly captured at the OS level, and touch is
+     implicitly captured by the Pointer Events spec, so document-bound listeners
+     receive pointermove/pointerup off-window either way. Toggle capture on/off and
+     drag the cursor past the window edge to compare. Pairs with
+     lostpointercapture-before-pointerup.html (the crbug repro this would retire).
+     Inline <style>/<script> keep it one portable file, per the manual-tests convention. -->
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 1rem; min-height: 160vh; }
+  h1 { font-size: 1.2rem; }
+  fieldset { border: 1px solid #ccc; border-radius: .5rem; max-width: 34rem; }
+  legend { padding: 0 .4rem; }
+  code { background: #eee; padding: 0 .2rem; border-radius: .2rem; }
+  b { color: #b00; }
+
+  #box {
+    position: fixed; top: 28vh; left: 50%; transform: translateX(-50%);
+    width: 160px; height: 120px; border-radius: .5rem;
+    background: #888; touch-action: none; cursor: grab; user-select: none;
+    display: grid; place-items: center; color: #fff; text-align: center;
+  }
+  #box.held { background: #2a7; cursor: grabbing; }
+
+  #readout {
+    position: fixed; top: 1rem; right: 1rem; width: 16rem;
+    font: 12px/1.6 ui-monospace, monospace; background: #f4f4f4;
+    padding: .6rem .8rem; border-radius: .5rem;
+  }
+  #edge { font-weight: bold; }
+  #edge.out { color: #b00; }
+  #edge.in { color: #2a7; }
+
+  #verdict { font: 13px/1.5 ui-monospace, monospace; white-space: pre-wrap;
+             max-width: 34rem; background: #fffbe6; padding: .6rem .8rem;
+             border-radius: .5rem; min-height: 3rem; }
+  #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre;
+         max-width: 34rem; background: #f4f4f4; padding: .5rem; border-radius: .5rem;
+         max-height: 14rem; overflow: auto; }
+</style>
+</head>
+<body>
+  <h1>Off-window drag tracking without <code>setPointerCapture</code></h1>
+
+  <fieldset>
+    <legend>Mode</legend>
+    <label><input type="radio" name="mode" value="none" checked>
+      <b>No capture</b> (the prototype) — rely on implicit capture</label><br>
+    <label><input type="radio" name="mode" value="capture">
+      With <code>setPointerCapture</code> (current code)</label>
+  </fieldset>
+
+  <p><b>Gesture:</b> press the box, drag the cursor <b>past a window edge onto the
+     desktop</b> (button held), then release outside. With a mouse, maximize or
+     un-maximize the window first so an edge is reachable. Repeat a few times —
+     the crbug is intermittent.</p>
+
+  <p><b>What proves the hypothesis (No-capture mode):</b> the readout's
+     <code>off-window moves</code> climbs while the cursor is outside, and the
+     release logs <code>document pointerup</code> with no
+     <code>lostpointercapture</code>. That means document-bound listeners track the
+     drag off-window with no explicit capture and no race.</p>
+
+  <div id="box">press<br>drag off-window<br>release outside</div>
+
+  <pre id="readout"></pre>
+  <h2 style="font-size:1rem">Verdict</h2>
+  <div id="verdict">Press and drag to begin.</div>
+  <h2 style="font-size:1rem">Log</h2>
+  <pre id="log"></pre>
+
+<script>
+  const box = document.getElementById('box');
+  const readoutEl = document.getElementById('readout');
+  const verdictEl = document.getElementById('verdict');
+  const logEl = document.getElementById('log');
+
+  let pointerId = null;
+  let offWindowMoves = 0;
+  let boxPointerupFired = false;
+  let lostCaptureFired = false;
+  let lastEvent = null;
+
+  const log = line => { logEl.append(line + '\n'); logEl.scrollTop = logEl.scrollHeight; };
+  const useCapture = () =>
+    document.querySelector('input[name="mode"]:checked').value === 'capture';
+  const isOffWindow = e =>
+    e.clientX < 0 || e.clientY < 0 || e.clientX > innerWidth || e.clientY > innerHeight;
+
+  function renderReadout(e) {
+    lastEvent = e;
+    const out = e && isOffWindow(e);
+    readoutEl.innerHTML =
+      'pointerId : ' + (pointerId ?? '—') + '\n' +
+      'clientX/Y : ' + (e ? Math.round(e.clientX) + ', ' + Math.round(e.clientY) : '—') + '\n' +
+      'viewport  : ' + innerWidth + ' x ' + innerHeight + '\n' +
+      'buttons   : ' + (e ? e.buttons : '—') + '\n' +
+      'off-window moves : ' + offWindowMoves + '\n' +
+      '<span id="edge" class="' + (out ? 'out' : 'in') + '">● ' +
+        (out ? 'OFF-WINDOW' : 'in window') + '</span>';
+  }
+
+  box.addEventListener('pointerdown', e => {
+    pointerId = e.pointerId;
+    offWindowMoves = 0;
+    boxPointerupFired = false;
+    lostCaptureFired = false;
+    box.classList.add('held');
+    if (useCapture()) {
+      box.setPointerCapture(e.pointerId);
+      log('pointerdown — setPointerCapture(' + e.pointerId + ') on #box');
+    } else {
+      log('pointerdown — NO capture (' + e.pointerType + ')');
+    }
+    verdictEl.textContent = 'Dragging… take the cursor off the window edge.';
+    renderReadout(e);
+  });
+
+  // Only fires if the pointerup targets the box. Without capture and off-window it
+  // won't — and that's expected; the real design listens on document, not the box.
+  box.addEventListener('pointerup', e => {
+    if (e.pointerId === pointerId) boxPointerupFired = true;
+  });
+
+  document.addEventListener('pointermove', e => {
+    if (e.pointerId !== pointerId) return;
+    if (isOffWindow(e)) offWindowMoves++;
+    renderReadout(e);
+  });
+
+  document.addEventListener('lostpointercapture', e => {
+    if (e.pointerId !== pointerId) return;
+    lostCaptureFired = true;
+    log('lostpointercapture  target=' + e.target.nodeName + '  buttons=' + e.buttons);
+  });
+
+  document.addEventListener('pointerup', e => {
+    if (e.pointerId !== pointerId) return;
+
+    const where = isOffWindow(e) ? 'OFF-WINDOW' : 'in-window';
+    log('document pointerup  target=' + e.target.nodeName + '  @ ' + where +
+        '  buttons=' + e.buttons);
+
+    const captured = useCapture();
+    const lines = [
+      'mode               : ' + (captured ? 'setPointerCapture' : 'no capture'),
+      'release location   : ' + where,
+      'off-window moves   : ' + offWindowMoves,
+      'document pointerup : YES (this handler ran)',
+      'box own pointerup  : ' + (boxPointerupFired ? 'yes' : 'no'),
+      'lostpointercapture : ' + (lostCaptureFired ? 'YES' : 'no'),
+    ];
+
+    let verdict;
+    if (!captured) {
+      const tracked = offWindowMoves > 0;
+      verdict = tracked
+        ? '\nPASS — off-window pointermove AND pointerup reached document with no capture and no lostpointercapture. The explicit capture is unnecessary here.'
+        : '\nINCONCLUSIVE — no off-window moves recorded. Drag the cursor clearly past an edge (watch clientX/Y go negative or exceed the viewport) before releasing.';
+    } else {
+      verdict = lostCaptureFired && !boxPointerupFired
+        ? '\nCAPTURE MODE — lostpointercapture fired and the box pointerup retargeted (crbug.com/524131116). Document still caught it; this is the race the prototype avoids.'
+        : '\nCAPTURE MODE — clean this time (intermittent). Repeat to provoke the race.';
+    }
+
+    verdictEl.textContent = lines.join('\n') + '\n' + verdict;
+    box.classList.remove('held');
+    pointerId = null;
+    // Defer so a pass-path lostpointercapture (after pointerup) still logs.
+    setTimeout(() => { renderReadout(lastEvent); });
+  });
+
+  renderReadout(null);
+</script>
+</body>
+</html>

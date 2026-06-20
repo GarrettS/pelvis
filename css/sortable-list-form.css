@@ -1,23 +1,69 @@
-.sortable-list {
+.sortable-list-parent,
+.sortable-list,
+.sortable-list-clone {
+/* Align the parent's border box with the list's content box, to translate
+viewport-relative values into containing block offsets with: 
+const cloneTop = sourceRect.top - listParentRect.top;
+*/
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.sortable-list-parent {
+  position: relative;
   --lift-z: 1;
+  --sortable-item-inset: .5rem;
+  --sortable-item-gap: .5rem;
+  /* Contain the items' block-margins (BFC) so they don't collapse out through the
+     flat container into neighboring layout. */
+  display: flow-root;
+}
+
+.sortable-list {
   --marker-bar-thickness: .4rem;
   --marker-bar-offset: calc(var(--marker-bar-thickness) * -1);
-  list-style-type: decimal;
-  list-style-position: inside;
-  position: relative;
+  /* "Scroll anchoring" — the browser may scroll the window after layout change to keep
+   certain elements in view. The insertBefore on drop triggers layout change, causing the
+   browser to scroll the window down, so the just-dropped item is hidden behind the sticky
+   nav. Problem verified in Chromium: 149.0.7827.54 — this fixes it.
+
+   overflow-anchor: none tells the browser to not scroll — leave it where it was dropped.
+  */
+  overflow-anchor: none;
+  width: max-content;
+  max-width: 100%;
+}
+
+.sortable-list,
+.sortable-list-clone {
+  list-style: decimal inside;
+}
+
+.sortable-list-parent > ol > li {
+  padding: .5rem .75rem;
+  border-radius: .25rem;
+  font-size: var(--text-sm);
+  margin-inline: var(--sortable-item-inset);
 }
 
 .sortable-list > li {
   position: relative;
   background: var(--panel-bg-sunken);
   border-left: 3px solid var(--border);
-  padding: .5rem .75rem;
-  margin: .5rem .5rem;
-  border-radius: .25rem;
   cursor: grab;
-  font-size: var(--text-sm);
+  /* Prevents native scrolling/zooming for stylus and hybrid
+     inputs where touchstart is bypassed */
   touch-action: none;
   transition: border-color var(--dur-normal);
+}
+
+.sortable-list > li + li {
+  margin-block-start: var(--sortable-item-gap);
+}
+
+.sortable-list > li:hover {
+  border-color: var(--accent);
 }
 
 @keyframes list-enter {
@@ -27,22 +73,7 @@
   }
 }
 
-.sortable-list > li.correct {
-  border-left-color: var(--correct-border);
-  background: var(--correct-bg);
-}
-
-.sortable-list > li.incorrect {
-  border-left-color: var(--error-border);
-  background: var(--error-bg);
-}
-
-.sortable-list:has(> li.active-drag-item) > li:is(.correct, .incorrect) {
-  border-left-color: var(--border);
-  background: var(--panel-bg-sunken);
-}
-
-.sortable-list > li.active-drag-item {
+.sortable-list > li.active-drag-source {
   outline: 2px dashed var(--accent);
   outline-offset: -2px;
   opacity: .3;
@@ -53,54 +84,17 @@
   transition: border-color var(--dur-normal), opacity var(--dur-slow);
 }
 
-/* On drop the LI briefly wears the dragged clone's look, then cools to its
-   resting item. The keyframe declares the accent start, so it needs no
-   painted-first arming. */
-@keyframes item-drop-cool {
-  from {
-    background: var(--accent-bg);
-    border-left-color: var(--accent);
-    box-shadow: var(--box-shadow-lg);
-  }
-}
-
-.sortable-list > li.dropped {
-  /* Stay above the displaced sibling that FLIPs past during the settle, so the
-  dropped item cools on top instead of being covered. Clears with the class. */
-  z-index: var(--lift-z);
-  animation: item-drop-cool var(--dur-normal) ease-out;
-}
-
-.sortable-list[aria-disabled="true"] > li {
-  cursor: default;
-}
-
-@keyframes all-correct-pulse {
-  30% {
-    transform: scale(1.02);
-    box-shadow: 0 0 .75rem var(--correct-border), inset 0 0 .5rem var(--correct-border);
-    border-color: transparent;
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: none;
-  }
-}
-
-.sortable-list.all-correct > li {
-  animation: all-correct-pulse var(--dur-normal) ease-out;
-  animation-delay: calc(var(--i) * var(--dur-fast) / 2);
+.sortable-list:has(> li.active-drag-source) > li:is(.correct, .incorrect) {
+  border-left-color: var(--border);
+  background: var(--panel-bg-sunken);
 }
 
 .sortable-list-clone {
-  list-style-type: decimal;
-  list-style-position: inside;
   position: absolute;
-  left: .5rem;
-  right: .5rem;
-  margin: 0;
-  padding: 0;
+  inset-inline: 0;
   z-index: var(--lift-z);
+  /* To detect what the user is over (e.g., using e.target.closest('li')),
+  pointer events must pass through the clone.*/
   pointer-events: none;
   transform: translateY(var(--drag-offset, 0px));
 }
@@ -111,12 +105,8 @@
 
 .sortable-list-clone > li {
   background: var(--accent-bg);
-  border-left: 4px solid var(--accent);
-  border-radius: .25rem;
-  padding: .5rem .75rem;
-  margin: 0;
+  border-left: 4px solid var(--warn);
   cursor: grabbing;
-  font-size: var(--text-sm);
   box-shadow: var(--box-shadow-lg);
 }
 
@@ -139,8 +129,60 @@
   bottom: var(--marker-bar-offset);
 }
 
-html.list-drag-active,
-html.list-drag-active * {
-  cursor: grabbing;
-  user-select: none;
+/* On drop the LI briefly wears the dragged clone's look, then cools to its
+   resting item. The keyframe declares the accent start, so it needs no
+   painted-first arming. */
+@keyframes item-drop-cool {
+  from {
+    background: var(--accent-bg);
+    border-left-color: var(--accent);
+    box-shadow: var(--box-shadow-lg);
+  }
+}
+
+.sortable-list > li.dropped {
+  /* Stay above the displaced sibling that FLIPs past during the settle, so the
+  dropped item cools on top instead of being covered. Clears with the class. */
+  z-index: var(--lift-z);
+  animation: item-drop-cool var(--dur-normal) ease-out;
+}
+
+html.list-drag-active {
+  &, & * {
+    cursor: grabbing;
+    user-select: none;
+  }
+}
+
+html:is(.list-drag-active) button { pointer-events: none }
+
+.sortable-list > li.correct {
+  border-left-color: var(--correct-border);
+  background: var(--correct-bg);
+}
+
+.sortable-list > li.incorrect {
+  border-left-color: var(--error-border);
+  background: var(--error-bg);
+}
+
+@keyframes all-correct-pulse {
+  30% {
+    transform: scale(1.02);
+    box-shadow: 0 0 .75rem var(--correct-border), inset 0 0 .5rem var(--correct-border);
+    border-color: transparent;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.sortable-list.all-correct > li {
+  animation: all-correct-pulse var(--dur-normal) ease-out;
+  animation-delay: calc(var(--i) * var(--dur-fast) / 2);
+}
+
+.sortable-list[aria-disabled="true"] > li {
+  cursor: default;
 }

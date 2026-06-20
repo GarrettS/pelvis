@@ -2,7 +2,7 @@
 // (correct/incorrect colors) hides while a drag is in progress, then resolves
 // by outcome: a same-slot drop or an abort (Escape, pointercancel) re-shows the
 // unchanged grading; a reorder clears it. Hiding is CSS-only, via
-// .sortable-list:has(> li.active-drag-item) — there is no grading-stale class.
+// .sortable-list:has(> li.active-drag-source) — there is no grading-stale class.
 //
 // Regression guard for two shipped bugs: a no-op drop after a reorder used to
 // un-hide stale grading, and the same showed up as grading re-appearing after
@@ -64,7 +64,7 @@ const state = () => page.evaluate(OL => {
     order: items.map(item => item.dataset.step),
     graded: graded.length,
     bg: sample ? getComputedStyle(sample).backgroundColor : null,
-    activeDrag: items.some(item => item.classList.contains('active-drag-item')),
+    activeDrag: items.some(item => item.classList.contains('active-drag-source')),
   };
 }, OL);
 
@@ -95,7 +95,7 @@ async function drag(moveToIdx, end) {
     await page.keyboard.press('Escape');
     await page.mouse.up();
   } else if (end === 'cancel') {
-    await list.locator(':scope > li.active-drag-item').evaluate(li =>
+    await list.locator(':scope > li.active-drag-source').evaluate(li =>
       li.dispatchEvent(new PointerEvent('pointercancel', {
         bubbles: true,
         pointerId: 1,
@@ -113,8 +113,24 @@ const gradedBg = s.bg;
 
 await beginDrag(null);
 s = await state();
-ok('drag start: grading hidden, active-drag-item set',
+ok('drag start: grading hidden, active-drag-source set',
    s.activeDrag && s.graded > 0 && s.bg !== gradedBg, JSON.stringify(s));
+await page.mouse.up();
+await page.waitForTimeout(150);
+
+await beginDrag(null);
+await list.locator(':scope > li.active-drag-source').evaluate(li =>
+  li.dispatchEvent(new PointerEvent('lostpointercapture', {
+    bubbles: true,
+    pointerId: 1,
+    pointerType: 'mouse',
+    isPrimary: true,
+    buttons: 1,
+  })));
+await page.waitForTimeout(50);
+s = await state();
+ok('capture loss while button down: drag stays active',
+   s.activeDrag, JSON.stringify(s));
 await page.mouse.up();
 await page.waitForTimeout(150);
 

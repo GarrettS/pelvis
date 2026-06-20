@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lostpointercapture fires before pointerup, so pointerup retargets off the captured element</title>
+<!-- Standalone repro for crbug.com/524131116
+     (https://issues.chromium.org/issues/524131116).
+     Inline <style>/<script> are an intentional exception to the external-asset
+     rules so this stays one portable file to attach to a bug. -->
+<style>
+  :root {
+    --box-idle: #888;
+    --box-held: #2a7;
+    --box-text: #fff;
+    --panel-bg: #f4f4f4;
+    --code-bg: #eee;
+    --emphasis: #b00;
+    --scrollbar-thumb: #bbb;
+    --mono: 12px/1.5 ui-monospace, monospace;
+  }
+
+  /* Force a classic, always-present vertical scrollbar on the root to release
+     onto (macOS overlay scrollbars otherwise stay hidden). */
+  html { overflow-y: scroll; }
+
+  ::-webkit-scrollbar { width: 15px; }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 7px;
+  }
+
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 1rem; min-height: 220vh; }
+
+  #box {
+    position: fixed; top: 30vh; right: 24px;     /* parked hard against the scrollbar */
+    width: 150px; height: 150px; border-radius: .5rem;
+    background: #888; touch-action: none; cursor: grab;
+    display: grid; place-items: center; color: #fff; text-align: center;
+  }
+  #box.held { background: #2a7; cursor: grabbing; }
+  #log { position: fixed; left: 1rem; bottom: 1rem; margin: 0; max-width: 28rem;
+         font: 12px/1.5 ui-monospace, monospace; white-space: pre;
+         background: #f4f4f4; padding: .5rem; border-radius: .5rem; }
+  b { color: #b00; }
+</style>
+</head>
+<body>
+  <main>
+    <h1>pointerup retargets off the captured element</h1>
+    <div id="box">press<br>drag off<br>release</div>
+    <p><b>Repro</b> — macOS Chromium, intermittent; repeat several times. Press
+       the grey box (turns green, captures the pointer), drag off it, and release.
+       Two independent cases, by where you release:</p>
+    <ul>
+      <li><b>Inside the window</b> — document <code>pointerup target=BODY</code>.</li>
+      <li><b>Outside the window</b>, or onto the scrollbar — document
+          <code>pointerup target=HTML</code>.</li>
+    </ul>
+    <p><b>Pass</b> (either): the box turns grey — its own <code>pointerup</code>
+       ran. <b>Fail:</b> the box stays green — capture was released first, the
+       <code>pointerup</code> retargeted off the box, and only the document
+       listener saw it.</p>
+    <p>Spec order is <code>pointerup</code> at the box, then
+       <code>lostpointercapture</code> (Pointer Events — Implicit release of
+       pointer capture). The bug reverses them.</p>
+    <pre id="tally">releases: 0   ·   bug hit: 0</pre>
+    <pre id="log"></pre>
+  </main>
+
+<script>
+  const box = document.getElementById('box');
+  const logEl = document.getElementById('log');
+  const tallyEl = document.getElementById('tally');
+
+  let capturedPointerId = null;
+  let releaseCount = 0;
+  let bugCount = 0;
+
+  const log = line => logEl.append(line + '\n');
+  const renderTally = () =>
+    tallyEl.textContent = 'releases: ' + releaseCount + '   ·   bug hit: ' + bugCount;
+
+  box.addEventListener('pointerdown', e => {
+    capturedPointerId = e.pointerId;
+    box.classList.add('held');
+    box.setPointerCapture(e.pointerId);
+    log('--- pointerdown: setPointerCapture on #box');
+  });
+
+  // Captured element. Removing 'held' restyles the box and records that its own
+  // pointerup ran, read back by the document listener.
+  box.addEventListener('pointerup', e => {
+    if (e.pointerId !== capturedPointerId) return;
+
+    box.classList.remove('held');
+    log('#box     pointerup  target=' + e.target.nodeName);
+  });
+
+  document.addEventListener('lostpointercapture', e => {
+    if (e.pointerId !== capturedPointerId) return;
+
+    log('lostpointercapture  target=' + e.target.nodeName + '  buttons=' + e.buttons);
+  });
+
+  // A box still 'held' here means its own pointerup never fired: the bug.
+  document.addEventListener('pointerup', e => {
+    if (e.pointerId !== capturedPointerId) return;
+
+    log('document pointerup  target=' + e.target.nodeName + '  buttons=' + e.buttons);
+    releaseCount++;
+    if (box.classList.contains('held')) bugCount++;
+    renderTally();
+
+    // Defer the reset past lostpointercapture (which fires after pointerup on the
+    // pass path), so both pass and fail log their full event order.
+    setTimeout(() => capturedPointerId = null);
+  });
+</script>
+</body>
+</html>

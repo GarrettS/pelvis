@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pointer capture sometimes lost entering the DevTools pane; pointerup retargets to documentElement</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 1rem; max-width: 40rem; }
+  #box {
+    width: 160px; height: 160px; margin: 1rem 0; border-radius: .5rem;
+    background: #888; touch-action: none; cursor: grab;
+    display: grid; place-items: center; color: #fff; text-align: center;
+  }
+  #box.held { background: #2a7; cursor: grabbing; }   /* green while captured */
+  #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre;
+         background: #f4f4f4; padding: .5rem; border-radius: .5rem; }
+  b { color: #b00; }
+</style>
+</head>
+<body>
+  <h1>Capture lost crossing into the DevTools pane</h1>
+  <p>Top-level page, no author iframe. Sibling of issue 417662678 (iframe boundary), with the docked DevTools render surface as the boundary instead.</p>
+  <ol>
+    <li>Dock DevTools to the <b>right</b> (or bottom).</li>
+    <li>Press the box (turns <b>green</b>) and hold the button.</li>
+    <li>Drag the cursor <b>into the DevTools pane</b> and release the button there.</li>
+    <li>Repeat several times &mdash; intermittent, reproduces roughly 1 in 10 drags.</li>
+  </ol>
+  <p><b>Pass</b> (no bug): the box turns gray &mdash; its own <code>pointerup</code> ran.
+     <b>Fail</b> (bug): the box <b>stays green</b> &mdash; <code>lostpointercapture</code> fired
+     before the release, the <code>pointerup</code> retargeted to <code>HTML</code>, and the
+     listener on the box never saw it. Only the <code>document</code> listener did.</p>
+
+  <div id="box">press, drag into DevTools, release</div>
+  <button id="clear" type="button">clear log</button>
+  <pre id="log"></pre>
+
+<script>
+  const box = document.getElementById('box');
+  const out = document.getElementById('log');
+  const log = s => out.append(s + '\n');
+  document.getElementById('clear').addEventListener('click', () => { out.textContent = ''; });
+  let id = null;
+
+  box.addEventListener('pointerdown', e => {
+    id = e.pointerId;
+    box.classList.add('held');
+    box.setPointerCapture(e.pointerId);
+    log('--- pointerdown: setPointerCapture on #box');
+  });
+
+  box.addEventListener('pointerup', e => {            // listener on the CAPTURED element
+    if (e.pointerId !== id) return;
+    box.classList.remove('held');
+    log('#box     pointerup  target=' + e.target.nodeName);
+  });
+
+  document.addEventListener('lostpointercapture', e => {
+    if (e.pointerId === id)
+      log('lostpointercapture  target=' + e.target.nodeName + '  buttons=' + e.buttons);
+  });
+
+  document.addEventListener('pointerup', e => {        // listener on the DOCUMENT
+    if (e.pointerId !== id) return;
+    log('document pointerup  target=' + e.target.nodeName + '  buttons=' + e.buttons);
+    id = null;
+  });
+</script>
+</body>
+</html>
