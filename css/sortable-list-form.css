@@ -4,9 +4,6 @@
   --sortable-item-inset: .5rem;
   --sortable-item-gap: .5rem;
   --item-border-width: 3px;
-  /* Contain the items' block-margins (BFC) so they don't collapse out through the
-     flat container into neighboring layout. */
-  display: flow-root;
   width: max-content;
   max-width: 100%;
 }
@@ -39,6 +36,7 @@ const cloneTop = sourceRect.top - listParentRect.top;
 .sortable-list,
 .sortable-list-clone {
   list-style: decimal inside;
+  width: 100%;
 }
 
 .sortable-list-parent > ol > li {
@@ -92,7 +90,6 @@ const cloneTop = sourceRect.top - listParentRect.top;
 
 .sortable-list-clone {
   position: absolute;
-  inset-inline: 0;
   z-index: var(--lift-z);
   /* To detect what the user is over (e.g., using e.target.closest('li')),
   pointer events must pass through the clone.*/
