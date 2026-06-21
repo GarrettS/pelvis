@@ -4,6 +4,7 @@
   --sortable-item-inset: .5rem;
   --sortable-item-gap: .5rem;
   --item-border-width: 3px;
+  --lift-border-color: var(--warn);
   width: max-content;
   max-width: 100%;
 }
@@ -103,7 +104,7 @@ const cloneTop = sourceRect.top - listParentRect.top;
 
 .sortable-list-clone > li {
   background: var(--accent-bg);
-  border-left: var(--item-border-width) solid var(--warn);
+  border-left: var(--item-border-width) solid var(--lift-border-color);
   cursor: grabbing;
   box-shadow: var(--box-shadow-lg);
 }
@@ -127,13 +128,13 @@ const cloneTop = sourceRect.top - listParentRect.top;
   bottom: var(--marker-bar-offset);
 }
 
-/* On drop the LI briefly wears the dragged clone's look, then cools to its
-   resting item. The keyframe declares the accent start, so it needs no
+/* On drop the LI briefly wears the dragged clone's lifted look, then cools to
+   its resting item. The keyframe declares that lifted start, so it needs no
    painted-first arming. */
 @keyframes item-drop-cool {
   from {
     background: var(--accent-bg);
-    border-left-color: var(--accent);
+    border-left-color: var(--lift-border-color);
     box-shadow: var(--box-shadow-lg);
   }
 }
