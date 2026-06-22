@@ -238,6 +238,48 @@ Modules that need a live update each time they're shown handle that with an `Int
 navigation-tabs deliberately does not fire a custom "shown" event for modules to subscribe to. That would make navigation-tabs responsible for firing at the right moment on every path that reveals a section — subtab switch, deep link, back/forward, default-tab fallback — and one missed path leaves the module silently stale.
 
 Custom events would be extra code, and modules can listen to `IntersectionObserver` which fires when they are shown.
+
+## Service Worker Caching
+`navigation-tabs.js` registers `sw.js`. A reload re-requests the shell (the hash never reaches the network). The router then lazy-imports the current route's script as a second request (see [[#Routing]] and [[#Module Loading]]). Both must come from one build, or one build's code runs against another build's DOM. The handler serves navigation and sub-resources by one strategy, stale-while-revalidate:
+
+```
+rejected — network-first navigation
+[reload]
+  ├──▶ shell         network-first ──▶ server ──▶ build B
+  └──▶ route script  SWR           ──▶ cache  ──▶ build A
+       B's DOM runs A's code
+
+chosen — uniform SWR
+[reload]
+  ├──▶ shell         SWR           ──▶ cache  ──▶ build A
+  └──▶ route script  SWR           ──▶ cache  ──▶ build A
+       one build
+```
+
+```js
+self.addEventListener('fetch', event => {
+  const {request} = event;
+  if (request.method !== 'GET') return;   // only GET responses are cacheable
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_VERSION);
+    const cached = await cache.match(request);
+
+    // Fetch fresh; replace the cached copy on a good response (cloned before its
+    // body is read). A 404/500 is left uncached so a transient error can't evict
+    // a working copy.
+    const refresh = fetch(request).then(async response => {
+      if (response.ok) await cache.put(request, response.clone());
+      return response;
+    });
+    // Outlive respondWith so the background refresh finishes and updates the cache.
+    event.waitUntil(refresh.catch(() => { /* offline: the cached copy was already served */ }));
+
+    return cached || refresh;
+  })());
+});
+```
+
 ## Sticky-nav Scroll Offset
 The sticky nav overlays the top of the document, the default window scrollport, so an anchor jump or `scrollIntoView` aligns its target to that top edge — under the nav, where it's hidden. `updateScrollInset` reserves the nav's current height as `scroll-padding-top`. That height isn't fixed — the subtab row makes the nav taller on subtabbed routes — so `routeChangeHandler` re-measures every route, calling `updateScrollInset` after `applyHash` has shown the row. A single measure on a top-level route with no submenu (e.g. Home) would be too short elsewhere.
 ## Tab-overflow Affordance

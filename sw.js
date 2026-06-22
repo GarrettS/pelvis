@@ -103,6 +103,36 @@ self.addEventListener('activate', event => event.waitUntil(
   })()
 ));
 
-self.addEventListener('fetch', event => event.respondWith(
-  caches.match(event.request).then(cached => cached || fetch(event.request))
-));
+// The handler serves navigations and sub-resources alike with stale-while-revalidate.
+// A reload re-requests the shell (the hash never reaches the network). The
+// router then lazy-imports the current route's script as a second request. The
+// two must come from one build, or one build's code runs against another
+// build's DOM. Serving both from the cache keeps them on the same build. The
+// background refresh and the next CACHE_VERSION precache deliver the new build
+// one load later.
+//
+// Network-first navigation would instead serve a fresh shell against
+// still-cached scripts -- one build's code on another's DOM again. Pure
+// cache-first would freeze each asset until CACHE_VERSION changes.
+self.addEventListener('fetch', event => {
+  const {request} = event;
+  if (request.method !== 'GET') return;   // only GET responses are cacheable
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_VERSION);
+    const cached = await cache.match(request);
+
+    // Fetch fresh; replace the cached copy on a good response (cloned before its
+    // body is read). A 404/500 is left uncached so a transient error can't evict
+    // a working copy.
+    const refresh = fetch(request).then(async response => {
+      if (response.ok) await cache.put(request, response.clone());
+      return response;
+    });
+    // Outlive respondWith so the background refresh finishes and updates the cache.
+    event.waitUntil(refresh.catch(() => {
+        /* offline: the cached copy was already served */ }));
+
+    return cached || refresh;
+  })());
+});
