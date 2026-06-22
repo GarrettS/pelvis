@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iOS repro: drag clone positioned from the page top</title>
+<!-- Faithful repro: loads the ACTUAL SortableListContainer module and the ACTUAL
+     stylesheets (tokens / layout / diagnose / sortable-list-form), inside the real
+     ancestor structure (main > section.content > subtab-content > tab-section >
+     #chains-wrap > form.card > .sortable-list-parent). No hand-copied CSS, no
+     re-implemented drag — this is the real code and real cascade.
+
+     A hand-written copy of the same mechanism positions the clone correctly on
+     iOS in every condition tested (short text, long capped text, scrolled). The
+     real screen does not — it places the clone at the page top. So the cause is
+     in the real CSS/structure this page now loads, or in the build cached on the
+     device. If the clone jumps to the page top HERE, it is the CSS/structure and
+     the HUD shows the containing block resolving to the page. If it tracks the
+     finger HERE, the device is running a stale cached build.
+
+     Open ON THE IPHONE. Scroll past the filler so the list is mid-page, press an
+     item, drag down, and HOLD — the HUD reports the peak of the drag, so reading
+     it after release still shows the dragged state. -->
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/diagnose.css">
+<link rel="stylesheet" href="../css/sortable-list-form.css">
+<!-- Inline style keeps this one portable file, per the manual-tests convention. -->
+<style>
+  /* test-only chrome */
+  .filler {
+    min-height: 130vh; margin: 1rem 0; border-radius: .5rem;
+    background: repeating-linear-gradient(45deg, #f3f3f3, #f3f3f3 12px, #e9e9e9 12px, #e9e9e9 24px);
+    display: grid; place-items: center; color: #999; text-align: center;
+  }
+  #hud {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    font: 12px/1.5 ui-monospace, monospace; white-space: pre;
+    background: rgba(20,20,20,.92); color: #cfc;
+    padding: .6rem .8rem; z-index: 9999;
+    user-select: text; -webkit-user-select: text;
+    border-top: 2px solid #5a5;
+  }
+  #hud b { color: #ff8; }
+  #hud .warn { color: #f88; }
+</style>
+</head>
+<body>
+<main>
+  <section class="content">
+    <section class="subtab-content">
+      <div class="tab-section">
+        <h2 class="section-title">Causal Chains</h2>
+        <p class="instruction-text">Scroll past the filler, then press an item and drag down. The
+        clone should stay under your finger. If it jumps to the page top, the HUD says why.</p>
+        <div class="filler">filler — scroll past me, then grab an item below</div>
+        <div id="chains-wrap"></div>
+      </div>
+    </section>
+  </section>
+</main>
+
+<div id="hud">drag an item…</div>
+
+<script type="module">
+import {SortableListContainer} from '../scripts/sortable-list-form.js';
+
+// Real chain step text — long enough that max-content is capped by max-width:100%,
+// matching the real screen.
+const STEPS = [
+  'Left ilium rotates anteriorly on the sacrum (L IS IR); sacrum carries a rightward rotational influence into the spine',
+  'Distal iliacus pulls the femur, overriding proximal iliacus’s inlet adduction and outlet abduction',
+  'On passive abduction, lateral femoral head buttresses against the lateral-superior acetabulum',
+  'Left psoas shortens (shares anterior lumbar attachments with crura); iliacus joins the pull',
+  'Right innominate is loaded under weight-bearing and held posteriorly (R IP IR)',
+  'Pattern locks in'
+];
+
+// Mirrors renderChainForm's structure (the .sortable-list-parent wrapper is what matters).
+const renderForm = ({title, start, end}) => `
+  <h3 class="form-title">${title}</h3>
+  <div class="form-subtitle">${start} → ${end}</div>
+  <div class="sortable-list-parent"><ol class="sortable-list"></ol></div>
+  <div class="btn-row">
+    <button name="checkResults" class="primary">Check Order</button>
+    <button name="reshuffle">Reshuffle</button>
+  </div>
+`;
+
+new SortableListContainer(document.getElementById('chains-wrap'), {
+  definitions: {chain: {title: 'L AIC chain', start: 'Compensation', end: 'Lock-in', steps: STEPS}},
+  getSteps: c => c.steps,
+  renderFormHTML: renderForm,
+  renderItemHTML: s => s,
+  flipDuration: 200
+});
+
+// HUD observes the real clone via rAF; capture-phase pointermove records the
+// live coordinates so we can show any pageY/scroll skew.
+const hud = document.getElementById('hud');
+let lastPageY = 0, lastClientY = 0;
+document.addEventListener('pointermove',
+  e => { lastPageY = e.pageY; lastClientY = e.clientY; }, true);
+
+let activeClone = null, peak = null;
+
+function snapshot(clone) {
+  const parent = clone.parentElement;                       // .sortable-list-parent
+  const source = parent.querySelector('.sortable-list > li.active-drag-source');
+  if (!source) return null;
+  const cloneTop = clone.getBoundingClientRect().top;
+  const sourceTop = source.getBoundingClientRect().top;
+  const parentTop = parent.getBoundingClientRect().top;
+  const tf = getComputedStyle(clone).transform;
+  const ty = tf === 'none' ? 0 : new DOMMatrix(tf).m42;
+  const inlineTop = parseFloat(clone.style.top) || 0;
+  const effCB = cloneTop - ty - inlineTop;                  // where the CB top sits
+  return {
+    cloneTop, sourceTop, parentTop, ty, inlineTop, effCB,
+    cbParent: Math.abs(effCB - parentTop) < 1.5,
+    cbPage: Math.abs(effCB + window.scrollY) < 1.5,
+    parentPosition: getComputedStyle(parent).position,
+    parentWidth: getComputedStyle(parent).width,
+    scrollY: window.scrollY,
+    skew: lastPageY - (lastClientY + window.scrollY)
+  };
+}
+
+function render(s) {
+  if (!s) return;
+  const verdict = s.cbParent ? 'parent (correct)'
+    : s.cbPage ? 'page top (BUG)' : 'neither?';
+  const skewWarn = Math.abs(s.skew) > 1 ? '   <-- pageY skew' : '';
+  hud.innerHTML =
+    `containing block  <b>${verdict}</b>\n` +
+    `  effective CB top ${s.effCB.toFixed(1)}\n` +
+    `  parent top       ${s.parentTop.toFixed(1)}   (-scrollY ${(-s.scrollY).toFixed(1)})\n` +
+    `parent position   ${s.parentPosition}\n` +
+    `parent width      ${s.parentWidth}\n` +
+    `pageY-(client+sc) <b>${s.skew.toFixed(1)}</b>${skewWarn ? `<span class="warn">${skewWarn}</span>` : ''}\n` +
+    `clone inline top  ${s.inlineTop.toFixed(1)}    translateY ${s.ty.toFixed(1)}\n` +
+    `cloneVsSource     <b>${(s.cloneTop - s.sourceTop).toFixed(1)}</b>   (clone ${s.cloneTop.toFixed(0)} / item ${s.sourceTop.toFixed(0)})`;
+}
+
+function tick() {
+  const clone = document.querySelector('.sortable-list-clone');
+  if (clone) {
+    if (clone !== activeClone) { activeClone = clone; peak = null; }  // new drag
+    const s = snapshot(clone);
+    if (s && (!peak || Math.abs(s.ty) > Math.abs(peak.ty))) { peak = s; render(peak); }
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
