@@ -3,8 +3,12 @@
 // `.sortable-list > li`s; the order is read off their data-step values.
 //
 // Covers: dragging a middle row to the top (it leads, the rest keep their
-// relative order), dragging a row to the end (it trails), and a press-release
-// in place (no movement, order unchanged).
+// relative order), dragging a row to the end (it trails), a press-release in
+// place (no movement, order unchanged), and the drop bar (a .sortable-list
+// ::before) tracking the gap before the target -- at the list bottom on
+// end-of-list, hidden on a no-op, and gliding out from the grabbed item on
+// reveal rather than sliding from the list top -- and that a cancelled drag
+// settles the clone home and removes it.
 //
 // Requires a static server for the repo root. Default http://localhost:8000;
 // override with E2E_BASE. Run: npm run test:e2e
@@ -102,6 +106,118 @@ const afterNoOp = await order();
 ok('press-release in place: order unchanged',
    afterNoOp.join() === beforeNoOp.join(),
    `after=${afterNoOp.join()} before=${beforeNoOp.join()}`);
+
+// The drop bar is a .sortable-list::before, slid to the gap by --marker-position.
+// Hold a drag (no release) and read the ::before's resolved position: its bottom
+// edge should sit on the target's top (the gap), on the list's bottom at
+// end-of-list, and it should hide (opacity 0) on a no-op.
+const readBar = targetIdx => page.evaluate(({sel, targetIdx}) => {
+  const ol = document.querySelector(sel);
+  const its = [...ol.querySelectorAll(':scope > li')];
+  const bf = getComputedStyle(ol, '::before');
+  const olR = ol.getBoundingClientRect();
+  const tR = targetIdx == null ? null : its[targetIdx].getBoundingClientRect();
+  const m = bf.transform;                       // matrix(a,b,c,d,e,f); f = translateY
+  const translateY = m === 'none' ? 0 : parseFloat(m.split(',')[5]);
+  const barBottom = olR.top + parseFloat(bf.top) + translateY + parseFloat(bf.height);
+  return {
+    markerOpacity: getComputedStyle(ol).getPropertyValue('--marker-opacity').trim(),
+    barBottom, gapTop: tR ? tR.top : null, listBottom: olR.bottom,
+  };
+}, {sel: OL, targetIdx});
+
+// The bar glides to its target (transition on transform), so wait for the
+// transform to stop changing before measuring its settled position.
+const settleBar = async () => {
+  let prev = '';
+  for (let i = 0; i < 40; i++) {
+    const t = await page.evaluate(sel =>
+      getComputedStyle(document.querySelector(sel), '::before').transform, OL);
+    if (t === prev) return;
+    prev = t;
+    await page.waitForTimeout(25);
+  }
+};
+
+const barGrab = await items().nth(0).boundingBox();
+const barX = barGrab.x + barGrab.width / 2;
+await page.mouse.move(barX, barGrab.y + barGrab.height / 2);
+await page.mouse.down();
+
+const beforeTargetBox = await items().nth(3).boundingBox();
+await page.mouse.move(barX, beforeTargetBox.y + 2, {steps: 10});
+await settleBar();
+const beforeBar = await readBar(3);
+ok('drop bar sits in the gap before the target',
+   Math.abs(beforeBar.barBottom - beforeBar.gapTop) < 1 && beforeBar.markerOpacity === '1',
+   `barBottom=${beforeBar.barBottom} gapTop=${beforeBar.gapTop} opacity=${beforeBar.markerOpacity}`);
+
+const endTargetBox = await items().last().boundingBox();
+await page.mouse.move(barX, endTargetBox.y + endTargetBox.height - 2, {steps: 10});
+await settleBar();
+const endBar = await readBar(null);
+ok('drop bar sits at the list bottom at end-of-list',
+   Math.abs(endBar.barBottom - endBar.listBottom) < 1 && endBar.markerOpacity === '1',
+   `barBottom=${endBar.barBottom} listBottom=${endBar.listBottom} opacity=${endBar.markerOpacity}`);
+
+await page.mouse.move(barX, barGrab.y + barGrab.height / 2, {steps: 10});
+const noOpBar = await readBar(0);
+ok('drop bar hides on a no-op', noOpBar.markerOpacity === '0', `opacity=${noOpBar.markerOpacity}`);
+
+await page.mouse.up();
+await page.waitForTimeout(200);
+
+// On reveal the bar must glide out from the grabbed item's parked position, not slide
+// in from the list top (the fixed bug: a stale --marker-position read as 0). Grab a
+// middle item, cross up one slot to the first real target, and read the bar's transform
+// immediately -- it should still be on the grab side (above the target), then settle on it.
+const barTranslateY = () => page.evaluate(sel => {
+  const m = getComputedStyle(document.querySelector(sel), '::before').transform;
+  return m === 'none' ? 0 : parseFloat(m.split(',')[5]);   // matrix(...): f is translateY
+}, OL);
+const liTopInList = idx => page.evaluate(({sel, idx}) => {
+  const ol = document.querySelector(sel);
+  return ol.querySelectorAll(':scope > li')[idx].getBoundingClientRect().top
+    - ol.getBoundingClientRect().top;
+}, {sel: OL, idx});
+
+const revealIdx = 3;
+const revealGrab = await items().nth(revealIdx).boundingBox();
+const revealX = revealGrab.x + revealGrab.width / 2;
+await page.mouse.move(revealX, revealGrab.y + revealGrab.height / 2);
+await page.mouse.down();
+const grabTop = await liTopInList(revealIdx);
+const revealTargetBox = await items().nth(revealIdx - 1).boundingBox();
+await page.mouse.move(revealX, revealTargetBox.y + 2, {steps: 6});
+const revealY = await barTranslateY();          // read immediately, mid-glide from the grab
+const revealTargetTop = await liTopInList(revealIdx - 1);
+await settleBar();
+const revealSettledY = await barTranslateY();
+ok('drop bar glides out from the grabbed item on reveal, not the list top',
+   revealY > revealTargetTop && Math.abs(revealSettledY - revealTargetTop) < 1,
+   `revealY=${revealY} grab=${grabTop} target=${revealTargetTop} settled=${revealSettledY}`);
+await page.mouse.up();
+await page.waitForTimeout(200);
+
+// Cancelling mid-drag (Escape) settles the clone home and removes it -- the WAAPI
+// settle path (dy > 0.5; the no-op press-release above hits the sub-pixel shortcut).
+// Offset the clone, Escape, and after the settle finishes there should be no clone
+// left in the DOM and the order unchanged.
+const beforeCancel = await order();
+const cancelGrab = await items().nth(2).boundingBox();
+const cancelX = cancelGrab.x + cancelGrab.width / 2;
+await page.mouse.move(cancelX, cancelGrab.y + cancelGrab.height / 2);
+await page.mouse.down();
+await page.mouse.move(cancelX, cancelGrab.y + cancelGrab.height / 2 + 30, {steps: 6});
+await page.keyboard.press('Escape');
+await page.waitForTimeout(700);   // let the settle animation finish and remove the clone
+await page.mouse.up();
+const cloneCount = await page.evaluate(() =>
+  document.querySelectorAll('.sortable-list-clone').length);
+const afterCancel = await order();
+ok('cancel settles the clone home and removes it',
+   cloneCount === 0 && afterCancel.join() === beforeCancel.join(),
+   `clones=${cloneCount} orderUnchanged=${afterCancel.join() === beforeCancel.join()}`);
 
 ok('no page errors', errs.length === 0, errs.join('; '));
 

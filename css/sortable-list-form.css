@@ -5,6 +5,7 @@
   --sortable-item-gap: .5rem;
   --item-border-width: 3px;
   --lift-border-color: var(--warn);
+  /* grow to the longest single line of text inside it */
   width: max-content;
   max-width: 100%;
 }
@@ -22,7 +23,9 @@ const cloneTop = sourceRect.top - listParentRect.top;
 }
 
 .sortable-list {
-  --marker-bar-thickness: .4rem;
+  /* Containing block for the drop-bar ::before. */
+  position: relative;
+  --marker-bar-thickness: .35rem;
   --marker-bar-offset: calc(var(--marker-bar-thickness) * -1);
   /* "Scroll anchoring" — the browser may scroll the window after layout change to keep
    certain elements in view. The insertBefore on drop triggers layout change, causing the
@@ -62,10 +65,9 @@ const cloneTop = sourceRect.top - listParentRect.top;
   margin-block-start: var(--sortable-item-gap);
 }
 
-.sortable-list > li:hover {
-  border-color: var(--accent);
-}
-
+/* The sortable list's item-entrance animation. The module owns it but applies it
+   nowhere here -- consumers do (diagnose.css gates it on #chains-wrap.entering). It
+   reads as unused in this file by design; don't move or delete it. */
 @keyframes list-enter {
   from {
     opacity: 0;
@@ -98,10 +100,6 @@ const cloneTop = sourceRect.top - listParentRect.top;
   transform: translateY(var(--drag-offset, 0px));
 }
 
-.sortable-list-clone.settling {
-  transition: transform var(--dur-slow) ease-out;
-}
-
 .sortable-list-clone > li {
   background: var(--accent-bg);
   border-left: var(--item-border-width) solid var(--lift-border-color);
@@ -109,23 +107,38 @@ const cloneTop = sourceRect.top - listParentRect.top;
   box-shadow: var(--box-shadow-lg);
 }
 
-.sortable-list > li:is(.drop-target-before, .drop-target-after)::before {
+/* The drop bar: one pseudo-element of the list, moved to the gap before the drop
+   target by --marker-position (a transform -- composites, no layout). Hidden by
+   default; the :has rule below reveals it during a drag. */
+.sortable-list::before {
   content: '';
   position: absolute;
-  left: -.5rem;
-  right: 0;
+  z-index: var(--lift-z);
+  top: var(--marker-bar-offset);
+  left: 0;
+  right: var(--sortable-item-inset);
   height: var(--marker-bar-thickness);
   background: var(--accent);
   border-radius: 9999px;
   pointer-events: none;
+  opacity: 0;
+  transform: translateY(var(--marker-position, 0px));
+  transition: opacity var(--dur-fast) ease-out;   /* fades on every show/hide */
 }
 
-.sortable-list > li.drop-target-before::before {
-  top: var(--marker-bar-offset);
+/* Gliding adds transform to the transition (reusing the base duration), so the bar's
+   position animates only while the class is on -- added at the first real target. The
+   pointerdown park is written with it off, so its transform snaps to the grab; the
+   reveal turns gliding on and it glides out from there. */
+.sortable-list.marker-gliding::before {
+  transition-property: opacity, transform;
 }
 
-.sortable-list > li.drop-target-after::before {
-  bottom: var(--marker-bar-offset);
+/* Matches only mid-drag, when the dragged <li> carries active-drag-source, and
+   reveals the bar at --marker-opacity -- which JS sets to 1 for a real target,
+   0 for a no-op (a drop that wouldn't move anything). */
+.sortable-list:has(> li.active-drag-source)::before {
+  opacity: var(--marker-opacity, 0);
 }
 
 /* On drop the LI briefly wears the dragged clone's lifted look, then cools to
@@ -153,7 +166,13 @@ html.list-drag-active {
   }
 }
 
-html:is(.list-drag-active) button { pointer-events: none }
+html.list-drag-active button { pointer-events: none }
+
+/* hover rule specificity (0,3,2) outranks .correct / .incorrect's (0,2,1)
+  so hovering a graded item works, and, with the base li border-color transition */
+html:not(.list-drag-active) .sortable-list > li:hover {
+  border-color: var(--accent);
+}
 
 .sortable-list > li.correct {
   border-left-color: var(--correct-border);

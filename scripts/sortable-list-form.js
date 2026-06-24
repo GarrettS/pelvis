@@ -58,6 +58,7 @@ export class SortableListContainer {
 
     const dragSource = e.target.closest('.sortable-list > li');
     if (!dragSource) return;
+
     const ol = dragSource.parentNode;
     if (ol.ariaDisabled === 'true') return;
 
@@ -202,27 +203,14 @@ export class SortableListForm {
     const listRect = listEl.getBoundingClientRect();
     const listParentRect = listParent.getBoundingClientRect();
     const doc = dragSource.ownerDocument;
-    const scrollY = doc.defaultView.scrollY;
     const scrollport = SortableListForm.#captureScrollport(doc);
     const { top, bottom } = scrollport;
 
-    // The clone is a same-size copy of dragSource, built later in #commitDragDOM.
-    // Its geometry matches the source's.
-    const cloneTop        = sourceRect.top - listParentRect.top;
-    const cloneHeight     = sourceRect.height;
-    const firstItemRect   = items[0].getBoundingClientRect();
-    const lastItemRect    = items.at(-1).getBoundingClientRect();
-    const firstItemBottom = firstItemRect.bottom - listParentRect.top;
-    const lastItemTop     = lastItemRect.top - listParentRect.top;
-
-    // The clone overlaps the edge item but leaves EDGE_PEEK of it showing, so the
-    // first/last drop target never hides fully under it. Both edges read relative to
-    // listParent -- the clone's own frame -- so a contained first-item margin or
-    // parent padding can't offset the list frame from it and eat the peek:
-    //   minCloneTop -- dragged up, clone bottom EDGE_PEEK above the first item's bottom
-    //   maxCloneTop -- dragged down, clone top EDGE_PEEK below the last item's top
-    const minCloneTop = firstItemBottom - cloneHeight - EDGE_PEEK;
-    const maxCloneTop = lastItemTop + EDGE_PEEK;
+    // The clone is a same-size copy of dragSource, built later in #commitDragDOM,
+    // so its geometry matches the source's. cloneTop reads relative to listParent
+    // -- the clone's containing block -- so its CSS top lands it over the source.
+    const cloneTop    = sourceRect.top - listParentRect.top;
+    const cloneHeight = sourceRect.height;
 
     return Object.freeze({
       listEl,
@@ -233,17 +221,42 @@ export class SortableListForm {
       ordinalValue: items.indexOf(dragSource) + 1,
       cloneHeight,
       scrollport,
-      // Items can't be dragged outside the list, so scrolling is only possible
-      // when the list overflows the scrollport.
+      // Autoscroll has somewhere to go only when the list overflows the scrollport;
+      // otherwise the whole list is already in view.
       isOutsideScrollport: listRect.top < top || listRect.bottom > bottom,
       dragRange: Object.freeze({
         grabStartPageY,
-        minDelta: minCloneTop - cloneTop,
-        maxDelta: maxCloneTop - cloneTop
+        ...SortableListForm.#getDragRange(sourceRect, listRect, items)
       }),
-      siblingDropMidpoints:
-        SortableListForm.#readSiblingDropMidpoints(items, dragSource, scrollY)
+      listBottomY: listRect.height,
+      dropTargets:
+        SortableListForm.#readDropTargets(items, dragSource, listRect.top)
     });
+  }
+
+  // The drag range clamps how far --drag-offset carries the clone from its
+  // pickup spot. minDelta and maxDelta are travel distances, so the shared
+  // listParentRect.top cancels in the subtraction -- viewport rects suffice.
+  //
+  // EDGE_PEEK lets the clone escape list edge only when the clone is tall
+  // enough to cover the edge item. A shorter clone reaches the list edge, where
+  // the taller edge item still shows past it -- so the bound that lets the clone
+  // travel furthest toward the edge wins.
+  static #getDragRange(sourceRect, listRect, items) {
+    const cloneHeight     = sourceRect.height;
+    const firstItemBottom = items[0].getBoundingClientRect().bottom;
+    const lastItemTop     = items.at(-1).getBoundingClientRect().top;
+
+    const clonePeekTop     = firstItemBottom - cloneHeight - EDGE_PEEK;
+    const clonePeekBottom  = lastItemTop + EDGE_PEEK;
+    const cloneFlushTop    = listRect.top;
+    const cloneFlushBottom = listRect.bottom - cloneHeight;
+    const minCloneTop = Math.min(clonePeekTop, cloneFlushTop);
+    const maxCloneTop = Math.max(clonePeekBottom, cloneFlushBottom);
+    return {
+      minDelta: minCloneTop - sourceRect.top,
+      maxDelta: maxCloneTop - sourceRect.top
+    };
   }
 
   // Read once at drag start so the per-frame autoscroll check never re-measures
@@ -257,29 +270,34 @@ export class SortableListForm {
     });
   }
 
-  // Hit-test midpoints in document coords. Reads each sibling's BCR and its
-  // in-flight transform, subtracting the transform so a mid-FLIP pickup still
-  // targets the settled slot, not the animating position.
-  static #readSiblingDropMidpoints(items, dragSource, scroll) {
+  // Per-sibling drop geometry, read once at pickup. Each sibling's BCR and its
+  // in-flight transform are read, subtracting the transform so a mid-FLIP pickup
+  // targets the settled slot, not the animating one. Both values come off that
+  // settled top: midpointPageY hit-tests the pointer (page coords, scroll-stable);
+  // markerY positions the drop bar in the gap before the sibling (list frame).
+  static #readDropTargets(items, dragSource, listTop) {
     const win = dragSource.ownerDocument.defaultView;
-    const midpoints = [];
+    const scroll = win.scrollY;
+    const targets = [];
     for (const li of items) {
       if (li === dragSource) continue;
       const box = li.getBoundingClientRect();
       const transform = win.getComputedStyle(li).transform;
       const animOffsetY = transform === 'none'
         ? 0 : new win.DOMMatrix(transform).m42;
-      midpoints.push({
+      const settledTop = box.top - animOffsetY;
+      targets.push({
         sibling: li,
-        midpointPageY: box.top - animOffsetY + box.height / 2 + scroll
+        midpointPageY: settledTop + box.height / 2 + scroll,
+        markerY: settledTop - listTop
       });
     }
-    return midpoints;
+    return targets;
   }
 
   static #commitDragDOM(baseline) {
     const {
-      listParent, dragSource, ordinalValue, cloneTop
+      listEl, listParent, dragSource, ordinalValue, cloneTop
     } = baseline;
 
     listParent.querySelector('.sortable-list-clone')?.remove();
@@ -288,14 +306,20 @@ export class SortableListForm {
       attrs: {start: ordinalValue, 'aria-hidden': 'true', style: `top: ${cloneTop}px`},
       children: [dragSource.cloneNode(true)]
     }));
-    // active-drag-source dims the picked-up LI and, via CSS
-    // :has(> li.active-drag-source), suppresses the now-stale grading until the
-    // drop resolves: no-op/abort re-show it, a reorder clears it.
+    // active-drag-source dims the picked-up LI; the :has(> li.active-drag-source) rule
+    // uses it to suppress the now-stale grading until the drop resolves -- a no-op or
+    // abort re-shows that grading, a reorder clears it.
     dragSource.classList.add('active-drag-source');
+    // Park the bar at the grabbed item while hidden, marker-gliding off so the base
+    // bar snaps -- the park lands as an instant, committed value. #updateDropMarker
+    // adds the class on the first real target, so the reveal glides from here: the grab.
+    listEl.classList.remove('marker-gliding');
+    listEl.style.setProperty('--marker-opacity', '0');
+    listEl.style.setProperty('--marker-position', cloneTop + 'px');
 
     return {
-      insertBeforeNode: dragSource.nextElementSibling,
-      markerEl: null,
+      // Reassigned in dragMove.
+      insertBeforeEl: dragSource.nextElementSibling,
       clone,
       win: clone.ownerDocument.defaultView,
       lastClientY: null,
@@ -314,10 +338,10 @@ export class SortableListForm {
     const siblingAtPageY = this.#findTargetSibling(
       this.#getVisibleTargetPageY(pageY, clientY));
     // Unchanged target — no re-mark.
-    if (siblingAtPageY === session.insertBeforeNode) return;
+    if (siblingAtPageY === session.insertBeforeEl) return;
 
-    this.#updateDropMarker(siblingAtPageY);
-    session.insertBeforeNode = siblingAtPageY;
+    session.insertBeforeEl = siblingAtPageY;
+    this.#updateDropMarker();
     this.#updateCloneNumber();
   }
 
@@ -327,7 +351,7 @@ export class SortableListForm {
   }
 
   #findTargetSibling(pageY) {
-    return this.#dragSession.baseline.siblingDropMidpoints
+    return this.#dragSession.baseline.dropTargets
       .find(({ midpointPageY }) => pageY <= midpointPageY)?.sibling ?? null;
   }
 
@@ -374,24 +398,37 @@ export class SortableListForm {
     session.autoscrollRAF = session.win.cancelAnimationFrame(session.autoscrollRAF);
   }
 
-  #updateDropMarker(dragOverTarget) {
-    const session = this.#dragSession;
-    const { dragSource, listEl } = session.baseline;
-    session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
-    const wouldNotMove = dragOverTarget === dragSource.nextElementSibling;
-    session.markerEl = wouldNotMove ? null : (dragOverTarget ?? listEl.lastElementChild);
-    session.markerEl?.classList.add(
-      dragOverTarget ? 'drop-target-before' : 'drop-target-after'
-    );
+  // The bar's list-frame Y for a drop reference: the target sibling's gap, or the
+  // list bottom at end-of-list (insertBeforeEl null).
+  static #markerYFor(baseline, insertBeforeEl) {
+    return insertBeforeEl
+      ? baseline.dropTargets.find(t => t.sibling === insertBeforeEl).markerY
+      : baseline.listBottomY;
   }
 
-  // Marker shows the prospective drop position. Moving down lands one
-  // slot before the target (target shifts down); moving up lands at it.
+  // Position the bar at the target's gap and reveal it (--marker-opacity 1); a no-op
+  // (the drop wouldn't move the item) hides it (0). Adding marker-gliding on the first
+  // real target -- in the same batch as the position write -- glides the bar from the
+  // committed park (the grab); --marker-opacity fades it in/out on its own (base rule).
+  #updateDropMarker() {
+    const { baseline, insertBeforeEl } = this.#dragSession;
+    const { listEl, dragSource } = baseline;
+    const noOp = insertBeforeEl === dragSource.nextElementSibling;
+    listEl.style.setProperty('--marker-opacity', noOp ? '0' : '1');
+    if (noOp) return;
+    listEl.classList.add('marker-gliding');
+    listEl.style.setProperty('--marker-position',
+      SortableListForm.#markerYFor(baseline, insertBeforeEl) + 'px');
+  }
+
+  // The clone's number is the ordinal the item will land on. Moving DOWN, it vacates
+  // a slot above the target, so everything shifts up one and it lands one before
+  // insertBeforeOrdinal; moving UP, it lands at it.
   #updateCloneNumber() {
-    const { clone, insertBeforeNode, baseline } = this.#dragSession;
+    const { clone, insertBeforeEl, baseline } = this.#dragSession;
     const { items, ordinalValue } = baseline;
-    const insertBeforeOrdinal = insertBeforeNode
-      ? items.indexOf(insertBeforeNode) + 1
+    const insertBeforeOrdinal = insertBeforeEl
+      ? items.indexOf(insertBeforeEl) + 1
       : items.length + 1;
     clone.start = ordinalValue < insertBeforeOrdinal
       ? insertBeforeOrdinal - 1 : insertBeforeOrdinal;
@@ -399,18 +436,16 @@ export class SortableListForm {
 
   dragDrop() {
     const session = this.#dragSession;
-    const { insertBeforeNode, baseline, clone, markerEl } = session;
+    const { insertBeforeEl, baseline, clone } = session;
     const { dragSource } = baseline;
-
-    markerEl?.classList.remove('drop-target-before', 'drop-target-after');
 
     // No reorder when the target is already the next sibling — or both null at
     // end-of-list (insertBefore(_, null) appends). Settle home; #settleClone
     // removes active-drag-source, re-showing the still-valid grading.
-    if (insertBeforeNode === dragSource.nextElementSibling)
+    if (insertBeforeEl === dragSource.nextElementSibling)
       this.#settleClone(clone, dragSource);
     else
-      this.#reorderList(baseline, insertBeforeNode, clone);
+      this.#reorderList(baseline, insertBeforeEl, clone);
     this.#endSession();
   }
 
@@ -422,7 +457,7 @@ export class SortableListForm {
     this.#dragSession = null;
   }
 
-  #reorderList({ dragSource, listEl, items }, insertBeforeNode, clone) {
+  #reorderList({ dragSource, listEl, items }, insertBeforeEl, clone) {
     // Order changed, so the prior grading is invalid — clear it before
     // un-dimming, else it flashes as active-drag-source is removed.
     items.forEach(li => li.classList.remove('correct', 'incorrect'));
@@ -431,7 +466,7 @@ export class SortableListForm {
     // the pointer instead of snapping back to its dim DOM slot.
     dragSource.classList.remove('active-drag-source');
     this.#animateLayoutChange(listEl, () => {
-      listEl.insertBefore(dragSource, insertBeforeNode);
+      listEl.insertBefore(dragSource, insertBeforeEl);
       this.#currentOrder = Array.from(listEl.children, li => li.dataset.step);
     }, clone.firstElementChild);
     dragSource.classList.add('dropped');
@@ -475,11 +510,8 @@ export class SortableListForm {
 
     const dy = dragSource.getBoundingClientRect().top - clone.getBoundingClientRect().top;
 
-    // Sub-pixel dy: changing --drag-offset by < .5px wouldn't move the
-    // transform enough for a transition to fire, so transitionend wouldn't
-    // fire and the clone would stay in the DOM. Happens when the clone is
-    // already at the drag source's slot at release: a no-op drop on its own
-    // slot, or Escape with the clone over the slot. Remove synchronously.
+    // Already at the source's slot (a no-op drop on its own slot, or Escape over it):
+    // nothing to animate, so remove it now.
     if (Math.abs(dy) < 0.5) {
       clone.remove();
       return;
@@ -489,16 +521,15 @@ export class SortableListForm {
       clone.style.getPropertyValue('--drag-offset')
     ) || 0;
 
-    clone.style.transitionDuration = calculateSettleDuration(dy) + 'ms';
-    clone.classList.add('settling');
-    clone.addEventListener('transitionend', () => clone.remove(), {once: true});
-
-    // Defer the offset change so .settling takes effect first. If the
-    // classList.add and the property write land in the same style update,
-    // the browser collapses them — no transitionable before-state, the
-    // clone snaps home.
-    clone.ownerDocument.defaultView.requestAnimationFrame(() =>
-      clone.style.setProperty('--drag-offset', (currentOffset + dy) + 'px'));
+    // Animate the clone home with the Web Animations API: an explicit one-shot from the
+    // dropped offset to the source's slot, removed on finish. No transition class and no
+    // rAF to dodge style-batching -- it runs start-to-end on its own. fill: forwards
+    // holds it at home until removal so it can't snap back for a frame.
+    const settle = clone.animate(
+      [{transform: `translateY(${currentOffset}px)`},
+       {transform: `translateY(${currentOffset + dy}px)`}],
+      {duration: calculateSettleDuration(dy), easing: 'ease-out', fill: 'forwards'});
+    settle.addEventListener('finish', () => clone.remove(), {once: true});
   }
 
   // Abort path: Esc or pointercancel. runs only when the drag is cancelled —
@@ -506,7 +537,7 @@ export class SortableListForm {
   dragCancel() {
     const session = this.#dragSession;
     if (!session) return;
-    session.markerEl?.classList.remove('drop-target-before', 'drop-target-after');
+
     this.#settleClone(session.clone, session.baseline.dragSource);
     this.#endSession();
   }
