@@ -107,9 +107,9 @@ const cloneTop = sourceRect.top - listParentRect.top;
   box-shadow: var(--box-shadow-lg);
 }
 
-/* The drop bar: one pseudo-element of the list, moved to the gap before the drop
-   target by --marker-position (a transform -- composites, no layout). Hidden by
-   default; the :has rule below reveals it during a drag. */
+/* The drop bar: a list pseudo-element that --marker-position slides to the gap before
+   the drop target (a transform -- composites, no layout). Hidden by default; shows over
+   a drop target. */
 .sortable-list::before {
   content: '';
   position: absolute;
@@ -126,20 +126,11 @@ const cloneTop = sourceRect.top - listParentRect.top;
   transition: opacity var(--dur-fast) ease-out;   /* fades on every show/hide */
 }
 
-/* Gliding adds transform to the transition (reusing the base duration), so the bar's
-   position animates only while the class is on -- added at the first real target. The
-   pointerdown park is written with it off, so its transform snaps to the grab; the
-   reveal turns gliding on and it glides out from there. */
 .sortable-list.marker-gliding::before {
-  transition-property: opacity, transform;
+  transition: opacity var(--dur-fast) ease-out, transform var(--dur-fast) ease-out;
 }
 
-/* Matches only mid-drag, when the dragged <li> carries active-drag-source, and
-   reveals the bar at --marker-opacity -- which JS sets to 1 for a real target,
-   0 for a no-op (a drop that wouldn't move anything). */
-.sortable-list:has(> li.active-drag-source)::before {
-  opacity: var(--marker-opacity, 0);
-}
+.sortable-list.drop-target::before { opacity: 1 }
 
 /* On drop the LI briefly wears the dragged clone's lifted look, then cools to
    its resting item. The keyframe declares that lifted start, so it needs no

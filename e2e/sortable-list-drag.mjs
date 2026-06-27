@@ -6,15 +6,16 @@
 // relative order), dragging a row to the end (it trails), a press-release in
 // place (no movement, order unchanged), and the drop bar (a .sortable-list
 // ::before) tracking the gap before the target -- at the list bottom on
-// end-of-list, hidden on a no-op, and gliding out from the grabbed item on
-// reveal rather than sliding from the list top -- and that a cancelled drag
-// settles the clone home and removes it.
+// end-of-list and gliding out from the grabbed item on reveal rather than
+// sliding from the list top -- and that a cancelled drag settles the clone
+// home and removes it.
 //
 // Requires a static server for the repo root. Default http://localhost:8000;
 // override with E2E_BASE. Run: npm run test:e2e
 import {chromium} from 'playwright';
 
 const BASE = process.env.E2E_BASE || 'http://localhost:8000';
+
 const reachable = await fetch(`${BASE}/index.html`).then(r => r.ok, () => false);
 if (!reachable) {
   console.error(`Server not reachable at ${BASE}. ` +
@@ -109,8 +110,9 @@ ok('press-release in place: order unchanged',
 
 // The drop bar is a .sortable-list::before, slid to the gap by --marker-position.
 // Hold a drag (no release) and read the ::before's resolved position: its bottom
-// edge should sit on the target's top (the gap), on the list's bottom at
-// end-of-list, and it should hide (opacity 0) on a no-op.
+// edge should sit on the target's top (the gap), and on the list's bottom at
+// end-of-list. It reads fully opaque on a real target (the source's home slot
+// fades it out via the marker-at-home class).
 const readBar = targetIdx => page.evaluate(({sel, targetIdx}) => {
   const ol = document.querySelector(sel);
   const its = [...ol.querySelectorAll(':scope > li')];
@@ -121,7 +123,7 @@ const readBar = targetIdx => page.evaluate(({sel, targetIdx}) => {
   const translateY = m === 'none' ? 0 : parseFloat(m.split(',')[5]);
   const barBottom = olR.top + parseFloat(bf.top) + translateY + parseFloat(bf.height);
   return {
-    markerOpacity: getComputedStyle(ol).getPropertyValue('--marker-opacity').trim(),
+    markerOpacity: bf.opacity,
     barBottom, gapTop: tR ? tR.top : null, listBottom: olR.bottom,
   };
 }, {sel: OL, targetIdx});
@@ -160,9 +162,8 @@ ok('drop bar sits at the list bottom at end-of-list',
    Math.abs(endBar.barBottom - endBar.listBottom) < 1 && endBar.markerOpacity === '1',
    `barBottom=${endBar.barBottom} listBottom=${endBar.listBottom} opacity=${endBar.markerOpacity}`);
 
+// Return to the source's own slot so the release below is a no-op (order unchanged).
 await page.mouse.move(barX, barGrab.y + barGrab.height / 2, {steps: 10});
-const noOpBar = await readBar(0);
-ok('drop bar hides on a no-op', noOpBar.markerOpacity === '0', `opacity=${noOpBar.markerOpacity}`);
 
 await page.mouse.up();
 await page.waitForTimeout(200);
@@ -196,6 +197,29 @@ const revealSettledY = await barTranslateY();
 ok('drop bar glides out from the grabbed item on reveal, not the list top',
    revealY > revealTargetTop && Math.abs(revealSettledY - revealTargetTop) < 1,
    `revealY=${revealY} grab=${grabTop} target=${revealTargetTop} settled=${revealSettledY}`);
+await page.mouse.up();
+await page.waitForTimeout(200);
+
+// Regression: coming back down into the source from above must not slide the bar to the
+// gap BELOW the source. The source is a marker target, so its own midpoint splits the home
+// band -- over the source's top half the bar parks at the gap ABOVE it (cloneTop), never
+// below. (Pre-fix the source was skipped, so the whole band resolved to the lower gap.)
+const homeIdx = 3;
+const homeGrab = await items().nth(homeIdx).boundingBox();
+const homeX = homeGrab.x + homeGrab.width / 2;
+await page.mouse.move(homeX, homeGrab.y + homeGrab.height / 2);
+await page.mouse.down();
+const upBox = await items().nth(homeIdx - 2).boundingBox();
+await page.mouse.move(homeX, upBox.y + 2, {steps: 8});
+await settleBar();
+await page.mouse.move(homeX, homeGrab.y + homeGrab.height * 0.25, {steps: 8});
+await settleBar();
+const homeBarY = await barTranslateY();
+const aboveSourceGap = await liTopInList(homeIdx);
+const belowSourceGap = await liTopInList(homeIdx + 1);
+ok('coming down into the source parks the bar above it, not below',
+   Math.abs(homeBarY - aboveSourceGap) < 1 && homeBarY < belowSourceGap - 1,
+   `barY=${homeBarY} above=${aboveSourceGap} below=${belowSourceGap}`);
 await page.mouse.up();
 await page.waitForTimeout(200);
 
