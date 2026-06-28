@@ -160,6 +160,7 @@ export class SortableListForm {
   #currentOrder;
   #container;
   #dragSession = null;
+  #autoscroll = null;
   #wrongChecks = 0;
 
   constructor(id, definition, container, key) {
@@ -189,8 +190,14 @@ export class SortableListForm {
 
   dragStart(dragSource, grabStartPageY) {
     this.#wrongChecks = 0;
-    this.#dragSession = SortableListForm.#commitDragDOM(
-      SortableListForm.#captureDragBaseline(dragSource, grabStartPageY));
+    const baseline = SortableListForm.#captureDragBaseline(dragSource, grabStartPageY);
+    const session = SortableListForm.#commitDragDOM(baseline);
+    this.#dragSession = session;
+    this.#autoscroll = this.#createAutoscroll(session.clone, {
+      isEnabled: baseline.isOutsideScrollport,
+      cloneHeight: baseline.cloneHeight,
+      ...baseline.scrollport
+    });
   }
 
   static #captureDragBaseline(dragSource, grabStartPageY) {
@@ -323,18 +330,15 @@ export class SortableListForm {
       slot: baseline.slots.find(s => s.item === dragSource.nextElementSibling),
       clone,
       win: clone.ownerDocument.defaultView,
-      lastClientY: null,
-      autoscrollRAF: null,
       baseline
     };
   }
 
   dragMove(pageY, clientY) {
     const session = this.#dragSession;
-    session.lastClientY = clientY; // held value the autoscroll loop re-feeds
     const deltaY = this.#getConstrainedDeltaY(pageY);
     session.clone.style.setProperty('--drag-offset', deltaY + 'px');
-    this.#autoscroll(clientY);
+    this.#autoscroll.checkPointer(clientY);
 
     const slot = this.#slotAt(this.#getVisibleTargetPageY(pageY, clientY));
     // Unchanged slot — no re-mark.
@@ -366,40 +370,48 @@ export class SortableListForm {
             : clientY > bottom ? win.scrollY + bottom : pageY;
   }
 
-  // scrollIntoView only nudges when the clone pokes past the scrollport, so on
-  // a held pointer (no pointermove) it stalls and long lists can't reach the
-  // end. While the pointer dwells at an edge, re-clock dragMove off rAF: pageY
-  // advances from the fresh scroll alone, so the clone keeps climbing the list.
-  #autoscroll(clientY) {
-    const { clone, baseline, win } = this.#dragSession;
-    if (!baseline.isOutsideScrollport) return;
+  // A drag whose list fits the scrollport can't autoscroll; #createAutoscroll hands back
+  // this no-op so dragMove and #endSession call one interface without a null check.
+  static #NO_AUTOSCROLL = Object.freeze({
+    checkPointer() {},
+    cancelAutoscroll() {}
+  });
 
-    const { cloneHeight, scrollport: { top, bottom } } = baseline;
-    const isAtEdge = clientY < top + cloneHeight || clientY > bottom - cloneHeight;
-    if (!isAtEdge) return this.#cancelAutoscroll();
+  // scrollIntoView only nudges when the clone pokes past the scrollport, so on a held
+  // pointer (no pointermove) it stalls and long lists can't reach the end. This closure owns
+  // the held pointer and rAF loop state while it re-clocks dragMove from fresh scrollY.
+  #createAutoscroll(clone, {isEnabled, cloneHeight, top, bottom}) {
+    if (!isEnabled) return SortableListForm.#NO_AUTOSCROLL;
 
-    // behavior:'instant' keeps the scroll synchronous so the change check below
-    // is valid — we supply the smoothness via the per-frame rAF nudges.
-    const scrolledFrom = win.scrollY;
-    clone.scrollIntoView({block: 'nearest', behavior: 'instant'});
+    const win = clone.ownerDocument.defaultView;
+    let heldClientY;
+    let frameId;
 
-    // Keep re-clocking only while the page is still moving; when scrollIntoView
-    // can't scroll further (list bottomed/topped out), stop the loop.
-    win.scrollY === scrolledFrom ? this.#cancelAutoscroll() : this.#scheduleAutoscroll();
-  }
+    const cancelAutoscroll = () => frameId = win.cancelAnimationFrame(frameId);
 
-  #scheduleAutoscroll() {
-    const session = this.#dragSession;
-    if (session.autoscrollRAF) return;            // one loop at a time
-    session.autoscrollRAF = session.win.requestAnimationFrame(() => {
-      session.autoscrollRAF = null;
-      this.dragMove(session.lastClientY + session.win.scrollY, session.lastClientY);
-    });
-  }
+    const scheduleAutoscroll = () => {
+      if (frameId) return;
+      frameId = win.requestAnimationFrame(() => {
+        frameId = undefined;
+        this.dragMove(heldClientY + win.scrollY, heldClientY);
+      });
+    };
 
-  #cancelAutoscroll() {
-    const session = this.#dragSession;
-    session.autoscrollRAF = session.win.cancelAnimationFrame(session.autoscrollRAF);
+    return {
+      checkPointer: clientY => {
+        heldClientY = clientY;
+
+        const isAtEdge = clientY < top + cloneHeight || clientY > bottom - cloneHeight;
+        if (!isAtEdge) return cancelAutoscroll();
+
+        // behavior:'instant' keeps the scroll synchronous so the change check below
+        // is valid -- scrollIntoView supplies the self-limiting clone visibility.
+        const scrolledFrom = win.scrollY;
+        clone.scrollIntoView({block: 'nearest', behavior: 'instant'});
+        win.scrollY === scrolledFrom ? cancelAutoscroll() : scheduleAutoscroll();
+      },
+      cancelAutoscroll
+    };
   }
 
   // marker-gliding turns on here, so moves glide. Pickup leaves it off, so the bar starts
@@ -436,7 +448,8 @@ export class SortableListForm {
   // null session. On the drop path #endSession runs before the container's #cleanup.
   #endSession(listEl) {
     listEl.classList.remove('drop-target', 'marker-gliding');
-    this.#cancelAutoscroll();
+    this.#autoscroll.cancelAutoscroll();
+    this.#autoscroll = null;
     this.#dragSession = null;
   }
 
