@@ -2,11 +2,11 @@
 // Diagnose -> Causal Chains view. A committed drop mutates the DOM order of the
 // `.sortable-list > li`s; the order is read off their data-step values.
 //
-// Covers: dragging a middle row to the top (it leads, the rest keep their
-// relative order), dragging a row to the end (it trails), a press-release in
-// place (no movement, order unchanged), and the drop bar (a .sortable-list
-// ::before) tracking the gap before the target -- at the list bottom on
-// end-of-list and gliding out from the grabbed item on reveal rather than
+// Covers: dragging a middle item to the top (it leads, the rest keep their
+// relative order), dragging an item to the end (it trails), a press-release in
+// place (no movement, order unchanged), and the drop bar (a .sortable-list-dropbar
+// on .sortable-list-parent) tracking the gap before the target -- at the list bottom
+// on end-of-list and gliding out from the grabbed item on reveal rather than
 // sliding from the list top -- and that a cancelled drag settles the clone
 // home and removes it.
 //
@@ -108,23 +108,21 @@ ok('press-release in place: order unchanged',
    afterNoOp.join() === beforeNoOp.join(),
    `after=${afterNoOp.join()} before=${beforeNoOp.join()}`);
 
-// The drop bar is a .sortable-list::before, slid to the gap by --marker-position.
-// Hold a drag (no release) and read the ::before's resolved position: its bottom
-// edge should sit on the target's top (the gap), and on the list's bottom at
-// end-of-list. It reads fully opaque on a real target (the source's home slot
-// fades it out via the marker-at-home class).
+// The drop bar is a .sortable-list-dropbar on .sortable-list-parent, slid to the gap by
+// --dropbar-position. Hold a drag (no release) and read the bar's resolved position: its
+// bottom edge should sit on the target's top (the gap), and on the list's bottom at
+// end-of-list. It reads fully opaque on a real target; over the source's own home band
+// .shown is withheld, so it fades out.
 const readBar = targetIdx => page.evaluate(({sel, targetIdx}) => {
   const ol = document.querySelector(sel);
   const its = [...ol.querySelectorAll(':scope > li')];
-  const bf = getComputedStyle(ol, '::before');
-  const olR = ol.getBoundingClientRect();
+  const bar = ol.parentElement.querySelector('.sortable-list-dropbar');
   const tR = targetIdx == null ? null : its[targetIdx].getBoundingClientRect();
-  const m = bf.transform;                       // matrix(a,b,c,d,e,f); f = translateY
-  const translateY = m === 'none' ? 0 : parseFloat(m.split(',')[5]);
-  const barBottom = olR.top + parseFloat(bf.top) + translateY + parseFloat(bf.height);
   return {
-    markerOpacity: bf.opacity,
-    barBottom, gapTop: tR ? tR.top : null, listBottom: olR.bottom,
+    markerOpacity: getComputedStyle(bar).opacity,
+    barBottom: bar.getBoundingClientRect().bottom,
+    gapTop: tR ? tR.top : null,
+    listBottom: ol.getBoundingClientRect().bottom,
   };
 }, {sel: OL, targetIdx});
 
@@ -134,7 +132,8 @@ const settleBar = async () => {
   let prev = '';
   for (let i = 0; i < 40; i++) {
     const t = await page.evaluate(sel =>
-      getComputedStyle(document.querySelector(sel), '::before').transform, OL);
+      getComputedStyle(document.querySelector(sel).parentElement
+        .querySelector('.sortable-list-dropbar')).transform, OL);
     if (t === prev) return;
     prev = t;
     await page.waitForTimeout(25);
@@ -169,11 +168,13 @@ await page.mouse.up();
 await page.waitForTimeout(200);
 
 // On reveal the bar must glide out from the grabbed item's parked position, not slide
-// in from the list top (the fixed bug: a stale --marker-position read as 0). Grab a
+// in from the list top (the fixed bug: a stale --dropbar-position read as 0). Grab a
 // middle item, cross up one slot to the first real target, and read the bar's transform
 // immediately -- it should still be on the grab side (above the target), then settle on it.
 const barTranslateY = () => page.evaluate(sel => {
-  const m = getComputedStyle(document.querySelector(sel), '::before').transform;
+  const bar = document.querySelector(sel).parentElement
+    .querySelector('.sortable-list-dropbar');
+  const m = getComputedStyle(bar).transform;
   return m === 'none' ? 0 : parseFloat(m.split(',')[5]);   // matrix(...): f is translateY
 }, OL);
 const liTopInList = idx => page.evaluate(({sel, idx}) => {
@@ -220,6 +221,24 @@ const belowSourceGap = await liTopInList(homeIdx + 1);
 ok('coming down into the source parks the bar above it, not below',
    Math.abs(homeBarY - aboveSourceGap) < 1 && homeBarY < belowSourceGap - 1,
    `barY=${homeBarY} above=${aboveSourceGap} below=${belowSourceGap}`);
+await page.mouse.up();
+await page.waitForTimeout(200);
+
+// On pickup the bar parks at the source's resting slot -- the gap just BELOW the source,
+// not the gap above. That way a downward drag glides the bar out from the source's bottom
+// edge. Grab a middle item and read the parked position before moving (it is set instantly,
+// the glide is off until the first move).
+const seedIdx = 2;
+const seedGrab = await items().nth(seedIdx).boundingBox();
+const seedX = seedGrab.x + seedGrab.width / 2;
+await page.mouse.move(seedX, seedGrab.y + seedGrab.height / 2);
+await page.mouse.down();
+const seedBarTop = await barTranslateY();
+const gapBelowSource = await liTopInList(seedIdx + 1);
+const gapAboveSource = await liTopInList(seedIdx);
+ok('on pickup the bar parks at the gap below the source, not above',
+   Math.abs(seedBarTop - gapBelowSource) < 1 && Math.abs(seedBarTop - gapAboveSource) > 1,
+   `seedBarTop=${seedBarTop} below=${gapBelowSource} above=${gapAboveSource}`);
 await page.mouse.up();
 await page.waitForTimeout(200);
 

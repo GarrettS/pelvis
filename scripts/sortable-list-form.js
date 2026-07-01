@@ -156,6 +156,7 @@ export class SortableListForm {
   }
 
   #form;
+  #dropbar;
   #steps;
   #currentOrder;
   #container;
@@ -178,6 +179,10 @@ export class SortableListForm {
     const ol = this.#form.querySelector('.sortable-list');
     ol.id = id;
     ol.append(...this.#buildItems());
+    // One drop bar per list, built with the form and reused: a drag shows and positions
+    // it, the drop hides it. It's generic, so unlike the clone it never rebuilds per drag.
+    this.#dropbar = ol.parentElement.appendChild(newEl('div', {
+      className: 'sortable-list-dropbar', attrs: {'aria-hidden': 'true'}}));
   }
 
   get form() { return this.#form; }
@@ -188,19 +193,22 @@ export class SortableListForm {
         innerHTML: this.#container.renderItemHTML(step), attrs: {'data-step': step}}));
   }
 
-  dragStart(dragSource, grabStartPageY) {
+  dragStart(dragSource, grabStartY) {
     this.#wrongChecks = 0;
-    const baseline = SortableListForm.#captureDragBaseline(dragSource, grabStartPageY);
+    const baseline = SortableListForm.#captureDragBaseline(dragSource, grabStartY);
     const session = SortableListForm.#commitDragDOM(baseline);
     this.#dragSession = session;
+    // Park the bar at the source's resting slot -- the gap just after it -- so the first
+    // reveal glides from the source's own edge, not from a stale spot a slot away.
+    this.#dropbar.style.setProperty('--dropbar-position', session.slot.dropbarTop + 'px');
+    const {
+      scrollport, dragRange: {minDelta, maxDelta}, sourceItemY, sourceItemYBottom
+    } = baseline;
     this.#autoscroll = this.#createAutoscroll(session.clone, {
-      isEnabled: baseline.isOutsideScrollport,
-      cloneHeight: baseline.cloneHeight,
-      ...baseline.scrollport
-    });
+        scrollport, minDelta, maxDelta, sourceItemY, sourceItemYBottom });
   }
 
-  static #captureDragBaseline(dragSource, grabStartPageY) {
+  static #captureDragBaseline(dragSource, grabStartY) {
     const listEl = dragSource.parentNode;
     const listParent = listEl.parentElement;
     const items = [...listEl.children];
@@ -208,8 +216,8 @@ export class SortableListForm {
     const listRect = listEl.getBoundingClientRect();
     const listParentRect = listParent.getBoundingClientRect();
     const doc = dragSource.ownerDocument;
+    const win = doc.defaultView;
     const scrollport = SortableListForm.#captureScrollport(doc);
-    const { top, bottom } = scrollport;
 
     // The clone is a same-size copy of dragSource, built later in #commitDragDOM,
     // so its geometry matches the source's. cloneTop reads relative to listParent
@@ -222,14 +230,13 @@ export class SortableListForm {
       dragSource,
       items,
       cloneTop,
+      // Dragged item's page-Y edges at grab, for the autoscroll's clone-visibility check.
+      sourceItemY: sourceRect.top + win.scrollY,
+      sourceItemYBottom: sourceRect.bottom + win.scrollY,
       ordinalValue: items.indexOf(dragSource) + 1,
       scrollport,
-      cloneHeight: sourceRect.height,
-      // Autoscroll has somewhere to go only when the list overflows the scrollport;
-      // otherwise the whole list is already in view.
-      isOutsideScrollport: listRect.top < top || listRect.bottom > bottom,
       dragRange: Object.freeze({
-        grabStartPageY,
+        grabStartY,
         ...SortableListForm.#getDragRange(sourceRect, listRect, items)
       }),
       slots: SortableListForm.#measureSlots(
@@ -246,19 +253,19 @@ export class SortableListForm {
   // the taller edge item still shows past it -- so the bound that lets the clone
   // travel furthest toward the edge wins.
   static #getDragRange(sourceRect, listRect, items) {
-    const cloneHeight     = sourceRect.height;
-    const firstItemBottom = items[0].getBoundingClientRect().bottom;
-    const lastItemTop     = items.at(-1).getBoundingClientRect().top;
+    const cloneHeight         = sourceRect.height;
+    const firstItemViewBottom = items[0].getBoundingClientRect().bottom;
+    const lastItemViewTop     = items.at(-1).getBoundingClientRect().top;
 
-    const clonePeekTop     = firstItemBottom - cloneHeight - EDGE_PEEK;
-    const clonePeekBottom  = lastItemTop + EDGE_PEEK;
-    const cloneFlushTop    = listRect.top;
-    const cloneFlushBottom = listRect.bottom - cloneHeight;
-    const minCloneTop = Math.min(clonePeekTop, cloneFlushTop);
-    const maxCloneTop = Math.max(clonePeekBottom, cloneFlushBottom);
+    const clonePeekViewTop     = firstItemViewBottom - cloneHeight - EDGE_PEEK;
+    const clonePeekViewBottom  = lastItemViewTop + EDGE_PEEK;
+    const cloneFlushViewTop    = listRect.top;
+    const cloneFlushViewBottom = listRect.bottom - cloneHeight;
+    const minCloneViewTop = Math.min(clonePeekViewTop, cloneFlushViewTop);
+    const maxCloneViewTop = Math.max(clonePeekViewBottom, cloneFlushViewBottom);
     return {
-      minDelta: minCloneTop - sourceRect.top,
-      maxDelta: maxCloneTop - sourceRect.top
+      minDelta: minCloneViewTop - sourceRect.top,
+      maxDelta: maxCloneViewTop - sourceRect.top
     };
   }
 
@@ -275,8 +282,9 @@ export class SortableListForm {
 
   // Measure each item into a drop slot, plus a trailing end-of-list null slot. Subtract
   // in-flight transform from the BCR top so a mid-FLIP pickup lands on the resting slot.
-  // midpointPageY (page coords) hit-tests the pointer; markerY (list frame) places the bar.
-  static #measureSlots(items, dragSource, listTop, listBottomY) {
+  // midpointY (page coords) hit-tests the pointer; dropbarTop (list frame) places the
+  // bar.
+  static #measureSlots(items, dragSource, listViewTop, listHeight) {
     const win = dragSource.ownerDocument.defaultView;
     const scroll = win.scrollY;
     const afterSource = dragSource.nextElementSibling;
@@ -285,12 +293,12 @@ export class SortableListForm {
     items.forEach((li, index) => {
       const box = li.getBoundingClientRect();
       const transform = win.getComputedStyle(li).transform;
-      const animOffsetY = transform === 'none' ? 0 : new win.DOMMatrix(transform).m42;
-      const settledTop = box.top - animOffsetY;
+      const animOffsetTop = transform === 'none' ? 0 : new win.DOMMatrix(transform).f;
+      const settledViewTop = box.top - animOffsetTop;
       slots[index] = {
         item: li,
-        midpointPageY: settledTop + box.height / 2 + scroll,
-        markerY: settledTop - listTop,
+        midpointY: settledViewTop + box.height / 2 + scroll,
+        dropbarTop: settledViewTop - listViewTop,
         ordinal: index + 1,
         isDropTarget: isDropTarget(li)
       };
@@ -298,9 +306,10 @@ export class SortableListForm {
 
     slots[items.length] = {
       item: null,
-      // Infinity catches any pointer past the last item, so #slotAt never returns null.
-      midpointPageY: Infinity,
-      markerY: listBottomY,
+      // Infinity catches any pointer past the last item, so #slotInScrollport always
+      // returns a slot.
+      midpointY: Infinity,
+      dropbarTop: listHeight,
       ordinal: items.length + 1,
       isDropTarget: isDropTarget(null)
     };
@@ -309,7 +318,7 @@ export class SortableListForm {
 
   static #commitDragDOM(baseline) {
     const {
-      listEl, listParent, dragSource, ordinalValue, cloneTop
+      listParent, dragSource, ordinalValue, cloneTop
     } = baseline;
 
     listParent.querySelector('.sortable-list-clone')?.remove();
@@ -322,8 +331,6 @@ export class SortableListForm {
     // uses it to suppress the now-stale grading until the drop resolves -- a no-op or
     // abort re-shows that grading, a reorder clears it.
     dragSource.classList.add('active-drag-source');
-    // Start --marker-position at the grab, so the first reveal glides out from there.
-    listEl.style.setProperty('--marker-position', cloneTop + 'px');
 
     return {
       // Reassigned in dragMove as the pointer crosses slot midpoints.
@@ -335,92 +342,117 @@ export class SortableListForm {
   }
 
   dragMove(pageY, clientY) {
+    this.#autoscroll.run(clientY, this.#applyDragPosition(pageY, clientY));
+  }
+
+  // Place the clone at the pointer and re-mark the drop slot; returns the constrained
+  // offset. Shared by dragMove (pointer events) and the autoscroll loop.
+  #applyDragPosition(pageY, clientY) {
     const session = this.#dragSession;
     const deltaY = this.#getConstrainedDeltaY(pageY);
     session.clone.style.setProperty('--drag-offset', deltaY + 'px');
-    this.#autoscroll.checkPointer(clientY);
 
-    const slot = this.#slotAt(this.#getVisibleTargetPageY(pageY, clientY));
-    // Unchanged slot — no re-mark.
-    if (slot === session.slot) return;
+    const slot = this.#slotInScrollport(clientY);
+    // Re-mark only when the pointer crosses into a new slot.
+    if (slot !== session.slot) {
+      session.slot = slot;
+      this.#updateDropbar();
+      this.#updateCloneNumber();
+    }
 
-    session.slot = slot;
-    this.#updateDropMarker();
-    this.#updateCloneNumber();
+    return deltaY;
   }
 
   #getConstrainedDeltaY(pageY) {
-    const { grabStartPageY, minDelta, maxDelta } = this.#dragSession.baseline.dragRange;
-    return Math.max(minDelta, Math.min(maxDelta, pageY - grabStartPageY));
+    const { grabStartY, minDelta, maxDelta } = this.#dragSession.baseline.dragRange;
+    return Math.max(minDelta, Math.min(maxDelta, pageY - grabStartY));
   }
 
-  // The first slot whose midpoint the pointer hasn't passed. The end-of-list slot's
-  // midpoint is Infinity, so this always matches one -- never null.
-  #slotAt(pageY) {
-    return this.#dragSession.baseline.slots
-      .find(({ midpointPageY }) => pageY <= midpointPageY);
-  }
-
-  #getVisibleTargetPageY(pageY, clientY) {
+  // The slot under the pointer, clamped to the visible band so a pointer outside the
+  // scrollport resolves to the topmost/bottommost slot instead of one hidden.
+  #slotInScrollport(clientY) {
     const { baseline, win } = this.#dragSession;
     const { top, bottom } = baseline.scrollport;
-    // Pointer past a scrollport edge → use the edge's page-Y, so the target stays the
-    // topmost/bottommost visible item.
-    return clientY < top ? win.scrollY + top
-            : clientY > bottom ? win.scrollY + bottom : pageY;
+    const pageY = Math.max(top, Math.min(bottom, clientY)) + win.scrollY;
+    return baseline.slots.find(({ midpointY }) => pageY <= midpointY);
   }
 
-  // A drag whose list fits the scrollport can't autoscroll; #createAutoscroll hands back
-  // this no-op so dragMove and #endSession call one interface without a null check.
-  static #NO_AUTOSCROLL = Object.freeze({
-    checkPointer() {},
-    cancelAutoscroll() {}
+  static #AUTOSCROLL = Object.freeze({
+    pointerEdgeZone: 48,   // px band at each scrollport edge that drives autoscroll
+    maxStep: 16            // px/frame scroll cap, at full ramp
   });
 
-  // scrollIntoView only nudges when the clone pokes past the scrollport, so on a held
-  // pointer (no pointermove) it stalls and long lists can't reach the end. This closure owns
-  // the held pointer and rAF loop state while it re-clocks dragMove from fresh scrollY.
-  #createAutoscroll(clone, {isEnabled, cloneHeight, top, bottom}) {
-    if (!isEnabled) return SortableListForm.#NO_AUTOSCROLL;
-
+  // A held pointer fires no pointermove, so the page can't scroll itself. While the
+  // pointer is in an edge band, autoscrollFrame scrolls and repositions the clone
+  // until it is in view at its travel limit, or the page hits its scroll end.
+  #createAutoscroll(clone,
+    {scrollport, minDelta, maxDelta, sourceItemY, sourceItemYBottom}) {
+    const {pointerEdgeZone, maxStep} = SortableListForm.#AUTOSCROLL;
     const win = clone.ownerDocument.defaultView;
+    const scrollByOptions = {top: 0, behavior: 'instant'};
     let heldClientY;
+    let lastDeltaY;
     let frameId;
 
     const cancelAutoscroll = () => frameId = win.cancelAnimationFrame(frameId);
+    // Signed px/frame: < the scrollport top edge, > the bottom. Ramps by the pointer's
+    // depth into the band, capped at maxStep; zero between the bands.
+    const edgeScrollStep = () => {
+      const intoTop = scrollport.top + pointerEdgeZone - heldClientY;
+      if (intoTop > 0) return -maxStep * Math.min(intoTop / pointerEdgeZone, 1);
 
-    const scheduleAutoscroll = () => {
-      if (frameId) return;
-      frameId = win.requestAnimationFrame(() => {
-        frameId = undefined;
-        this.dragMove(heldClientY + win.scrollY, heldClientY);
-      });
+      const intoBottom = heldClientY - (scrollport.bottom - pointerEdgeZone);
+      if (intoBottom > 0) return maxStep * Math.min(intoBottom / pointerEdgeZone, 1);
+
+      return 0;
+    };
+
+    const shouldScroll = step => {
+      if (!step) return false;
+
+      // Scroll while the clone's leading edge is past the scrollport edge, until the
+      // drag cannot travel toward the list end. cloneClientY is that leading edge, in
+      // viewport coords.
+      const cloneClientY =
+        (step > 0 ? sourceItemYBottom : sourceItemY) + lastDeltaY - win.scrollY;
+      return step > 0
+        ? cloneClientY > scrollport.bottom || lastDeltaY < maxDelta
+        : cloneClientY < scrollport.top || lastDeltaY > minDelta;
+    };
+
+    const autoscrollFrame = () => {
+      const step = edgeScrollStep();
+      if (!shouldScroll(step)) return cancelAutoscroll();
+
+      const scrolledFrom = win.scrollY;
+      scrollByOptions.top = step;
+      win.scrollBy(scrollByOptions);
+      // Page out of room: the scroll moved nothing, so more frames can't either.
+      if (win.scrollY === scrolledFrom) return cancelAutoscroll();
+
+      lastDeltaY = this.#applyDragPosition(heldClientY + win.scrollY, heldClientY);
+      frameId = win.requestAnimationFrame(autoscrollFrame);
     };
 
     return {
-      checkPointer: clientY => {
+      run: (clientY, deltaY) => {
         heldClientY = clientY;
+        lastDeltaY = deltaY;
+        if (!shouldScroll(edgeScrollStep())) return cancelAutoscroll();
 
-        const isAtEdge = clientY < top + cloneHeight || clientY > bottom - cloneHeight;
-        if (!isAtEdge) return cancelAutoscroll();
-
-        // behavior:'instant' keeps the scroll synchronous so the change check below
-        // is valid -- scrollIntoView supplies the self-limiting clone visibility.
-        const scrolledFrom = win.scrollY;
-        clone.scrollIntoView({block: 'nearest', behavior: 'instant'});
-        win.scrollY === scrolledFrom ? cancelAutoscroll() : scheduleAutoscroll();
+        frameId ??= win.requestAnimationFrame(autoscrollFrame);
       },
       cancelAutoscroll
     };
   }
 
-  // marker-gliding turns on here, so moves glide. Pickup leaves it off, so the bar starts
-  // on the grab without sliding.
-  #updateDropMarker() {
-    const { baseline: { listEl }, slot } = this.#dragSession;
-    listEl.classList.toggle('drop-target', slot.isDropTarget);
-    listEl.classList.add('marker-gliding');
-    listEl.style.setProperty('--marker-position', slot.markerY + 'px');
+  // dropbar-gliding turns on here, so moves glide. Pickup leaves it off, so the bar
+  // starts on the grab without sliding.
+  #updateDropbar() {
+    const { slot } = this.#dragSession;
+    this.#dropbar.style.setProperty('--dropbar-opacity', +slot.isDropTarget);
+    this.#dropbar.classList.add('dropbar-gliding');
+    this.#dropbar.style.setProperty('--dropbar-position', slot.dropbarTop + 'px');
   }
 
   // The clone's number is the ordinal the item will land on. Moving down, the item vacates
@@ -435,19 +467,20 @@ export class SortableListForm {
     const { slot, baseline, clone } = this.#dragSession;
 
     // A drop target reorders; the slots bracketing the source are no-ops, so settle home.
-    // #settleClone removes active-drag-source, re-showing the grading (still correct, since
-    // nothing moved).
+    // #settleClone removes active-drag-source, re-showing the grading (still correct,
+    // since nothing moved).
     if (slot.isDropTarget)
       this.#reorderList(baseline, slot.item, clone);
     else
       this.#settleClone(clone, baseline.dragSource);
-    this.#endSession(baseline.listEl);
+    this.#endSession();
   }
 
   // Cancel the autoscroll rAF before nulling #dragSession, or a queued tick hits a
   // null session. On the drop path #endSession runs before the container's #cleanup.
-  #endSession(listEl) {
-    listEl.classList.remove('drop-target', 'marker-gliding');
+  // Removing .shown fades the bar out; it parks at its last spot for the next drag.
+  #endSession() {
+    this.#dropbar.classList.remove('shown', 'gliding');
     this.#autoscroll.cancelAutoscroll();
     this.#autoscroll = null;
     this.#dragSession = null;
@@ -513,8 +546,7 @@ export class SortableListForm {
       return;
     }
 
-    const currentOffset = parseFloat(
-      clone.style.getPropertyValue('--drag-offset')) || 0;
+    const currentOffset = parseFloat(clone.style.getPropertyValue('--drag-offset')) || 0;
 
     // Animate the clone home with the Web Animations API: an explicit one-shot from the
     // dropped offset to the source's slot, removed on finish. No transition class and no
@@ -534,7 +566,7 @@ export class SortableListForm {
     if (!session) return;
 
     this.#settleClone(session.clone, session.baseline.dragSource);
-    this.#endSession(session.baseline.listEl);
+    this.#endSession();
   }
 
   checkResults() {

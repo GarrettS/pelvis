@@ -23,10 +23,7 @@ const cloneTop = sourceRect.top - listParentRect.top;
 }
 
 .sortable-list {
-  /* Containing block for the drop-bar ::before. */
   position: relative;
-  --marker-bar-thickness: .35rem;
-  --marker-bar-offset: calc(var(--marker-bar-thickness) * -1);
   /* "Scroll anchoring" — the browser may scroll the window after layout change to keep
    certain elements in view. The insertBefore on drop triggers layout change, causing the
    browser to scroll the window down, so the just-dropped item is hidden behind the sticky
@@ -93,7 +90,7 @@ const cloneTop = sourceRect.top - listParentRect.top;
 
 .sortable-list-clone {
   position: absolute;
-  z-index: var(--lift-z);
+  z-index: calc(var(--lift-z) + 1);
   /* To detect what the user is over (e.g., using e.target.closest('li')),
   pointer events must pass through the clone.*/
   pointer-events: none;
@@ -107,30 +104,29 @@ const cloneTop = sourceRect.top - listParentRect.top;
   box-shadow: var(--box-shadow-lg);
 }
 
-/* The drop bar: a list pseudo-element that --marker-position slides to the gap before
-   the drop target (a transform -- composites, no layout). Hidden by default; shows over
-   a drop target. */
-.sortable-list::before {
-  content: '';
+/* The drop bar: one per list on .sortable-list-parent (a sibling of the clone),
+   built with the form and reused. --dropbar-position slides it to the gap before the drop
+   target (a transform -- composites, no layout). Hidden by default; --dropbar-opacity reveals it. */
+.sortable-list-dropbar {
   position: absolute;
   z-index: var(--lift-z);
-  top: var(--marker-bar-offset);
+  --dropbar-thickness: .35rem;
+  --dropbar-offset: calc(var(--dropbar-thickness) * -1);
+  top: var(--dropbar-offset);
   left: 0;
   right: var(--sortable-item-inset);
-  height: var(--marker-bar-thickness);
+  height: var(--dropbar-thickness);
   background: var(--accent);
   border-radius: 9999px;
   pointer-events: none;
-  opacity: 0;
-  transform: translateY(var(--marker-position, 0px));
+  opacity: var(--dropbar-opacity, 0);
+  transform: translateY(var(--dropbar-position, 0px));
   transition: opacity var(--dur-fast) ease-out;   /* fades on every show/hide */
 }
 
-.sortable-list.marker-gliding::before {
+.sortable-list-dropbar.dropbar-gliding {
   transition: opacity var(--dur-fast) ease-out, transform var(--dur-fast) ease-out;
 }
-
-.sortable-list.drop-target::before { opacity: 1 }
 
 /* On drop the LI briefly wears the dragged clone's lifted look, then cools to
    its resting item. The keyframe declares that lifted start, so it needs no
