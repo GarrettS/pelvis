@@ -16,7 +16,19 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 NC='\033[0m'
 
-EXCLUDES="node_modules|\.git|pre-commit-check\.sh|code-guidelines\.md|(^|/)tools/"
+EXCLUDES="node_modules|\.git|pre-commit-check\.sh|code-guidelines\.md|(^|/)tools/|(^|/)manual-tests/"
+
+# Skip gitignored paths. Scratch and generated files (e.g. drafts/, handoff/)
+# can hold base64 or other content that floods the greppable checks. List the
+# ignored entries (whole ignored dirs collapsed to a single entry), escape
+# regex metacharacters, and fold them into the exclude list every check already
+# filters on. No-op outside a git work tree.
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  IGNORED=$(git ls-files --others --ignored --exclude-standard --directory 2>/dev/null \
+    | sed 's#[^a-zA-Z0-9_/-]#\\&#g' \
+    | paste -sd '|' - || true)
+  [ -n "$IGNORED" ] && EXCLUDES="$EXCLUDES|$IGNORED"
+fi
 
 check() {
   local label="$1"
