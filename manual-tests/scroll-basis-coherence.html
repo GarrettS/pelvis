@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll-basis coherence probe</title>
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; background: #234; color: #eee; }
+
+  /* The page must scroll natively -- async/compositor scroll is the condition
+     under test, so touch-action is left at its default (do NOT set none here). */
+  #filler { height: 180vh; }
+  #ref {
+    height: 120px; margin: 0 1rem; border-radius: .5rem;
+    background: #468; color: #fff; display: grid; place-items: center;
+    font-size: 16px; touch-action: none;          /* the ref box itself is grab-draggable */
+  }
+  #ref.down { background: #2a7; }
+
+  /* Live readout pinned in view so you can watch it through a fling. */
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 2;
+    padding: .4rem 1rem; background: #111d; color: #6f6;
+    font: 12px/1.35 ui-monospace, monospace; white-space: pre;
+  }
+  #hud .bad { color: #f55; font-weight: 700; }
+  #bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 2;
+    padding: .4rem 1rem; background: #111d; display: flex; gap: 1rem;
+    align-items: center; flex-wrap: wrap; }
+  button, label { font-size: 15px; }
+  #log {
+    margin: 5rem 1rem 4rem; padding: .5rem; height: 60vh; overflow: auto;
+    background: #111; color: #6f6; font: 11px/1.3 ui-monospace, monospace;
+    white-space: pre; border-radius: .5rem;
+  }
+  #log .div { color: #f55; background: #311; }     /* a sample where a basis diverged */
+  #log .move { color: #6cf; }                       /* pointermove sample */
+</style>
+</head>
+<body>
+  <div id="hud"></div>
+
+  <div id="filler"></div>
+  <div id="ref">reference box — drag me, and fling the page</div>
+  <div id="filler"></div>
+
+  <pre id="log"></pre>
+
+  <div id="bar">
+    <button id="clear" type="button">clear</button>
+    <button id="rebase" type="button">set baseline</button>
+    <label><input id="logRaf" type="checkbox"> log every frame</label>
+    <label><input id="logMoves" type="checkbox" checked> log moves</label>
+  </div>
+
+<script>
+  // Question under test: during async (compositor) scrolling, do getBoundingClientRect,
+  // window.scrollY, and PointerEvent.pageY share one scroll basis, or can they diverge
+  // within a single main-thread sample?
+  //
+  //   drift    = ref.gBCR.top + scrollY - docTop0
+  //              gBCR subtracts a scroll term; adding scrollY back should cancel it to
+  //              the element's document-absolute top (a constant). Nonzero drift means
+  //              gBCR's scroll term != window.scrollY -- gBCR is reading a staler scroll.
+  //
+  //   residual = e.pageY - e.clientY - scrollY
+  //              pageY is defined as clientY + scroll. Nonzero residual means the event's
+  //              page coordinate was stamped against a different scroll than window.scrollY.
+  //
+  // Both are 0 if everything shares the main-thread snapshot. EPS absorbs subpixel
+  // rounding (gBCR is fractional; scrollY/clientY may round). A real cross-thread lag
+  // shows up as drift/residual on the order of the scroll delta, not a fraction.
+
+  const EPS = 1;
+
+  const ref = document.getElementById('ref');
+  const hud = document.getElementById('hud');
+  const logEl = document.getElementById('log');
+  const logRaf = document.getElementById('logRaf');
+  const logMoves = document.getElementById('logMoves');
+
+  let docTop0 = null;          // baseline document-top of the ref box, captured at rest
+  let maxDrift = 0;
+  let maxResidual = 0;
+  let seq = 0;
+  let rafThrottle = 0;
+
+  const f = n => (n >= 0 ? ' ' : '') + n.toFixed(2);
+
+  function sample(channel, e) {
+    // Read scrollY and the box rect adjacently so they reflect one layout state.
+    const scrollY = window.scrollY;
+    const top = ref.getBoundingClientRect().top;
+    const docTop = top + scrollY;
+    if (docTop0 == null) docTop0 = docTop;
+
+    const drift = docTop - docTop0;
+    const hasPointer = e && e.pageY != null;
+    const residual = hasPointer ? e.pageY - e.clientY - scrollY : null;
+
+    if (Math.abs(drift) > maxDrift) maxDrift = Math.abs(drift);
+    if (residual != null && Math.abs(residual) > maxResidual) maxResidual = Math.abs(residual);
+
+    const driftBad = Math.abs(drift) > EPS;
+    const resBad = residual != null && Math.abs(residual) > EPS;
+    const diverged = driftBad || resBad;
+
+    updateHud(scrollY, docTop, drift, residual);
+
+    // Always record a divergence. Otherwise record moves (if enabled) and throttled frames.
+    const isMove = channel === 'move';
+    if (!diverged) {
+      if (channel === 'raf' && (!logRaf.checked || (rafThrottle = (rafThrottle + 1) % 6))) return;
+      if (isMove && !logMoves.checked) return;
+    }
+
+    const tags = (driftBad ? 'DRIFT! ' : '') + (resBad ? 'RESIDUAL! ' : '');
+    const ptr = hasPointer
+      ? ` clientY=${f(e.clientY)} pageY=${f(e.pageY)} residual=${f(residual)}`
+      : '';
+    emit(diverged ? 'div' : (isMove ? 'move' : ''),
+      `${tags}#${String(++seq).padStart(4)} [${channel.padEnd(6)}]` +
+      ` scrollY=${f(scrollY)} top=${f(top)} docTop=${f(docTop)} drift=${f(drift)}${ptr}`);
+  }
+
+  function updateHud(scrollY, docTop, drift, residual) {
+    const dBad = Math.abs(drift) > EPS ? 'bad' : '';
+    const rBad = residual != null && Math.abs(residual) > EPS ? 'bad' : '';
+    hud.innerHTML =
+      `scrollY ${f(scrollY)}   docTop ${f(docTop)}\n` +
+      `<span class="${dBad}">drift ${f(drift)}  (max ${maxDrift.toFixed(2)})</span>   ` +
+      `<span class="${rBad}">residual ${residual == null ? '—' : f(residual)}  (max ${maxResidual.toFixed(2)})</span>`;
+  }
+
+  function emit(kind, text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.className = kind;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // rAF runs every frame the page paints -- the channel where scroll-linked reads happen,
+  // and where main-thread lag behind the compositor would show. Runs unconditionally so a
+  // momentum fling is sampled even with no pointer down; sample() decides what to record.
+  (function frame() {
+    sample('raf', null);
+    requestAnimationFrame(frame);
+  })();
+
+  addEventListener('scroll', () => sample('scroll', null), {passive: true});
+
+  ref.addEventListener('pointerdown', e => {
+    ref.classList.add('down');
+    sample('move', e);
+  });
+  ref.addEventListener('pointermove', e => sample('move', e));
+  const up = () => ref.classList.remove('down');
+  ref.addEventListener('pointerup', up);
+  ref.addEventListener('pointercancel', up);
+
+  document.getElementById('clear').addEventListener('click', () => {
+    logEl.textContent = '';
+    seq = 0;
+    maxDrift = 0;
+    maxResidual = 0;
+  });
+  // Re-anchor the baseline once layout has settled (fonts, viewport chrome). docTop is
+  // scroll-invariant, so the baseline is valid from any rest position.
+  document.getElementById('rebase').addEventListener('click', () => { docTop0 = null; });
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+Title: lostpointercapture sometimes fires before pointerup; pointerup retargets away from capturing element
+
+========== SUMMARY ==========
+
+With pointer capture via element.setPointerCapture(), the button release intermittently fires lostpointercapture before pointerup. When this happens, capture is cleared before pointerup dispatches, and pointerup is hit-tested instead of dispatched to the capturing element.
+
+========== ENVIRONMENT ==========
+
+macOS. Reproduced in Google Chrome 149.0.7827.114 and Brave 1.91.168 (Chromium 149.0.7827.54), both x86_64 builds. Intermittent -- consistent with a race in the implicit-release sequence.
+
+========== STEPS TO REPRODUCE ==========
+
+In-page release:
+
+1. Open the attached testcase.
+2. Press the box. It captures the pointer and turns green.
+3. Keep the button down, drag off the box, and release over the page.
+4. Repeat; the failure is intermittent.
+
+Off-window release:
+
+1. (same as above)
+2. (same as above)
+3. Keep the button down, drag out of the WINDOW, and release off-window.
+4. Repeat; the failure is intermittent.
+
+========== EXPECTED RESULT ==========
+
+While the pointer is captured, its events target the box (setPointerCapture, https://www.w3.org/TR/pointerevents4/#extensions-to-the-element-interface). The button-up triggers the implicit release of pointer capture (https://www.w3.org/TR/pointerevents4/#implicit-release-of-pointer-capture), which the spec orders pointerup before lostpointercapture:
+
+"Immediately after firing the pointerup or pointercancel events, the user agent MUST clear the pending pointer capture target override for the pointerId of the pointerup or pointercancel event that was just dispatched, and then run process pending pointer capture steps to fire lostpointercapture if necessary."
+
+So pointerup is dispatched to the box while capture still holds, before lostpointercapture fires. The box's pointerup handler should run, turning it gray. (The Level 2 Recommendation states the same order.)
+
+========== ACTUAL RESULTS ==========
+
+Intermittently, lostpointercapture fires first. Capture is cleared before pointerup dispatches, so pointerup is hit-tested and does not reach the box -- its own pointerup never runs (the box stays green), and the document listener sees the pointerup.
+
+Release over the page (in-document) -- pointerup retargets to the element under the pointer:
+
+--- pointerdown: setPointerCapture on #box
+lostpointercapture  target=DIV  buttons=0
+document pointerup  target=P  buttons=0
+
+Release off-window -- nothing is under the pointer, so pointerup retargets to a document root:
+
+--- pointerdown: setPointerCapture on #box
+lostpointercapture  target=DIV  buttons=0
+document pointerup  target=HTML  buttons=0
+
+1. In-document, pointerup retargets to whatever is under the pointer — WRONG
+
+2. For an off-viewport release, nothing is under the pointer, so it retargets to root (HTML) — WRONG
+
+Either way the box never receives its pointerup. Off-window is worse — with nothing under the pointer, the release lands on a root (HTML), an undefined target rather than merely the wrong element.
+
+In both, the first line shows capture was set on #box and there is no "#box pointerup" line -- the box never received its pointerup. buttons=0 confirms it is the button-up, not a mid-gesture loss.
+
+========== WHY THE ORDER MATTERS ==========
+
+After capture is released, the pointer's events follow normal hit testing -- The lostpointercapture event (https://www.w3.org/TR/pointerevents4/#the-lostpointercapture-event):
+
+"All subsequent events for the pointer except click, auxclick, and contextmenu events follow normal hit testing mechanisms (out of scope for this specification) for determining the event target."
+
+In the correct order, pointerup fires before capture is released, e.target is the capturing element (#box). When capture is released first (WRONG), pointerup has no target, and the browser then apparently does hit-testing and lands elsewhere — not the box.
+
+That "normal hit testing" is undefined — "normal" presupposes a defined hit test no spec provides. CSSOM View calls hit testing out of scope too ("hopefully defined in a future revision of CSS or HTML") and only gestures at elementFromPoint, without stating elementFromPoint is the hit test. Even granted as the algorithm, elementFromPoint returns null for off-viewport coordinates (https://www.w3.org/TR/cssom-view/#dom-document-elementfrompoint) and yields the root element only for an in-viewport miss — not the off-viewport release here, where Chromium dispatched pointerup to the root element (HTML) anyway.
+
+This is observable only when all hold: (1) capture is set on the dragged element; (2) the release lands off that element (e.g. during edge-scrolling); (3) the race fires, clearing capture before pointerup dispatches; and (4) the drag's pointerup listener is bound to that element, so the retargeted release never reaches it. The result is a hard-to-reproduce, hard-to-diagnose "ghost drag": the user has released the button, but the object keeps tracking the cursor.
+
+Workaround: keep setPointerCapture (it delivers pointermove past the viewport edge), but bind the pointerup listener to document, which still receives the retargeted release.
+
+========== INTERMITTENTLY MATCHES A PROPOSED SPEC CHANGE ==========
+
+When it misfires, the order matches a change proposed for the spec in 2022 (w3c/pointerevents#438; see the proposed ordering diagram there): fire lostpointercapture before pointerup. That order was never adopted -- so Chromium intermittently implements an unadopted, spec-contradicting proposal. The intermittency marks it a defect, not a design choice: a consistent order would be a decision to debate; a race between two orders is a bug to fix. The proposed order should be reconsidered regardless:
+
+1. It contradicts the specified order -- pointerup fires first (EXPECTED, above; PE4 §11.5; the Level 2 Recommendation).
+2. It breaks capture-based code -- the ghost drag above; a pointerup listener on the captured element never fires.
+3. It is incoherent -- see Schroedinger's Pointerup.
+
+Keeping pointerup before lostpointercapture is the order that lets capture deliver the release.
+
+===== SCHROEDINGER'S POINTERUP =====
+
+The DOM spec requires events to have a target object to be dispatched. If there is no target, pointerup must not be fired. Clearing capture before pointerup dispatches strips pointerup of the captured target. Off-window, hit testing yields nothing, so the only target is the capturing element. setPointerCapture is what makes off-window events targetable at all. Releasing capture before the off-window pointerup leaves a predicament:
+
+- Must fire — the pointer was released while captured, so the terminating pointerup is owed.
+- Cannot fire — capture is gone, so the captured element is no longer the target; the fallback, hit testing, yields nothing off-viewport, so there is no target to dispatch to.
+
+Chromium handles this by dispatching the pointerup retargeted to documentElement.
+
+========== REDUCED TESTCASE ==========
+
+lostpointercapture-before-pointerup.html (attached; self-contained, top-level).
+
+
+========== COMMENT ==========
+This 2022 proposal firing lostpointercapture before pointerup, the order this bug intermittently produces.
+https://docs.google.com/presentation/d/1JZRsDN7fkHKlEv99tdMfpTe9G5LvARArfyX-EUHIwT0/
+
+This contradicts the specified order, breaks capture-based code, and is incoherent (Schroedinger's Pointerup).

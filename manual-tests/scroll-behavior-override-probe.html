@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scroll Behavior Override Probe</title>
+<style>
+  /* 1. Global smooth scrolling (The Trap) */
+  html { scroll-behavior: smooth; }
+  
+  body { 
+    font: 14px/1.4 ui-monospace, monospace; 
+    margin: 0; background: #1e1e2e; color: #cdd6f4; 
+    height: 300vh; /* Ensure page is scrollable */
+  }
+  
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; padding: 1.5rem;
+    background: rgba(30, 30, 46, 0.95); z-index: 10;
+    border-bottom: 1px solid #45475a;
+  }
+  
+  .pass { color: #a6e3a1; font-weight: bold; }
+  .fail { color: #f38ba8; font-weight: bold; }
+  .log-block { margin-bottom: 1rem; padding: 1rem; background: #181825; border-radius: 6px; }
+
+  #target {
+    position: absolute; top: 150vh; left: 20px; right: 20px; height: 100px;
+    background: #f38ba8; border-radius: 8px; display: grid; place-items: center;
+    color: #111; font-weight: bold; font-family: sans-serif;
+  }
+</style>
+</head>
+<body>
+
+  <div id="hud">
+    <h2>Running Assertions...</h2>
+    <div id="output"></div>
+  </div>
+
+  <div id="target">SCROLL TARGET</div>
+
+  <script>
+    const output = document.getElementById('output');
+    const target = document.getElementById('target');
+
+    function logResult(title, initial, post, expectedChange) {
+      const didChange = post !== initial;
+      const passed = didChange === expectedChange;
+      const statusClass = passed ? 'pass' : 'fail';
+      const statusText = passed ? 'PASS' : 'FAIL';
+      
+      const div = document.createElement('div');
+      div.className = 'log-block';
+      div.innerHTML = `
+        <div style="font-size: 16px; margin-bottom: 8px; color: #89b4fa;">${title}</div>
+        <div>Initial scrollY: ${initial.toFixed(2)}</div>
+        <div>Post-call scrollY: ${post.toFixed(2)}</div>
+        <div style="margin-top: 8px;">
+          <span class="${statusClass}">[${statusText}]</span> 
+          Expected sync change: <b>${expectedChange}</b> | Actual change: <b>${didChange}</b>
+        </div>
+      `;
+      output.appendChild(div);
+    }
+
+    // Run tests in a slight timeout to ensure initial rendering is complete
+    setTimeout(() => {
+      // RESET: Jump to top instantly to ensure clean state
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      
+      // Wait for the next frame to guarantee the reset is applied
+      requestAnimationFrame(() => {
+        
+        // --- TEST 1: The Load-Bearing Override ---
+        const initialSync = window.scrollY;
+        
+        // 2. Call scrollIntoView with instant behavior
+        target.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+        
+        // Read immediately in the same synchronous block
+        const postSync = window.scrollY;
+        
+        // 3. Assert it changed (The override held)
+        logResult('TEST A: behavior: "instant"', initialSync, postSync, true);
+
+
+        // --- TEST 2: The Failure Mode ---
+        // RESET: Jump back to top instantly
+        window.scrollTo({ top: 0, behavior: 'instant' });
+
+        requestAnimationFrame(() => {
+          const initialAsync = window.scrollY;
+          
+          // 4. Contrast: Call with smooth behavior (yielding to CSS)
+          target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          
+          // Read immediately in the same synchronous block
+          const postAsync = window.scrollY;
+          
+          // Assert it DID NOT change on the same tick
+          logResult('TEST B: behavior: "smooth"', initialAsync, postAsync, false);
+          
+          // Stop the smooth scroll from continuing so the user can read the HUD
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        });
+      });
+    }, 100);
+  </script>
+</body>
+</html>

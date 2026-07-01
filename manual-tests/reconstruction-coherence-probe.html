@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coordinate Reconstruction Coherence Probe</title>
+<style>
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; background: #223; color: #eee; }
+  #filler { height: 150vh; }
+  #pad {
+    height: 200px; margin: 2rem 1rem; border-radius: .5rem;
+    background: #456; color: #fff; display: grid; place-items: center;
+    font-size: 16px; touch-action: none;
+  }
+  #pad.active { background: #296; }
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 2;
+    padding: .5rem 1rem; background: #111e; color: #6f6;
+    font: 12px/1.4 ui-monospace, monospace; white-space: pre;
+  }
+  #hud .fail { color: #f55; font-weight: bold; }
+  #log {
+    margin: 8rem 1rem 1rem; padding: .5rem; height: 45vh; overflow: auto;
+    background: #111; color: #6f6; font: 11px/1.3 ui-monospace, monospace;
+    white-space: pre; border-radius: .5rem;
+  }
+  #log .error { color: #f55; background: #311; }
+</style>
+</head>
+<body>
+
+  <div id="hud">Move your pointer inside the box to test coordinate reconstruction coherence.</div>
+  
+  <div id="filler"></div>
+  <div id="pad">INTERACTION PAD<br>(Move pointer here)</div>
+  <div id="filler"></div>
+
+  <pre id="log"></pre>
+
+<script>
+  const pad = document.getElementById('pad');
+  const hud = document.getElementById('hud');
+  const log = document.getElementById('log');
+  
+  let maxError = 0;
+  let seq = 0;
+
+  function testCoherence(e) {
+    if (e.pageY == null) return;
+
+    // 1. Capture the true native page coordinate stamped by the engine
+    const nativePageY = e.pageY;
+    const clientY = e.clientY;
+    const initialScrollY = window.scrollY;
+
+    // 2. Simulate a programmatic scroll mutation (e.g., an autoscroll step)
+    // This alters window.scrollY synchronously on the main thread.
+    const scrollStep = 15;
+    window.scrollBy(0, scrollStep);
+
+    // 3. Manually reconstruct the page coordinate using the fresh scroll position
+    const reconstructedPageY = clientY + window.scrollY;
+
+    // 4. Calculate the divergence
+    // If manual reconstruction is safe, error will be ~0 (allowing for subpixels).
+    // If manual reconstruction is broken, error will match the scrollStep.
+    const error = reconstructedPageY - nativePageY;
+    const absError = Math.abs(error);
+
+    if (absError > maxError) maxError = absError;
+    const isFail = absError > 1;
+
+    // 5. Roll back the scroll mutation immediately so the user doesn't fly off the page
+    window.scrollBy(0, -scrollStep);
+
+    // Update HUD
+    const failClass = isFail ? 'fail' : '';
+    hud.innerHTML = 
+      `Native e.pageY: ${nativePageY.toFixed(2)} | Initial scrollY: ${initialScrollY.toFixed(2)}\n` +
+      `Manual (clientY + scrollY): ${reconstructedPageY.toFixed(2)} | Post-mutation scrollY: ${(initialScrollY + scrollStep).toFixed(2)}\n` +
+      `<span class="${failClass}">Reconstruction Error: ${error.toFixed(2)}px (Max Error: ${maxError.toFixed(2)}px)</span>`;
+
+    // Log the result
+    const div = document.createElement('div');
+    div.className = isFail ? 'error' : '';
+    div.textContent = `#${String(++seq).padStart(3, '0')} [pointermove] nativePageY=${nativePageY.toFixed(2)} reconstructed=${reconstructedPageY.toFixed(2)} error=${error.toFixed(2)}`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  pad.addEventListener('pointerenter', () => pad.classList.add('active'));
+  pad.addEventListener('pointerleave', () => pad.classList.add('active'));
+  pad.addEventListener('pointermove', testCoherence);
+</script>
+</body>
+</html>

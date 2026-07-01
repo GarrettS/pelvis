@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Native Reconstruction Desync Probe</title>
+<style>
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; background: #222; color: #eee; height: 300vh; }
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; padding: 1rem;
+    background: rgba(0,0,0,0.9); font-family: ui-monospace, monospace; z-index: 10;
+    border-bottom: 1px solid #444;
+  }
+  .fail { color: #f55; font-weight: bold; }
+  .pass { color: #5f5; }
+  .note { color: #aaa; font-size: 12px; margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+  <div id="hud">
+    <div style="margin-bottom: 8px;">Move pointer. Try pinch-zooming and panning on mobile/trackpad.</div>
+    Status: <span id="status" class="pass">MATCH (Equation holds)</span><br><br>
+    <div id="data">Waiting for input...</div>
+    <div class="note">Checking: Math.abs(e.pageY - (e.clientY + window.scrollY)) > 0.1</div>
+  </div>
+
+  <script>
+    const hudStatus = document.getElementById('status');
+    const hudData = document.getElementById('data');
+    let maxDesync = 0;
+
+    window.addEventListener('pointermove', (e) => {
+      const nativePageY = e.pageY;
+      let j = document.body.offsetLeft; 
+      const reconstructedY = e.clientY + window.scrollY;
+      
+      // Calculate the difference between the native property and the manual equation
+      const diff = Math.abs(nativePageY - reconstructedY);
+
+      // If the difference is greater than typical float noise, the equation has failed natively
+      if (diff > 0.1) {
+        if (diff > maxDesync) maxDesync = diff;
+        hudStatus.textContent = 'DESYNC DETECTED! (Equation failed)';
+        hudStatus.className = 'fail';
+        console.log(hudData.innerHTML = `
+          Native e.pageY:      ${nativePageY.toFixed(2)}<br>
+          Manual (clientY+Y):  ${reconstructedY.toFixed(2)}<br>
+          Difference:          <span class="fail">${diff.toFixed(2)}px</span> (Max: ${maxDesync.toFixed(2)}px)
+        `);
+      } else if (maxDesync === 0) {
+        hudData.innerHTML = `
+          Native e.pageY:      ${nativePageY.toFixed(2)}<br>
+          Manual (clientY+Y):  ${reconstructedY.toFixed(2)}<br>
+          Difference:          0.00px
+        `;
+      }
+    });
+  </script>
+</body>
+</html>
