@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe: click targeting after a canceled pointerdown</title>
+<!-- The sortable-list drag cancels pointerdown and takes no capture. Canceling
+     pointerdown suppresses the compatibility mouse events (mousedown/mousemove/
+     mouseup) but not click (PE §"Compatibility mapping with mouse events"), and
+     PE3 targets that click at the nearest common inclusive ancestor of the
+     pointerdown and pointerup targets. If the browser instead targets the
+     pointerup element, releasing a drag over a button or checkbox activates it.
+     Blanket mode mirrors html.list-drag-active * { pointer-events: none }
+     (css/sortable-list-form.css): the release then falls through to <html> and
+     no control can be hit. Chromium already inverts this spec's pointerup /
+     lostpointercapture order (crbug.com/524131116), so the targeting claim
+     deserves its own check. Inline <style>/<script> keep it one portable file,
+     per the manual-tests convention. -->
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 1rem; }
+  h1 { font-size: 1.2rem; }
+  fieldset { border: 1px solid #ccc; border-radius: .5rem; max-width: 34rem; }
+  legend { padding: 0 .4rem; }
+  code { background: #eee; padding: 0 .2rem; border-radius: .2rem; }
+  b { color: #b00; }
+
+  html.hold-blanket * { pointer-events: none }
+
+  #arena {
+    max-width: 34rem; border: 2px dashed #aab; border-radius: .5rem;
+    padding: 1rem; margin: 1rem 0;
+  }
+  #source {
+    background: #888; color: #fff; border-radius: .5rem; padding: 1rem;
+    text-align: center; touch-action: none; cursor: grab; user-select: none;
+  }
+  #source.held { background: #2a7; cursor: grabbing; }
+  #probe-button { font: inherit; padding: .5rem 1rem; margin-top: 1rem; }
+  #checkbox-row { display: block; margin-top: .5rem; }
+
+  #verdict { font: 13px/1.5 ui-monospace, monospace; white-space: pre-wrap;
+             max-width: 34rem; background: #fffbe6; padding: .6rem .8rem;
+             border-radius: .5rem; min-height: 3rem; }
+  #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre;
+         max-width: 34rem; background: #f4f4f4; padding: .5rem;
+         border-radius: .5rem; max-height: 14rem; overflow: auto; }
+</style>
+</head>
+<body>
+  <h1>Click targeting after a canceled <code>pointerdown</code></h1>
+
+  <fieldset>
+    <legend>Mode</legend>
+    <label><input type="radio" name="mode" value="blanket" checked>
+      <b>Blanket</b> — the hold applies
+      <code>html.hold-blanket * { pointer-events: none }</code> (the app rule)</label><br>
+    <label><input type="radio" name="mode" value="none">
+      No blanket — controls stay hittable during the hold</label>
+  </fieldset>
+
+  <p><b>Gestures</b>, a few times each:</p>
+  <ol>
+    <li>Press the gray box, drag onto the <b>button</b>, release.</li>
+    <li>Press the box, drag onto the <b>checkbox</b>, release.</li>
+    <li>Control: press and release <b>in place</b> on the box.</li>
+  </ol>
+
+  <div id="arena">
+    <div id="source">press here, drag onto a control below, release</div>
+    <button id="probe-button" type="button">activation counter: 0</button>
+    <label id="checkbox-row"><input type="checkbox" id="probe-checkbox">
+      activation detector — flips only if activation behavior runs</label>
+  </div>
+
+  <h2 style="font-size:1rem">Verdict</h2>
+  <div id="verdict">Do a gesture to begin.</div>
+  <h2 style="font-size:1rem">Log</h2>
+  <pre id="log"></pre>
+
+<script>
+  const sourceBox = document.getElementById('source');
+  const probeButton = document.getElementById('probe-button');
+  const probeCheckbox = document.getElementById('probe-checkbox');
+  const verdictEl = document.getElementById('verdict');
+  const logEl = document.getElementById('log');
+
+  let heldPointerId = null;
+  let downTarget = null;
+  let upTarget = null;
+  let awaitingClick = false;
+  let noClickTimer = null;
+  let compatMouseEvents = [];
+  let activationCount = 0;
+  let checkedAtDown = false;
+
+  const log = line => {
+    logEl.append(line + '\n');
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+  const useBlanket = () =>
+    document.querySelector('input[name="mode"]:checked').value === 'blanket';
+  const describe = el =>
+    el === document.documentElement ? '<html>'
+      : el === document.body ? '<body>'
+      : el.tagName.toLowerCase() + (el.id ? '#' + el.id : '');
+  const commonInclusiveAncestor = (a, b) => {
+    let ancestor = a;
+    while (!ancestor.contains(b)) ancestor = ancestor.parentElement;
+    return ancestor;
+  };
+
+  probeButton.addEventListener('click', () => {
+    probeButton.textContent = 'activation counter: ' + ++activationCount;
+  });
+
+  sourceBox.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    heldPointerId = e.pointerId;
+    downTarget = e.target;
+    upTarget = null;
+    compatMouseEvents = [];
+    awaitingClick = false;
+    checkedAtDown = probeCheckbox.checked;
+    sourceBox.classList.add('held');
+    if (useBlanket()) document.documentElement.classList.add('hold-blanket');
+    log('pointerdown  target=' + describe(e.target)
+      + (useBlanket() ? '  [blanket on]' : ''));
+  });
+
+  document.addEventListener('mousedown', e => {
+    if (heldPointerId !== null || awaitingClick)
+      compatMouseEvents.push('mousedown on ' + describe(e.target));
+  }, true);
+  document.addEventListener('mouseup', e => {
+    if (heldPointerId !== null || awaitingClick)
+      compatMouseEvents.push('mouseup on ' + describe(e.target));
+  }, true);
+
+  document.addEventListener('pointerup', e => {
+    if (e.pointerId !== heldPointerId) return;
+
+    heldPointerId = null;
+    upTarget = e.target;
+    awaitingClick = true;
+    sourceBox.classList.remove('held');
+    document.documentElement.classList.remove('hold-blanket');
+    log('pointerup    target=' + describe(e.target));
+    noClickTimer = setTimeout(renderVerdict, 300);
+  }, true);
+
+  document.addEventListener('click', e => {
+    if (!awaitingClick) return;
+
+    clearTimeout(noClickTimer);
+    log('click        target=' + describe(e.target));
+    renderVerdict(e.target);
+  }, true);
+
+  function renderVerdict(clickTarget) {
+    awaitingClick = false;
+    const expected = commonInclusiveAncestor(downTarget, upTarget);
+    const checkboxFlipped = probeCheckbox.checked !== checkedAtDown;
+    const lines = [
+      'mode                : ' + (useBlanket() ? 'blanket' : 'no blanket'),
+      'pointerdown target  : ' + describe(downTarget),
+      'pointerup target    : ' + describe(upTarget),
+      'click               : '
+        + (clickTarget ? 'target=' + describe(clickTarget) : 'DID NOT FIRE (300ms)'),
+      'PE3 expected target : ' + describe(expected) + ' (common inclusive ancestor)',
+      'compat mouse events : '
+        + (compatMouseEvents.length ? compatMouseEvents.join(', ') : 'suppressed'),
+      'button activations  : ' + activationCount,
+      'checkbox flipped    : ' + (checkboxFlipped ? 'YES' : 'no'),
+    ];
+
+    let verdict;
+    if (!clickTarget) {
+      verdict = '\nNO CLICK — the canceled pointerdown suppressed click entirely '
+        + 'in this browser. Release-over-control cannot activate anything.';
+    } else if (checkboxFlipped || clickTarget === probeButton) {
+      verdict = '\nACTIVATION — the click hit the release element and ran its '
+        + 'activation behavior. pointer-events: none on the control is '
+        + 'load-bearing, not insurance.';
+    } else if (clickTarget === expected && downTarget !== upTarget) {
+      verdict = '\nPE3-CONFORMANT — the click targeted the common inclusive '
+        + 'ancestor, not the release element. Controls under the release point '
+        + 'cannot activate even without pointer-events: none.';
+    } else if (downTarget === upTarget) {
+      verdict = '\nCONTROL GESTURE — down and up on the same element; the click '
+        + 'targets it. Drag onto the button or checkbox for the real case.';
+    } else {
+      verdict = '\nUNEXPECTED TARGETING — neither the release element nor the '
+        + 'common ancestor. Read the log.';
+    }
+    verdictEl.textContent = lines.join('\n') + '\n' + verdict;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probe: second-finger pan while a touch-action: none hold is active</title>
+<!-- Touch device required. The sortable-list drag holds a pointer on an <li>
+     with touch-action: none, and the container cancels touchstart on <li> hits.
+     Under html.list-drag-active * { pointer-events: none } a second finger's
+     hit test falls through to <html> (touch-action: auto), and the container's
+     touchstart listener is off the event path — so both pan blocks disappear.
+     Questions: does the second finger then pan the page, and does a pan fire
+     pointercancel on the HELD pointer (the app would abort via dragCancel)?
+     No-blanket mode reproduces the pre-change behavior for comparison. Inline
+     <style>/<script> keep it one portable file, per the manual-tests
+     convention. -->
+<style>
+  body {
+    font: 14px/1.5 system-ui, sans-serif; margin: 1rem; min-height: 300vh;
+    background: repeating-linear-gradient(180deg, #fff 0 60px, #eef3ff 60px 120px);
+  }
+  h1 { font-size: 1.2rem; }
+  fieldset { border: 1px solid #ccc; border-radius: .5rem; max-width: 34rem;
+             background: #fff; }
+  legend { padding: 0 .4rem; }
+  code { background: #eee; padding: 0 .2rem; border-radius: .2rem; }
+  b { color: #b00; }
+
+  html.hold-blanket * { pointer-events: none }
+
+  #box {
+    position: fixed; bottom: 18vh; left: 50%; transform: translateX(-50%);
+    width: 170px; height: 110px; border-radius: .5rem;
+    background: #888; touch-action: none; cursor: grab; user-select: none;
+    display: grid; place-items: center; color: #fff; text-align: center;
+    z-index: 1;
+  }
+  #box.held { background: #2a7; }
+
+  #readout {
+    position: fixed; top: 1rem; right: 1rem; width: 17rem;
+    font: 12px/1.6 ui-monospace, monospace; background: #f4f4f4;
+    padding: .6rem .8rem; border-radius: .5rem; z-index: 1;
+  }
+  #verdict { font: 13px/1.5 ui-monospace, monospace; white-space: pre-wrap;
+             max-width: 34rem; background: #fffbe6; padding: .6rem .8rem;
+             border-radius: .5rem; min-height: 3rem; }
+  #log { font: 12px/1.5 ui-monospace, monospace; white-space: pre;
+         max-width: 34rem; background: #f4f4f4; padding: .5rem;
+         border-radius: .5rem; max-height: 12rem; overflow: auto; }
+</style>
+</head>
+<body>
+  <h1>Second-finger pan during a <code>touch-action: none</code> hold</h1>
+
+  <fieldset>
+    <legend>Mode</legend>
+    <label><input type="radio" name="mode" value="blanket" checked>
+      <b>Blanket</b> — the hold applies
+      <code>html.hold-blanket * { pointer-events: none }</code> (the app rule)</label><br>
+    <label><input type="radio" name="mode" value="none">
+      No blanket — pre-change behavior</label>
+  </fieldset>
+
+  <p><b>Gestures</b>, in each mode:</p>
+  <ol>
+    <li>Hold the box with one finger; <b>swipe elsewhere</b> with a second.</li>
+    <li>Hold the box with one finger; <b>swipe on the box</b> with a second.</li>
+  </ol>
+  <p>The striped background shows scrolling. Release the held finger to get the
+     verdict for that hold.</p>
+
+  <div id="hold-area">
+    <div id="box">hold with one finger<br>swipe with another</div>
+  </div>
+
+  <h2 style="font-size:1rem">Verdict</h2>
+  <div id="verdict">Hold the box to begin.</div>
+  <h2 style="font-size:1rem">Log</h2>
+  <pre id="log"></pre>
+  <pre id="readout"></pre>
+
+<script>
+  const holdArea = document.getElementById('hold-area');
+  const box = document.getElementById('box');
+  const verdictEl = document.getElementById('verdict');
+  const logEl = document.getElementById('log');
+  const readoutEl = document.getElementById('readout');
+
+  let heldPointerId = null;
+  let holdStartScrollY = 0;
+  let scrollEventsDuringHold = 0;
+  let secondFingerTarget = null;
+  let heldWasCanceled = false;
+
+  const log = line => {
+    logEl.append(line + '\n');
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+  const useBlanket = () =>
+    document.querySelector('input[name="mode"]:checked').value === 'blanket';
+  const describe = el =>
+    el === document.documentElement ? '<html>'
+      : el === document.body ? '<body>'
+      : el.tagName.toLowerCase() + (el.id ? '#' + el.id : '');
+
+  function renderReadout() {
+    readoutEl.textContent =
+      'held pointerId : ' + (heldPointerId ?? '—') + '\n' +
+      'scrollY        : ' + Math.round(scrollY) + '\n' +
+      'delta this hold: '
+        + (heldPointerId === null ? '—' : Math.round(scrollY - holdStartScrollY)) + '\n' +
+      'scroll events  : ' + scrollEventsDuringHold + '\n' +
+      'second finger  : '
+        + (secondFingerTarget ? 'on ' + describe(secondFingerTarget) : '—') + '\n' +
+      'pointercancel  : ' + (heldWasCanceled ? 'YES (held pointer)' : 'no');
+  }
+
+  // Mirrors the app: the container cancels touchstart for touches that land on
+  // the drag source. Under the blanket a second touch targets <html>, off this
+  // listener's path, so it does not run for that touch.
+  holdArea.addEventListener('touchstart', e =>
+    e.target.closest('#box') && e.preventDefault(), {passive: false});
+
+  box.addEventListener('pointerdown', e => {
+    if (heldPointerId !== null) return;
+
+    e.preventDefault();
+    heldPointerId = e.pointerId;
+    holdStartScrollY = scrollY;
+    scrollEventsDuringHold = 0;
+    secondFingerTarget = null;
+    heldWasCanceled = false;
+    box.classList.add('held');
+    if (useBlanket()) document.documentElement.classList.add('hold-blanket');
+    log('hold start  pointerId=' + e.pointerId + '  type=' + e.pointerType
+      + (useBlanket() ? '  [blanket on]' : ''));
+    renderReadout();
+  });
+
+  document.addEventListener('pointerdown', e => {
+    if (heldPointerId === null || e.pointerId === heldPointerId) return;
+
+    secondFingerTarget = e.target;
+    log('second finger  pointerId=' + e.pointerId
+      + '  target=' + describe(e.target));
+    renderReadout();
+  }, true);
+
+  document.addEventListener('touchstart', e => {
+    if (heldPointerId !== null)
+      log('touchstart  target=' + describe(e.target));
+  }, {capture: true, passive: true});
+
+  addEventListener('scroll', () => {
+    if (heldPointerId === null) return;
+
+    scrollEventsDuringHold++;
+    renderReadout();
+  }, {passive: true});
+
+  const endHold = (e, canceled) => {
+    if (e.pointerId !== heldPointerId) return;
+
+    heldWasCanceled = canceled;
+    log((canceled ? 'pointercancel' : 'pointerup') + '  (held pointer)');
+    renderVerdict();
+    heldPointerId = null;
+    box.classList.remove('held');
+    document.documentElement.classList.remove('hold-blanket');
+    renderReadout();
+  };
+  document.addEventListener('pointerup', e => endHold(e, false), true);
+  document.addEventListener('pointercancel', e => endHold(e, true), true);
+
+  function renderVerdict() {
+    const scrollDelta = Math.round(scrollY - holdStartScrollY);
+    const panned = scrollEventsDuringHold > 0;
+    const lines = [
+      'mode            : ' + (useBlanket() ? 'blanket' : 'no blanket'),
+      'second finger   : '
+        + (secondFingerTarget ? 'on ' + describe(secondFingerTarget) : 'none seen'),
+      'page panned     : ' + (panned ? 'YES (' + scrollDelta + 'px)' : 'no'),
+      'held pointer    : ' + (heldWasCanceled ? 'CANCELED' : 'released normally'),
+    ];
+
+    let verdict;
+    if (!secondFingerTarget) {
+      verdict = '\nSINGLE-FINGER HOLD — add a second-finger swipe before releasing.';
+    } else if (heldWasCanceled) {
+      verdict = '\nHELD POINTER CANCELED — the pan gesture took the drag pointer. '
+        + 'The app aborts via dragCancel: clone settles home, no corruption.';
+    } else if (panned && useBlanket()) {
+      verdict = '\nPAN ALLOWED — the second finger scrolled the page and the held '
+        + 'pointer survived. Matches second-finger pan anywhere else on the page; '
+        + 'the app drag survives a scroll (slot midpoints are page-coordinate).';
+    } else if (panned) {
+      verdict = '\nPAN ALLOWED without the blanket — the second finger landed '
+        + 'outside the box, where panning was already possible pre-change.';
+    } else {
+      verdict = '\nPAN BLOCKED — touch-action: none / canceled touchstart at the '
+        + 'second finger’s hit target prevented scrolling (pre-change behavior '
+        + 'for touches on the box).';
+    }
+    verdictEl.textContent = lines.join('\n') + '\n' + verdict;
+  }
+
+  renderReadout();
+</script>
+</body>
+</html>

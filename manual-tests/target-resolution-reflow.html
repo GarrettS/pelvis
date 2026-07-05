@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Target resolution: elementFromPoint vs frozen numbers</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; margin: 2rem; max-width: 58rem; background: #141414; color: #e6e6e6; }
+  h1 { font-size: 1.35rem; }
+  p, ul { max-width: 44rem; }
+  code { font-family: ui-monospace, monospace; background: #262626; padding: 0 .3rem; border-radius: .2rem; }
+  button { font: inherit; padding: .5rem 1.1rem; margin: .5rem 0; cursor: pointer; background: #2b6; border: 0; border-radius: .3rem; color: #041; font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  #bench { max-height: 320px; overflow: hidden; width: 18rem; margin: 1rem 0; border: 1px solid #333; }
+  #bench ol { margin: 0; padding: 0; list-style: none; }
+  #bench li { height: 20px; padding-left: .5rem; border-bottom: 1px solid #222; color: #999; font-size: 13px; }
+  table { border-collapse: collapse; margin-top: 1rem; }
+  th, td { border: 1px solid #3a3a3a; padding: .4rem .9rem; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+  caption { text-align: left; font-weight: 600; margin-bottom: .5rem; }
+  .verdict { margin-top: 1.5rem; padding: 1rem 1.2rem; background: #1c1c1c; border-left: .25rem solid #2b6; max-width: 44rem; }
+  .verdict p { margin: .5rem 0; }
+  .fast { color: #4ad07a; font-weight: 600; }
+  .slow { color: #ff6b6b; font-weight: 600; }
+  .fine { font-size: .875rem; color: #999; max-width: 44rem; }
+</style>
+</head>
+<body>
+<h1>Target resolution: <code>elementFromPoint</code> vs frozen numbers</h1>
+
+<p>The sortable-list drag resolves the pointer to a drop slot once per <code>pointermove</code>. Two
+ways to do that resolve:</p>
+
+<ul>
+  <li><strong>elementFromPoint</strong> — <code>document.elementFromPoint(x, y)</code>, then
+    <code>getBoundingClientRect()</code> on the result for its midpoint. A DOM read.</li>
+  <li><strong>frozen numbers</strong> — midpoints measured once, then each resolve is
+    <code>array.find(({midpointY}) =&gt; pageY &lt;= midpointY)</code>. No DOM read.</li>
+</ul>
+
+<p>This page runs each resolve <span id="iters"></span> times, timed twice: with page layout clean,
+and with layout dirtied before each resolve. Clean isolates the hit-test cost; dirty adds a forced
+reflow per resolve. The numbers scan reads nothing either way.</p>
+
+<button id="run">Run</button>
+<p id="status">Builds a 2000-item list and runs 5 trials per cell.</p>
+
+<div id="bench" aria-hidden="true"></div>
+
+<div id="results"></div>
+
+<p class="fine">Exact reflow counts (Chromium's <code>LayoutCount</code>) are readable only over
+DevTools/CDP, not from in-page JavaScript. This page measures the wall-clock consequence instead.</p>
+
+<script>
+  const N = 2000;
+  const TRIALS = 5;
+  const ITEM = 20;
+  const VISIBLE = 14;
+
+  const bench = document.getElementById('bench');
+  document.getElementById('iters').textContent = N.toLocaleString();
+
+  // Build the list once — the fixture both strategies resolve against.
+  const list = document.createElement('ol');
+  for (let i = 0; i < N; i++) {
+    const li = document.createElement('li');
+    li.textContent = 'step ' + (i + 1);
+    list.appendChild(li);
+  }
+  bench.appendChild(list);
+  const items = list.children;
+
+  const median = a => [...a].sort((x, y) => x - y)[a.length >> 1];
+
+  // The frozen-numbers path: geometry read ONCE, then never touched again.
+  let benchLeft, benchTop, midpoints;
+  function freeze() {
+    const box = bench.getBoundingClientRect();
+    benchLeft = box.left + 8;
+    benchTop = box.top;
+    midpoints = Array.from(items, li => li.getBoundingClientRect().top + ITEM / 2);
+  }
+
+  function timeHitTest(dirty) {
+    const start = performance.now();
+    for (let i = 0; i < N; i++) {
+      if (dirty) bench.style.paddingTop = (i & 1) + 'px';
+      const y = benchTop + (i % VISIBLE) * ITEM + 5;
+      const el = document.elementFromPoint(benchLeft, y);
+      const li = el && el.closest('li');
+      if (li) void (y <= li.getBoundingClientRect().top + ITEM / 2);
+    }
+    return performance.now() - start;
+  }
+
+  function timeNumbers(dirty) {
+    const start = performance.now();
+    for (let i = 0; i < N; i++) {
+      if (dirty) bench.style.paddingTop = (i & 1) + 'px';
+      const pageY = (i % VISIBLE) * ITEM + 5;
+      void midpoints.find(m => pageY <= m);
+    }
+    return performance.now() - start;
+  }
+
+  function measure(fn, dirty) {
+    const runs = [];
+    for (let t = 0; t < TRIALS; t++) { freeze(); runs.push(fn(dirty)); }
+    bench.style.paddingTop = '';
+    return median(runs);
+  }
+
+  const fmt = v => v.toFixed(1) + ' ms';
+  const times = (a, b) => (a / b).toFixed(0);
+
+  function render(r) {
+    const cleanWin = r.hitClean <= r.numClean ? 'fast' : 'slow';
+    document.getElementById('results').innerHTML =
+      '<table><caption>Wall-clock per ' + N.toLocaleString() + ' resolves (lower is better)</caption>' +
+      '<tr><th>approach</th><th>layout clean</th><th>layout dirty</th></tr>' +
+      '<tr><td>elementFromPoint + gBCR</td>' +
+        '<td class="' + cleanWin + '">' + fmt(r.hitClean) + '</td>' +
+        '<td class="slow">' + fmt(r.hitDirty) + '</td></tr>' +
+      '<tr><td>frozen numbers</td>' +
+        '<td class="fast">' + fmt(r.numClean) + '</td>' +
+        '<td class="fast">' + fmt(r.numDirty) + '</td></tr>' +
+      '</table>' +
+      '<div class="verdict">' +
+        '<p>Clean, elementFromPoint runs ' + times(r.hitClean, r.numClean) +
+          '× the numbers scan — that gap is the hit-test walking the render tree. No layout is ' +
+          'dirty, so no reflow is forced.</p>' +
+        '<p>Dirty, it runs ' + times(r.hitDirty, r.numDirty) +
+          '× — each read also flushes the invalidated layout, one reflow per resolve on top of the ' +
+          'hit-test. The numbers scan reads nothing, so dirtying costs it nothing.</p>' +
+        '<p>Frozen numbers touch the DOM zero times per resolve: no hit-test, nothing to flush. ' +
+          'This fixture is 2000 items so the times are visible — a real chain is small, which shrinks ' +
+          'the hit-test gap, but not the reflow-per-resolve penalty.</p>' +
+      '</div>';
+  }
+
+  function run() {
+    const button = document.getElementById('run');
+    const status = document.getElementById('status');
+    button.disabled = true;
+    status.textContent = 'Running…';
+    // Two frames so the status paints before the blocking loops seize the thread.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const r = {
+        hitClean: measure(timeHitTest, false),
+        hitDirty: measure(timeHitTest, true),
+        numClean: measure(timeNumbers, false),
+        numDirty: measure(timeNumbers, true)
+      };
+      render(r);
+      status.textContent = 'Done. Median of ' + TRIALS + ' trials, N = ' + N.toLocaleString() + '.';
+      button.disabled = false;
+    }));
+  }
+
+  document.getElementById('run').addEventListener('click', run);
+</script>
+</body>
+</html>
