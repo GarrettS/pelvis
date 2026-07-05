@@ -91,8 +91,9 @@ const cloneTop = sourceRect.top - listParentRect.top;
 .sortable-list-clone {
   position: absolute;
   z-index: calc(var(--lift-z) + 1);
-  /* To detect what the user is over (e.g., using e.target.closest('li')),
-  pointer events must pass through the clone.*/
+  /* The clone is never an interaction target.
+   But, its WAAPI animation outlives list-drag-active during the settle glide, 
+   so drag-wide pointer-events rule does not cover its whole lifetime. */
   pointer-events: none;
   transform: translateY(var(--drag-offset, 0px));
 }
@@ -151,9 +152,13 @@ html.list-drag-active {
     cursor: grabbing;
     user-select: none;
   }
-}
 
-html.list-drag-active button { pointer-events: none }
+  /* Pointer events fall through to <html> — excluded, so it stays hittable
+     and the document-bound drag listeners keep receiving events. Drop targets
+     resolve by coordinate math over the frozen baseline; hit-testing
+     (e.target / elementFromPoint) returns <html> while this class is on. */
+  & * { pointer-events: none }
+}
 
 /* hover rule specificity (0,3,2) outranks .correct / .incorrect's (0,2,1)
   so hovering a graded item works, and, with the base li border-color transition */

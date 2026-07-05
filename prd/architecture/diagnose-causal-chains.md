@@ -207,13 +207,14 @@ The release path (`pointerup`, `pointercancel`, `Escape` keydown, and a window `
 };
 ```
 
-The class drop lets text-selection resume —
+The class drop lets text-selection and hit-testing resume ([Suspending Hit-Testing](#suspending-hit-testing)) —
 
 ```css
-html.list-drag-active,
-html.list-drag-active * {
-  cursor: grabbing;
-  user-select: none;
+html.list-drag-active {
+  &, & * {
+    cursor: grabbing;
+    user-select: none;
+  }
 }
 ```
 
@@ -320,10 +321,11 @@ Two collections, two purposes — duplication that earns its keep.
 Adding class to the root to prevents selection of any text the pointer passes over during the drag.
 
 ```css
-html.list-drag-active,
-html.list-drag-active * {
-  cursor: grabbing;
-  user-select: none;
+html.list-drag-active {
+  &, & * {
+    cursor: grabbing;
+    user-select: none;
+  }
 }
 ```
 
