@@ -9,6 +9,9 @@ Read this file first on every task. Project rules in this file and in `~/.web-xp
 - **`prd/project.md`** — Project definition, design decisions, content authority. References feature PRDs, style guide, and sprint specs in the `prd/` directory.
 
 ## Working Rules
+- Before modifying any file, describe the exact proposed change and obtain
+  explicit user approval. Tool permissions do not constitute approval. Do not
+  interpret requests to "test the process" as authorization to edit.
 - Mirror the project-specific workflow and guardrails defined in `claude.md` unless the user directs otherwise.
 - Keep terminology aligned with the project PRD and existing UI labels.
 - Verify claims against the current codebase before reporting them as true.
