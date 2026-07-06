@@ -28,7 +28,7 @@ Agentic pair programming under [Web XP](https://github.com/GarrettS/web-xp) doct
 
 ```
 index.html   — single page; tabs swap module views in place
-sw.js        — service worker (cache-first, offline support)
+sw.js        — service worker (stale-while-revalidate, offline support)
 css/         — one stylesheet per module, plus tokens.css (custom properties) and layout.css (grid, breakpoints)
 scripts/     — one ES module per feature, named by feature
 data/        — one JSON file per feature; curated PRI content, no runtime generation

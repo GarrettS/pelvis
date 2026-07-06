@@ -122,10 +122,15 @@ self.addEventListener('fetch', event => {
     const cache = await caches.open(CACHE_VERSION);
     const cached = await cache.match(request);
 
-    // Fetch fresh; replace the cached copy on a good response (cloned before its
-    // body is read). A 404/500 is left uncached so a transient error can't evict
-    // a working copy.
-    const refresh = fetch(request).then(async response => {
+    // Revalidate on the network with a conditional request ({cache: 'no-cache'}),
+    // then replace the cached copy on a good response (cloned before its body is
+    // read). Default cache mode lets the browser's HTTP/memory cache answer this
+    // with a stale copy -- the revalidate half of stale-while-revalidate then
+    // rewrites stale over stale and never converges, so a new build only shows
+    // after a hard reload. no-cache still lets an unchanged file answer with a
+    // 304 (no body transfer). A 404/500 is left uncached so a transient error
+    // can't evict a working copy.
+    const refresh = fetch(request, {cache: 'no-cache'}).then(async response => {
       if (response.ok) await cache.put(request, response.clone());
       return response;
     });
