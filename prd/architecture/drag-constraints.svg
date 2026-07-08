@@ -1,0 +1,84 @@
+<svg viewBox="80 114 764 440" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif">
+  <defs>
+    <marker id="arrowAccent" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 z" fill="#ef6a6a"/>
+    </marker>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000" flood-opacity=".4"/>
+    </filter>
+  </defs>
+  <style>
+    .name { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 600; font-size: 23px; fill: #eef1f5 }
+    .prop { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 20px; fill: #d4d9e0 }
+    .mono { font-family: ui-monospace, Menlo, Consolas, monospace }
+    .state { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 17px; fill: #7d2020 }
+    .note { font-size: 20px; fill: #d4d9e0 }
+    .itxt { font-size: 23px; fill: #2b3440 }
+    .ctxt { font-size: 23px; font-weight: 600; fill: #7d2020 }
+    .skip { stroke: #ef6a6a; stroke-width: 3.2; fill: none }
+    .card-back { fill: #e6eaf1; stroke: #8893a5; stroke-width: 1.6 }
+    .card-front { fill: #f3f5f9; stroke: #6b7686; stroke-width: 1.6 }
+    .item-box { fill: #e8ecf3; stroke: #aab4c2; stroke-width: 1.4 }
+    .stripe { fill: #8c99ab }
+    .item-dim { fill: none; stroke: #bf3131; stroke-width: 2; stroke-dasharray: 6 4 }
+    .dim { opacity: .4 }
+    .clone-box { fill: #f7c2c2; stroke: #bf3131; stroke-width: 2 }
+    .clone-stripe { fill: #bf3131 }
+  </style>
+
+  <!-- panel background so the figure reads on any page color -->
+  <rect x="80" y="114" width="764" height="440" fill="#636060DD"/>
+
+  <!-- whole diagram shifted left to align its edge with the frame; tune the translate-x to re-align -->
+  <g id="diagram" transform="translate(-115,0)">
+
+    <!-- label sits directly above its element: the front card -->
+    <text class="name" x="250" y="142">ol.sortable-list</text>
+
+    <!-- parent card behind, list card in front (coincident footprint) -->
+    <rect class="card-back" x="210" y="188" width="300" height="300" rx="14"/>
+    <rect class="card-front" x="248" y="152" width="300" height="300" rx="14"/>
+
+    <!-- four list items: inset, rounded, padded, gapped, left stripe, text -->
+    <g>
+      <rect class="item-box" x="272" y="170" width="252" height="56" rx="8"/>
+      <rect class="stripe" x="272" y="170" width="5" height="56" rx="2"/>
+      <text class="itxt" x="296" y="206">Item 1</text>
+
+      <rect class="item-box" x="272" y="240" width="252" height="56" rx="8"/>
+      <rect class="stripe" x="272" y="240" width="5" height="56" rx="2"/>
+      <text class="itxt" x="296" y="276">Item 2</text>
+
+      <g class="dim">
+        <rect class="item-box" x="272" y="310" width="252" height="56" rx="8"/>
+        <rect class="stripe" x="272" y="310" width="5" height="56" rx="2"/>
+      </g>
+      <rect class="item-dim" x="272" y="310" width="252" height="56" rx="8"/>
+
+      <rect class="item-box" x="272" y="380" width="252" height="56" rx="8"/>
+      <rect class="stripe" x="272" y="380" width="5" height="56" rx="2"/>
+      <text class="itxt" x="296" y="416">Item 4</text>
+    </g>
+
+    <!-- item 3's state, written on item 3 itself -->
+    <text class="state" x="296" y="354">active-drag-source</text>
+
+    <!-- the clone: one LI, lifted off item 3 by the same offset the list has off its parent -->
+    <g filter="url(#sh)">
+      <rect class="clone-box" x="310" y="274" width="252" height="58" rx="8"/>
+      <rect class="clone-stripe" x="310" y="274" width="6" height="58" rx="2"/>
+      <text class="ctxt" x="336" y="311">Item 3</text>
+    </g>
+
+    <!-- label sits directly beside its element: the clone -->
+    <text class="name" x="574" y="288">ol.sortable-list-clone › li</text>
+    <text class="prop" x="574" y="314">z-index: var(--lift-z)</text>
+
+    <!-- containment: the clone's parent is the container, drawn from the parent's peek to the clone -->
+    <path class="skip" d="M232,470 Q150,372 312,306" marker-end="url(#arrowAccent)"/>
+
+    <!-- label sits directly below its element: the back card's bottom-left peek -->
+    <text class="name" x="210" y="515">div.sortable-list-parent</text>
+    <text class="note" x="210" y="538">position: relative · containing block</text>
+  </g>
+</svg>
