@@ -30,6 +30,13 @@ page.on('pageerror', e => errs.push(String(e)));
 await page.goto(`${BASE}/index.html#diagnose/causal-chains`);
 const OL = '#diagnose-causal-chains-content .sortable-list';
 await page.waitForSelector(`${OL} > li`, {timeout: 8000});
+// The entrance holds pointer-events:none via .entering until the last item's
+// item-cool settles (~0.76s). A real-mouse drag before it clears lands on the
+// parent, not the li, and never starts. Wait it out.
+await page.waitForFunction(sel => {
+  const ol = document.querySelector(sel);
+  return ol && !ol.classList.contains('entering');
+}, OL, {timeout: 5000});
 
 const list = page.locator(OL).first();
 const items = () => list.locator(':scope > li');

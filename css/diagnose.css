@@ -65,16 +65,6 @@
   margin-bottom: .75rem;
 }
 
-/* Page-load row entrance. renderAll sets .entering on the wrapper and clears
-   it on animationend. :where() drops the rule's specificity below
-   dropped/all-correct, so even if that cleanup never runs and .entering sticks,
-   the entrance still can't override those animations. The list-enter keyframe
-   is owned by sortable-list-form.css (the sortable module owns its animations);
-   this rule only applies it. */
-:where(#chains-wrap.entering) .sortable-list > li {
-  animation: list-enter var(--dur-normal) ease-out;
-}
-
 .reveal-details {
   display: none;
   margin-top: 1rem;

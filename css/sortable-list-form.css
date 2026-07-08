@@ -62,14 +62,40 @@ const cloneTop = sourceRect.top - listParentRect.top;
   margin-block-start: var(--sortable-item-gap);
 }
 
-/* The sortable list's item-entrance animation. The module owns it but applies it
-   nowhere here -- consumers do (diagnose.css gates it on #chains-wrap.entering). It
-   reads as unused in this file by design; don't move or delete it. */
-@keyframes list-enter {
+@keyframes item-flip-in {
   from {
     opacity: 0;
-    transform: translateY(-6px);
+    transform: rotateX(90deg);
   }
+}
+
+@keyframes item-cool {
+  from {
+    border-left-color: var(--accent);
+  }
+}
+
+/* Each item is built in its scramble slot and flips in, staggered by --i; backwards fill
+   holds it hidden until its turn. No item travels between slots, so the flip never 
+   exposes the solved order. pointer-events stay off until the last item settles -- an item
+   grabbed mid-turn would capture a foreshortened box as its drag baseline. */
+.sortable-list.entering {
+  --flip-duration: var(--dur-normal);
+  --flip-stagger: calc(var(--dur-fast) * .5);
+  perspective: 800px;
+  pointer-events: none;
+}
+
+.sortable-list.entering > li {
+  backface-visibility: hidden;
+  /* Flip in, then cool the accent border to rest. The cool waits out the flip -- its delay
+     is stagger + flip duration -- so each item fades off just after it lands. */
+  animation:
+    item-flip-in var(--flip-duration) ease-out backwards,
+    item-cool var(--dur-normal) ease-out both;
+  animation-delay:
+    calc(var(--i) * var(--flip-stagger)),
+    calc(var(--i) * var(--flip-stagger) + var(--flip-duration));
 }
 
 .sortable-list > li.active-drag-source {
@@ -83,6 +109,11 @@ const cloneTop = sourceRect.top - listParentRect.top;
   transition: border-color var(--dur-normal), opacity var(--dur-slow);
 }
 
+/* Transient hide only: blanks grading while a drag is in flight. A same-slot drop or 
+  abort re-shows it (still valid); a reorder REMOVES it in JS (#reorderList) instead of
+  leaning on this rule -- hidden-but-present classes leaked stale grading on no-op drops 
+  and back-nav. See #30 (remove on reorder, don't hide) and 
+  e2e/causal-chain-grading-lifecycle.mjs. */
 .sortable-list:has(> li.active-drag-source) > li:is(.correct, .incorrect) {
   border-left-color: var(--border);
   background: var(--panel-bg-sunken);
@@ -144,7 +175,7 @@ const cloneTop = sourceRect.top - listParentRect.top;
   /* Stay above the displaced sibling that FLIPs past during the settle, so the
   dropped item cools on top instead of being covered. Clears with the class. */
   z-index: var(--lift-z);
-  animation: item-drop-cool var(--dur-normal) ease-out;
+  animation: item-drop-cool var(--dur-slow) ease-out;
 }
 
 html.list-drag-active {
@@ -176,20 +207,25 @@ html:not(.list-drag-active) .sortable-list > li:hover {
   background: var(--error-bg);
 }
 
-@keyframes all-correct-pulse {
+@keyframes all-correct-wave {
+  from {
+    background: var(--panel-bg-sunken);
+    border-left-color: var(--border);
+  }
   30% {
     transform: scale(1.02);
     box-shadow: 0 0 .75rem var(--correct-border), inset 0 0 .5rem var(--correct-border);
-    border-color: transparent;
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: none;
+    background: var(--correct-bg);
+    border-left-color: var(--correct-border);
   }
 }
 
+/* The keyframes name only the delta from the resting .correct green: a neutral
+   `from` that backwards fill holds through the stagger delay, then glow and green
+   at the 30% peak. The implicit 100% and the post-animation rest both fall back to
+   .correct, so the green arrives with the wave and holds without a snap. */
 .sortable-list.all-correct > li {
-  animation: all-correct-pulse var(--dur-normal) ease-out;
+  animation: all-correct-wave var(--dur-fast) ease-out backwards;
   animation-delay: calc(var(--i) * var(--dur-fast) / 2);
 }
 

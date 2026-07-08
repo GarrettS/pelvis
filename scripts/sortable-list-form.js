@@ -1,4 +1,5 @@
-import {toShuffled} from './shuffle.js';
+// Architecture: prd/architecture/diagnose-causal-chains.md
+import {toDeranged} from './shuffle.js';
 import {newEl} from './el-create.js';
 import {escapeHTML} from './escape-html.js';
 
@@ -46,10 +47,12 @@ export class SortableListContainer {
   get win() { return this.#el.ownerDocument.defaultView; }
 
   replaceForms(definitions) {
-    const fragment = this.#el.ownerDocument.createDocumentFragment();
-    Object.entries(definitions).forEach(([id, definition]) =>
-      fragment.append(SortableListForm.getById(id, definition, this).form));
-    this.#el.replaceChildren(fragment);
+    const forms = Object.entries(definitions).map(
+      ([id, definition]) => SortableListForm.getById(id, definition, this));
+    this.#el.replaceChildren(...forms.map(form => form.form));
+    // Items were built in scramble order; once attached, flip each list in. The flip cues
+    // interactivity and never paints the sorted answer, since items arrive already in place.
+    forms.forEach(form => form.playEntrance());
   }
 
   #onSubmit = e =>
@@ -58,10 +61,10 @@ export class SortableListContainer {
   #onPointerDown = e => {
     if (!e.isPrimary || e.button !== 0 || e.ctrlKey || this.#activeForm) return;
 
-    const dragSource = e.target.closest('.sortable-list > li');
-    if (!dragSource) return;
+    const sourceItem = e.target.closest('.sortable-list > li');
+    if (!sourceItem) return;
 
-    const ol = dragSource.parentNode;
+    const ol = sourceItem.parentNode;
     if (ol.ariaDisabled === 'true') return;
 
     this.#activeForm = SortableListForm.getById(ol.id);
@@ -71,7 +74,7 @@ export class SortableListContainer {
     e.preventDefault();
 
     this.#activePointerId = e.pointerId;
-    this.#activeForm.dragStart(dragSource, e.pageY);
+    this.#activeForm.dragStart(sourceItem, e.pageY);
     this.#el.ownerDocument.documentElement.classList.add('list-drag-active');
     this.#startTracking();
   };
@@ -158,6 +161,7 @@ export class SortableListForm {
   }
 
   #formEl;
+  #listEl;
   #dropbarEl;
   #steps;
   #currentOrder;
@@ -171,14 +175,14 @@ export class SortableListForm {
       'SortableListForm: use SortableListForm.getById()');
     const steps = container.getSteps(definition);
     this.#steps = Object.freeze([...steps]);
-    this.#currentOrder = toShuffled(steps);
+    this.#currentOrder = toDeranged(steps);
     this.#container = container;
     this.#formEl = newEl('form', {
       className: 'card',
       attrs: {name: id},
       innerHTML: container.renderFormHTML(definition)
     });
-    const ol = this.#formEl.querySelector('.sortable-list');
+    const ol = this.#listEl = this.#formEl.querySelector('.sortable-list');
     ol.id = id;
     ol.append(...this.#buildItems());
     // One drop bar per list, built with the form and reused: a drag shows and positions
@@ -195,8 +199,8 @@ export class SortableListForm {
         innerHTML: this.#container.renderItemHTML(step), attrs: {'data-step': step}}));
   }
 
-  dragStart(dragSource, grabStartY) {
-    const baseline = SortableListForm.#captureDragBaseline(dragSource, grabStartY);
+  dragStart(sourceItem, grabStartY) {
+    const baseline = SortableListForm.#captureDragBaseline(sourceItem, grabStartY);
     const session = SortableListForm.#commitDragDOM(baseline);
     this.#dragSession = session;
     // Park the bar at the source's resting slot -- the gap just after it -- so the first
@@ -206,18 +210,18 @@ export class SortableListForm {
     this.#autoscroll = this.#createAutoscroll(baseline);
   }
 
-  static #captureDragBaseline(dragSource, grabStartY) {
-    const listEl = dragSource.parentNode;
+  static #captureDragBaseline(sourceItem, grabStartY) {
+    const listEl = sourceItem.parentNode;
     const listParent = listEl.parentElement;
     const items = [...listEl.children];
-    const sourceRect = dragSource.getBoundingClientRect();
+    const sourceRect = sourceItem.getBoundingClientRect();
     const listRect = listEl.getBoundingClientRect();
     const listParentRect = listParent.getBoundingClientRect();
-    const doc = dragSource.ownerDocument;
+    const doc = sourceItem.ownerDocument;
     const win = doc.defaultView;
     const scrollport = SortableListForm.#captureScrollport(doc);
 
-    // The clone is a same-size copy of dragSource, built later in #commitDragDOM,
+    // The clone is a same-size copy of sourceItem, built later in #commitDragDOM,
     // so its geometry matches the source's. cloneTop reads relative to listParent
     // -- the clone's containing block -- so its CSS top lands it over the source.
     const cloneTop = sourceRect.top - listParentRect.top;
@@ -225,20 +229,20 @@ export class SortableListForm {
     return Object.freeze({
       listEl,
       listParent,
-      dragSource,
+      sourceItem,
       items,
       cloneTop,
       // Dragged item's page-Y edges at grab, for the autoscroll's clone-visibility check.
       sourceItemY: sourceRect.top + win.scrollY,
       sourceItemYBottom: sourceRect.bottom + win.scrollY,
-      ordinalValue: items.indexOf(dragSource) + 1,
+      ordinalValue: items.indexOf(sourceItem) + 1,
       scrollport,
       dragRange: Object.freeze({
         grabStartY,
         ...SortableListForm.#getDragRange(sourceRect, listRect, items)
       }),
       slots: SortableListForm.#measureSlots(
-        items, dragSource, listRect.top, listRect.height)
+        items, sourceItem, listRect.top, listRect.height)
     });
   }
 
@@ -282,11 +286,11 @@ export class SortableListForm {
   // in-flight transform from the BCR top so a mid-FLIP pickup lands on the resting slot.
   // midpointY (page coords) hit-tests the pointer; dropbarTop (list frame) places the
   // bar.
-  static #measureSlots(items, dragSource, listViewTop, listHeight) {
-    const win = dragSource.ownerDocument.defaultView;
+  static #measureSlots(items, sourceItem, listViewTop, listHeight) {
+    const win = sourceItem.ownerDocument.defaultView;
     const scroll = win.scrollY;
-    const afterSource = dragSource.nextElementSibling;
-    const isDropTarget = item => item !== dragSource && item !== afterSource;
+    const afterSource = sourceItem.nextElementSibling;
+    const isDropTarget = item => item !== sourceItem && item !== afterSource;
     const slots = new Array(items.length + 1);
     items.forEach((li, index) => {
       const box = li.getBoundingClientRect();
@@ -316,18 +320,18 @@ export class SortableListForm {
   }
 
   static #commitDragDOM(baseline) {
-    const { listParent, dragSource, ordinalValue, cloneTop } = baseline;
+    const { listParent, sourceItem, ordinalValue, cloneTop } = baseline;
 
     listParent.querySelector('.sortable-list-clone')?.remove();
     const clone = listParent.appendChild(newEl('ol', {
       className: 'sortable-list-clone',
       attrs: {start: ordinalValue, 'aria-hidden': 'true', style: `top: ${cloneTop}px`},
-      children: [dragSource.cloneNode(true)]
+      children: [sourceItem.cloneNode(true)]
     }));
     // active-drag-source dims the picked-up LI; the :has(> li.active-drag-source) rule
     // uses it to suppress the now-stale grading until the drop resolves -- a no-op or
     // abort re-shows that grading, a reorder clears it.
-    dragSource.classList.add('active-drag-source');
+    sourceItem.classList.add('active-drag-source');
 
     return {
       // Reassigned in dragMove as the pointer crosses slot midpoints.
@@ -481,7 +485,7 @@ export class SortableListForm {
     if (currentSlot.isDropTarget)
       this.#reorderList(baseline, currentSlot.item, clone);
     else
-      this.#settleClone(clone, baseline.dragSource);
+      this.#settleClone(clone, baseline.sourceItem);
     this.#endSession();
   }
 
@@ -493,22 +497,22 @@ export class SortableListForm {
     this.#dragSession = null;
   }
 
-  #reorderList({ dragSource, listEl, items }, nextItem, clone) {
+  #reorderList({ sourceItem, listEl, items }, nextItem, clone) {
     // The reorder makes the correct/incorrect classes stale, and stale
     // classes must be removed, not hidden: hidden grading resurfaced on no-op
-    // drops and back-navigation (two shipped bugs);
+    // drops and back-navigation (two shipped bugs, #30);
     // e2e/causal-chain-grading-lifecycle.mjs guards both. They come off ahead
     // of active-drag-source, whose removal re-enables grading colors.
     items.forEach(li => li.classList.remove('correct', 'incorrect'));
-    dragSource.classList.remove('active-drag-source');
+    sourceItem.classList.remove('active-drag-source');
 
     this.#animateLayoutChange(listEl, () => {
-      listEl.insertBefore(dragSource, nextItem);
+      listEl.insertBefore(sourceItem, nextItem);
       this.#currentOrder = Array.from(listEl.children, li => li.dataset.step);
     }, clone.firstElementChild);
-    dragSource.classList.add('dropped');
-    dragSource.addEventListener('animationend',
-      () => dragSource.classList.remove('dropped'), {once: true});
+    sourceItem.classList.add('dropped');
+    sourceItem.addEventListener('animationend',
+      () => sourceItem.classList.remove('dropped'), {once: true});
     clone.remove();
   }
 
@@ -528,24 +532,26 @@ export class SortableListForm {
     mutate();
 
     // Phase 3: reads (after mutation)
-    const settledItems = [...listEl.children];
-    const deltas = Array.from(settledItems, li =>
-      startingTops.get(li.dataset.step) - li.getBoundingClientRect().top);
+    const deltas = new Map();
+    for (const li of listEl.children) {
+      const dy = startingTops.get(li.dataset.step) - li.getBoundingClientRect().top;
+      if (dy) deltas.set(li, dy);
+    }
 
     // Phase 4: writes (per-item animation)
-    deltas.forEach((dy, i) => dy && settledItems[i].animate(
-      [{transform: `translateY(${dy}px)`}, {transform: 'translateY(0)'}],
-      {duration: this.#container.flipDuration, easing: 'ease-out'}));
+    for (const [li, dy] of deltas)
+      li.animate(
+        [{transform: `translateY(${dy}px)`}, {transform: 'translateY(0)'}],
+        {duration: this.#container.flipDuration, easing: 'ease-out'});
   }
 
-  // Glide the clone back to the drag source's slot, then remove it on
-  // transitionend. Runs only for a no-op drop (released in place) or
-  // Esc/cancel — a real reorder animates through #animateLayoutChange and
-  // skips this.
-  #settleClone(clone, dragSource) {
-    dragSource.classList.remove('active-drag-source');
+  // Glide the clone back to the drag source's slot, then remove it when the animation
+  // finishes. Runs only for a no-op drop (released in place) or Esc/cancel — a real
+  // reorder animates through #animateLayoutChange and skips this.
+  #settleClone(clone, sourceItem) {
+    sourceItem.classList.remove('active-drag-source');
 
-    const dy = dragSource.getBoundingClientRect().top - clone.getBoundingClientRect().top;
+    const dy = sourceItem.getBoundingClientRect().top - clone.getBoundingClientRect().top;
 
     // Already at the source's slot (a no-op drop on its own slot, or Escape over it):
     // nothing to animate, so remove it now.
@@ -571,12 +577,12 @@ export class SortableListForm {
   // settle the clone back to the drag source's slot and clear the session.
   dragCancel() {
     const session = this.#dragSession;
-    this.#settleClone(session.clone, session.baseline.dragSource);
+    this.#settleClone(session.clone, session.baseline.sourceItem);
     this.#endSession();
   }
 
   checkResults() {
-    const ol = this.#formEl.querySelector('.sortable-list');
+    const ol = this.#listEl;
     const items = [...ol.children];
     let allCorrect = true;
     items.forEach((li, i) => {
@@ -595,11 +601,33 @@ export class SortableListForm {
     }
   }
 
+  // Flip the built items into place, staggered by index (--i), each arriving accent-lit 
+  // and cooling to its resting border just after it lands. Unlike reshuffle, no 
+  // item moves between positions -- each turns in place -- so the entrance never shows 
+  // the solved order.
+  playEntrance() {
+    const ol = this.#listEl;
+    [...ol.children].forEach(({style}, i) => style.setProperty('--i', i));
+    ol.classList.add('entering');
+    
+    // Each item's cool is its last animation, and the last item cools last -- so entering
+    // clears on that cool: interaction stays blocked while items animate.
+    const lastItem = ol.lastElementChild;
+    const clearEntering = e => {
+      if (e.animationName !== 'item-cool') return;
+
+      ol.classList.remove('entering');
+      lastItem.removeEventListener('animationend', clearEntering);
+    };
+    lastItem.addEventListener('animationend', clearEntering);
+  }
+
   reshuffle() {
-    this.#currentOrder = toShuffled(this.#steps);
+    // Random order, but each item can never appear in its own slot.
+    this.#currentOrder = toDeranged(this.#steps);
     this.#wrongChecks = 0;
-    const ol = this.#formEl.querySelector('.sortable-list');
-    ol.classList.remove('all-correct');
+    const ol = this.#listEl;
+    ol.classList.remove('all-correct', 'entering');
     ol.ariaDisabled = false;
     this.#formEl.elements.checkResults.disabled = false;
     this.#toggleBonusReveal(false);
