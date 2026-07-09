@@ -105,7 +105,7 @@ To check results and reshuffle, the list is inside a FORM with two buttons, `che
 </form>
 ```
 
-The *clone* is an absolutely-positioned <ol> that gets appended as a sibling to the `.sortable-list`. Both share a containing block, so when it's time to drag, the clone can be positioned over the original in the same coordinate space.  (See [The Drag Clone](#the-drag-clone)). 
+The *clone* is an absolutely-positioned `<ol>` that gets appended as a sibling to the `.sortable-list`. Both share a containing block, so when it's time to drag, the clone can be positioned over the original in the same coordinate space.  (See [The Drag Clone](#the-drag-clone)). 
 
 ### SortableListContainer
 
@@ -272,7 +272,7 @@ const difference = childRect.top - parentRect.top;
 
 That subtraction works when the parent has `border: 0`: the padding edge then coincides with the border-box top `getBoundingClientRect()` reports. A top border would sit between them.
 
-This is relevant because the y-distance from `sourceItem` to its parent list's content edge must be measured. But the clone is an <ol>, and <ol><ol> is invalid, so the list and the clone are both appended to a relatively-positioned parent, .sortable-list-parent. Zeroing margin, border, and padding on the parent and the lists sets all their edges flush.
+This is relevant because the y-distance from `sourceItem` to its parent list's content edge must be measured. But the clone is an `<ol>`, and `<ol><ol>` is invalid, so the list and the clone are both appended to a relatively-positioned parent, .sortable-list-parent. Zeroing margin, border, and padding on the parent and the lists sets all their edges flush.
 
 ##### HTML Structure
 
@@ -378,13 +378,13 @@ After passing the gates, Container's pointerdown handler commits to building the
 
 ### Capturing the Pointer 
 
-Dragging requires tracking the pointer past the list, and past the viewport edge (autoscroll needs pointermove to keep arriving there), so it must continue to receive pointermove off-window. But by default, each pointer event is dispatched to whatever is under the pointer. This means that when the pointer leaves the <li>, the pointer events go elsewhere.
+Dragging requires tracking the pointer past the list, and past the viewport edge (autoscroll needs pointermove to keep arriving there), so it must continue to receive pointermove off-window. But by default, each pointer event is dispatched to whatever is under the pointer. This means that when the pointer leaves the `<li>`, the pointer events go elsewhere.
 
 Element method `setPointerCapture` seems the obvious reach. It is designed to reroute the event stream directly to the element it's called on, regardless of what the pointer is currently over, even off-window, for the lifecycle of that event until capture is released (e.g. `pointerup` fires; the event is canceled, etc). But Chromium intermittently clears capture before the terminating pointerup dispatches, so it's unreliable: [524131116: lostpointercapture sometimes fires before pointerup; pointerup retargets away from capturing element](https://issues.chromium.org/issues/524131116). 
 
 Pointermove fires off-window for touch events and wherever else buttons == 1 (depressed mouse button), so the stream keeps arriving.  Off-window delivery without capture: [offwindow.html](../../manual-tests/no-capture-offwindow.html).
 
-So avoiding setPointerCapture, the move and release listeners bind to `document`. The pointer leaves the grabbed source <li> during the drag, so `pointerup` fires wherever the pointer rests at release — or, off-window, on the document root. Keyed on `pointerId`, the listeners act only for the tracked pointer; one `AbortController`, aborted in `#stopTracking`, drops the set at once.
+So avoiding setPointerCapture, the move and release listeners bind to `document`. The pointer leaves the grabbed source `<li>` during the drag, so `pointerup` fires wherever the pointer rests at release — or, off-window, on the document root. Keyed on `pointerId`, the listeners act only for the tracked pointer; one `AbortController`, aborted in `#stopTracking`, drops the set at once.
 
 ```js
 #startTracking() {
@@ -749,7 +749,7 @@ ___
 
 ### The Drag Clone
 
-The clone is an <ol> with one same-sized copy of the `sourceItem`. It's absolutely-positioned and appended to the `div.sortable-list-parent` as a sibling of the `sortable-list` in `#commitDragDOM` (in pointerdown).
+The clone is an `<ol>` with one same-sized copy of the `sourceItem`. It's absolutely-positioned and appended to the `div.sortable-list-parent` as a sibling of the `sortable-list` in `#commitDragDOM` (in pointerdown).
 
 The drag baseline's `cloneTop` positions the clone over the `sourceItem` item.
 
@@ -778,13 +778,13 @@ The drag baseline's `cloneTop` positions the clone over the `sourceItem` item.
 #### Clone OL Attributes
 
   - `class="sortable-list-clone"` — the floating copy; styled `position: absolute; pointer-events: none`.
-  - `start="2"` — ordinalValue, the grabbed item's 1-based slot; makes the single-item <ol> display the
+  - `start="2"` — ordinalValue, the grabbed item's 1-based slot; makes the single-item `<ol>` display the
     right number.
   - `aria-hidden="true"` — it's a visual duplicate; keep it out of the accessibility tree.
   - `style="top: nn"` — cloneTop (`sourceRect.top` - `listParentRect.top`), positioning the clone over the sourceItem at pickup.
   - `--drag-offset` — set per-frame by `dragMove`; the CSS transform that makes the clone follow the pointer (added on the first move).
 
-The original <li> carries class="active-drag-source" (added after the clone is copied, so the clone doesn't inherit it) — that's what dims it and, via `:has(> li.active-drag-source)`, suppresses stale grading until the drop resolves.
+The original `<li>` carries class="active-drag-source" (added after the clone is copied, so the clone doesn't inherit it) — that's what dims it and, via `:has(> li.active-drag-source)`, suppresses stale grading until the drop resolves.
 
 #### Styling the Clone
 
@@ -813,7 +813,7 @@ The `.sortable-list-clone` must be `width: 100%` to fill the wrapper.
 }
 ```
 
-Now *all* <li> elements fill their container, so every item grows to the one shared `width: min(longest_unwrapped_item, available_width)`.
+Now *all* `<li>` elements fill their container, so every item grows to the one shared `width: min(longest_unwrapped_item, available_width)`.
 
 Equal width gives equal wrapping, and with all other dimensions matched, the clone's item matches the source item's height — an invariant `cloneHeight` depends on.
 
@@ -1495,7 +1495,7 @@ items.forEach(({style}, i) => style.setProperty('--i', i));
 The stagger comes from `animation-delay`. Each item starts a step later than its previous sibling, so the wave travels top to bottom. That delay is a `calc()` over the item's index — and at the time of this writing must be done with javascript, as CSS has no direct way to pass `calc()` an index:
 
   - `sibling-index()` *does* return the position, but current browser support is too thin to rely on.
-  - `counter(list-item)` resolves to a string for content, not a <number>, so `calc()` rejects it for animation-delay.
+  - `counter(list-item)` resolves to a string for content, not a `<number>`, so `calc()` rejects it for animation-delay.
 
 Setting the custom `--i` CSS property in javascript moves some presentation logic into the script — a cross-concern cost that avoids hand-rolled WAAPI timing. The green is applied to every item up front, and the animation withholds and then releases it per item, so the cascade keeps the state and the animation only times the reveal.
 
@@ -1530,13 +1530,13 @@ reshuffle() {
 }
 ```
 
-The animation uses the same reorder FLIP (#the-reorder-animation), with one difference from a drop. A drop moves the existing <li>s with `insertBefore`; reshuffle replaces them with `#buildItems`. The FLIP matches each item's old position to its new one by data-step, so it animates identically whether the nodes moved or were replaced.
+The animation uses the same reorder FLIP (#the-reorder-animation), with one difference from a drop. A drop moves the existing `<li>`s with `insertBefore`; reshuffle replaces them with `#buildItems`. The FLIP matches each item's old position to its new one by data-step, so it animates identically whether the nodes moved or were replaced.
 
 ## Page-Load Entrance
 
 The idea was to show an animation on page load, to make the items look more interactive. Each list is built scrambled (the constructor's derangement, [Reshuffle](#reshuffle)) and flipped in place and doesn't expose the solved order.
 
-Method `#replaceForms` calls each form's playEntrance once the forms attach. playEntrance stamps each item's index into `--i`, adds entering to the <ol>, and removes it on the last item's item-cool animationend. While entering is on, the list has `pointer-events: none`, so dragging can't start on a mid-flip item.
+Method `#replaceForms` calls each form's playEntrance once the forms attach. playEntrance stamps each item's index into `--i`, adds entering to the `<ol>`, and removes it on the last item's item-cool animationend. While entering is on, the list has `pointer-events: none`, so dragging can't start on a mid-flip item.
 
   ```css
 @keyframes item-flip-in {
