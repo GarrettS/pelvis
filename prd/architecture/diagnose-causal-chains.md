@@ -141,7 +141,7 @@ RESOLVE:        instance ◄─ #instances[id] ◄─ SortableListForm.getById(i
 
 The container element holds `SortableListForm` and handles its delegated listeners. These are registered once at construction; every list's events bubble.
 
-The container, the delegated listeners, and the Shared Key are one decision viewed three ways. Construction stamps the id — the JSON key — onto `form.name`, `ol.id`, and the `#instances` registry, so the same string identifies a chain as data, as DOM, and as a cached instance. Delegation can then stay generic: one listener set on `el` catches events for every form, and, because the touched element can get the id, `SortableListForm.getById` returns the decorator instance in one call without translation layers (the `WeakMap` it'd need if the id weren't already in the DOM). The id is the Shared Key, in all three places at once.
+The container, the delegated listeners, and the Shared Key are one decision viewed three ways. Construction stamps the id — the JSON key — onto `form.name`, `ol.id`, and the `#instances` registry, so the same string identifies a chain as data, as DOM, and as a cached instance. One delegated listener set on `SortableListContainer`'s `el` catches events for every form, and, because the touched element can get the id, `SortableListForm.getById` returns the decorator instance in one call. The id is the Shared Key, in all three places at once.
 
 ### SortableListForm
 
