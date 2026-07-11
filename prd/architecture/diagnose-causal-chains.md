@@ -25,7 +25,7 @@ This article and the code it explains are organized by *purpose*. Features map t
 
 The cost is skill and effort — to learn the web platform and apply software engineering principles; to engineer rather than reach for prefabrications, and the patience and diligence to use it well. The payoffs are better code and self-improvement. 
 
-**For the code:** user stories map to architecture built on the web platform rather than generaled abstraction libraries. The resulting code is lean (~600 lines of commented javascript; no dependency floor), clean, coherent, easy to debug and refactor, and efficient.
+**For the code:** user stories map to architecture built on the web platform rather than generalized abstraction libraries. The resulting code is lean (~600 lines of commented javascript; no dependency floor), clean, coherent, easy to debug and refactor, and efficient.
 
 **For the craftsman:** the problem-solving and platform mechanics in the codebase explained below train whoever follows along, not copiers.
 
