@@ -1,7 +1,7 @@
 # Diagnose Causal Chains
 
-  Design, code, and article by [Garrett Smith](https://github.com/GarrettS)
-  [Live demo](https://garretts.github.io/pelvis/#diagnose/causal-chains)
+  Design, code, and article by [Garrett Smith](https://github.com/GarrettS)  
+  [Live demo](https://garretts.github.io/pelvis/#diagnose/causal-chains)  
   [Source: `sortable-list-form.js`](../../scripts/sortable-list-form.js)
 
 ## Contents
