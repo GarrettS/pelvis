@@ -237,7 +237,6 @@ function initSortableLists(chainDefinitions) {
 ### Conclusion
 
 The Container instantiates the Forms and manages event delegation — one listener set for *N* Forms. Each `SortableListForm` manages its own state and geometry (baseline, clone, dropbar) driven by coordinates. The Container holds the `#activeForm` ([Web XP](https://github.com/GarrettS/web-xp)'s **Active Object** pattern); its listeners guard on it — is a drag active? is this its pointer? — then delegate to that Form's methods (`dragStart`, `dragMove`, `dragDrop`, `dragCancel`), passing the event's coordinates.
-
 ___
 
 ## Dragging
@@ -337,8 +336,7 @@ The `SortableListContainer`  manages event delegation for the SortableListForm i
   if (!e.isPrimary // only allow primary pointer events.  
         || e.button !== 0 // filter out context-button clicks.
         || e.ctrlKey // ctrlKey triggers context-menu; don't start dragging
-        || this.#activeForm // the form being dragged within.
-  ) return;
+        || this.#activeForm) return;  // any form being dragged within.
 
   const sourceItem = e.target.closest('.sortable-list > li');
   if (!sourceItem) return;
@@ -1191,9 +1189,9 @@ In either case — reorder or no-op — the user gets visual feedback of *someth
 
 Escape, `pointercancel`, window resize/blur all abort the drag. Some of these, like Escape, are user-intentional. Others, like an involuntary abort (palm rejection, app switch, system modal, accidental orientation change), fire `pointercancel`.
 
-  ```js
+```js
 #abortDrag = () => (this.#activeForm.dragCancel(), this.#stopTracking());
-  ```
+```
 
 Handling the aborting cases means drops happen only by the user releasing the pointer, for an unbreakable user experience.
 
@@ -1232,14 +1230,14 @@ When the clone is dropped but didn't hit a drop target, it should glide home to 
 
 If the animation *`distance`* — determined from `dy` in `settleClone`  — is far, the glide should take a bit longer than if it's settling in the same place, so it doesn't seem rushed when travelling the length of the list, nor too slow when settling from roughly the same place. A fixed duration won't do this. Instead, `duration` is determined by how much speed throttling vs hurrying-up is desirable.
 
-  ```js
+```js
 const SETTLE_SPEED = 1.5;   // px per ms
 const SETTLE_MIN_MS = 200;
 const SETTLE_MAX_MS = 600;
 
 const calculateSettleDuration = dy =>
   Math.max(SETTLE_MIN_MS, Math.min(SETTLE_MAX_MS, Math.abs(dy) / SETTLE_SPEED));
-  ```
+```
 
 This animation *`duration`* ramps at `1.5px` per ms, clamped to `SETTLE_MIN_MS` and `SETTLE_MAX_MS` so a short distance shows *some* animation duration, while anything further than 900px is capped at the 600ms clamp, and distances between the clamp bounds take `Math.abs(dy) / 1.5` milliseconds, so every `1.5px` of travel adds a millisecond.
 
@@ -1379,9 +1377,9 @@ However the drag ends, the list holds one definite order — its new arrangement
 
 After layout change, the browser sometimes scrolls the window to keep certain elements in view. The `insertBefore` on drop triggers layout change, and the browser scrolls the window down, so the just-dropped item is hidden behind the sticky nav. Problem observed in Chromium: 149.0.7827.54 — fixed by this.
 
-  ```css
+```css
 .sortable-list { overflow-anchor: none; }
-  ```
+```
 
 ___
 
@@ -1555,15 +1553,14 @@ The idea was to show an animation on page load, to make the items look more inte
 
 Method `#replaceForms` calls each form's playEntrance once the forms attach. playEntrance stamps each item's index into `--i`, adds entering to the `<ol>`, and removes it on the last item's item-cool animationend. While entering is on, the list has `pointer-events: none`, so dragging can't start on a mid-flip item.
 
-  ```css
+```css
 @keyframes item-flip-in {
   from {
     opacity: 0;
     transform: rotateX(90deg);
   }
 }
-  ```
-
+```
 ___
 
 ## Reference
