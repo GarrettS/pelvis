@@ -131,23 +131,25 @@ const ol = sourceItem.parentNode;
 const activeForm = SortableListForm.getById(ol.id);
 ```
 
-Shared Key Event Delegation Path:
+**Shared Key Event Delegation Path:**
 
 ```
-                                  ┌─container element's delegated listeners
+                                  ┌─ Container element's delegated listeners
        pointer/submit             ▼
-READ: <li>/<button> ─bubbles─► container el ─► closest() ─► (ol.id || form.name)─┐
-                                                                                 │
-RESOLVE:        instance ◄─ #instances[id] ◄─ SortableListForm.getById(id)◄──────┘
+READ: <li>/<button> ─bubbles─► closest() ─► (ol.id || form.name)────────┐
+                                                                        │
+RESOLVE:  instance ◄─ #instances[id] ◄─ SortableListForm.getById(id)◄───┘
 ```
 
-The container element holds `SortableListForm` and handles its delegated listeners. These are registered once at construction; every list's events bubble.
-
-The container, the delegated listeners, and the Shared Key are one decision viewed three ways. Construction stamps the id — the JSON key — onto `form.name`, `ol.id`, and the `#instances` registry, so the same string identifies a chain as data, as DOM, and as a cached instance. One delegated listener set on `SortableListContainer`'s `el` catches events for every form, and, because the touched element can get the id, `SortableListForm.getById` returns the decorator instance in one call. The id is the Shared Key, in all three places at once.
+The container element's delegated listeners handles events for the `SortableListForm` instances' elements. These are registered once at construction; every list's events bubble.
 
 ### SortableListForm
 
-Class `SortableListForm` manages the state and DOM subtree for its associated form, list, and other elements. The SortableListForm instantiation is performed *automatically* from the `SortableListContainer` constructor. For every definition passed to its constructor, the `SortableListContainer` creates a `SortableListForm`.
+Class `SortableListForm` manages the state and DOM subtree for its associated form, list, and other elements. `SortableListForm` instantiation is performed *automatically* from the `SortableListContainer` constructor. For every definition passed to its constructor, `SortableListContainer` creates a `SortableListForm`.
+
+The id — the chain's JSON key — maps each `SortableListForm` to its form and list elements, and is saved in the `#instances` registry, so the same string identifies a chain as data, as DOM, and as a cached instance.
+
+Bubbling events inside each FORM reach the container element; `closest()` reaches an element that carries the id — as `ol.id` or `form.name` — and `SortableListForm.getById(id)` returns the corresponding cached instance (see: **Shared Key Event Delegation Path** above). The *Shared Key* is the string shared across data, DOM, and registry.
 
 #### Factory-Gated Construction
 
@@ -414,7 +416,7 @@ All the drag-ending callbacks (*enders*) are registered to fire in the *capturin
 
 Without that, the user might get stuck with a ghost drag (button up; pointer released; event didn't reach the ender; element glued to the pointer — broken state). With capturing, the drag ends regardless of what handlers below do with propagation.
 
-Method `#startTracking` returns to the Container's pointerdown handler, which also called `dragStart`.
+Method `#startTracking` returns to the container's `pointerdown` handler, which also called `dragStart`.
 
 Dragging begins with `dragStart`, which picks up responsibility for all measurements and DOM changes needed for the rest of the drag.
 
