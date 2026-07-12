@@ -1228,7 +1228,20 @@ When the clone is dropped but didn't hit a drop target, it should glide home to 
 }
 ```
 
+#### Clone-Settling: Time– vs Distance-based Duration
 
+If the animation *`distance`* — determined from `dy` in `settleClone`  — is far, the glide should take a bit longer than if it's settling in the same place, so it doesn't seem rushed when travelling the length of the list, nor too slow when settling from roughly the same place. A fixed duration won't do this. Instead, `duration` is determined by how much speed throttling vs hurrying-up is desirable.
+
+  ```js
+const SETTLE_SPEED = 1.5;   // px per ms
+const SETTLE_MIN_MS = 200;
+const SETTLE_MAX_MS = 600;
+
+const calculateSettleDuration = dy =>
+  Math.max(SETTLE_MIN_MS, Math.min(SETTLE_MAX_MS, Math.abs(dy) / SETTLE_SPEED));
+  ```
+
+This animation *`duration`* ramps at `1.5px` per ms, clamped to `SETTLE_MIN_MS` and `SETTLE_MAX_MS` so a short distance shows *some* animation duration, while anything further than 900px is capped at the 600ms clamp, and distances between the clamp bounds take `Math.abs(dy) / 1.5` milliseconds, so every `1.5px` of travel adds a millisecond.
 
 ### The Reorder Animation
 
