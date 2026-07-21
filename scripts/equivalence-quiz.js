@@ -115,10 +115,16 @@ function renderQuestion() {
   isAnswered = false;
   gradeResult = null;
 
+  const progressLabel = 'Question ' + (qIdx + 1) + ' of ' + SESSION_SIZE;
   document.getElementById('equiv-progress-fill').style.width =
     ((qIdx / SESSION_SIZE) * 100) + '%';
-  document.getElementById('equiv-progress-text').textContent =
-    'Question ' + (qIdx + 1) + ' of ' + SESSION_SIZE;
+  const progressBar = document.getElementById('equiv-progress-track');
+  Object.entries({
+    'aria-valuemax': SESSION_SIZE,
+    'aria-valuenow': qIdx,
+    'aria-valuetext': progressLabel
+  }).forEach(([name, value]) => progressBar.setAttribute(name, value));
+  document.getElementById('equiv-progress-text').textContent = progressLabel;
   document.getElementById('equiv-current-given').textContent = q.given;
   const optsEl = document.getElementById('equiv-options');
   optsEl.disabled = false;

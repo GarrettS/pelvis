@@ -121,10 +121,16 @@ function handleStart() {
 }
 
 function updateQuizUI(q, index, total) {
+  const progressLabel = `Question ${index + 1} of ${total}`;
   document.getElementById('mq-progress-fill').style.width =
       `${(index / total) * 100}%`;
-  document.getElementById('mq-progress-text').textContent =
-      `Question ${index + 1} of ${total}`;
+  const progressBar = document.getElementById('mq-progress-track');
+  Object.entries({
+    'aria-valuemax': total,
+    'aria-valuenow': index,
+    'aria-valuetext': progressLabel
+  }).forEach(([name, value]) => progressBar.setAttribute(name, value));
+  document.getElementById('mq-progress-text').textContent = progressLabel;
   document.getElementById('mq-domain-badge').textContent = q.domain;
   document.getElementById('mq-stem').innerHTML = expandAbbr(q.stem);
   document.getElementById('mq-options')

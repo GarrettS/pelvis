@@ -2,7 +2,7 @@
   "scripts": {
     "lint": "eslint .",
     "check:dlc": "node bin/check-data-load-consumption.mjs",
-    "test:e2e": "node e2e/navigation-tabs-activation.mjs && node e2e/diagnose-game-multi-select.mjs && node e2e/diagnose-case-studies.mjs && node e2e/decoder-fa-equivalence.mjs && node e2e/flip-read-write-split.mjs && node e2e/causal-chain-grading-lifecycle.mjs && node e2e/aic-chain-selection.mjs && node e2e/sortable-list-drag.mjs && node e2e/sortable-list-autoscroll-pointer-proximity.mjs"
+    "test:e2e": "node e2e/navigation-tabs-activation.mjs && node e2e/diagnose-game-multi-select.mjs && node e2e/diagnose-case-studies.mjs && node e2e/decoder-fa-equivalence.mjs && node e2e/flip-read-write-split.mjs && node e2e/causal-chain-grading-lifecycle.mjs && node e2e/aic-chain-selection.mjs && node e2e/sortable-list-drag.mjs && node e2e/sortable-list-autoscroll-pointer-proximity.mjs && node e2e/quiz-progressbar-aria.mjs"
   },
   "devDependencies": {
     "eslint": "^8.57.1",

@@ -624,10 +624,12 @@
   <div id="equiv-quiz-wrap">
     <div class="card">
       <div class="quiz-progress-row">
-        <div class="quiz-progress-track">
+        <div class="quiz-progress-track" id="equiv-progress-track"
+            role="progressbar" aria-label="Quiz progress" aria-valuemin="0">
           <div class="quiz-progress-fill" id="equiv-progress-fill"></div>
         </div>
-        <span class="quiz-progress-text" id="equiv-progress-text">Question 1 of 10</span>
+        <span class="quiz-progress-text" id="equiv-progress-text"
+            aria-hidden="true">Question 1 of 10</span>
         <button id="equiv-end-session">End Session</button>
       </div>
       <div class="equiv-given" id="equiv-current-given"></div>
@@ -699,8 +701,12 @@
   <div id="mq-quiz" class="tab-section">
     <div class="mq-quiz-header">
       <div class="quiz-progress-row">
-        <div class="quiz-progress-track"><div class="quiz-progress-fill" id="mq-progress-fill"></div></div>
-        <span class="quiz-progress-text" id="mq-progress-text">Question 1 of 25</span>
+        <div class="quiz-progress-track" id="mq-progress-track"
+            role="progressbar" aria-label="Quiz progress" aria-valuemin="0">
+          <div class="quiz-progress-fill" id="mq-progress-fill"></div>
+        </div>
+        <span class="quiz-progress-text" id="mq-progress-text"
+            aria-hidden="true">Question 1 of 25</span>
       </div>
       <button type="button" id="mq-end-session">End Session</button>
     </div>
