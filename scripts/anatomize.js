@@ -330,12 +330,23 @@ function renderActiveSession(imgSet) {
   delete nextBtn.dataset.action;
   nextBtn.disabled = true;
 
-  if (session.current && session.structures[session.current]) {
-    renderPromptPanel(session.structures[session.current]);
+  const structure = session.current && session.structures[session.current];
+  if (!structure) {
+    promptNext();
     return;
   }
 
-  promptNext();
+  if (session.identified.has(session.current)) {
+    // Persisted after a correct answer but before advancing. Restore the
+    // answered state so Next can proceed; re-prompting here would ask for a
+    // structure already marked correct, which can no longer be selected —
+    // a dead end with Next disabled.
+    renderDetailPanel(structure);
+    showNextButton();
+    return;
+  }
+
+  renderPromptPanel(structure);
 }
 
 function resetSession() {
