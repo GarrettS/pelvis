@@ -9,3 +9,6 @@ prd/*.pdf
 # Obsidian scratch — accidental "new note"/"new base"
 Untitled*
 *.base
+
+# Code-review tool output
+review-findings.json
