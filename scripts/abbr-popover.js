@@ -26,8 +26,7 @@ function initAbbrPopover() {
 
   const dismissPopover = () => {
     undescribe(activeAbbr);
-    // hidePopover() throws when already closed (Escape then Tab).
-    if (popover.matches(':popover-open')) popover.hidePopover();
+    popover.hidePopover();
   };
 
   const finishAnimation = animation => animation.finish();
